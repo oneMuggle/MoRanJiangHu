@@ -5,7 +5,10 @@ import {
     单接口配置结构,
     画师串预设结构,
     词组转化器提示词预设结构,
-    PNG画风预设结构
+    PNG画风预设结构,
+    文生图接口配置结构,
+    文生图后端类型,
+    文生图预设接口路径类型
 } from '../../../types';
 import GameButton from '../../ui/GameButton';
 import ToggleSwitch from '../../ui/ToggleSwitch';
@@ -19,7 +22,7 @@ interface Props {
 }
 
 type 生图模型字段 = '文生图模型使用模型' | '场景生图模型使用模型' | '词组转化器使用模型' | 'PNG提炼使用模型';
-type 设置分页 = 'basic' | 'backend' | 'provider' | 'transformer' | 'presets' | 'automation';
+type 设置分页 = 'basic' | 'provider' | 'transformer' | 'presets' | 'automation';
 type 画师串适用页签 = 'npc' | 'scene';
 type 词组预设页签 = 'nai' | 'npc' | 'scene';
 
@@ -39,9 +42,9 @@ const 初始化加载状态 = (): Record<生图模型字段, boolean> => ({
 
 const 基础页面选项: Array<{ value: 设置分页; label: string }> = [
     { value: 'basic', label: '基础' },
-    { value: 'backend', label: '接口' },
-    { value: 'provider', label: '后端设置' },
+    { value: 'provider', label: '接口设置' },
     { value: 'transformer', label: '转化器' },
+    { value: 'presets', label: '预设管理' },
     { value: 'automation', label: '自动任务' }
 ];
 
@@ -119,7 +122,33 @@ const ComfyUI工作流占位提示 = '__PROMPT__ / {{prompt}}，__NEGATIVE_PROMP
 const 页面容器样式 = 'rounded-2xl border border-fuchsia-500/20 bg-black/25 p-5 space-y-5';
 const 卡片样式 = 'rounded-xl border border-white/10 bg-black/20 p-4 space-y-4';
 const 标签样式 = 'text-sm font-bold text-fuchsia-200';
+
 const 生成预设ID = (prefix: string) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+const 创建文生图配置模板 = (backend: 文生图后端类型): 文生图接口配置结构 => {
+    const now = Date.now();
+    return {
+        id: 生成预设ID('img_api'),
+        名称: `文生图配置 ${new Date(now).toLocaleTimeString()}`,
+        后端类型: backend,
+        模型: '',
+        API地址: backend === 'novelai' ? 'https://image.novelai.net' : '',
+        API密钥: '',
+        接口路径模式: 'preset',
+        预设接口路径: 预设路径选项映射[backend][0]?.value || 'openai_images',
+        自定义接口路径: '',
+        响应格式: 'url',
+        OpenAI自定义格式: false,
+        ComfyUI工作流JSON: '',
+        NovelAI启用自定义参数: false,
+        NovelAI采样器: 'k_euler_ancestral',
+        NovelAI噪点表: 'karras',
+        NovelAI步数: 28,
+        NovelAI负面提示词: '',
+        createdAt: now,
+        updatedAt: now
+    };
+};
 const 创建空画师串预设 = (scope: 画师串适用页签): 画师串预设结构 => {
     const now = Date.now();
     return {
@@ -148,6 +177,8 @@ const 创建空词组预设 = (scope: 词组预设页签): 词组转化器提示
 const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
     const [form, setForm] = useState<接口设置结构>(() => 规范化接口设置(settings));
     const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);
+    const [selectedImageGenConfigId, setSelectedImageGenConfigId] = useState<string | null>(null);
+    const [newImageGenBackend, setNewImageGenBackend] = useState<文生图后端类型>('openai');
     const [modelOptions, setModelOptions] = useState<Record<生图模型字段, string[]>>(初始化模型列表);
     const [modelLoading, setModelLoading] = useState<Record<生图模型字段, boolean>>(初始化加载状态);
     const [activePage, setActivePage] = useState<设置分页>('basic');
@@ -162,6 +193,8 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
         const normalized = 规范化接口设置(settings);
         setForm(normalized);
         setSelectedConfigId(normalized.activeConfigId || normalized.configs[0]?.id || null);
+        const imgConfigs = normalized.功能模型占位.文生图配置列表 || [];
+        setSelectedImageGenConfigId(normalized.功能模型占位.当前文生图配置ID || imgConfigs[0]?.id || null);
         setModelOptions(初始化模型列表());
         setModelLoading(初始化加载状态());
         setActivePage('basic');
@@ -173,6 +206,57 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
         if (!form.configs.length) return null;
         return form.configs.find((cfg) => cfg.id === selectedConfigId) || form.configs[0] || null;
     }, [form.configs, selectedConfigId]);
+
+    const 文生图配置列表 = form.功能模型占位.文生图配置列表 || [];
+    const 当前文生图配置 = useMemo<文生图接口配置结构 | null>(() => {
+        if (!文生图配置列表.length) return null;
+        return 文生图配置列表.find((cfg) => cfg.id === selectedImageGenConfigId) || 文生图配置列表[0] || null;
+    }, [文生图配置列表, selectedImageGenConfigId]);
+
+    const updateImageGenConfig = (patch: Partial<文生图接口配置结构>) => {
+        if (!当前文生图配置) return;
+        setForm((prev) => ({
+            ...prev,
+            功能模型占位: {
+                ...prev.功能模型占位,
+                文生图配置列表: prev.功能模型占位.文生图配置列表.map((cfg) => 
+                    cfg.id === 当前文生图配置.id ? { ...cfg, ...patch, updatedAt: Date.now() } : cfg
+                )
+            }
+        }));
+    };
+
+    const handleCreateImageGenConfig = () => {
+        const created = 创建文生图配置模板(newImageGenBackend);
+        setForm((prev) => ({
+            ...prev,
+            功能模型占位: {
+                ...prev.功能模型占位,
+                文生图配置列表: [...(prev.功能模型占位.文生图配置列表 || []), created],
+                当前文生图配置ID: created.id
+            }
+        }));
+        setSelectedImageGenConfigId(created.id);
+        setMessage(`已新增 ${文生图后端选项.find(b => b.value === newImageGenBackend)?.label || newImageGenBackend} 配置，请填写后保存。`);
+    };
+
+    const handleDeleteImageGenConfig = () => {
+        if (!当前文生图配置) return;
+        setForm((prev) => {
+            const remaining = (prev.功能模型占位.文生图配置列表 || []).filter((cfg) => cfg.id !== 当前文生图配置.id);
+            const fallbackId = remaining[0]?.id || null;
+            setSelectedImageGenConfigId(fallbackId);
+            return {
+                ...prev,
+                功能模型占位: {
+                    ...prev.功能模型占位,
+                    文生图配置列表: remaining,
+                    当前文生图配置ID: fallbackId
+                }
+            };
+        });
+        setMessage('配置已删除。');
+    };
 
     const 主剧情解析模型 = useMemo(() => {
         return (activeConfig?.model || '').trim() || (form.功能模型占位.主剧情使用模型 || '').trim();
@@ -627,96 +711,164 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 </div>
                 <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-4">
                     <div className="text-base font-bold text-emerald-200">当前后端</div>
-                    <div className="mt-2 text-xl font-serif text-white">{文生图后端选项.find((item) => item.value === 当前后端)?.label || '未选择'}</div>
+                    <div className="mt-2 text-xl font-serif text-white">
+                        {当前文生图配置 ? 文生图后端选项.find((item) => item.value === 当前文生图配置.后端类型)?.label : '请在接口设置中配置'}
+                    </div>
                 </div>
             </div>
 
         </div>
     );
 
-    const renderBackendPage = () => (
-        <div className={页面容器样式}>
-            <div className={卡片样式}>
-                <div className="grid gap-4 md:grid-cols-[1fr_auto]">
-                    <div className="space-y-2">
-                        <label className={标签样式}>后端类型</label>
+    const renderProviderPage = () => {
+        if (!当前文生图配置) {
+            return (
+                <div className={页面容器样式}>
+                    <div className="rounded-xl border border-white/10 bg-black/20 p-8 text-center">
+                        <div className="mb-4 text-lg font-bold text-fuchsia-200">暂无文生图配置</div>
+                        <div className="mb-6 text-sm text-gray-400">请新建一个配置以开始使用文生图功能</div>
+                        <div className="flex flex-wrap items-center justify-center gap-3">
+                            <InlineSelect
+                                value={newImageGenBackend}
+                                options={文生图后端选项}
+                                onChange={(value) => setNewImageGenBackend(value as 文生图后端类型)}
+                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            />
+                            <GameButton onClick={handleCreateImageGenConfig} variant="primary">
+                                新建配置
+                            </GameButton>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const 当前配置后端 = 当前文生图配置.后端类型;
+        const 当前配置预设路径选项 = 预设路径选项映射[当前配置后端];
+
+        return (
+            <div className={页面容器样式}>
+                <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-fuchsia-500/20 bg-fuchsia-950/10 p-4">
+                    <div className="flex flex-1 items-center gap-2">
+                        <span className="text-sm text-fuchsia-200">当前配置：</span>
                         <InlineSelect
-                            value={当前后端}
+                            value={selectedImageGenConfigId || ''}
+                            options={文生图配置列表.map((cfg) => ({ value: cfg.id, label: cfg.名称 }))}
+                            onChange={(id) => {
+                                setSelectedImageGenConfigId(id);
+                                setForm((prev) => ({
+                                    ...prev,
+                                    功能模型占位: {
+                                        ...prev.功能模型占位,
+                                        当前文生图配置ID: id
+                                    }
+                                }));
+                            }}
+                            buttonClassName="bg-black/50 border-gray-600 py-1.5 text-sm min-w-[140px]"
+                            placeholder="选择配置"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <InlineSelect
+                            value={newImageGenBackend}
                             options={文生图后端选项}
-                            onChange={(value) => handleBackendChange(value as 功能模型占位配置结构['文生图后端类型'])}
-                            buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            onChange={(value) => setNewImageGenBackend(value as 文生图后端类型)}
+                            buttonClassName="bg-black/50 border-gray-600 py-1.5 text-sm"
                         />
-                    </div>
-                    <div className="rounded-xl border border-fuchsia-500/20 bg-fuchsia-950/10 px-4 py-3 text-sm text-white">{文生图后端选项.find((item) => item.value === 当前后端)?.label}</div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <label className={标签样式}>API 地址</label>
-                        <input
-                            type="text"
-                            value={form.功能模型占位.文生图模型API地址}
-                            onChange={(e) => updatePlaceholder('文生图模型API地址', e.target.value)}
-                            placeholder={当前后端 === 'novelai'
-                                ? 'https://image.novelai.net'
-                                : 当前后端 === 'sd_webui'
-                                    ? '例如：http://127.0.0.1:7860'
-                                    : 当前后端 === 'comfyui'
-                                        ? '例如：http://127.0.0.1:8188'
-                                        : 'https://api.openai.com/v1'}
-                            className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className={标签样式}>{当前后端 === 'novelai' ? 'Persistent API Token' : 'API Key'}</label>
-                        <input
-                            type="password"
-                            value={form.功能模型占位.文生图模型API密钥}
-                            onChange={(e) => updatePlaceholder('文生图模型API密钥', e.target.value)}
-                            placeholder={当前后端 === 'novelai'
-                                ? '在 NovelAI 账户设置中生成 Persistent API Token'
-                                : 当前后端 === 'sd_webui' || 当前后端 === 'comfyui'
-                                    ? '可留空；默认不会发送 Authorization'
-                                    : '留空则回退当前接口配置'}
-                            className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
-                        />
+                        <GameButton onClick={handleCreateImageGenConfig} variant="secondary" className="text-xs px-3 py-1.5">
+                            + 新建
+                        </GameButton>
+                        <button
+                            type="button"
+                            onClick={handleDeleteImageGenConfig}
+                            disabled={文生图配置列表.length <= 1}
+                            className="rounded-lg border border-red-500/30 bg-red-950/20 px-3 py-1.5 text-xs text-red-200 disabled:opacity-40"
+                        >
+                            删除
+                        </button>
                     </div>
                 </div>
-            </div>
 
-        </div>
-    );
+                <div className="space-y-2">
+                    <label className={标签样式}>配置名称</label>
+                    <input
+                        type="text"
+                        value={当前文生图配置.名称}
+                        onChange={(e) => updateImageGenConfig({ 名称: e.target.value })}
+                        className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
+                    />
+                </div>
 
-    const renderProviderPage = () => (
-        <div className={页面容器样式}>
+                <div className={卡片样式}>
+                    <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+                        <div className="space-y-2">
+                            <label className={标签样式}>后端类型</label>
+                            <InlineSelect
+                                value={当前配置后端}
+                                options={文生图后端选项}
+                                onChange={(value) => updateImageGenConfig({ 后端类型: value as 文生图后端类型 })}
+                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            />
+                        </div>
+                        <div className="rounded-xl border border-fuchsia-500/20 bg-fuchsia-950/10 px-4 py-3 text-sm text-white">
+                            {文生图后端选项.find((item) => item.value === 当前配置后端)?.label}
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <label className={标签样式}>API 地址</label>
+                            <input
+                                type="text"
+                                value={当前文生图配置.API地址}
+                                onChange={(e) => updateImageGenConfig({ API地址: e.target.value })}
+                                placeholder={当前配置后端 === 'novelai'
+                                    ? 'https://image.novelai.net'
+                                    : 当前配置后端 === 'sd_webui'
+                                        ? '例如：http://127.0.0.1:7860'
+                                        : 当前配置后端 === 'comfyui'
+                                            ? '例如：http://127.0.0.1:8188'
+                                            : 'https://api.openai.com/v1'}
+                                className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className={标签样式}>{当前配置后端 === 'novelai' ? 'Persistent API Token' : 'API Key'}</label>
+                            <input
+                                type="password"
+                                value={当前文生图配置.API密钥}
+                                onChange={(e) => updateImageGenConfig({ API密钥: e.target.value })}
+                                placeholder={当前配置后端 === 'novelai'
+                                    ? '在 NovelAI 账户设置中生成 Persistent API Token'
+                                    : 当前配置后端 === 'sd_webui' || 当前配置后端 === 'comfyui'
+                                        ? '可留空；默认不会发送 Authorization'
+                                        : '留空则回退当前接口配置'}
+                                className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
+                            />
+                        </div>
+                    </div>
+                </div>
+
             <div className={卡片样式}>
-                {图片后端需要模型选择(当前后端) ? (
+                {图片后端需要模型选择(当前配置后端) ? (
                     <>
                         <div className="flex flex-col gap-3 md:flex-row md:items-end">
                             <div className="flex-1 space-y-2">
                                 <label className={标签样式}>模型名称</label>
                                 <InlineSelect
-                                    value={form.功能模型占位.文生图模型使用模型}
+                                    value={当前文生图配置.模型}
+                                    onChange={(model) => updateImageGenConfig({ 模型: model })}
                                     options={文生图模型选项.map((model) => ({ value: model, label: model }))}
-                                    onChange={(model) => updatePlaceholder('文生图模型使用模型', model)}
                                     placeholder="请选择或输入模型名"
                                     buttonClassName="bg-black/50 border-gray-600 py-2.5"
                                     panelClassName="max-w-full"
                                 />
                             </div>
-                            <GameButton
-                                onClick={() => handleFetchModels('文生图模型使用模型', '文生图模型列表')}
-                                variant="secondary"
-                                className="px-4 py-2 text-xs md:min-w-[96px]"
-                                disabled={modelLoading.文生图模型使用模型}
-                            >
-                                {modelLoading.文生图模型使用模型 ? '...' : '获取列表'}
-                            </GameButton>
                         </div>
                         <input
                             type="text"
-                            value={form.功能模型占位.文生图模型使用模型}
-                            onChange={(e) => updatePlaceholder('文生图模型使用模型', e.target.value)}
+                            value={当前文生图配置.模型}
+                            onChange={(e) => updateImageGenConfig({ 模型: e.target.value })}
                             placeholder="例如：gpt-image-1 / nai-diffusion-4-5-full"
                             className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
                         />
@@ -733,22 +885,21 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                     <div className="space-y-2">
                         <label className={标签样式}>接口路径模式</label>
                         <InlineSelect
-                            value={form.功能模型占位.文生图接口路径模式}
+                            value={当前文生图配置.接口路径模式}
+                            onChange={(value) => updateImageGenConfig({ 接口路径模式: value as 'preset' | 'custom' })}
                             options={接口路径模式选项}
-                            onChange={(value) => updatePlaceholder('文生图接口路径模式', value as 功能模型占位配置结构['文生图接口路径模式'])}
                             buttonClassName="bg-black/50 border-gray-600 py-2.5"
                         />
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">{activeConfig?.名称 || '未选择接口配置'}</div>
                 </div>
 
-                {form.功能模型占位.文生图接口路径模式 === 'preset' ? (
+                {当前文生图配置.接口路径模式 === 'preset' ? (
                     <div className="space-y-2">
                         <label className={标签样式}>预设路径</label>
                         <InlineSelect
-                            value={当前预设路径}
-                            options={当前预设路径选项.map((item) => ({ value: item.value, label: item.label }))}
-                            onChange={(value) => updatePlaceholder('文生图预设接口路径', value as 功能模型占位配置结构['文生图预设接口路径'])}
+                            value={当前文生图配置.预设接口路径}
+                            onChange={(value) => updateImageGenConfig({ 预设接口路径: value as 文生图预设接口路径类型 })}
+                            options={当前配置预设路径选项.map((item) => ({ value: item.value, label: item.label }))}
                             buttonClassName="bg-black/50 border-gray-600 py-2.5"
                         />
                     </div>
@@ -757,13 +908,13 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                         <label className={标签样式}>自定义接口路径</label>
                         <input
                             type="text"
-                            value={form.功能模型占位.文生图接口路径}
-                            onChange={(e) => updatePlaceholder('文生图接口路径', e.target.value)}
-                            placeholder={当前后端 === 'novelai'
+                            value={当前文生图配置.自定义接口路径}
+                            onChange={(e) => updateImageGenConfig({ 自定义接口路径: e.target.value })}
+                            placeholder={当前配置后端 === 'novelai'
                                 ? '/ai/generate-image'
-                                : 当前后端 === 'sd_webui'
+                                : 当前配置后端 === 'sd_webui'
                                     ? '/sdapi/v1/txt2img'
-                                    : 当前后端 === 'comfyui'
+                                    : 当前配置后端 === 'comfyui'
                                         ? '/prompt'
                                         : '/v1/images/generations'}
                             className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-fuchsia-400"
@@ -772,26 +923,26 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 )}
             </div>
 
-            {当前后端 === 'openai' && (
+            {当前配置后端 === 'openai' && (
                 <div className={卡片样式}>
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <label className={标签样式}>图片响应格式</label>
                             <InlineSelect
-                                value={form.功能模型占位.文生图响应格式}
+                                value={当前文生图配置.响应格式}
+                                onChange={(value) => updateImageGenConfig({ 响应格式: value as 'url' | 'b64_json' })}
                                 options={[
                                     { value: 'url', label: 'URL' },
                                     { value: 'b64_json', label: 'Base64 / b64_json' }
                                 ]}
-                                onChange={(value) => updatePlaceholder('文生图响应格式', value as 功能模型占位配置结构['文生图响应格式'])}
                                 buttonClassName="bg-black/50 border-gray-600 py-2.5"
                             />
                         </div>
                         <div className="flex items-center justify-between gap-3 rounded-xl border border-fuchsia-500/20 bg-fuchsia-950/10 p-3">
                             <div className="text-sm font-bold text-fuchsia-200">OpenAI 兼容图片请求体</div>
                             <ToggleSwitch
-                                checked={form.功能模型占位.文生图OpenAI自定义格式}
-                                onChange={(next) => updatePlaceholder('文生图OpenAI自定义格式', next)}
+                                checked={当前文生图配置.OpenAI自定义格式}
+                                onChange={(next) => updateImageGenConfig({ OpenAI自定义格式: next })}
                                 ariaLabel="切换 OpenAI 图片请求体"
                             />
                         </div>
@@ -799,13 +950,13 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 </div>
             )}
 
-            {当前后端 === 'novelai' && (
+            {当前配置后端 === 'novelai' && (
                 <div className="rounded-2xl border border-emerald-500/25 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_55%),rgba(1,10,16,0.7)] p-5 space-y-5">
                     <div className="flex items-center justify-between gap-3">
                         <div className="text-base font-bold text-emerald-200">NovelAI 自定义参数</div>
                         <ToggleSwitch
-                            checked={form.功能模型占位.NovelAI启用自定义参数}
-                            onChange={(next) => updatePlaceholder('NovelAI启用自定义参数', next)}
+                            checked={当前文生图配置.NovelAI启用自定义参数}
+                            onChange={(next) => updateImageGenConfig({ NovelAI启用自定义参数: next })}
                             ariaLabel="切换 NovelAI 自定义参数"
                         />
                     </div>
@@ -814,21 +965,21 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-emerald-200">采样方法</label>
                             <InlineSelect
-                                value={form.功能模型占位.NovelAI采样器}
+                                value={当前文生图配置.NovelAI采样器}
+                                onChange={(value) => updateImageGenConfig({ NovelAI采样器: value as any })}
                                 options={NovelAI采样器选项}
-                                onChange={(value) => updatePlaceholder('NovelAI采样器', value as 功能模型占位配置结构['NovelAI采样器'])}
                                 buttonClassName="bg-black/50 border-gray-600 py-2.5"
-                                disabled={!form.功能模型占位.NovelAI启用自定义参数}
+                                disabled={!当前文生图配置.NovelAI启用自定义参数}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-emerald-200">噪点表</label>
                             <InlineSelect
-                                value={form.功能模型占位.NovelAI噪点表}
+                                value={当前文生图配置.NovelAI噪点表}
+                                onChange={(value) => updateImageGenConfig({ NovelAI噪点表: value as any })}
                                 options={NovelAI噪点表选项}
-                                onChange={(value) => updatePlaceholder('NovelAI噪点表', value as 功能模型占位配置结构['NovelAI噪点表'])}
                                 buttonClassName="bg-black/50 border-gray-600 py-2.5"
-                                disabled={!form.功能模型占位.NovelAI启用自定义参数}
+                                disabled={!当前文生图配置.NovelAI启用自定义参数}
                             />
                         </div>
                         <div className="space-y-2">
@@ -837,9 +988,9 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                                 type="number"
                                 min={1}
                                 max={50}
-                                value={form.功能模型占位.NovelAI步数}
-                                onChange={(e) => updatePlaceholder('NovelAI步数', Math.max(1, Math.min(50, Number(e.target.value) || 28)))}
-                                disabled={!form.功能模型占位.NovelAI启用自定义参数}
+                                value={当前文生图配置.NovelAI步数}
+                                onChange={(e) => updateImageGenConfig({ NovelAI步数: Math.max(1, Math.min(50, Number(e.target.value) || 28)) })}
+                                disabled={!当前文生图配置.NovelAI启用自定义参数}
                                 className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                         </div>
@@ -848,10 +999,10 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-emerald-200">负面提示词</label>
                         <textarea
-                            value={form.功能模型占位.NovelAI负面提示词}
-                            onChange={(e) => updatePlaceholder('NovelAI负面提示词', e.target.value)}
+                            value={当前文生图配置.NovelAI负面提示词}
+                            onChange={(e) => updateImageGenConfig({ NovelAI负面提示词: e.target.value })}
                             rows={6}
-                            disabled={!form.功能模型占位.NovelAI启用自定义参数}
+                            disabled={!当前文生图配置.NovelAI启用自定义参数}
                             placeholder="例如：lowres, bad anatomy, text, watermark"
                             className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-emerald-400 resize-y disabled:cursor-not-allowed disabled:opacity-50"
                         />
@@ -859,13 +1010,13 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 </div>
             )}
 
-            {当前后端 === 'comfyui' && (
+            {当前配置后端 === 'comfyui' && (
                 <div className={卡片样式}>
                     <div className="space-y-2">
                         <label className={标签样式}>ComfyUI Workflow JSON</label>
                         <textarea
-                            value={form.功能模型占位.ComfyUI工作流JSON}
-                            onChange={(e) => updatePlaceholder('ComfyUI工作流JSON', e.target.value)}
+                            value={当前文生图配置.ComfyUI工作流JSON}
+                            onChange={(e) => updateImageGenConfig({ ComfyUI工作流JSON: e.target.value })}
                             rows={14}
                             placeholder={'粘贴从 ComfyUI 导出的 API workflow JSON。\n可用占位符：__PROMPT__、__NEGATIVE_PROMPT__、__WIDTH__、__HEIGHT__'}
                             className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 font-mono text-white outline-none transition-all focus:border-fuchsia-400 resize-y"
@@ -879,6 +1030,7 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
             )}
         </div>
     );
+};
 
     const renderTransformerPage = () => (
         <div className={页面容器样式}>
@@ -1487,7 +1639,9 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                     </div>
                     <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-right">
                         <div className="text-sm text-gray-400">当前后端</div>
-                        <div className="mt-1 text-base text-white">{文生图后端选项.find((item) => item.value === 当前后端)?.label || '未选择'}</div>
+                        <div className="mt-1 text-base text-white">
+                            {当前文生图配置 ? 文生图后端选项.find((item) => item.value === 当前文生图配置.后端类型)?.label : '请配置'}
+                        </div>
                     </div>
                 </div>
 
@@ -1509,7 +1663,6 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
             </div>
 
             {activePage === 'basic' && renderBasicPage()}
-            {activePage === 'backend' && renderBackendPage()}
             {activePage === 'provider' && renderProviderPage()}
             {activePage === 'transformer' && renderTransformerPage()}
             {activePage === 'presets' && renderPresetsPage()}

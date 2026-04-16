@@ -28,6 +28,29 @@ export type 文生图预设接口路径类型 = 'openai_images' | 'openai_chat' 
 export type 生图画风类型 = '通用' | '二次元' | '写实' | '国风';
 export type NovelAI采样器类型 = 'k_euler' | 'k_euler_ancestral' | 'k_dpmpp_2m' | 'k_dpmpp_2s_ancestral' | 'k_dpmpp_sde' | 'k_dpmpp_2m_sde';
 export type NovelAI噪点表类型 = 'native' | 'karras' | 'exponential' | 'polyexponential';
+
+export interface 文生图接口配置结构 {
+    id: string;
+    名称: string;
+    后端类型: 文生图后端类型;
+    模型: string;
+    API地址: string;
+    API密钥: string;
+    接口路径模式: 文生图接口路径模式类型;
+    预设接口路径: 文生图预设接口路径类型;
+    自定义接口路径: string;
+    响应格式: 图片响应格式类型;
+    OpenAI自定义格式: boolean;
+    ComfyUI工作流JSON: string;
+    NovelAI启用自定义参数: boolean;
+    NovelAI采样器: NovelAI采样器类型;
+    NovelAI噪点表: NovelAI噪点表类型;
+    NovelAI步数: number;
+    NovelAI负面提示词: string;
+    createdAt: number;
+    updatedAt: number;
+}
+
 export type 画师串预设适用范围类型 = 'npc' | 'scene' | 'all';
 export type 词组转化器提示词预设类型 = 'nai' | 'npc' | 'scene' | 'scene_judge';
 export type 角色锚点来源类型 = 'ai_extract' | 'manual' | 'imported';
@@ -248,6 +271,8 @@ export interface 功能模型占位配置结构 {
     小说拆分主剧情注入上限: number;
     小说拆分详细注入上限: number;
     文生图功能启用: boolean;
+    文生图配置列表: 文生图接口配置结构[];
+    当前文生图配置ID: string | null;
     文生图后端类型: 文生图后端类型;
     文生图模型使用模型: string;
     文生图模型API地址: string;
