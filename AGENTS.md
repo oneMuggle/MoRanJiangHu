@@ -43,6 +43,10 @@ utils/         配置、状态、通用工具函数
 
 ## 架构要点
 
+### 应用入口
+- `index.tsx` → `App.tsx` → 使用 `useGame()` hook
+- 开发服务器: http://localhost:3000
+
 ### 核心状态管理
 - `hooks/useGame.ts` 是主入口 (~3000 行)，导出 `useGame()` hook
 - `hooks/useGame/` 包含 44 个子模块：sendWorkflow、memoryUtils、worldEvolutionWorkflow 等
