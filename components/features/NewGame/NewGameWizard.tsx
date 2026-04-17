@@ -244,14 +244,14 @@ const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, request
         });
         return Array.from(map.values());
     };
-    const 全部背景选项 = useMemo(
-        () => [...预设背景, ...自定义背景列表.filter(item => !预设背景.some(p => p.名称 === item.名称))],
-        [自定义背景列表]
-    );
-    const 全部天赋选项 = useMemo(
-        () => [...预设天赋, ...自定义天赋列表.filter(item => !预设天赋.some(p => p.名称 === item.名称))],
-        [自定义天赋列表]
-    );
+    const 全部背景选项 = useMemo(() => {
+        const combined = [...预设背景, ...自定义背景列表.filter(item => !预设背景.some(p => p.名称 === item.名称))];
+        return combined.filter(item => !item.适用性别 || item.适用性别 === charGender);
+    }, [自定义背景列表, charGender]);
+    const 全部天赋选项 = useMemo(() => {
+        const combined = [...预设天赋, ...自定义天赋列表.filter(item => !预设天赋.some(p => p.名称 === item.名称))];
+        return combined.filter(item => !item.适用性别 || item.适用性别 === charGender);
+    }, [自定义天赋列表, charGender]);
     const 重置自定义天赋编辑 = () => {
         setCustomTalent({ 名称: '', 描述: '', 效果: '' });
         set正在编辑天赋名('');
@@ -465,6 +465,21 @@ const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, request
             return;
         }
         setCharGender(next);
+        setTimeout(() => {
+            setSelectedBackground((prev) => {
+                if (prev?.适用性别 && prev.适用性别 !== next) {
+                    return 预设背景.find(b => !b.适用性别 || b.适用性别 === next) || 预设背景[0];
+                }
+                return prev;
+            });
+            setSelectedTalents((prev) => {
+                const filtered = prev.filter(t => !t.适用性别 || t.适用性别 === next);
+                if (filtered.length !== prev.length) {
+                    return filtered;
+                }
+                return prev;
+            });
+        }, 0);
     };
 
     const totalStatBudget = useMemo(() => 获取难度总属性点(worldConfig.difficulty), [worldConfig.difficulty]);

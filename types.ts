@@ -89,10 +89,18 @@ export interface 天赋结构 {
     名称: string;
     描述: string;
     效果: string; // 具体数值或逻辑描述
+    /** 适用性别限制：'男' / '女' / undefined（男女皆可） */
+    适用性别?: '男' | '女';
+    /** 是否为 NSFW 内容，默认 false */
+    nsfw?: boolean;
 }
 
 export interface 背景结构 {
     名称: string;
     描述: string;
     效果: string;
+    /** 适用性别限制：'男' / '女' / undefined（男女皆可） */
+    适用性别?: '男' | '女';
+    /** 是否为 NSFW 内容，默认 false */
+    nsfw?: boolean;
 }
