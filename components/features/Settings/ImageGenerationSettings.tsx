@@ -538,21 +538,30 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
 
     const fetchModelsFromCurrentConfig = async (key: 生图模型字段): Promise<string[] | null> => {
         const feature = form.功能模型占位;
+        
+        const isProviderTab = key === '文生图模型使用模型' && !feature.场景生图独立接口启用;
+        
+        const providerConfig = isProviderTab ? 当前文生图配置 : null;
+        
         const sceneBackend = feature.场景生图独立接口启用 ? feature.场景生图后端类型 : feature.文生图后端类型;
         const targetBackend = key === '文生图模型使用模型'
-            ? feature.文生图后端类型
+            ? (isProviderTab && providerConfig ? providerConfig.后端类型 : feature.文生图后端类型)
             : key === '场景生图模型使用模型'
                 ? sceneBackend
                 : feature.文生图后端类型;
         const customBaseUrl = key === '文生图模型使用模型'
-            ? (feature.文生图模型API地址 || '').trim()
+            ? isProviderTab
+                ? (providerConfig?.API地址 || '').trim()
+                : (feature.文生图模型API地址 || '').trim()
             : key === '场景生图模型使用模型'
                 ? ((feature.场景生图独立接口启用 ? feature.场景生图模型API地址 : feature.文生图模型API地址) || '').trim()
                 : key === 'PNG提炼使用模型'
                     ? ((feature.PNG提炼启用独立模型 ? feature.PNG提炼API地址 : '') || '').trim()
                     : ((feature.词组转化器启用独立模型 ? feature.词组转化器API地址 : '') || '').trim();
         const customApiKey = key === '文生图模型使用模型'
-            ? (feature.文生图模型API密钥 || '').trim()
+            ? isProviderTab
+                ? (providerConfig?.API密钥 || '').trim()
+                : (feature.文生图模型API密钥 || '').trim()
             : key === '场景生图模型使用模型'
                 ? ((feature.场景生图独立接口启用 ? feature.场景生图模型API密钥 : feature.文生图模型API密钥) || '').trim()
                 : key === 'PNG提炼使用模型'
@@ -865,6 +874,14 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                                     panelClassName="max-w-full"
                                 />
                             </div>
+                            <GameButton
+                                onClick={() => handleFetchModels('文生图模型使用模型', '文生图模型列表')}
+                                variant="secondary"
+                                className="px-4 py-2 text-xs md:min-w-[96px]"
+                                disabled={modelLoading.文生图模型使用模型}
+                            >
+                                {modelLoading.文生图模型使用模型 ? '...' : '获取列表'}
+                            </GameButton>
                         </div>
                         <input
                             type="text"
