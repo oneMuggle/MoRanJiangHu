@@ -1,9 +1,9 @@
-import { GameResponse, TavernCommand, 内置提示词条目结构 } from '../../types';
-import type { 当前可用接口结构 } from '../../utils/apiConfig';
-import { parseJsonWithRepair } from '../../utils/jsonRepair';
-import { 获取世界观生成系统提示词, 构建世界观生成用户提示词 } from '../../prompts/runtime/worldGeneration';
-import { 同人境界体系生成系统提示词, 构建同人境界体系生成用户提示词 } from '../../prompts/runtime/fandomRealmGeneration';
-import { 构建世界演变系统提示词, 构建世界演变用户提示词 } from '../../prompts/runtime/worldEvolution';
+import { GameResponse, TavernCommand, 内置提示词条目结构 } from '../../../types';
+import type { 当前可用接口结构 } from '../../../utils/apiConfig';
+import { parseJsonWithRepair } from '../../../utils/jsonRepair';
+import { 获取世界观生成系统提示词, 构建世界观生成用户提示词 } from '../../../prompts/runtime/worldGeneration';
+import { 同人境界体系生成系统提示词, 构建同人境界体系生成用户提示词 } from '../../../prompts/runtime/fandomRealmGeneration';
+import { 构建世界演变系统提示词, 构建世界演变用户提示词 } from '../../../prompts/runtime/worldEvolution';
 import {
     构建变量模型身份提示词,
     构建变量模型职责提示词,
@@ -12,34 +12,34 @@ import {
     构建变量模型输出格式提示词,
     构建变量模型用户附加规则提示词,
     构建变量模型COT伪装提示词
-} from '../../prompts/runtime/variableModel';
-import { 构建统一规划分析系统提示词, 构建统一规划分析用户提示词 } from '../../prompts/runtime/planningAnalysis';
+} from '../../../prompts/runtime/variableModel';
+import { 构建统一规划分析系统提示词, 构建统一规划分析用户提示词 } from '../../../prompts/runtime/planningAnalysis';
 import {
     小说拆分AI身份提示词,
     小说拆分其他要求提示词,
     小说拆分结构要求提示词,
     构建小说拆分当前任务提示词,
     小说拆分COT伪装提示词
-} from '../../prompts/runtime/novelDecomposition';
-import { 小说拆分COT提示词 } from '../../prompts/runtime/novelDecompositionCot';
-import { 同人规划分析附加系统提示词, 同人规划分析附加COT提示词 } from '../../prompts/runtime/fandomPlanningAnalysis';
-import { 同人世界演变附加系统提示词, 同人世界演变附加COT提示词 } from '../../prompts/runtime/fandomWorldEvolution';
-import { 校验境界体系提示词完整性 } from '../../prompts/runtime/fandom';
-import { 默认COT伪装历史消息提示词 } from '../../prompts/runtime/defaults';
-import { 获取变量校准COT提示词 } from '../../prompts/runtime/variableCot';
-import { 构建AI角色声明提示词 } from '../../prompts/runtime/roleIdentity';
+} from '../../../prompts/runtime/novelDecomposition';
+import { 小说拆分COT提示词 } from '../../../prompts/runtime/novelDecompositionCot';
+import { 同人规划分析附加系统提示词, 同人规划分析附加COT提示词 } from '../../../prompts/runtime/fandomPlanningAnalysis';
+import { 同人世界演变附加系统提示词, 同人世界演变附加COT提示词 } from '../../../prompts/runtime/fandomWorldEvolution';
+import { 校验境界体系提示词完整性 } from '../../../prompts/runtime/fandom';
+import { 默认COT伪装历史消息提示词 } from '../../../prompts/runtime/defaults';
+import { 获取变量校准COT提示词 } from '../../../prompts/runtime/variableCot';
+import { 构建AI角色声明提示词 } from '../../../prompts/runtime/roleIdentity';
 import {
     构建统一规划分析专用上下文,
     统一规划分析COT提示词
-} from '../../prompts/runtime/planUpdateReference';
-import { 世界书本体槽位 } from '../../utils/worldbook';
-import { 获取内置提示词槽位内容 } from '../../utils/builtinPrompts';
+} from '../../../prompts/runtime/planUpdateReference';
+import { 世界书本体槽位 } from '../../../utils/worldbook';
+import { 获取内置提示词槽位内容 } from '../../../utils/builtinPrompts';
 import {
     type 通用消息,
     规范化文本补全消息链,
     请求模型文本,
     替换COT伪装身份占位
-} from './chatCompletionClient';
+} from '../chatCompletionClient';
 import {
     parseStoryRawText,
     type StoryParseOptions,

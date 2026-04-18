@@ -5,8 +5,8 @@ export {
     提取首尾思考区段,
     解析动态世界块,
     解析命令块
-} from '../storyResponseParser';
-export type { StoryParseOptions } from '../storyResponseParser';
+} from './storyResponseParser';
+export type { StoryParseOptions } from './storyResponseParser';
 
 export {
     generateMemoryRecall,
@@ -21,7 +21,7 @@ export {
     generateWorldData,
     generateWorldEvolutionUpdate,
     testConnection
-} from '../storyTasks';
+} from './storyTasks';
 export type {
     ConnectionTestResult,
     PlanningAnalysisResult,
@@ -31,4 +31,4 @@ export type {
     StoryRequestOptions,
     VariableCalibrationResult,
     WorldEvolutionResult
-} from '../storyTasks';
+} from './storyTasks';

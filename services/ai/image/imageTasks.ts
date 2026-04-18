@@ -1,13 +1,13 @@
 import { decompressSync, unzlibSync, unzipSync } from 'fflate';
-import type { 当前可用接口结构 } from '../../utils/apiConfig';
-import type { 香闺秘档部位类型 } from '../../models/imageGeneration';
-import type { PNG解析参数结构, PNG画风预设来源类型, 角色锚点结构, 图片词组序列化策略类型 } from '../../models/system';
-import { 角色图片分词COT伪装历史消息提示词 } from '../../prompts/runtime/imageTokenizerCharacterCot';
-import { 场景图片分词COT伪装历史消息提示词 } from '../../prompts/runtime/imageTokenizerSceneCot';
-import { 部位特写分词COT伪装历史消息提示词 } from '../../prompts/runtime/imageTokenizerSecretPartCot';
-import { PNG解析COT伪装历史消息提示词 } from '../../prompts/runtime/pngParseCot';
-import { 角色锚点提取COT伪装历史消息提示词 } from '../../prompts/runtime/imageAnchorExtractionCot';
-import { 本地拆分画师标签 } from './artistTagExtractor';
+import type { 当前可用接口结构 } from '../../../utils/apiConfig';
+import type { 香闺秘档部位类型 } from '../../../models/imageGeneration';
+import type { PNG解析参数结构, PNG画风预设来源类型, 角色锚点结构, 图片词组序列化策略类型 } from '../../../models/system';
+import { 角色图片分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerCharacterCot';
+import { 场景图片分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerSceneCot';
+import { 部位特写分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerSecretPartCot';
+import { PNG解析COT伪装历史消息提示词 } from '../../../prompts/runtime/pngParseCot';
+import { 角色锚点提取COT伪装历史消息提示词 } from '../../../prompts/runtime/imageAnchorExtractionCot';
+import { 本地拆分画师标签 } from '../artistTagExtractor';
 import {
     从Markdown图片中提取DataUrl,
     提取OpenAI完整文本,
@@ -17,10 +17,10 @@ import {
     协议请求错误,
     请求模型文本,
     替换COT伪装身份占位
-} from './chatCompletionClient';
+} from '../chatCompletionClient';
 
-import * as dbService from '../dbService';
-import { parseJsonWithRepair } from '../../utils/jsonRepair';
+import * as dbService from '../../dbService';
+import { parseJsonWithRepair } from '../../../utils/jsonRepair';
 
 export interface 图片生成结果 {
     图片URL?: string;

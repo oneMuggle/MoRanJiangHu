@@ -1,5 +1,5 @@
-import { GameResponse } from '../../types';
-import { parseJsonWithRepair } from '../../utils/jsonRepair';
+import { GameResponse } from '../../../types';
+import { parseJsonWithRepair } from '../../../utils/jsonRepair';
 
 export interface StoryParseOptions {
     validateTagCompleteness?: boolean;
