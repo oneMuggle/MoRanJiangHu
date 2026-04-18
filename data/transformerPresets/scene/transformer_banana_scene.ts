@@ -1,4 +1,4 @@
-import { 词组转化器提示词预设结构 } from '../../models/system';
+import { 词组转化器提示词预设结构 } from '../../../models/system';
 
 export const transformer_banana_scene: 词组转化器提示词预设结构 = {
     id: 'transformer_banana_scene',

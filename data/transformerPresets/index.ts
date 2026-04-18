@@ -1,4 +1,4 @@
-import { 词组转化器提示词预设结构, 模型词组转化器预设结构 } from '../models/system';
+import { 词组转化器提示词预设结构, 模型词组转化器预设结构 } from '../../models/system';
 import { NPC词组转化器提示词预设列表 } from './npc';
 import { 场景词组转化器提示词预设列表 } from './scene';
 import { 模型词组转化器预设列表 } from './model';
