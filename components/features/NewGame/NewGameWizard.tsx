@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import GameButton from '../../ui/GameButton';
-import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度 } from '../../../types';
+import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度, 武力等级, 武力等级描述映射, NSFW场景类型, NSFW场景描述映射, 能力类型, 能力类型描述映射, 超能力分类, 超能力分类描述, 觉醒程度, 觉醒程度描述 } from '../../../types';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
 import { 开局预设方案结构 } from '../../../data/newGamePresets';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
@@ -72,6 +72,44 @@ const 宗门密度下拉选项: Array<{ value: WorldGenConfig['sectDensity']; la
     { value: '稀少', label: '稀少 (隐世不出)' },
     { value: '适中', label: '适中 (数大宗门)' },
     { value: '林立', label: '林立 (百家争鸣)' }
+];
+const 武力等级下拉选项: Array<{ value: 武力等级; label: string; hint: string }> = [
+    { value: '低武', label: '低武 (凡尘江湖)', hint: '拳脚刀剑，人体极限，无真气外放' },
+    { value: '中武', label: '中武 (门派林立)', hint: '内功深厚，轻功飞纵，暗器及远' },
+    { value: '高武', label: '高武 (宗师时代)', hint: '化境高手，真气外放，秘籍稀缺' },
+    { value: '修仙', label: '修仙 (仙凡两界)', hint: '灵气真元，御器飞行，秘境仙缘' }
+];
+const nsfw场景类型选项: Array<{ value: NSFW场景类型; label: string; hint: string }> = [
+    { value: '无', label: '无 (纯净)', hint: '完全不会出现性相关描写' },
+    { value: '点到为止', label: '点到为止', hint: '含蓄描写，不出现敏感词' },
+    { value: '适度展开', label: '适度展开', hint: '有限展开，使用委婉词汇' },
+    { value: '完全展开', label: '完全展开', hint: '可使用敏感词' }
+];
+const 能力类型选项: Array<{ value: 能力类型; label: string; hint: string }> = [
+    { value: '传统武侠', label: '传统武侠', hint: '纯内力体系，无超自然能力' },
+    { value: '修仙体系', label: '修仙体系', hint: '灵气为基，修仙功法' },
+    { value: '超能力线', label: '超能力线', hint: '特异功能，现代/科幻风格' },
+    { value: '混合世界', label: '混合世界', hint: '武侠+修仙+超能力并存' }
+];
+const 超能力分类选项: Array<{ value: 超能力分类; label: string; hint: string }> = [
+    { value: '心灵感应', label: '心灵感应', hint: '读心、传心、思维读取' },
+    { value: '念力', label: '念力', hint: '隔空移物、念力控物' },
+    { value: '预知', label: '预知', hint: '预见未来、占卜、预言' },
+    { value: '治愈', label: '治愈', hint: '自愈、治愈他人、生命力操控' },
+    { value: '元素操控', label: '元素操控', hint: '火水风土雷等元素' },
+    { value: '时空', label: '时空', hint: '瞬移、时间减缓、空间扭曲' },
+    { value: '变身', label: '变身', hint: '形态变化、拟态、兽化' },
+    { value: '灵能', label: '灵能', hint: '灵魂出窍、灵体攻击' },
+    { value: '高科技', label: '高科技', hint: '机械改造、基因药剂' },
+    { value: '综合', label: '综合', hint: '多重能力混合' },
+    { value: '未觉醒', label: '未觉醒', hint: '潜力存在但未激发' }
+];
+const 觉醒程度选项: Array<{ value: 觉醒程度; label: string; hint: string }> = [
+    { value: '未觉醒', label: '未觉醒', hint: '潜能未激发' },
+    { value: '初觉', label: '初觉', hint: '微弱、不稳定' },
+    { value: '小成', label: '小成', hint: '可主动使用' },
+    { value: '大成', label: '大成', hint: '威力可观' },
+    { value: '巅峰', label: '巅峰', hint: '化境，越级挑战' }
 ];
 
 type DropdownProps = {
@@ -157,18 +195,41 @@ const 开关按钮: React.FC<{
 const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, requestConfirm }) => {
     const [step, setStep] = useState(0);
 
-    // --- State: World Config ---
     const [worldConfig, setWorldConfig] = useState<WorldGenConfig>({
         worldName: '太古界',
         worldSize: '九州宏大',
         dynastySetting: '群雄逐鹿，王朝末年',
         sectDensity: '林立',
         tianjiaoSetting: '大争之世，天骄并起',
+        武力等级: '中武',
+        nsfw场景类型: '无',
+        能力类型: '传统武侠',
+        超能力分类: '未觉醒',
+        觉醒程度: '未觉醒',
         worldExtraRequirement: '',
         manualWorldPrompt: '',
         manualRealmPrompt: '',
-        difficulty: 'normal' as 游戏难度 // Default difficulty
+        difficulty: 'normal' as 游戏难度
     });
+
+    const 处理能力类型变更 = (新能力类型: 能力类型) => {
+        let 新武力等级 = worldConfig.武力等级;
+        if (新能力类型 === '修仙体系') {
+            新武力等级 = '修仙';
+        } else if (新能力类型 === '超能力线') {
+            if (新武力等级 === '修仙') 新武力等级 = '高武';
+        } else if (新能力类型 === '传统武侠') {
+            if (新武力等级 === '修仙') 新武力等级 = '高武';
+        }
+        setWorldConfig({ ...worldConfig, 能力类型: 新能力类型, 武力等级: 新武力等级 });
+    };
+
+    const 过滤后武力等级选项 = useMemo(() => {
+        if (worldConfig.能力类型 === '修仙体系') {
+            return 武力等级下拉选项.filter(o => o.value === '修仙');
+        }
+        return 武力等级下拉选项.filter(o => o.value !== '修仙');
+    }, [worldConfig.能力类型]);
 
     // --- State: Character Config ---
     const [charName, setCharName] = useState('');
@@ -246,12 +307,18 @@ const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, request
     };
     const 全部背景选项 = useMemo(() => {
         const combined = [...预设背景, ...自定义背景列表.filter(item => !预设背景.some(p => p.名称 === item.名称))];
-        return combined.filter(item => !item.适用性别 || item.适用性别 === charGender);
-    }, [自定义背景列表, charGender]);
+        return combined.filter(item => 
+            (!item.适用性别 || item.适用性别 === charGender) &&
+            (item.nsfw !== true || worldConfig.nsfw场景类型 !== '无')
+        );
+    }, [自定义背景列表, charGender, worldConfig.nsfw场景类型]);
     const 全部天赋选项 = useMemo(() => {
         const combined = [...预设天赋, ...自定义天赋列表.filter(item => !预设天赋.some(p => p.名称 === item.名称))];
-        return combined.filter(item => !item.适用性别 || item.适用性别 === charGender);
-    }, [自定义天赋列表, charGender]);
+        return combined.filter(item => 
+            (!item.适用性别 || item.适用性别 === charGender) &&
+            (item.nsfw !== true || worldConfig.nsfw场景类型 !== '无')
+        );
+    }, [自定义天赋列表, charGender, worldConfig.nsfw场景类型]);
     const 重置自定义天赋编辑 = () => {
         setCustomTalent({ 名称: '', 描述: '', 效果: '' });
         set正在编辑天赋名('');
@@ -1061,6 +1128,65 @@ const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, request
                                                 onChange={(sectDensity) => setWorldConfig({ ...worldConfig, sectDensity })}
                                             />
                                         </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">武力等级</label>
+                                            <InlineSelect
+                                                value={worldConfig.武力等级}
+                                                options={过滤后武力等级选项.map(o => ({ value: o.value, label: o.label }))}
+                                                onChange={(武力等级) => setWorldConfig({ ...worldConfig, 武力等级 })}
+                                            />
+                                            <p className="text-xs text-gray-500">
+                                                {武力等级下拉选项.find(o => o.value === worldConfig.武力等级)?.hint}
+                                            </p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">NSFW 场景</label>
+                                            <InlineSelect
+                                                value={worldConfig.nsfw场景类型}
+                                                options={nsfw场景类型选项.map(o => ({ value: o.value, label: o.label }))}
+                                                onChange={(nsfw场景类型) => setWorldConfig({ ...worldConfig, nsfw场景类型 })}
+                                            />
+                                            <p className="text-xs text-gray-500">
+                                                {nsfw场景类型选项.find(o => o.value === worldConfig.nsfw场景类型)?.hint}
+                                            </p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">能力类型</label>
+                                            <InlineSelect
+                                                value={worldConfig.能力类型}
+                                                options={能力类型选项.map(o => ({ value: o.value, label: o.label }))}
+                                                onChange={(能力类型) => 处理能力类型变更(能力类型)}
+                                            />
+                                            <p className="text-xs text-gray-500">
+                                                {能力类型选项.find(o => o.value === worldConfig.能力类型)?.hint}
+                                            </p>
+                                        </div>
+                                        {worldConfig.能力类型 === '超能力线' && (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm text-wuxia-cyan font-bold">超能力分类</label>
+                                                    <InlineSelect
+                                                        value={worldConfig.超能力分类 || '未觉醒'}
+                                                        options={超能力分类选项.map(o => ({ value: o.value, label: o.label }))}
+                                                        onChange={(超能力分类) => setWorldConfig({ ...worldConfig, 超能力分类 })}
+                                                    />
+                                                    <p className="text-xs text-gray-500">
+                                                        {超能力分类选项.find(o => o.value === (worldConfig.超能力分类 || '未觉醒'))?.hint}
+                                                    </p>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-sm text-wuxia-cyan font-bold">觉醒程度</label>
+                                                    <InlineSelect
+                                                        value={worldConfig.觉醒程度 || '未觉醒'}
+                                                        options={觉醒程度选项.map(o => ({ value: o.value, label: o.label }))}
+                                                        onChange={(觉醒程度) => setWorldConfig({ ...worldConfig, 觉醒程度 })}
+                                                    />
+                                                    <p className="text-xs text-gray-500">
+                                                        {觉醒程度选项.find(o => o.value === (worldConfig.觉醒程度 || '未觉醒'))?.hint}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2">

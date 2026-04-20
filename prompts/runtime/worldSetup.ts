@@ -1,10 +1,15 @@
-import { WorldGenConfig, 角色数据结构 } from '../../types';
+import { WorldGenConfig, 角色数据结构, 武力等级描述映射, NSFW场景描述映射, 能力类型描述映射, 超能力分类描述, 觉醒程度描述 } from '../../types';
 import { 构建修炼体系附加块 } from '../../utils/promptFeatureToggles';
 
 export const 构建世界观锚点提示词 = (worldConfig: WorldGenConfig, charData: 角色数据结构): string => `
 【当前存档世界锚点（World Bible Anchor）】
 - 世界名称: ${worldConfig.worldName}
 - 世界规模: ${worldConfig.worldSize}
+- 武力等级: ${worldConfig.武力等级} - ${武力等级描述映射[worldConfig.武力等级] || 武力等级描述映射['中武']}
+- NSFW场景: ${worldConfig.nsfw场景类型} - ${NSFW场景描述映射[worldConfig.nsfw场景类型] || NSFW场景描述映射['无']}
+- 能力类型: ${worldConfig.能力类型} - ${能力类型描述映射[worldConfig.能力类型] || 能力类型描述映射['传统武侠']}
+${worldConfig.能力类型 === '超能力线' ? `- 超能力分类: ${worldConfig.超能力分类} - ${超能力分类描述[worldConfig.超能力分类 as 超能力分类] || ''}
+- 觉醒程度: ${worldConfig.觉醒程度} - ${觉醒程度描述[worldConfig.觉醒程度 as 觉醒程度] || ''}` : ''}
 - 王朝格局: ${worldConfig.dynastySetting}
 - 宗门密度: ${worldConfig.sectDensity}
 - 天骄设定: ${worldConfig.tianjiaoSetting}

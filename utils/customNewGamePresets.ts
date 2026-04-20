@@ -41,6 +41,17 @@ export const 标准化开局预设方案 = (raw: any): 开局预设方案结构 
                 ? raw.worldConfig.sectDensity
                 : '林立',
             tianjiaoSetting: 标准化文本(raw?.worldConfig?.tianjiaoSetting),
+            武力等级: raw?.worldConfig?.武力等级 === '低武' || raw?.worldConfig?.武力等级 === '中武' || raw?.worldConfig?.武力等级 === '高武' || raw?.worldConfig?.武力等级 === '修仙'
+                ? raw.worldConfig.武力等级
+                : '中武',
+            nsfw场景类型: raw?.worldConfig?.nsfw场景类型 === '无' || raw?.worldConfig?.nsfw场景类型 === '点到为止' || raw?.worldConfig?.nsfw场景类型 === '适度展开' || raw?.worldConfig?.nsfw场景类型 === '完全展开'
+                ? raw.worldConfig.nsfw场景类型
+                : '无',
+            能力类型: raw?.worldConfig?.能力类型 === '传统武侠' || raw?.worldConfig?.能力类型 === '修仙体系' || raw?.worldConfig?.能力类型 === '超能力线' || raw?.worldConfig?.能力类型 === '混合世界'
+                ? raw.worldConfig.能力类型
+                : '传统武侠',
+            超能力分类: raw?.worldConfig?.超能力分类 || '未觉醒',
+            觉醒程度: raw?.worldConfig?.觉醒程度 || '未觉醒',
             difficulty: raw?.worldConfig?.difficulty === 'relaxed' || raw?.worldConfig?.difficulty === 'easy' || raw?.worldConfig?.difficulty === 'normal' || raw?.worldConfig?.difficulty === 'hard' || raw?.worldConfig?.difficulty === 'extreme'
                 ? raw.worldConfig.difficulty
                 : 'normal',
