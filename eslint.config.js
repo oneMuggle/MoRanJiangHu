@@ -57,6 +57,7 @@ export default [
         { selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow' },
         { selector: 'property', format: ['camelCase', 'PascalCase', 'snake_case'] },
         { selector: 'enumMember', format: ['UPPER_CASE', 'PascalCase'] },
+        { selector: 'typeParameter', format: ['PascalCase', 'UPPER_CASE'] },
       ],
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
@@ -71,7 +72,7 @@ export default [
     },
   },
   {
-    files: ['data/**/*.ts', 'models/**/*.ts', 'vite.config.ts'],
+    files: ['data/**/*.ts', 'models/**/*.ts', 'vite.config.ts', 'hooks/**'],
     rules: { '@typescript-eslint/naming-convention': 'off', 'no-restricted-syntax': 'off' },
   },
 ];
