@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "stress:test": "node scripts/promptStressTest.js"
+    "stress:test": "node scripts/promptStressTest.js",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "fflate": "^0.8.2",
@@ -17,6 +19,11 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "@alloc/quick-lru": "^5.2.0",
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.14",
