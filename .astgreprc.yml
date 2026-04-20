@@ -1,0 +1,5 @@
+rules:
+  - id: render-tabs
+    pattern: const render$NAME = () => (
+    message: Found render tab function
+    severity: info
