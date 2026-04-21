@@ -1,0 +1,81 @@
+schema: spec-driven
+
+# ========================================
+# 项目上下文
+# ========================================
+context: |
+  # 项目概述
+  墨色江湖：无尽武林 - 武侠互动叙事游戏，前端为主（含 Cloudflare Pages Functions）
+  
+  # 技术栈
+  - React 19 + TypeScript + Vite 6
+  - Tailwind CSS (主题: ink-black, wuxia-gold, wuxia-cyan, wuxia-red)
+  - IndexedDB 本地存储 + fflate 压缩
+  - Cloudflare Pages Functions (GitHub 云同步)
+  
+  # 目录结构
+  - components/   UI 组件、弹窗、功能面板
+  - data/        内置预设和静态数据
+  - functions/   Cloudflare Pages Functions
+  - hooks/       业务逻辑和 React hooks (useGame + 44 子模块)
+  - models/      领域模型和类型定义
+  - prompts/     提示词系统 (core/runtime/writing/stats 分层)
+  - services/    AI、数据库、同步服务
+  - styles/      全局样式和主题
+  - utils/       配置、状态、通用工具函数
+  
+  # 开发命令
+  - npm run dev      开发服务器 (http://localhost:3000)
+  - npm run build    生产构建
+  - npm run preview 预览构建结果
+  
+  # 语言规范
+  - 界面语言：简体中文
+  - 代码注释：中英文混用（遵循所在模块风格）
+  - 文件编码：UTF-8
+
+# ========================================
+# 工件规则
+# ========================================
+rules:
+  proposal:
+    - 使用中文标题，描述要简洁明了
+    - 必须包含「变更范围」和「非目标」章节
+    - 必须包含「验收标准」章节
+    - 保持提案在 1000 字以内
+  
+  design:
+    - 设计文档必须包含「技术方案」和「数据结构」
+    - 必须包含「影响评估」（功能、兼容性、性能）
+    - 必须引用现有代码模式作为参考
+    - 如有跨模块依赖需明确说明
+  
+  tasks:
+    - 任务必须可独立验证
+    - 每个任务需说明「完成标准」
+    - 优先使用现有代码模式
+    - 复杂任务可拆分为子任务链
+  
+  review:
+    - 必须验证构建通过 (npm run build)
+    - 必须确保无新增 lint 错误
+    - 必须包含手动测试要点
+
+# ========================================
+# 默认值
+# ========================================
+defaults:
+  # 变更分支前缀
+  branchPrefix: "feat/"
+  
+  # 提交信息格式
+  commitFormat: |
+    {type}: {subject}
+    
+    {body}
+  
+  # Artifact 文件命名
+  artifactNaming:
+    proposal: "proposal.md"
+    design: "design.md"
+    tasks: "tasks.md"
