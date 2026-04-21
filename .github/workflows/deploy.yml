@@ -21,26 +21,21 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      - name: Create Cloudflare Pages project
-        run: |
-          npx wrangler pages project create wuxia-game --production-branch=main --yes || true
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Install dependencies
         run: npm ci
 
       - name: Build
         run: npm run build
 
+      - name: Create wrangler config
+        run: |
+          rm -f wrangler.toml
+          printf 'name = "wuxia-game"\ncompatibility_date = "2024-01-01"\naccount_id = "%s"\n\n[site]\nbucket = "dist"\n' \
+            "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" > wrangler.toml
+
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: wuxia-game
-          directory: dist
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler pages project create wuxia-game --production-branch=main --yes || true
+          npx wrangler pages deploy dist --project-name=wuxia-game
