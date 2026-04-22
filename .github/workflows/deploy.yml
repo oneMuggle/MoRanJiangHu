@@ -30,14 +30,14 @@ jobs:
       - name: Create wrangler config
         run: |
           rm -f wrangler.toml
-          cat > wrangler.toml << EOF
-name = "wuxia-game"
-compatibility_date = "2024-01-01"
-account_id = "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
-
-[site]
-bucket = "./dist"
-EOF
+          echo 'name = "wuxia-game"' > wrangler.toml
+          echo 'compatibility_date = "2024-01-01"' >> wrangler.toml
+          echo "account_id = \"$CLOUDFLARE_ACCOUNT_ID\"" >> wrangler.toml
+          echo "" >> wrangler.toml
+          echo "[site]" >> wrangler.toml
+          echo 'bucket = "./dist"' >> wrangler.toml
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy to Cloudflare Pages
         env:
