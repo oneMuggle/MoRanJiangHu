@@ -4,7 +4,9 @@ import {
     功能模型占位配置结构,
     单接口配置结构,
     画师串预设结构,
+    画师串预设适用范围类型,
     词组转化器提示词预设结构,
+    词组转化器提示词预设类型,
     PNG画风预设结构,
     文生图接口配置结构,
     文生图后端类型,
@@ -21,14 +23,15 @@ interface Props {
     onSave: (settings: 接口设置结构) => void;
 }
 
-type 生图模型字段 = '文生图模型使用模型' | '场景生图模型使用模型' | '词组转化器使用模型' | 'PNG提炼使用模型';
-type 设置分页 = 'basic' | 'provider' | 'transformer' | 'presets' | 'automation' | 'retry';
-type 画师串适用页签 = 'npc' | 'scene';
-type 词组预设页签 = 'nai' | 'npc' | 'scene';
+type 生图模型字段 = '文生图模型使用模型' | '场景生图模型使用模型' | '主角生图模型使用模型' | '词组转化器使用模型' | 'PNG提炼使用模型';
+type 设置分页 = 'basic' | 'provider' | 'transformer' | 'presets' | 'automation' | 'retry' | 'player';
+type 画师串适用页签 = 'npc' | 'scene' | 'player';
+type 词组预设页签 = 'nai' | 'npc' | 'scene' | 'player';
 
 const 初始化模型列表 = (): Record<生图模型字段, string[]> => ({
     文生图模型使用模型: [],
     场景生图模型使用模型: [],
+    主角生图模型使用模型: [],
     词组转化器使用模型: [],
     PNG提炼使用模型: []
 });
@@ -36,6 +39,7 @@ const 初始化模型列表 = (): Record<生图模型字段, string[]> => ({
 const 初始化加载状态 = (): Record<生图模型字段, boolean> => ({
     文生图模型使用模型: false,
     场景生图模型使用模型: false,
+    主角生图模型使用模型: false,
     词组转化器使用模型: false,
     PNG提炼使用模型: false
 });
@@ -46,7 +50,8 @@ const 基础页面选项: Array<{ value: 设置分页; label: string }> = [
     { value: 'transformer', label: '转化器' },
     { value: 'presets', label: '预设管理' },
     { value: 'automation', label: '自动任务' },
-    { value: 'retry', label: '重试设置' }
+    { value: 'retry', label: '重试设置' },
+    { value: 'player', label: '主角' }
 ];
 
 const 文生图后端选项: Array<{ value: 功能模型占位配置结构['文生图后端类型']; label: string }> = [
@@ -154,8 +159,8 @@ const 创建空画师串预设 = (scope: 画师串适用页签): 画师串预设
     const now = Date.now();
     return {
         id: 生成预设ID('artist_preset'),
-        名称: scope === 'scene' ? '新建场景画师串' : '新建NPC画师串',
-        适用范围: scope,
+        名称: scope === 'scene' ? '新建场景画师串' : scope === 'player' ? '新建主角画师串' : '新建NPC画师串',
+        适用范围: scope as 画师串预设适用范围类型 || 'npc',
         画师串: '',
         正面提示词: '',
         负面提示词: '',
@@ -167,8 +172,8 @@ const 创建空词组预设 = (scope: 词组预设页签): 词组转化器提示
     const now = Date.now();
     return {
         id: 生成预设ID('transformer_preset'),
-        名称: scope === 'nai' ? '新建NAI提示词' : scope === 'scene' ? '新建场景提示词' : '新建NPC提示词',
-        类型: scope,
+        名称: scope === 'nai' ? '新建NAI提示词' : scope === 'scene' ? '新建场景提示词' : scope === 'player' ? '新建主角提示词' : '新建NPC提示词',
+        类型: scope as 词组转化器提示词预设类型,
         提示词: '',
         createdAt: now,
         updatedAt: now
@@ -1246,7 +1251,8 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                             value={artistPresetScope}
                             options={[
                                 { value: 'npc', label: 'NPC角色' },
-                                { value: 'scene', label: '场景' }
+                                { value: 'scene', label: '场景' },
+                                { value: 'player', label: '主角' }
                             ]}
                             onChange={(value) => setArtistPresetScope(value as 画师串适用页签)}
                             buttonClassName="bg-black/50 border-gray-600 py-2.5"
@@ -1332,7 +1338,8 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                             options={[
                                 { value: 'nai', label: 'NAI模式专属' },
                                 { value: 'npc', label: 'NPC角色生成' },
-                                { value: 'scene', label: '场景专属' }
+                                { value: 'scene', label: '场景专属' },
+                                { value: 'player', label: '主角专属' }
                             ]}
                             onChange={(value) => setTransformerPresetScope(value as 词组预设页签)}
                             buttonClassName="bg-black/50 border-gray-600 py-2.5"
@@ -1576,6 +1583,220 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
         );
     };
 
+    const renderPlayerPage = () => {
+        const handleTogglePlayerMode = (checked: boolean) => {
+            setForm((prev) => ({
+                ...prev,
+                功能模型占位: {
+                    ...prev.功能模型占位,
+                    主角生图启用: checked
+                }
+            }));
+        };
+
+        const 当前主角后端 = form.功能模型占位.主角生图独立接口启用
+            ? form.功能模型占位.主角生图后端类型
+            : form.功能模型占位.文生图后端类型;
+        const 主角文生图模型选项 = Array.from(new Set(
+            (当前主角后端 === 'novelai' ? NovelAI模型建议 : [])
+                .concat(modelOptions.主角生图模型使用模型, form.功能模型占位.主角生图模型使用模型, form.功能模型占位.文生图模型使用模型)
+                .map((item) => (item || '').trim())
+                .filter(Boolean)
+        ));
+
+        const playerArtistPresets = useMemo(
+            () => (Array.isArray(form.功能模型占位.画师串预设列表) ? form.功能模型占位.画师串预设列表 : [])
+                .filter((item) => item && typeof item.id === 'string' && !item.id.startsWith('png_artist_')),
+            [form.功能模型占位.画师串预设列表]
+        );
+        const scopedPlayerArtistPresets = useMemo(() => playerArtistPresets.filter((item) => (item.适用范围 as string) === 'player' || (item.适用范围 as string) === 'all'), [playerArtistPresets]);
+        const currentPlayerArtistPresetId = form.功能模型占位.主角画师串预设ID;
+        const selectedPlayerArtistPreset = scopedPlayerArtistPresets.find((item) => item.id === currentPlayerArtistPresetId)
+            || scopedPlayerArtistPresets[0]
+            || null;
+
+        const pngPlayerStylePresets = useMemo<PNG画风预设结构[]>(
+            () => Array.isArray(form.功能模型占位.PNG画风预设列表) ? form.功能模型占位.PNG画风预设列表 : [],
+            [form.功能模型占位.PNG画风预设列表]
+        );
+        const currentPlayerPngPresetId = form.功能模型占位.主角PNG画风预设ID;
+        const selectedPlayerPngPreset = pngPlayerStylePresets.find((item) => item.id === currentPlayerPngPresetId)
+            || pngPlayerStylePresets[0]
+            || null;
+
+        const transformerPlayerPresets = useMemo(() => Array.isArray(form.功能模型占位.词组转化器提示词预设列表) ? form.功能模型占位.词组转化器提示词预设列表 : [], [form.功能模型占位.词组转化器提示词预设列表]);
+        const scopedPlayerTransformerPresets = useMemo(() => transformerPlayerPresets.filter((item) => (item.类型 as string) === 'player' || (item.类型 as string) === 'npc'), [transformerPlayerPresets]);
+        const currentPlayerTransformerPresetId = form.功能模型占位.主角词组转化器预设ID;
+        const selectedPlayerTransformerPreset = scopedPlayerTransformerPresets.find((item) => item.id === currentPlayerTransformerPresetId)
+            || scopedPlayerTransformerPresets[0]
+            || null;
+
+        const 更新当前主角画师串预设ID = (presetId: string) => {
+            updatePlaceholder('主角画师串预设ID', presetId);
+        };
+
+        const 更新当前主角PNG预设ID = (presetId: string) => {
+            updatePlaceholder('主角PNG画风预设ID', presetId);
+        };
+
+        const 更新当前主角词组预设ID = (presetId: string) => {
+            updatePlaceholder('主角词组转化器预设ID', presetId);
+        };
+
+        return (
+            <div className={页面容器样式}>
+                <div className={卡片样式}>
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/20 bg-amber-950/10 p-4">
+                        <div>
+                            <div className="text-base font-bold text-amber-200">主角生图独立配置</div>
+                        </div>
+                        <ToggleSwitch
+                            checked={form.功能模型占位.主角生图启用}
+                            onChange={handleTogglePlayerMode}
+                            ariaLabel="切换主角生图独立配置"
+                        />
+                    </div>
+                </div>
+
+                <div className={卡片样式}>
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <div className="text-base font-bold text-amber-200">主角独立接口</div>
+                        </div>
+                        <ToggleSwitch
+                            checked={form.功能模型占位.主角生图独立接口启用}
+                            onChange={(next) => {
+                                setForm((prev) => ({
+                                    ...prev,
+                                    功能模型占位: {
+                                        ...prev.功能模型占位,
+                                        主角生图独立接口启用: next,
+                                        主角生图后端类型: next
+                                            ? prev.功能模型占位.主角生图后端类型
+                                            : prev.功能模型占位.主角生图后端类型,
+                                        主角生图模型API地址: next
+                                            ? ((prev.功能模型占位.主角生图模型API地址 || '').trim() || (prev.功能模型占位.文生图模型API地址 || '').trim())
+                                            : prev.功能模型占位.主角生图模型API地址,
+                                        主角生图模型API密钥: next
+                                            ? ((prev.功能模型占位.主角生图模型API密钥 || '').trim() || (prev.功能模型占位.文生图模型API密钥 || '').trim())
+                                            : prev.功能模型占位.主角生图模型API密钥,
+                                        主角生图模型使用模型: next
+                                            ? ((prev.功能模型占位.主角生图模型使用模型 || '').trim() || (prev.功能模型占位.文生图模型使用模型 || '').trim())
+                                            : prev.功能模型占位.主角生图模型使用模型
+                                    }
+                                }));
+                            }}
+                            ariaLabel="切换主角独立接口"
+                        />
+                    </div>
+
+                    {form.功能模型占位.主角生图独立接口启用 && (
+                        <div className="space-y-4">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-amber-200">后端类型</label>
+                                    <InlineSelect
+                                        value={当前主角后端}
+                                        options={文生图后端选项}
+                                        onChange={(value) => updatePlaceholder('主角生图后端类型', value as any)}
+                                        buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-amber-200">API 地址</label>
+                                    <input
+                                        type="text"
+                                        value={form.功能模型占位.主角生图模型API地址}
+                                        onChange={(e) => updatePlaceholder('主角生图模型API地址', e.target.value)}
+                                        placeholder="留空则沿用主接口"
+                                        className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-amber-400"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                                <div className="flex-1 space-y-2">
+                                    <label className="text-sm font-bold text-amber-200">模型</label>
+                                    <InlineSelect
+                                        value={form.功能模型占位.主角生图模型使用模型}
+                                        options={主角文生图模型选项.map((model) => ({ value: model, label: model }))}
+                                        onChange={(model) => updatePlaceholder('主角生图模型使用模型', model)}
+                                        placeholder="请选择或输入模型"
+                                        buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                                        panelClassName="max-w-full"
+                                    />
+                                </div>
+                                <GameButton
+                                    onClick={() => handleFetchModels('主角生图模型使用模型', '主角生图模型列表')}
+                                    variant="secondary"
+                                    className="px-4 py-2 text-xs md:min-w-[96px]"
+                                    disabled={modelLoading.主角生图模型使用模型}
+                                >
+                                    {modelLoading.主角生图模型使用模型 ? '...' : '获取列表'}
+                                </GameButton>
+                            </div>
+                            <input
+                                type="text"
+                                value={form.功能模型占位.主角生图模型使用模型}
+                                onChange={(e) => updatePlaceholder('主角生图模型使用模型', e.target.value)}
+                                placeholder="例如：nai-diffusion-4-5-full"
+                                className="w-full rounded-md border-2 border-transparent bg-black/50 p-3 text-white outline-none transition-all focus:border-amber-400"
+                            />
+                        </div>
+                    )}
+                </div>
+
+                <div className={卡片样式}>
+                    <div className="text-base font-bold text-amber-200 mb-4">画师串预设</div>
+                    <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-amber-200">当前使用预设</label>
+                            <InlineSelect
+                                value={currentPlayerArtistPresetId}
+                                options={scopedPlayerArtistPresets.map((preset) => ({ value: preset.id, label: preset.名称 }))}
+                                onChange={(value) => 更新当前主角画师串预设ID(value)}
+                                placeholder="请选择预设"
+                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className={卡片样式}>
+                    <div className="text-base font-bold text-amber-200 mb-4">PNG 画风预设</div>
+                    <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)]">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-amber-200">当前使用预设</label>
+                            <InlineSelect
+                                value={currentPlayerPngPresetId}
+                                options={pngPlayerStylePresets.map((preset) => ({ value: preset.id, label: preset.名称 }))}
+                                onChange={(value) => 更新当前主角PNG预设ID(value)}
+                                placeholder="不启用"
+                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className={卡片样式}>
+                    <div className="text-base font-bold text-amber-200 mb-4">词组转化器预设</div>
+                    <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-amber-200">当前使用预设</label>
+                            <InlineSelect
+                                value={currentPlayerTransformerPresetId}
+                                options={scopedPlayerTransformerPresets.map((preset) => ({ value: preset.id, label: preset.名称 }))}
+                                onChange={(value) => 更新当前主角词组预设ID(value)}
+                                placeholder="请选择预设"
+                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6 text-sm animate-fadeIn">
             <div className="rounded-2xl border border-fuchsia-500/30 bg-[radial-gradient(circle_at_top_left,_rgba(217,70,239,0.18),_transparent_42%),linear-gradient(180deg,rgba(16,16,24,0.96),rgba(5,5,10,0.96))] p-5">
@@ -1613,6 +1834,7 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
             {activePage === 'transformer' && renderTransformerPage()}
             {activePage === 'presets' && renderPresetsPage()}
             {activePage === 'automation' && renderAutomationPage()}
+            {activePage === 'player' && renderPlayerPage?.()}
             {activePage === 'retry' && (
                 <div className={页面容器样式}>
                     <div className={卡片样式}>

@@ -209,9 +209,18 @@ export const 默认功能模型占位: 功能模型占位配置结构 = {
     PNG提炼API地址: '',
     PNG提炼API密钥: '',
     场景生图启用: false,
+    主角生图启用: false,
     NPC生图启用: false,
     NPC生图性别筛选: '全部',
     NPC生图重要性筛选: '全部',
+    主角生图独立接口启用: false,
+    主角生图后端类型: 'openai',
+    主角生图模型使用模型: '',
+    主角生图模型API地址: '',
+    主角生图模型API密钥: '',
+    主角画师串预设ID: '',
+    主角PNG画风预设ID: '',
+    主角词组转化器预设ID: '',
     提示词生成重试次数: 1,
     图片生成重试次数: 1
 };
@@ -847,7 +856,18 @@ const 标准化功能模型占位 = (raw: any): 功能模型占位配置结构 =
         PNG提炼API地址: 读取字符串(raw?.PNG提炼API地址 ?? raw?.pngRefineApiBaseUrl),
         PNG提炼API密钥: 读取字符串(raw?.PNG提炼API密钥 ?? raw?.pngRefineApiKey),
         场景生图启用: Boolean(raw?.场景生图启用),
+        主角生图启用: Boolean(raw?.主角生图启用),
         NPC生图启用: Boolean(raw?.NPC生图启用),
+        主角生图独立接口启用: Boolean(raw?.主角生图独立接口启用),
+        主角生图后端类型: raw?.主角生图后端类型 === 'novelai' || raw?.主角生图后端类型 === 'sd_webui' || raw?.主角生图后端类型 === 'comfyui'
+            ? raw.主角生图后端类型
+            : 'openai',
+        主角生图模型使用模型: 读取字符串(raw?.主角生图模型使用模型),
+        主角生图模型API地址: 读取字符串(raw?.主角生图模型API地址),
+        主角生图模型API密钥: 读取字符串(raw?.主角生图模型API密钥),
+        主角画师串预设ID: 读取字符串(raw?.主角画师串预设ID),
+        主角PNG画风预设ID: 读取字符串(raw?.主角PNG画风预设ID),
+        主角词组转化器预设ID: 读取字符串(raw?.主角词组转化器预设ID),
         NPC生图性别筛选: raw?.NPC生图性别筛选 === '男' || raw?.NPC生图性别筛选 === '女' || raw?.NPC生图性别筛选 === '全部'
             ? raw.NPC生图性别筛选
             : '全部',

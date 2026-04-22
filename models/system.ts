@@ -51,8 +51,8 @@ export interface 文生图接口配置结构 {
     updatedAt: number;
 }
 
-export type 画师串预设适用范围类型 = 'npc' | 'scene' | 'all';
-export type 词组转化器提示词预设类型 = 'nai' | 'npc' | 'scene' | 'scene_judge';
+export type 画师串预设适用范围类型 = 'npc' | 'scene' | 'player' | 'all';
+export type 词组转化器提示词预设类型 = 'nai' | 'npc' | 'scene' | 'scene_judge' | 'player';
 export type 角色锚点来源类型 = 'ai_extract' | 'manual' | 'imported';
 export type 图片词组序列化策略类型 = 'flat' | 'nai_character_segments' | 'gemini_structured' | 'grok_structured';
 
@@ -336,9 +336,21 @@ export interface 功能模型占位配置结构 {
     PNG提炼API地址: string;
     PNG提炼API密钥: string;
     场景生图启用: boolean;
+    主角生图启用: boolean;
     NPC生图启用: boolean;
     NPC生图性别筛选: 生图筛选性别类型;
     NPC生图重要性筛选: 生图筛选重要性类型;
+    // 主角生图独立配置
+    主角生图独立接口启用: boolean;
+    主角生图后端类型: 文生图后端类型;
+    主角生图模型使用模型: string;
+    主角生图模型API地址: string;
+    主角生图模型API密钥: string;
+    主角画师串预设ID: string;
+    主角PNG画风预设ID: string;
+    主角词组转化器预设ID: string;
+    提示词生成重试次数: number;
+    图片生成重试次数: number;
 }
 
 export interface 接口设置结构 {
