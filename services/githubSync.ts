@@ -2,6 +2,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import * as dbService from './dbService';
 import { 设置键 } from '../utils/settingsSchema';
 import { 解析图片资源引用ID } from '../utils/imageAssets';
+import type { 存档结构 } from '../types';
 
 export const GITHUB_TOKEN_KEY = 'github_sync_token';
 export const GITHUB_REPO_KEY = 'github_sync_repo';
@@ -12,6 +13,30 @@ export const GITHUB_RELEASE_NAME = 'WuXia Cloud Sync';
 
 const 云同步ZIP格式标识 = 'wuxia-cloud-sync-zip';
 const 云同步ZIP版本 = 1;
+const 兼容的最小版本 = 1;
+const 兼容的最大版本 = 2;
+
+// 版本迁移钩子 - 未来版本升级时执行迁移逻辑
+const 执行版本迁移 = async (fromVersion: number, toVersion: number): Promise<void> => {
+    console.log(`[云同步] 从版本 ${fromVersion} 迁移到 ${toVersion}...`);
+};
+
+// 导入前备份本地数据
+let 内存备份: { saves: 存档结构[]; settings: Array<{ key: string; value: unknown }> } | null = null;
+
+const 备份当前数据 = async (): Promise<void> => {
+    const saves = await dbService.读取存档列表();
+    const settingsList = await dbService.获取设置管理清单();
+    const settings: Array<{ key: string; value: unknown }> = [];
+    for (const item of settingsList) {
+        if (!item.key || item.key === GITHUB_TOKEN_KEY || 是否提示词相关键(item.key)) continue;
+        settings.push({ key: item.key, value: await dbService.读取设置(item.key) });
+    }
+    内存备份 = { saves, settings };
+};
+
+export const hasBackup = (): boolean => 内存备份 !== null;
+
 const 图片资源存储名 = 'image_assets';
 const GITHUB_API_BASE = 'https://api.github.com';
 const RELEASE_UPLOAD_PROXY_PATH = '/api/github/release-upload';
@@ -636,6 +661,7 @@ export async function extractSyncData(): Promise<Uint8Array> {
 
 export async function restoreSyncData(zipBytes: Uint8Array): Promise<boolean> {
     try {
+        await 备份当前数据();
         const entries = unzipSync(zipBytes);
         const manifestEntry = entries['manifest.json'];
         if (!manifestEntry) {
@@ -643,8 +669,12 @@ export async function restoreSyncData(zipBytes: Uint8Array): Promise<boolean> {
         }
 
         const manifest = JSON.parse(strFromU8(manifestEntry)) as 云同步ZIP清单;
-        if (manifest?.format !== 云同步ZIP格式标识 || Number(manifest?.version) !== 云同步ZIP版本) {
-            throw new Error('云存档格式不受支持，请重新上传一次云存档。');
+        const version = Number(manifest?.version);
+        if (manifest?.format !== 云同步ZIP格式标识) {
+            throw new Error('云存档格式不受支持');
+        }
+        if (version < 兼容的最小版本 || version > 兼容的最大版本) {
+            throw new Error(`云存档版本 ${version} 不在兼容范围内 (${兼容的最小版本}~${兼容的最大版本})，请重新上传一次云存档。`);
         }
 
         const savesIndexEntry = entries[manifest.saves.indexFile];
