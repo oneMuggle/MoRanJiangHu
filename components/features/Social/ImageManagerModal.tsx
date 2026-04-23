@@ -23,6 +23,36 @@ import { 规范化接口设置 } from '../../../utils/apiConfig';
 import { 自动场景横屏尺寸选项, 自动场景竖屏尺寸选项 } from '../../../utils/imageSizeOptions';
 import { IconScroll } from '../../ui/Icons';
 
+import { ImageManagerProvider, useImageManagerContext } from './ImageManager/context/ImageManagerContext';
+import {
+    状态样式,
+    状态文案,
+    队列状态样式,
+    队列状态文案,
+    来源文案,
+    标签按钮样式,
+    次级按钮样式,
+    主按钮样式,
+    卡片样式,
+    小标题样式,
+    摘要卡片样式
+} from './ImageManager/utils/imageManagerConstants';
+import {
+    获取生图阶段中文,
+    从任务状态推导阶段,
+    获取NPC构图文案,
+    格式化时间,
+    任务标识匹配NPC,
+    从任务标识提取NPCID,
+    读取NPC展示摘要,
+    读取角色锚点特征摘要,
+    角色锚点有可用内容,
+    统计卡,
+    空状态,
+    生成预设ID,
+    预设输入拦截键盘事件
+} from './ImageManager/utils/imageManagerHelpers';
+
 interface Props {
     socialList: NPC结构[];
     cultivationSystemEnabled?: boolean;
@@ -95,153 +125,6 @@ type 合并历史记录 = {
     sceneRecord?: 场景图片档案['最近生图结果'];
 };
 
-const 状态样式: Record<图片生成状态类型, string> = {
-    success: 'border-emerald-700 text-emerald-300 bg-emerald-950/20',
-    failed: 'border-red-700 text-red-300 bg-red-950/20',
-    pending: 'border-amber-700 text-amber-300 bg-amber-950/20'
-};
-
-const 状态文案: Record<图片生成状态类型, string> = {
-    success: '成功',
-    failed: '失败',
-    pending: '生成中'
-};
-
-const 队列状态样式: Record<NPC生图任务记录['状态'], string> = {
-    queued: 'border-slate-700 text-slate-300 bg-slate-950/40',
-    running: 'border-sky-700 text-sky-300 bg-sky-950/30',
-    success: 'border-emerald-700 text-emerald-300 bg-emerald-950/20',
-    failed: 'border-red-700 text-red-300 bg-red-950/20'
-};
-
-const 队列状态文案: Record<NPC生图任务记录['状态'], string> = {
-    queued: '排队中',
-    running: '生成中',
-    success: '已完成',
-    failed: '失败'
-};
-
-const 来源文案: Record<NPC生图任务记录['来源'], string> = {
-    auto: '自动',
-    manual: '手动',
-    retry: '重试'
-};
-
-const 生图阶段中文映射: Record<NonNullable<NPC生图任务记录['进度阶段']>, string> = {
-    queued: '排队中',
-    prompting: '词组转换中',
-    generating: '生成图片中',
-    saving: '保存结果中',
-    success: '已完成',
-    failed: '失败'
-};
-
-const 获取生图阶段中文 = (stage?: NPC生图任务记录['进度阶段']): string => {
-    if (!stage) return '未记录';
-    return 生图阶段中文映射[stage] || stage;
-};
-
-const 从任务状态推导阶段 = (status?: NPC生图任务记录['状态']): NPC生图任务记录['进度阶段'] | undefined => {
-    if (!status) return undefined;
-    if (status === 'queued') return 'queued';
-    if (status === 'running') return 'generating';
-    if (status === 'success') return 'success';
-    if (status === 'failed') return 'failed';
-    return undefined;
-};
-
-const 获取NPC构图文案 = (构图?: NPC生图任务记录['构图'] | 场景生图任务记录['构图'], 部位?: 香闺秘档部位类型): string => {
-    if (构图 === '场景') return '场景图片';
-    if (构图 === '部位特写') {
-        return 部位 ? `${部位}特写` : '部位特写';
-    }
-    if (构图 === '立绘') return '立绘';
-    if (构图 === '半身') return '3:4半身像';
-    return '1:1头像';
-};
-
-const 格式化时间 = (timestamp?: number): string => {
-    if (!timestamp || !Number.isFinite(timestamp)) return '未记录';
-    return new Date(timestamp).toLocaleString();
-};
-
-const 任务标识匹配NPC = (taskNpcKey: string | undefined, npcId: string | undefined): boolean => {
-    const key = (taskNpcKey || '').trim();
-    const id = (npcId || '').trim();
-    if (!key || !id) return false;
-    return key === id || key === `id:${id}`;
-};
-
-const 从任务标识提取NPCID = (taskNpcKey: string | undefined): string => {
-    const key = (taskNpcKey || '').trim();
-    if (!key) return '';
-    if (key.startsWith('id:')) return key.slice(3).trim();
-    return key;
-};
-
-const 读取NPC展示摘要 = (
-    npc?: NPC结构 | null,
-    options?: { cultivationSystemEnabled?: boolean }
-): string => {
-    if (!npc) return '';
-    const 显示境界 = options?.cultivationSystemEnabled !== false;
-    const fragments = [
-        npc.姓名 ? `姓名：${npc.姓名}` : '',
-        npc.性别 ? `性别：${npc.性别}` : '',
-        Number.isFinite(npc.年龄) ? `年龄：${npc.年龄}` : '',
-        显示境界 && npc.境界 ? `境界：${npc.境界}` : '',
-        npc.身份 ? `身份：${npc.身份}` : '',
-        npc.外貌描写 ? `外貌：${npc.外貌描写}` : '',
-        npc.身材描写 ? `身材：${npc.身材描写}` : '',
-        npc.衣着风格 ? `衣着：${npc.衣着风格}` : ''
-    ].filter(Boolean);
-    return fragments.join('\n');
-};
-
-const 读取角色锚点特征摘要 = (anchor?: 角色锚点结构 | null): string => {
-    const features = anchor?.结构化特征;
-    if (!features) return '未提取结构化特征';
-    const lines = Object.entries(features)
-        .map(([key, value]) => `${key}：${Array.isArray(value) ? value.filter(Boolean).join(', ') : ''}`)
-        .filter((line) => !line.endsWith('：'));
-    return lines.length > 0 ? lines.join('\n') : '未提取结构化特征';
-};
-
-const 角色锚点有可用内容 = (anchor?: Partial<角色锚点结构> | null): boolean => {
-    const positive = (anchor?.正面提示词 || '')
-        .split(',')
-        .map((item) => item.trim())
-        .some((item) => item.length > 0 && /[\p{L}\p{N}]/u.test(item));
-    if (positive) return true;
-    const features = anchor?.结构化特征;
-    if (!features) return false;
-    return Object.values(features).some((value) => (
-        Array.isArray(value)
-        && value.some((item) => typeof item === 'string' && item.trim().length > 0)
-    ));
-};
-
-const 标签按钮样式 = (active: boolean): string => `w-full text-left px-4 py-3 border-l-2 text-sm transition-colors flex items-center gap-3 ${
-    active
-        ? 'border-wuxia-gold bg-wuxia-gold/10 text-wuxia-gold text-shadow-glow font-bold'
-        : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-white/5'
-}`;
-
-const 次级按钮样式 = (danger = false): string => `inline-flex items-center justify-center gap-2 px-3 py-2 rounded border text-sm transition-all duration-300 ${
-    danger
-        ? 'border-red-900/50 bg-red-950/30 text-red-300 hover:border-red-700 hover:shadow-[0_0_10px_rgba(185,28,28,0.3)]'
-        : 'border-wuxia-gold/30 bg-black/50 text-gray-300 hover:text-wuxia-gold hover:border-wuxia-gold/60 hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]'
-}`;
-
-const 主按钮样式 = (disabled: boolean): string => `inline-flex items-center justify-center gap-2 px-6 py-2 rounded border font-serif text-sm md:text-base transition-all duration-300 ${
-    disabled
-        ? 'border-gray-800 text-gray-600 bg-black/40 cursor-not-allowed'
-        : 'border-wuxia-gold/50 bg-wuxia-gold/15 text-wuxia-gold text-shadow-glow hover:border-wuxia-gold hover:bg-wuxia-gold/25 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]'
-}`;
-
-const 卡片样式 = 'rounded border border-wuxia-gold/20 bg-black/40 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
-const 小标题样式 = 'text-[10px] md:text-xs text-wuxia-gold/70 tracking-widest uppercase font-serif drop-shadow-md';
-const 摘要卡片样式 = 'rounded border border-wuxia-gold/20 bg-gradient-to-br from-black/60 to-black/30 p-3 h-[112px] overflow-hidden relative group hover:border-wuxia-gold/40 transition-colors shadow-inner';
 const 生成预设ID = (prefix: string): string => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 const 预设输入拦截键盘事件 = (event: React.KeyboardEvent<HTMLElement>) => {
     event.stopPropagation();

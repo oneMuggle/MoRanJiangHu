@@ -47,6 +47,25 @@ const MobileInventoryModal: React.FC<Props> = ({ character, onClose }) => {
 
     const categories: ItemCategory[] = ['全部', '装备', '消耗品', '材料', '秘籍', '杂物'];
 
+    // Category counts
+    const categoryCounts = useMemo(() => {
+        const rawItems = character.物品列表 || [];
+        const counts: Record<ItemCategory, number> = { 全部: rawItems.length, 装备: 0, 消耗品: 0, 材料: 0, 秘籍: 0, 杂物: 0 };
+        rawItems.forEach(item => {
+            if (['武器', '防具', '饰品'].includes(item.类型)) counts.装备++;
+            else if (item.类型 === '消耗品') counts.消耗品++;
+            else if (item.类型 === '材料') counts.材料++;
+            else if (item.类型 === '秘籍') counts.秘籍++;
+            else if (['杂物', '杂项'].includes(item.类型)) counts.杂物++;
+        });
+        return counts;
+    }, [character.物品列表]);
+
+    // Total inventory value
+    const totalValue = useMemo(() => {
+        return (character.物品列表 || []).reduce((sum, item) => sum + (item.价值 || 0) * (item.堆叠数量 || 1), 0);
+    }, [character.物品列表]);
+
     const totalWeight = character.当前负重 || 0;
     const maxWeight = character.最大负重 || 50;
     const isOverloaded = totalWeight > maxWeight;
@@ -78,13 +97,16 @@ const MobileInventoryModal: React.FC<Props> = ({ character, onClose }) => {
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`shrink-0 px-3 py-1 rounded-md text-xs font-bold transition-all border ${
-                                activeCategory === cat 
+                            className={`shrink-0 px-3 py-1 rounded-md text-xs font-bold transition-all border flex items-center gap-1 ${
+                                activeCategory === cat
                                 ? 'bg-gray-800 text-gray-200 border-gray-600'
                                 : 'text-gray-500 border-transparent hover:text-gray-300'
                             }`}
                         >
                             {cat}
+                            <span className={`text-[9px] ${activeCategory === cat ? 'text-gray-400' : 'text-gray-600'}`}>
+                                {categoryCounts[cat]}
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -135,6 +157,12 @@ const MobileInventoryModal: React.FC<Props> = ({ character, onClose }) => {
                             <span className="text-xs">分类下空无一物</span>
                         </div>
                     )}
+                </div>
+
+                {/* Footer: Total value */}
+                <div className="shrink-0 border-t border-gray-800 bg-black/30 px-4 py-2 flex items-center justify-between">
+                    <span className="text-[10px] text-gray-500 font-serif">物品总估值</span>
+                    <span className="text-sm font-mono text-amber-500">{totalValue} <span className="text-[10px] text-amber-700">铜</span></span>
                 </div>
 
                 {/* Mobile Detail Overlay */}

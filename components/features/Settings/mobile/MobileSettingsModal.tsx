@@ -29,8 +29,9 @@ const CurrentNovelDecompositionInjectionSettings = React.lazy(() => import('../C
 const MusicSettings = React.lazy(() => import('../MusicSettings'));
 const NpcManager = React.lazy(() => import('../NpcManager'));
 const VariableManager = React.lazy(() => import('../VariableManager'));
+const IntegratedModelSettings = React.lazy(() => import('../IntegratedModelSettings'));
 
-type SettingsTab = 'api' | 'image_generation' | 'recall' | 'memory_summary_model' | 'polish' | 'world_evolution' | 'variable_model' | 'planning_model' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager';
+type SettingsTab = 'api' | 'image_generation' | 'integrated_models' | 'recall' | 'memory_summary_model' | 'polish' | 'world_evolution' | 'variable_model' | 'planning_model' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager';
 type RuntimeStateSections = Record<'角色' | '环境' | '社交' | '世界' | '战斗' | '剧情' | '女主剧情规划' | '玩家门派' | '任务列表' | '约定列表' | '记忆系统', unknown>;
 
 type ContextSection = {
@@ -111,6 +112,7 @@ const MobileSettingsModal: React.FC<Props> = ({
         { id: 'context', label: '上下文' },
         { id: 'api', label: '接口' },
         { id: 'image_generation', label: '文生图' },
+        { id: 'integrated_models', label: '集成' },
         { id: 'recall', label: '回忆' },
         { id: 'memory_summary_model', label: '总结' },
         { id: 'polish', label: '优化' },
@@ -134,6 +136,7 @@ const MobileSettingsModal: React.FC<Props> = ({
     const renderTabContent = () => {
         if (activeTab === 'api') return <ApiSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'image_generation') return <ImageGenerationSettings settings={apiConfig} onSave={onSaveApi} />;
+        if (activeTab === 'integrated_models') return <IntegratedModelSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'recall') return <RecallModelSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'memory_summary_model') return <MemorySummaryModelSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'polish') return <PolishModelSettings settings={apiConfig} onSave={onSaveApi} />;

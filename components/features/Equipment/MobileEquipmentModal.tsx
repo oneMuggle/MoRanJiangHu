@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 角色数据结构 } from '../../../types';
 import { 游戏物品 } from '../../../models/item';
 import { getRarityNameClass, getRarityStyles } from '../../ui/rarityStyles';
-import { IconSwords, IconDagger, IconShield, IconArmor, IconBackpack, IconRing, IconBelt, IconHelmet, IconBoot, IconPants, IconGlove, IconHorse } from '../../ui/Icons';
+import { IconSwords, IconDagger, IconShield, IconArmor, IconBackpack, IconBelt, IconHelmet, IconBoot, IconPants, IconGlove, IconHorse, ItemTypeIcon } from '../../ui/Icons';
 
 interface Props {
     character: 角色数据结构;
@@ -33,13 +33,31 @@ const MobileEquipmentModal: React.FC<Props> = ({ character, onClose }) => {
         { key: '坐骑', label: '坐骑', icon: <IconHorse size={20} /> },
     ];
 
+    const isOverweight = character.当前负重 > character.最大负重;
+
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/95 animate-fadeIn">
+            {/* Header with weight display */}
             <div className="flex items-center justify-between p-4 border-b border-wuxia-gold/30">
-                <h2 className="text-lg font-bold text-wuxia-gold">装备</h2>
-                <button onClick={onClose} className="text-gray-400 hover:text-white text-xl">×</button>
+                <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-wuxia-gold">装备</h2>
+                    <div className="flex items-center gap-1.5 bg-black/60 px-2.5 py-1 rounded-lg border border-wuxia-gold/20">
+                        <span className="text-[10px] text-wuxia-gold/70 font-serif">身负</span>
+                        <span className={`text-sm font-mono ${isOverweight ? 'text-red-500 font-bold' : 'text-wuxia-gold'}`}>
+                            {character.当前负重}
+                        </span>
+                        <span className="text-gray-500 text-xs">/</span>
+                        <span className="text-xs text-gray-400 font-mono">{character.最大负重}</span>
+                        <span className="text-[9px] text-gray-500 font-serif">斤</span>
+                    </div>
+                </div>
+                <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-black/60 border border-gray-700 text-gray-400" title="关闭">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-4">
                 <div className="grid grid-cols-3 gap-2">
                     {slots.map((slot) => {
@@ -48,19 +66,24 @@ const MobileEquipmentModal: React.FC<Props> = ({ character, onClose }) => {
                         const qualityClass = item
                             ? `${getRarityStyles(item.品质).border} ${getRarityStyles(item.品质).text} ${getRarityStyles(item.品质).bg}`
                             : 'border-gray-700 bg-black/40 text-gray-600 border-dashed';
-                        
+
                         return (
                             <div
                                 key={slot.key}
                                 onClick={() => item && setSelectedItem(item)}
-                                className={`flex flex-col items-center justify-center p-2 rounded-lg border ${qualityClass} min-h-[72px] ${item ? 'cursor-pointer' : 'cursor-default'}`}
+                                className={`flex flex-col items-center justify-center p-2 rounded-lg border ${qualityClass} min-h-[80px] ${item ? 'cursor-pointer' : 'cursor-default'}`}
                             >
                                 <div className="text-gray-400 mb-1">{slot.icon}</div>
-                                <div className="text-[10px]">{slot.label}</div>
+                                <div className="text-[10px] text-gray-500">{slot.label}</div>
                                 {item ? (
-                                    <div className={`text-xs font-bold truncate w-full text-center ${getRarityNameClass(item.品质)}`}>
-                                        {item.名称}
-                                    </div>
+                                    <>
+                                        <div className={`text-xs font-bold truncate w-full text-center mt-0.5 ${getRarityNameClass(item.品质)}`}>
+                                            {item.名称}
+                                        </div>
+                                        <div className="text-[9px] text-wuxia-gold/70 font-mono mt-0.5">
+                                            耐久 {item.当前耐久}/{item.最大耐久}
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className="text-[10px] text-gray-600">-</div>
                                 )}
@@ -70,18 +93,135 @@ const MobileEquipmentModal: React.FC<Props> = ({ character, onClose }) => {
                 </div>
             </div>
 
+            {/* Rich item detail panel */}
             {selectedItem && (
-                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/80" onClick={() => setSelectedItem(null)}>
-                    <div className="bg-black/90 border border-wuxia-gold/40 rounded-xl p-4 max-w-[300px] w-full mx-4" onClick={e => e.stopPropagation()}>
-                        <div className={`text-lg font-bold mb-2 ${getRarityNameClass(selectedItem.品质)}`}>{selectedItem.名称}</div>
-                        <div className="text-sm text-gray-400 mb-2">{selectedItem.品质}</div>
-                        <div className="text-xs text-gray-500">{selectedItem.描述 || '无描述'}</div>
-                        <button
-                            onClick={() => setSelectedItem(null)}
-                            className="mt-4 w-full py-2 bg-wuxia-gold/20 text-wuxia-gold rounded-lg"
-                        >
-                            关闭
-                        </button>
+                <div className="fixed inset-0 z-60 flex items-end bg-black/80" onClick={() => setSelectedItem(null)}>
+                    <div
+                        className="bg-[#0a0a0c] border-t border-wuxia-gold/40 rounded-t-2xl w-full max-h-[80vh] overflow-y-auto"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="sticky top-0 bg-[#0a0a0c] border-b border-wuxia-gold/10 p-4 pb-3">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-xl border-2 ${getRarityStyles(selectedItem.品质).border} ${getRarityStyles(selectedItem.品质).bg} bg-opacity-20 flex items-center justify-center shrink-0`}>
+                                    <ItemTypeIcon type={selectedItem.类型} size={28} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className={`text-base font-bold font-serif truncate ${getRarityNameClass(selectedItem.品质)}`}>
+                                        {selectedItem.名称}
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className={`text-[10px] px-2 py-0.5 rounded-sm border ${getRarityStyles(selectedItem.品质).border} ${getRarityStyles(selectedItem.品质).text} bg-black/60`}>
+                                            {selectedItem.品质}
+                                        </span>
+                                        <span className="text-[10px] text-gray-500 font-serif">{selectedItem.类型}</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedItem(null)} className="w-7 h-7 flex items-center justify-center rounded-full bg-black/50 border border-gray-700 text-gray-400">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                            {/* Description */}
+                            <div className="bg-black/30 border-l-4 border-wuxia-gold/40 p-3 rounded-r-xl">
+                                <p className="text-gray-300 text-xs font-serif italic leading-relaxed">
+                                    "{selectedItem.描述 || '此物来历不明，似有天道之力缠绕。'}"
+                                </p>
+                            </div>
+
+                            {/* Basic attributes */}
+                            <div>
+                                <div className="flex items-center gap-2 mb-3 border-b border-wuxia-gold/10 pb-1.5">
+                                    <span className="w-1.5 h-1.5 rotate-45 bg-wuxia-gold/50"></span>
+                                    <div className="text-[11px] text-wuxia-gold/80 uppercase tracking-widest font-serif font-bold">基本属性</div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="bg-black/40 border border-gray-800/80 rounded-xl p-2.5 text-center">
+                                        <div className="text-[9px] text-gray-500 font-serif">万钧之重</div>
+                                        <div className="text-base font-mono text-gray-200 mt-0.5">{selectedItem.重量} <span className="text-xs text-gray-500">斤</span></div>
+                                    </div>
+                                    <div className="bg-black/40 border border-gray-800/80 rounded-xl p-2.5 text-center">
+                                        <div className="text-[9px] text-gray-500 font-serif">坊市估值</div>
+                                        <div className="text-base font-mono text-amber-500 mt-0.5">{selectedItem.价值} <span className="text-xs text-amber-700">铜</span></div>
+                                    </div>
+                                    <div className="col-span-2 bg-black/40 border border-gray-800/80 rounded-xl p-2.5">
+                                        <div className="text-[9px] text-gray-500 font-serif text-center mb-1.5">品相耐久</div>
+                                        <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/5">
+                                            <div
+                                                className="h-full bg-blue-500 shadow-[0_0_5px_currentColor]"
+                                                style={{ width: `${(selectedItem.当前耐久 / Math.max(selectedItem.最大耐久, 1)) * 100}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className="text-xs font-mono text-blue-300 text-center mt-1">{selectedItem.当前耐久} / {selectedItem.最大耐久}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Combat stats */}
+                            {(selectedItem.类型 === '武器' || selectedItem.类型 === '防具') && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3 border-b border-red-900/40 pb-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-600/70"></span>
+                                        <div className="text-[11px] text-red-500/90 uppercase tracking-widest font-serif font-bold">武道参数</div>
+                                    </div>
+                                    <div className="space-y-2 bg-red-950/10 border border-red-900/20 p-3 rounded-xl">
+                                        {selectedItem.类型 === '武器' && (
+                                            <>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-gray-400 font-serif">兵刃杀力</span>
+                                                    <span className="text-lg font-black font-mono text-red-400">
+                                                        {(selectedItem as any).最小攻击}-{(selectedItem as any).最大攻击}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-gray-400 font-serif">身法干涉</span>
+                                                    <span className="text-sm font-mono text-emerald-400">{(selectedItem as any).攻速修正}</span>
+                                                </div>
+                                            </>
+                                        )}
+                                        {selectedItem.类型 === '防具' && (
+                                            <>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-gray-400 font-serif">外家护体</span>
+                                                    <span className="text-lg font-black font-mono text-blue-400">+{(selectedItem as any).物理防御}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-gray-400 font-serif">内劲消解</span>
+                                                    <span className="text-sm font-bold font-mono text-purple-400">+{(selectedItem as any).内功防御}</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Affixes */}
+                            {selectedItem.词条列表 && selectedItem.词条列表.length > 0 && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3 border-b border-cyan-900/40 pb-1.5">
+                                        <span className="w-1.5 h-1.5 rotate-45 bg-cyan-500"></span>
+                                        <div className="text-[11px] text-cyan-500/90 uppercase tracking-widest font-serif font-bold">天启词条</div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {selectedItem.词条列表.map((mod, i) => (
+                                            <div key={`mod_${i}`} className="bg-cyan-950/20 border border-cyan-900/30 p-2.5 rounded-xl flex justify-between items-center">
+                                                <span className="text-gray-200 font-serif text-xs flex items-center gap-1.5">
+                                                    <span className="text-cyan-600">◈</span>
+                                                    {mod.名称} <span className="text-[9px] text-gray-500 font-mono">({mod.属性})</span>
+                                                </span>
+                                                <span className="text-cyan-300 font-mono font-bold text-xs bg-cyan-950/40 px-2 py-0.5 rounded">
+                                                    {mod.数值 > 0 ? '+' : ''}{mod.数值}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}

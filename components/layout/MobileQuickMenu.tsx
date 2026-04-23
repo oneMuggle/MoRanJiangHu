@@ -99,7 +99,7 @@ const MobileQuickMenu: React.FC<Props> = ({
     };
 
     return (
-        <div className="md:hidden border-t border-wuxia-gold/20 bg-gradient-to-t from-ink-black via-ink-black/95 to-ink-black/80 backdrop-blur-sm shadow-[0_-12px_24px_rgba(0,0,0,0.38)] pb-2">
+        <div className="md:hidden border-t border-wuxia-gold/20 bg-gradient-to-t from-ink-black via-ink-black/95 to-ink-black/80 backdrop-blur-sm shadow-[0_-12px_24px_rgba(0,0,0,0.38)] pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
             <div className="px-2 pt-1.5">
                 <div className="relative rounded-2xl border border-gray-800 bg-black/40">
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />

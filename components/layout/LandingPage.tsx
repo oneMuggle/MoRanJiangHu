@@ -77,16 +77,16 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
             </button>
 
             {/* Main Title Area */}
-            <div className="relative z-10 flex flex-col items-center mb-16 animate-fadeIn">
+            <div className="relative z-10 flex flex-col items-center mb-10 md:mb-16 animate-fadeIn px-4">
                  {/* Decorative Circle/Moon */}
                  <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-wuxia-gold/5 blur-3xl"></div>
                  
                  <h1
                     onClick={requestBrowserFullscreen}
-                    className="text-7xl md:text-9xl font-black font-serif text-transparent bg-clip-text bg-gradient-to-b from-gray-100 to-gray-500 tracking-[0.1em] drop-shadow-2xl select-none mb-6 text-center cursor-pointer"
+                    className="text-6xl sm:text-7xl md:text-9xl font-black font-serif text-transparent bg-clip-text bg-gradient-to-b from-gray-100 to-gray-500 tracking-[0.1em] drop-shadow-2xl select-none mb-4 md:mb-6 text-center cursor-pointer"
                     style={{
                         fontFamily: 'var(--ui-页面标题-font-family, inherit)',
-                        fontSize: 'var(--ui-页面标题-font-size, clamp(3rem,8vw,6rem))',
+                        fontSize: 'var(--ui-页面标题-font-size, clamp(2.5rem,10vw,6rem))',
                         lineHeight: 'var(--ui-页面标题-line-height, 1.2)',
                         fontStyle: 'var(--ui-页面标题-font-style, normal)'
                     }}
@@ -95,43 +95,43 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                     墨色江湖
                  </h1>
                  
-                 <div className="flex items-center gap-6 opacity-80">
-                     <div className="h-px w-16 bg-gradient-to-r from-transparent to-wuxia-red"></div>
-                     <h2 className="text-xl md:text-2xl font-serif text-wuxia-red tracking-[0.5em] uppercase font-bold text-shadow-sm" style={{ fontFamily: 'var(--ui-分组标题-font-family, inherit)', lineHeight: 'var(--ui-分组标题-line-height, 1.35)' }}>
+                 <div className="flex items-center gap-3 md:gap-6 opacity-80">
+                     <div className="h-px w-10 md:w-16 bg-gradient-to-r from-transparent to-wuxia-red"></div>
+                     <h2 className="text-lg md:text-2xl font-serif text-wuxia-red tracking-[0.3em] md:tracking-[0.5em] uppercase font-bold text-shadow-sm" style={{ fontFamily: 'var(--ui-分组标题-font-family, inherit)', lineHeight: 'var(--ui-分组标题-line-height, 1.35)' }}>
                         无尽武林
                      </h2>
-                     <div className="h-px w-16 bg-gradient-to-l from-transparent to-wuxia-red"></div>
+                     <div className="h-px w-10 md:w-16 bg-gradient-to-l from-transparent to-wuxia-red"></div>
                  </div>
             </div>
 
             {/* Menu Options */}
-            <div className="relative z-10 flex flex-col gap-6 w-64 animate-slide-in delay-100">
-                <GameButton onClick={onStart} variant="primary" className="text-lg py-4 shadow-lg">
+            <div className="relative z-10 flex flex-col gap-4 md:gap-6 w-64 animate-slide-in delay-100 px-4">
+                <GameButton onClick={onStart} variant="primary" className="text-base md:text-lg py-3 md:py-4 shadow-lg min-h-[44px]">
                     踏入江湖
                 </GameButton>
-                
-                <GameButton 
-                    onClick={onLoad} 
-                    variant="secondary" 
-                    className={`text-lg py-4 shadow-lg ${!hasSave ? 'opacity-50 cursor-not-allowed grayscale' : ''}`} 
+
+                <GameButton
+                    onClick={onLoad}
+                    variant="secondary"
+                    className={`text-base md:text-lg py-3 md:py-4 shadow-lg min-h-[44px] ${!hasSave ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                     disabled={!hasSave}
                 >
                     重入江湖
                 </GameButton>
 
-                <GameButton onClick={onImageManager} variant="secondary" className="text-lg py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100">
+                <GameButton onClick={onImageManager} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
                     图片管理
                 </GameButton>
 
-                <GameButton onClick={onWorldbookManager} variant="secondary" className="text-lg py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100">
+                <GameButton onClick={onWorldbookManager} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
                     世界书管理
                 </GameButton>
 
-                <GameButton onClick={onNovelDecomposition} variant="secondary" className="text-lg py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100">
+                <GameButton onClick={onNovelDecomposition} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
                     小说分解
                 </GameButton>
 
-                <GameButton onClick={onSettings} variant="secondary" className="text-lg py-4 shadow-lg border-opacity-50 opacity-80 hover:opacity-100">
+                <GameButton onClick={onSettings} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-80 hover:opacity-100 min-h-[44px]">
                     设置
                 </GameButton>
             </div>

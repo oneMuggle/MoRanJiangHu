@@ -7,12 +7,12 @@ import type {
 } from '../../../../types';
 import { 
     次级按钮样式,
-    统计卡,
     主按钮样式
 } from '../utils/imageManagerConstants';
 import { 
     格式化时间,
     获取NPC构图文案,
+    统计卡,
     空状态
 } from '../utils/imageManagerHelpers';
 
