@@ -29,18 +29,6 @@ jobs:
         env:
           VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
 
-      - name: Create wrangler config
-        run: |
-          rm -f wrangler.toml
-          echo 'name = "wuxia-game"' > wrangler.toml
-          echo 'compatibility_date = "2024-01-01"' >> wrangler.toml
-          echo "account_id = \"$CLOUDFLARE_ACCOUNT_ID\"" >> wrangler.toml
-          echo "" >> wrangler.toml
-          echo "[site]" >> wrangler.toml
-          echo 'bucket = "./dist"' >> wrangler.toml
-        env:
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Deploy to Cloudflare Pages
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -52,4 +40,4 @@ jobs:
           else
             npx wrangler pages project create wuxia-game --production-branch=main
           fi
-          npx wrangler pages deploy dist --project-name=wuxia-game --commit-dirty=true
+          npx wrangler pages deploy dist --project-name=wuxia-game --commit-message="Deploy from GitHub Actions"
