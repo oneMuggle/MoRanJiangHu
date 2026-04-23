@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import GameButton from '../../../ui/GameButton';
-import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度 } from '../../../../types';
+import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度, NSFW场景类型, 能力类型, 超能力分类, 觉醒程度, 武力等级 } from '../../../../types';
 import { 预设天赋, 预设背景 } from '../../../../data/presets';
 import { 开局预设方案结构 } from '../../../../data/newGamePresets';
 import { OrnateBorder } from '../../../ui/decorations/OrnateBorder';
@@ -72,6 +72,44 @@ const 宗门密度下拉选项: Array<{ value: WorldGenConfig['sectDensity']; la
     { value: '稀少', label: '稀少 (隐世不出)' },
     { value: '适中', label: '适中 (数大宗门)' },
     { value: '林立', label: '林立 (百家争鸣)' }
+];
+const 武力等级下拉选项: Array<{ value: 武力等级; label: string }> = [
+    { value: '低武', label: '低武' },
+    { value: '中武', label: '中武' },
+    { value: '高武', label: '高武' },
+    { value: '修仙', label: '修仙' }
+];
+const nsfw场景类型选项: Array<{ value: NSFW场景类型; label: string }> = [
+    { value: '无', label: '无' },
+    { value: '点到为止', label: '点到为止' },
+    { value: '适度展开', label: '适度展开' },
+    { value: '完全展开', label: '完全展开' }
+];
+const 能力类型选项: Array<{ value: 能力类型; label: string }> = [
+    { value: '传统武侠', label: '传统武侠' },
+    { value: '修仙体系', label: '修仙体系' },
+    { value: '超能力线', label: '超能力线' },
+    { value: '混合世界', label: '混合世界' }
+];
+const 超能力分类选项: Array<{ value: 超能力分类; label: string }> = [
+    { value: '心灵感应', label: '心灵感应' },
+    { value: '念力', label: '念力' },
+    { value: '预知', label: '预知' },
+    { value: '治愈', label: '治愈' },
+    { value: '元素操控', label: '元素操控' },
+    { value: '时空', label: '时空' },
+    { value: '变身', label: '变身' },
+    { value: '灵能', label: '灵能' },
+    { value: '高科技', label: '高科技' },
+    { value: '综合', label: '综合' },
+    { value: '未觉醒', label: '未觉醒' }
+];
+const 觉醒程度选项: Array<{ value: 觉醒程度; label: string }> = [
+    { value: '未觉醒', label: '未觉醒' },
+    { value: '初觉', label: '初觉' },
+    { value: '小成', label: '小成' },
+    { value: '大成', label: '大成' },
+    { value: '巅峰', label: '巅峰' }
 ];
 
 type DropdownProps = {
@@ -164,6 +202,11 @@ const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, r
         dynastySetting: '群雄逐鹿，王朝末年',
         sectDensity: '林立',
         tianjiaoSetting: '大争之世，天骄并起',
+        武力等级: '中武',
+        nsfw场景类型: '无',
+        能力类型: '传统武侠',
+        超能力分类: '未觉醒',
+        觉醒程度: '未觉醒',
         worldExtraRequirement: '',
         manualWorldPrompt: '',
         manualRealmPrompt: '',
@@ -1054,6 +1097,49 @@ const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, r
                                             className="w-full h-24 bg-black/50 border-2 border-transparent focus:border-wuxia-gold p-3 text-white outline-none rounded-md transition-all resize-none"
                                         />
                                         <div className="text-[11px] text-gray-500">仅作用于世界观提示词生成，不直接改写角色初始状态。</div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">武力等级</label>
+                                            <InlineSelect
+                                                value={worldConfig.武力等级}
+                                                options={武力等级下拉选项.filter(o => o.value !== '修仙')}
+                                                onChange={(武力等级) => setWorldConfig({ ...worldConfig, 武力等级 })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">NSFW 场景</label>
+                                            <InlineSelect
+                                                value={worldConfig.nsfw场景类型}
+                                                options={nsfw场景类型选项}
+                                                onChange={(nsfw场景类型) => setWorldConfig({ ...worldConfig, nsfw场景类型 })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">能力类型</label>
+                                            <InlineSelect
+                                                value={worldConfig.能力类型}
+                                                options={能力类型选项}
+                                                onChange={(能力类型) => setWorldConfig({ ...worldConfig, 能力类型 })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">超能力分类</label>
+                                            <InlineSelect
+                                                value={worldConfig.超能力分类}
+                                                options={超能力分类选项}
+                                                onChange={(超能力分类) => setWorldConfig({ ...worldConfig, 超能力分类 })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm text-wuxia-cyan font-bold">觉醒程度</label>
+                                            <InlineSelect
+                                                value={worldConfig.觉醒程度}
+                                                options={觉醒程度选项}
+                                                onChange={(觉醒程度) => setWorldConfig({ ...worldConfig, 觉醒程度 })}
+                                            />
+                                        </div>
                                     </div>
 
                                     <div className="space-y-4 rounded-2xl border border-wuxia-cyan/20 bg-black/25 p-4">
