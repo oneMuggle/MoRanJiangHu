@@ -9,7 +9,7 @@ import { 适度展开描写规则, 委婉成语列表, getRandomEuphemism } from
 
 /**
  * 根据亲密度等级动态注入动作约束
- * @param 亲密度等级 - NPC当前亲密度等级 (1-5)
+ * @param 亲密度等级 - NPC当前亲密度等级 (0-5)
  * @param nsfw场景类型 - NSFW场景档位
  * @returns 动作约束提示词
  */
@@ -18,6 +18,12 @@ export const 构建亲密度动作约束 = (
   nsfw场景类型: NSFW场景类型
 ): string => {
   const constraints: string[] = [];
+
+  // Level 0: 敌对/排斥状态
+  if (亲密度等级 <= 0) {
+    constraints.push('禁止任何身体接触与调情，保持敌对或冷漠距离');
+    return constraints.join('；');
+  }
 
   // 基础动作约束（所有等级）
   if (亲密度等级 >= 1) {

@@ -54,6 +54,32 @@ export interface NPC背包物品 {
     名称: string;
 }
 
+// 新增：NPC NSFW 角色卡片
+export type 服装状态值 = '穿着' | '半敞' | '褪下' | '移除';
+
+export interface 服装状态结构 {
+    上衣状态?: 服装状态值;
+    下装状态?: 服装状态值;
+    内衣状态?: 服装状态值;
+    内裤状态?: 服装状态值;
+    袜饰状态?: 服装状态值;
+}
+
+export interface 里象心法结构 {
+    名称: string;
+    表描述: string;
+    里描述: string;
+    亲密度解锁等级: number;
+    描写风格: string;
+}
+
+export interface NSFW行为特征结构 {
+    主动程度: '被动承受' | '半推半就' | '配合回应' | '主动引导' | '主导掌控';
+    反差偏好?: string;
+    特殊癖好?: string;
+    叙事锚点: string;
+}
+
 export interface NPC结构 {
     id: string;
     姓名: string;
@@ -111,6 +137,12 @@ export interface NPC结构 {
     初夜夺取者?: string;
     初夜时间?: string;
     初夜描述?: string;
+
+    // --- NSFW 角色卡片 ---
+    里象心法?: 里象心法结构;
+    亲密度等级?: number;
+    当前服装状态?: 服装状态结构;
+    NSFW行为特征?: NSFW行为特征结构;
 
     // 记忆系统
     记忆: NPC记忆[];

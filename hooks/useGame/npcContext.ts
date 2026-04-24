@@ -3,6 +3,7 @@ import { 规范化记忆配置 } from './memoryUtils';
 import { 构建NPC记忆展示结果 } from './npcMemorySummary';
 import { normalizeCanonicalGameTime, 结构化时间转标准串 } from './timeUtils';
 import { 解析境界映射值 } from '../../prompts/runtime/fandom';
+import { 计算亲密度等级 } from '../../models/intimacy';
 
 type 生图基础数据选项 = {
     cultivationSystemEnabled?: boolean;
@@ -455,7 +456,10 @@ export const 构建NPC上下文 = (
             ...(核心性格特征 ? { 核心性格特征 } : {}),
             ...(好感度突破条件 ? { 好感度突破条件 } : {}),
             ...(关系突破条件 ? { 关系突破条件 } : {}),
-            ...(关系网变量.length > 0 ? { 关系网变量 } : {})
+            ...(关系网变量.length > 0 ? { 关系网变量 } : {}),
+            亲密度等级: typeof npc?.亲密度等级 === 'number'
+                ? npc.亲密度等级
+                : 计算亲密度等级(typeof npc?.好感度 === 'number' ? npc.好感度 : 0)
         };
     };
 
@@ -479,7 +483,11 @@ export const 构建NPC上下文 = (
             是否处女: typeof npc?.是否处女 === 'boolean' ? npc.是否处女 : undefined,
             初夜夺取者: typeof npc?.初夜夺取者 === 'string' ? npc.初夜夺取者 : undefined,
             初夜时间: 规范化时间文本(npc?.初夜时间) || undefined,
-            初夜描述: typeof npc?.初夜描述 === 'string' ? npc.初夜描述 : undefined
+            初夜描述: typeof npc?.初夜描述 === 'string' ? npc.初夜描述 : undefined,
+            亲密度等级: typeof npc?.亲密度等级 === 'number' ? npc.亲密度等级 : undefined,
+            里象心法: npc?.里象心法 ? 清理空字段({ ...npc.里象心法 }) : undefined,
+            当前服装状态: npc?.当前服装状态 ? 清理空字段({ ...npc.当前服装状态 }) : undefined,
+            NSFW行为特征: npc?.NSFW行为特征 ? 清理空字段({ ...npc.NSFW行为特征 }) : undefined
         });
     };
 

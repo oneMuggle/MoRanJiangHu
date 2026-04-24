@@ -77,10 +77,10 @@ export const 亲密互动选项列表: 亲密互动选项[] = [
 /**
  * 计算亲密度等级
  * @param 好感度 - NPC好感度（0-100）
- * @returns 亲密度等级（1-5）
+ * @returns 亲密度等级（0-5）
  */
 export function 计算亲密度等级(好感度: number): number {
-  if (好感度 < 0) return 1;
+  if (好感度 <= 0) return 0;
   if (好感度 >= 100) return 5;
   return Math.floor(好感度 / 20) + 1;
 }

@@ -26,6 +26,7 @@ import {
     规范化比较文本,
 } from './promptRuntime';
 import { 构建AI角色声明提示词 } from '../../prompts/runtime/roleIdentity';
+import { 构建在场NPC_NSWF卡片组 } from '../../prompts/runtime/nsfwCard';
 import {
     构建字数要求提示词,
     构建免责声明输出要求提示词,
@@ -82,6 +83,7 @@ export type 系统提示词上下文片段 = {
     门派状态: string;
     任务状态: string;
     约定状态: string;
+    NSFW角色卡片: string;
 };
 
 export type 系统提示词构建结果 = {
@@ -1519,6 +1521,12 @@ export const 构建系统提示词 = ({
         : `【中期记忆】\n${memoryData.中期记忆.join('\n') || '暂无'}`;
     const contextMemory = options?.禁用中期长期记忆 ? '' : `${longMemory}\n${midMemory}`;
     const contextNPCData = npcContext.在场数据块;
+    const nsfwCardBlock = normalizedGameConfig.启用NSFW模式
+        ? 构建在场NPC_NSWF卡片组(
+            (socialData || []).filter((n: any) => n.是否在场 !== false),
+            openingConfig?.nsfw场景类型 || '完全展开'
+        )
+        : '';
     const contextStoryPlan = 构建剧情安排(statePayload);
     const contextHeroinePlan = normalizedGameConfig.启用女主剧情规划
         ? 构建女主剧情规划文本(statePayload)
@@ -1553,6 +1561,7 @@ export const 构建系统提示词 = ({
             contextMemory,
             contextStoryPlan,
             contextNPCData,
+            nsfwCardBlock,
             contextHeroinePlan,
             contextWorldState,
             contextEnvironmentState,
@@ -1592,7 +1601,8 @@ export const 构建系统提示词 = ({
             战斗状态: contextBattleState,
             门派状态: contextSectState,
             任务状态: contextTaskState,
-            约定状态: contextAgreementState
+            约定状态: contextAgreementState,
+            NSFW角色卡片: nsfwCardBlock
         }
     };
 };
