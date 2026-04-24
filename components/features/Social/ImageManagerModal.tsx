@@ -23,7 +23,7 @@ import { 规范化接口设置 } from '../../../utils/apiConfig';
 import { 自动场景横屏尺寸选项, 自动场景竖屏尺寸选项 } from '../../../utils/imageSizeOptions';
 import { IconScroll } from '../../ui/Icons';
 
-import { ImageManagerProvider, useImageManagerContext } from './ImageManager/context/ImageManagerContext';
+import { useImageManagerContext } from './ImageManager/context/ImageManagerContext';
 import {
     状态样式,
     状态文案,
@@ -52,6 +52,7 @@ import {
     预设输入拦截键盘事件
 } from './ImageManager/utils/imageManagerHelpers';
 import { PresetsTab } from './ImageManager/tabs/PresetsTab';
+import { ImageViewerOverlay, ManualConfirmOverlay, PromptDisplayOverlay } from './ImageManager/overlays';
 
 interface Props {
     socialList: NPC结构[];
@@ -4022,200 +4023,45 @@ const ImageManagerModal: React.FC<Props> = ({
             </div>
 
             {imageViewer && (
-                <div
-                    className="absolute inset-0 z-[250] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setImageViewer(null)}
-                >
-                    <div
-                        className="relative max-w-[92vw] max-h-[94vh] rounded-lg overflow-hidden border border-wuxia-gold/20 shadow-[0_0_50px_rgba(212,175,55,0.16)]"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <img src={imageViewer.src} alt={imageViewer.alt} className="max-w-[92vw] max-h-[94vh] object-contain bg-black" />
-                        <button
-                            type="button"
-                            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-black/60 border border-gray-700 text-gray-300"
-                            onClick={() => setImageViewer(null)}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                <ImageViewerOverlay
+                    src={imageViewer.src}
+                    alt={imageViewer.alt}
+                    onClose={() => setImageViewer(null)}
+                />
             )}
 
             {manualFlowStage !== 'idle' && (
-                <div className="absolute inset-0 z-[240] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="w-full max-w-lg rounded border border-wuxia-gold/30 bg-[#0c0d0f]/95 shadow-[0_0_50px_rgba(212,175,55,0.15)] p-5 md:p-6 space-y-5 relative">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_100%)] pointer-events-none"></div>
-                        <div className="relative z-10">
-                            <div className="text-wuxia-gold font-serif font-bold text-xl tracking-[0.15em] text-shadow-glow">
-                                {manualFlowStage === 'submitting' ? (manualBackgroundMode ? '任务已提交（后台处理）' : '正在提交任务') : '确认生成图片'}
-                            </div>
-                            <div className="text-sm text-gray-400 mt-2 font-serif">
-                                {manualFlowStage === 'submitting'
-                                    ? (manualBackgroundMode ? '任务已进入后台队列，可直接关闭当前提示。' : '系统正在提交任务，请稍候...')
-                                    : '请确认角色与生成参数无误。'}
-                            </div>
-                        </div>
-
-                        <div className="relative z-10 rounded border border-wuxia-gold/20 bg-black/40 p-4 space-y-4 text-sm font-serif">
-                            <div className="flex items-center justify-between gap-3 border-b border-wuxia-gold/10 pb-2">
-                                <span className="text-wuxia-gold/60">目标角色</span>
-                                <span className="text-wuxia-gold/90">{selectedNpc?.姓名 || '未选择角色'}</span>
-                            </div>
-                            <div className="flex items-center justify-between gap-3 border-b border-wuxia-gold/10 pb-2">
-                                <span className="text-wuxia-gold/60">构图</span>
-                                <span className="text-gray-300">
-                                    {manualComposition === '头像'
-                                        ? '头像 (1024:1024)'
-                                        : manualComposition === '半身'
-                                            ? '半身像 (3:4)'
-                                            : manualComposition === '立绘'
-                                                ? '立绘'
-                                                : (manualCustomComposition.trim() ? `自定义：${manualCustomComposition.trim()}` : '自定义构图')}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-3 border-b border-wuxia-gold/10 pb-2">
-                                <span className="text-wuxia-gold/60">处理模式</span>
-                                <span className="text-gray-300">{manualBackgroundMode ? '后台处理' : '前台等待'}</span>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="text-wuxia-gold/60">额外要求</div>
-                                <div className="max-h-[84px] overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words text-gray-300 rounded border border-wuxia-gold/10 bg-black/50 p-3 font-mono text-xs leading-relaxed">
-                                    {manualExtraRequirement.trim() || '无'}
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="text-wuxia-gold/60">角色资料</div>
-                                <div className="max-h-[140px] overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words text-gray-300 rounded border border-wuxia-gold/10 bg-black/50 p-3 text-xs leading-relaxed">
-                                    {selectedNpcSummary || '暂无资料'}
-                                </div>
-                            </div>
-                        </div>
-                        {manualFlowStage === 'submitting' ? (
-                            <div className="relative z-10 rounded border border-wuxia-gold/30 bg-wuxia-gold/5 p-4 space-y-3">
-                                <div className="flex items-center gap-3 text-wuxia-gold/90">
-                                    <div className="w-5 h-5 rounded-full border-2 border-wuxia-gold border-t-transparent animate-spin" />
-                                    <div>
-                                        <div className="font-serif tracking-wider">{recentManualQueueTask?.进度文本 || recentQueueTask?.进度文本 || manualStatusText || '正在提交任务或等待状态更新...'}</div>
-                                        <div className="text-[10px] text-wuxia-gold/60 mt-1 uppercase tracking-widest">当前阶段：{获取生图阶段中文((recentManualQueueTask?.进度阶段 || recentQueueTask?.进度阶段) || 从任务状态推导阶段(recentManualQueueTask?.状态 || recentQueueTask?.状态))}</div>
-                                    </div>
-                                </div>
-                                {(recentManualQueueTask?.状态 || recentQueueTask?.状态) === 'success' && (
-                                    <div className="rounded border border-emerald-900/50 bg-emerald-950/20 px-3 py-2 text-sm text-emerald-400 font-serif">
-                                        图片已生成并保存到图库。
-                                    </div>
-                                )}
-                                {(recentManualQueueTask?.状态 || recentQueueTask?.状态) === 'failed' && (
-                                    <div className="rounded border border-red-900/50 bg-red-950/20 px-3 py-2 text-sm text-red-400 whitespace-pre-wrap break-words font-serif">
-                                        {recentManualQueueTask?.错误信息 || recentQueueTask?.错误信息 || '图片生成失败。'}
-                                    </div>
-                                )}
-                                <div className="flex justify-end">
-                                    <button
-                                        type="button"
-                                        onClick={handleCancelSubmitting}
-                                        className={次级按钮样式()}
-                                    >
-                                        {manualBackgroundMode ? '关闭提示' : '取消等待'}
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="relative z-10 flex flex-wrap justify-end gap-3 pt-2">
-                                <button
-                                    type="button"
-                                    onClick={handleCancelConfirm}
-                                    className={次级按钮样式()}
-                                >
-                                    返回修改
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleSubmitManual}
-                                    disabled={!canSubmitManual}
-                                    className={主按钮样式(!canSubmitManual)}
-                                >
-                                    确认生成
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <ManualConfirmOverlay
+                    flowStage={manualFlowStage}
+                    selectedNpcName={selectedNpc?.姓名}
+                    composition={manualComposition}
+                    customComposition={manualCustomComposition}
+                    backgroundMode={manualBackgroundMode}
+                    extraRequirement={manualExtraRequirement}
+                    npcSummary={selectedNpcSummary || '暂无资料'}
+                    statusText={manualStatusText}
+                    recentTask={recentManualQueueTask}
+                    fallbackTask={recentQueueTask}
+                    获取生图阶段中文={获取生图阶段中文}
+                    从任务状态推导阶段={从任务状态推导阶段}
+                    主按钮样式={主按钮样式}
+                    次级按钮样式={次级按钮样式}
+                    onCancelConfirm={handleCancelConfirm}
+                    onCancelSubmitting={handleCancelSubmitting}
+                    onSubmitManual={handleSubmitManual}
+                    canSubmit={canSubmitManual}
+                />
             )}
 
             {promptDisplayModal.打开 && (
-                <div className="fixed inset-0 z-[250] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
-                    <div
-                        className="w-full max-w-2xl bg-[#0c0d0f] border border-fuchsia-500/30 rounded-xl shadow-[0_0_50px_rgba(217,70,239,0.15)] max-h-[80vh] flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between p-4 border-b border-fuchsia-500/20">
-                            <div className="text-fuchsia-200 font-serif text-lg">提示词详情</div>
-                            <button
-                                type="button"
-                                onClick={() => setPromptDisplayModal({ 打开: false })}
-                                className="text-gray-400 hover:text-white transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                            {promptDisplayModal.生图词组 && (
-                                <div className="space-y-2">
-                                    <div className="text-sm font-bold text-fuchsia-300">生图词组</div>
-                                    <div className="text-sm text-gray-300 bg-black/40 rounded p-3 font-mono whitespace-pre-wrap">{promptDisplayModal.生图词组}</div>
-                                </div>
-                            )}
-                            {promptDisplayModal.最终正向提示词 && (
-                                <div className="space-y-2">
-                                    <div className="text-sm font-bold text-emerald-300 flex items-center justify-between">
-                                        <span>最终正向提示词</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(promptDisplayModal.最终正向提示词 || '');
-                                            }}
-                                            className="text-xs text-emerald-400 hover:text-emerald-300 underline"
-                                        >
-                                            复制
-                                        </button>
-                                    </div>
-                                    <div className="text-sm text-gray-300 bg-black/40 rounded p-3 font-mono whitespace-pre-wrap">{promptDisplayModal.最终正向提示词}</div>
-                                </div>
-                            )}
-                            {promptDisplayModal.最终负向提示词 && (
-                                <div className="space-y-2">
-                                    <div className="text-sm font-bold text-red-300 flex items-center justify-between">
-                                        <span>最终负向提示词</span>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(promptDisplayModal.最终负向提示词 || '');
-                                            }}
-                                            className="text-xs text-red-400 hover:text-red-300 underline"
-                                        >
-                                            复制
-                                        </button>
-                                    </div>
-                                    <div className="text-sm text-gray-300 bg-black/40 rounded p-3 font-mono whitespace-pre-wrap">{promptDisplayModal.最终负向提示词}</div>
-                                </div>
-                            )}
-                            {promptDisplayModal.错误信息 && (
-                                <div className="space-y-2">
-                                    <div className="text-sm font-bold text-red-300">错误信息</div>
-                                    <div className="text-sm text-red-400 bg-red-950/20 rounded p-3">{promptDisplayModal.错误信息}</div>
-                                </div>
-                            )}
-                            {!promptDisplayModal.生图词组 && !promptDisplayModal.最终正向提示词 && (
-                                <div className="text-center text-gray-500 py-8">提示词数据不可用</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <PromptDisplayOverlay
+                    打开={promptDisplayModal.打开}
+                    生图词组={promptDisplayModal.生图词组}
+                    最终正向提示词={promptDisplayModal.最终正向提示词}
+                    最终负向提示词={promptDisplayModal.最终负向提示词}
+                    错误信息={promptDisplayModal.错误信息}
+                    onClose={() => setPromptDisplayModal({ 打开: false })}
+                />
             )}
         </div>
     );
