@@ -1,37 +1,37 @@
 import React from 'react';
+import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
 import {
     接口设置结构, 提示词结构, ThemePreset, 视觉设置结构, 节日结构, 聊天记录结构,
     游戏设置结构, 记忆配置结构, 记忆系统结构, NPC结构, TavernCommand, OpeningConfig, 剧情系统结构
-} from '../../../../types';
+} from '../../../types';
 
-const ApiSettings = React.lazy(() => import('../ApiSettings'));
-const ImageGenerationSettings = React.lazy(() => import('../ImageGenerationSettings'));
-const PromptManager = React.lazy(() => import('../PromptManager'));
-const StorageManager = React.lazy(() => import('../StorageManager'));
-const ThemeSettings = React.lazy(() => import('../ThemeSettings'));
-const VisualSettings = React.lazy(() => import('../VisualSettings'));
-const WorldSettings = React.lazy(() => import('../WorldSettings'));
-const GameSettings = React.lazy(() => import('../GameSettings'));
-const RealitySettings = React.lazy(() => import('../RealitySettings'));
-const TavernPresetSettings = React.lazy(() => import('../TavernPresetSettings'));
-const MemorySettings = React.lazy(() => import('../MemorySettings'));
-const HistoryViewer = React.lazy(() => import('../HistoryViewer'));
-const ContextViewer = React.lazy(() => import('../ContextViewer'));
-const RecallModelSettings = React.lazy(() => import('../RecallModelSettings'));
-const MemorySummaryModelSettings = React.lazy(() => import('../MemorySummaryModelSettings'));
-const PolishModelSettings = React.lazy(() => import('../PolishModelSettings'));
-const WorldEvolutionModelSettings = React.lazy(() => import('../WorldEvolutionModelSettings'));
-const VariableModelSettings = React.lazy(() => import('../VariableModelSettings'));
-const PlanningModelSettings = React.lazy(() => import('../PlanningModelSettings'));
-const IndependentApiGptModeSettings = React.lazy(() => import('../IndependentApiGptModeSettings'));
-const NovelDecompositionApiSettings = React.lazy(() => import('../NovelDecompositionApiSettings'));
-const CurrentNovelDecompositionInjectionSettings = React.lazy(() => import('../CurrentNovelDecompositionInjectionSettings'));
-const MusicSettings = React.lazy(() => import('../MusicSettings'));
-const NpcManager = React.lazy(() => import('../NpcManager'));
-const VariableManager = React.lazy(() => import('../VariableManager'));
-const IntegratedModelSettings = React.lazy(() => import('../IntegratedModelSettings'));
+const ApiSettings = React.lazy(() => import('./ApiSettings'));
+const ImageGenerationSettings = React.lazy(() => import('./ImageGenerationSettings'));
+const PromptManager = React.lazy(() => import('./PromptManager'));
+const StorageManager = React.lazy(() => import('./StorageManager'));
+const ThemeSettings = React.lazy(() => import('./ThemeSettings'));
+const VisualSettings = React.lazy(() => import('./VisualSettings'));
+const WorldSettings = React.lazy(() => import('./WorldSettings'));
+const GameSettings = React.lazy(() => import('./GameSettings'));
+const RealitySettings = React.lazy(() => import('./RealitySettings'));
+const TavernPresetSettings = React.lazy(() => import('./TavernPresetSettings'));
+const MemorySettings = React.lazy(() => import('./MemorySettings'));
+const HistoryViewer = React.lazy(() => import('./HistoryViewer'));
+const ContextViewer = React.lazy(() => import('./ContextViewer'));
+const RecallModelSettings = React.lazy(() => import('./RecallModelSettings'));
+const MemorySummaryModelSettings = React.lazy(() => import('./MemorySummaryModelSettings'));
+const PolishModelSettings = React.lazy(() => import('./PolishModelSettings'));
+const WorldEvolutionModelSettings = React.lazy(() => import('./WorldEvolutionModelSettings'));
+const VariableModelSettings = React.lazy(() => import('./VariableModelSettings'));
+const PlanningModelSettings = React.lazy(() => import('./PlanningModelSettings'));
+const IntegratedModelSettings = React.lazy(() => import('./IntegratedModelSettings'));
+const IndependentApiGptModeSettings = React.lazy(() => import('./IndependentApiGptModeSettings'));
+const NovelDecompositionApiSettings = React.lazy(() => import('./NovelDecompositionApiSettings'));
+const CurrentNovelDecompositionInjectionSettings = React.lazy(() => import('./CurrentNovelDecompositionInjectionSettings'));
+const MusicSettings = React.lazy(() => import('./MusicSettings'));
+const NpcManager = React.lazy(() => import('./NpcManager'));
+const VariableManager = React.lazy(() => import('./VariableManager'));
 
-type SettingsTab = 'api' | 'image_generation' | 'integrated_models' | 'recall' | 'memory_summary_model' | 'polish' | 'world_evolution' | 'variable_model' | 'planning_model' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager';
 type RuntimeStateSections = Record<'角色' | '环境' | '社交' | '世界' | '战斗' | '剧情' | '女主剧情规划' | '玩家门派' | '任务列表' | '约定列表' | '记忆系统', unknown>;
 
 type ContextSection = {
@@ -55,10 +55,25 @@ type ContextSnapshot = {
     }>;
 };
 
-interface Props {
-    activeTab: SettingsTab;
-    onTabChange: (tab: SettingsTab) => void;
+export type SettingsTabId =
+    | 'api' | 'image_generation' | 'integrated_models'
+    | 'recall' | 'memory_summary_model' | 'polish'
+    | 'world_evolution' | 'variable_model' | 'planning_model'
+    | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime'
+    | 'prompt' | 'storage' | 'theme' | 'visual' | 'world'
+    | 'game' | 'reality' | 'tavern_preset' | 'memory'
+    | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager';
+
+export interface SettingsTabItem {
+    id: SettingsTabId;
+    label: string;
+}
+
+export interface SettingsPanelProps {
+    activeTab: SettingsTabId;
+    onTabChange: (tab: SettingsTabId) => void;
     onClose: () => void;
+
     apiConfig: 接口设置结构;
     visualConfig: 视觉设置结构;
     gameConfig?: 游戏设置结构;
@@ -73,6 +88,7 @@ interface Props {
     currentStory?: 剧情系统结构;
     openingConfig?: OpeningConfig;
     contextSnapshot?: ContextSnapshot;
+
     onSaveApi: (config: 接口设置结构) => void;
     onSaveVisual: (config: 视觉设置结构) => void;
     onSaveGame?: (config: 游戏设置结构) => void;
@@ -90,49 +106,24 @@ interface Props {
     onReturnToHome?: () => void;
     isHome?: boolean;
     requestConfirm?: (options: { title?: string; message: string; confirmText?: string; cancelText?: string; danger?: boolean }) => Promise<boolean>;
+
+    navMode: 'sidebar' | 'pills';
+    tabs: SettingsTabItem[];
 }
 
-const MobileSettingsModal: React.FC<Props> = ({
+const 设置加载占位 = (
+    <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-wuxia-gold/10 bg-black/20 text-sm tracking-[0.2em] text-wuxia-gold/70">
+        设置载入中…
+    </div>
+);
+
+const SettingsPanel: React.FC<SettingsPanelProps> = ({
     activeTab, onTabChange, onClose,
     apiConfig, visualConfig, gameConfig, memoryConfig, prompts, festivals, currentTheme, history, memorySystem, socialList, runtimeState, currentStory, openingConfig, contextSnapshot,
     onSaveApi, onSaveVisual, onSaveGame, onSaveMemory, onCreateNpc, onSaveNpc, onDeleteNpc, onStartNpcMemorySummary, onUploadNpcImage, onReplaceVariableSection, onApplyVariableCommand, onUpdatePrompts, onUpdateFestivals, onThemeChange,
-    onReturnToHome, isHome, requestConfirm
+    onReturnToHome, isHome, requestConfirm,
+    navMode, tabs,
 }) => {
-    const tabItems = [
-        { id: 'game', label: '游戏' },
-        { id: 'reality', label: '真实' },
-        { id: 'tavern_preset', label: '酒馆' },
-        { id: 'world', label: '世界' },
-        { id: 'memory', label: '记忆' },
-        { id: 'visual', label: '视觉' },
-        { id: 'npc_management', label: 'NPC' },
-        { id: 'variable_manager', label: '变量' },
-        { id: 'music', label: '音乐' },
-        { id: 'history', label: '历史' },
-        { id: 'context', label: '上下文' },
-        { id: 'api', label: '接口' },
-        { id: 'image_generation', label: '文生图' },
-        { id: 'integrated_models', label: '集成' },
-        { id: 'recall', label: '回忆' },
-        { id: 'memory_summary_model', label: '总结' },
-        { id: 'polish', label: '优化' },
-        { id: 'world_evolution', label: '演变' },
-        { id: 'variable_model', label: '变量' },
-        { id: 'planning_model', label: '规划' },
-        { id: 'independent_api_gpt', label: '独立GPT' },
-        { id: 'novel_decomposition', label: '拆分接口' },
-        { id: 'novel_decomposition_runtime', label: '拆分注入' },
-        { id: 'prompt', label: '提示词' },
-        { id: 'theme', label: '风格' },
-        { id: 'storage', label: '存储' }
-    ] as const;
-
-    const 设置加载占位 = (
-        <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-wuxia-gold/10 bg-black/20 text-xs tracking-[0.18em] text-wuxia-gold/70">
-            设置载入中…
-        </div>
-    );
-
     const renderTabContent = () => {
         if (activeTab === 'api') return <ApiSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'image_generation') return <ImageGenerationSettings settings={apiConfig} onSave={onSaveApi} />;
@@ -207,6 +198,110 @@ const MobileSettingsModal: React.FC<Props> = ({
         return null;
     };
 
+    if (navMode === 'sidebar') {
+        return (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] overflow-y-auto animate-fadeIn">
+                <div className="min-h-full w-full flex items-start md:items-center justify-center p-0 md:p-4">
+                    <OrnateBorder className="w-full h-[100dvh] md:max-w-7xl md:h-[85vh] md:max-h-[90vh] flex shadow-[0_0_80px_rgba(0,0,0,0.9)] p-0 overflow-hidden backdrop-blur-md rounded-none md:rounded-2xl">
+                        <div className="flex w-full h-full min-h-0">
+                            <div className="hidden md:flex w-[220px] lg:w-[236px] bg-black/40 border-r border-wuxia-gold/10 flex-col pt-9 relative z-10 min-h-0">
+                                <h2 className="text-xl text-wuxia-gold font-serif font-black px-5 mb-6 italic" style={{ fontFamily: 'var(--ui-页面标题-font-family, inherit)', fontSize: 'var(--ui-页面标题-font-size, 28px)' }}>设置</h2>
+                                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                    {tabs.map(item => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => onTabChange(item.id)}
+                                            className={`w-full px-4 py-3 text-left text-sm font-bold tracking-[0.2em] transition-all hover:bg-white/5 hover:pl-6 ${
+                                                activeTab === item.id
+                                                    ? 'text-wuxia-gold border-l-4 border-wuxia-gold bg-white/5 shadow-[inset_10px_0_20px_rgba(0,0,0,0.5)]'
+                                                    : 'text-gray-500 border-l-4 border-transparent'
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="p-4 border-t border-gray-800/50 space-y-3 bg-black/20">
+                                    {!isHome && onReturnToHome && (
+                                        <button
+                                            onClick={onReturnToHome}
+                                            className="w-full py-3 border border-red-900/50 text-red-500 hover:bg-red-900/10 hover:text-red-400 hover:border-red-500 text-xs tracking-[0.2em] transition-all flex items-center justify-center gap-2 group"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 group-hover:-translate-x-1 transition-transform">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                            </svg>
+                                            返回首页
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={onClose}
+                                        className="w-full py-3 bg-wuxia-gold text-black font-bold text-xs tracking-[0.2em] hover:bg-white transition-colors shadow-lg"
+                                    >
+                                        关闭设置
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="md:hidden w-full h-full flex flex-col min-h-0">
+                                <div className="shrink-0 border-b border-wuxia-gold/20 bg-black/60">
+                                    <div className="px-4 py-3 flex items-center justify-between">
+                                        <h2 className="text-lg text-wuxia-gold font-serif font-black tracking-wider" style={{ fontFamily: 'var(--ui-页面标题-font-family, inherit)', fontSize: 'var(--ui-页面标题-font-size, 24px)' }}>设置</h2>
+                                        <div className="flex items-center gap-2">
+                                            {!isHome && onReturnToHome && (
+                                                <button
+                                                    onClick={onReturnToHome}
+                                                    className="px-2 py-1 text-[10px] border border-red-900/60 text-red-400 rounded"
+                                                >
+                                                    返回
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={onClose}
+                                                className="px-2 py-1 text-[10px] border border-wuxia-gold/50 text-wuxia-gold rounded"
+                                            >
+                                                关闭
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="px-2 pb-2 overflow-x-auto no-scrollbar">
+                                        <div className="flex gap-2 min-w-max">
+                                            {tabs.map(item => (
+                                                <button
+                                                    key={`m-${item.id}`}
+                                                    onClick={() => onTabChange(item.id)}
+                                                    className={`px-3 py-1.5 rounded border text-xs whitespace-nowrap transition-colors ${
+                                                        activeTab === item.id
+                                                            ? 'border-wuxia-gold bg-wuxia-gold/10 text-wuxia-gold'
+                                                            : 'border-gray-700 text-gray-400'
+                                                    }`}
+                                                >
+                                                    {item.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex-1 min-h-0 p-4 overflow-y-auto relative z-10 custom-scrollbar">
+                                    <React.Suspense fallback={设置加载占位}>
+                                        {renderTabContent()}
+                                    </React.Suspense>
+                                </div>
+                            </div>
+
+                            <div className="hidden md:block flex-1 min-h-0 p-8 overflow-y-auto relative z-10 custom-scrollbar">
+                                <React.Suspense fallback={设置加载占位}>
+                                    {renderTabContent()}
+                                </React.Suspense>
+                            </div>
+                        </div>
+                    </OrnateBorder>
+                </div>
+            </div>
+        );
+    }
+
+    // pills mode (mobile)
     return (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[220] flex items-center justify-center p-0 sm:p-4 md:hidden animate-fadeIn">
             <div className="w-full h-full sm:h-[90vh] bg-[#0b0b0c]/95 border-0 sm:border border-wuxia-gold/30 rounded-none sm:rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col">
@@ -238,10 +333,10 @@ const MobileSettingsModal: React.FC<Props> = ({
                     </div>
                     <div className="mt-3 overflow-x-auto no-scrollbar">
                         <div className="flex items-center gap-2 min-w-max">
-                            {tabItems.map(item => (
+                            {tabs.map(item => (
                                 <button
                                     key={`mobile-tab-${item.id}`}
-                                    onClick={() => onTabChange(item.id as any)}
+                                    onClick={() => onTabChange(item.id)}
                                     className={`px-3 py-1.5 rounded-full text-[11px] border transition-colors ${
                                         activeTab === item.id
                                             ? 'border-wuxia-gold bg-wuxia-gold/12 text-wuxia-gold'
@@ -265,4 +360,4 @@ const MobileSettingsModal: React.FC<Props> = ({
     );
 };
 
-export default MobileSettingsModal;
+export default SettingsPanel;

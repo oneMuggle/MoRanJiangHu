@@ -177,12 +177,16 @@ export default defineConfig(({ mode }) => {
               return 'image-manager-mobile';
             }
  
-            if (normalizedId.includes('/components/features/Settings/mobile/MobileSettingsModal')) {
-              return 'settings-mobile-entry';
+            if (normalizedId.includes('/components/features/Settings/SettingsPanel')) {
+              return 'settings-unified-entry';
             }
- 
+
+            if (normalizedId.includes('/components/features/Settings/mobile/MobileSettingsModal')) {
+              return 'settings-mobile-legacy';
+            }
+
             if (normalizedId.includes('/components/features/Settings/SettingsModal')) {
-              return 'settings-desktop-entry';
+              return 'settings-desktop-legacy';
             }
  
             if (normalizedId.includes('/components/features/Settings/')) {

@@ -14,6 +14,7 @@ import { 构建字体注入样式文本, 构建UI文字CSS变量 } from './utils
 import { 获取图片资源文本地址 } from './utils/imageAssets';
 import { MusicProvider } from './components/features/Music/MusicProvider';
 import { 小说拆分后台调度服务 } from './services/novel-decomposition/novelDecompositionScheduler';
+import { desktopTabs, mobileTabs } from './components/features/Settings/tabDefinitions';
 
 type 可预加载组件<T extends React.ComponentType<any>> = React.LazyExoticComponent<T> & {
     preload?: () => Promise<unknown>;
@@ -31,8 +32,7 @@ const CharacterModal = 创建可预加载懒组件(() => import('./components/fe
 const MobileCharacter = 创建可预加载懒组件(() => import('./components/features/Character/MobileCharacter'));
 const NewGameWizard = 创建可预加载懒组件(() => import('./components/features/NewGame/NewGameWizard'));
 const MobileNewGameWizard = 创建可预加载懒组件(() => import('./components/features/NewGame/mobile/MobileNewGameWizard'));
-const SettingsModal = 创建可预加载懒组件(() => import('./components/features/Settings/SettingsModal'));
-const MobileSettingsModal = 创建可预加载懒组件(() => import('./components/features/Settings/mobile/MobileSettingsModal'));
+const SettingsPanel = 创建可预加载懒组件(() => import('./components/features/Settings/SettingsPanel'));
 const InventoryModal = 创建可预加载懒组件(() => import('./components/features/Inventory/InventoryModal'));
 const MobileInventoryModal = 创建可预加载懒组件(() => import('./components/features/Inventory/MobileInventoryModal'));
 const EquipmentModal = 创建可预加载懒组件(() => import('./components/features/Equipment/EquipmentModal'));
@@ -239,7 +239,7 @@ const App: React.FC = () => {
                 MobileSocial,
                 MobileTask,
                 MobileStory,
-                MobileSettingsModal,
+                SettingsPanel,
                 MobileMemory,
                 MobileWorldModal,
                 MobileMapModal,
@@ -251,7 +251,7 @@ const App: React.FC = () => {
                 SocialModal,
                 TaskModal,
                 StoryModal,
-                SettingsModal,
+                SettingsPanel,
                 MemoryModal,
                 WorldModal,
                 MapModal,
@@ -1040,81 +1040,44 @@ const App: React.FC = () => {
             {/* Settings Modal */}
             {state.showSettings && (
                 <懒加载边界>
-                    {isMobile ? (
-                        <MobileSettingsModal
-                            activeTab={state.activeTab}
-                            onTabChange={setters.setActiveTab}
-                            onClose={closeSettings}
-                            apiConfig={state.apiConfig}
-                            visualConfig={state.visualConfig}
-                            gameConfig={state.gameConfig}
-                            memoryConfig={state.memoryConfig}
-                            prompts={state.prompts}
-                            festivals={state.festivals}
-                            currentTheme={state.currentTheme}
-                            history={state.历史记录}
-                            memorySystem={state.记忆系统}
-                            socialList={state.社交}
-                            runtimeState={runtimeStateSections}
-                            currentStory={state.剧情}
-                            openingConfig={state.开局配置}
-                            contextSnapshot={contextSnapshot}
-                            onSaveApi={actions.saveSettings}
-                            onSaveVisual={actions.saveVisualSettings}
-                            onSaveGame={actions.saveGameSettings}
-                            onSaveMemory={actions.saveMemorySettings}
-                            onCreateNpc={actions.createNpcManually}
-                            onSaveNpc={actions.updateNpcManually}
-                            onDeleteNpc={actions.deleteNpcManually}
-                            onStartNpcMemorySummary={actions.handleQueueManualNpcMemorySummary}
-                            onUploadNpcImage={actions.uploadNpcImageToSlot}
-                            onReplaceVariableSection={actions.updateRuntimeVariableSection}
-                            onApplyVariableCommand={actions.applyRuntimeVariableCommand}
-                            onUpdatePrompts={actions.updatePrompts}
-                            onUpdateFestivals={actions.updateFestivals}
-                            onThemeChange={setters.setCurrentTheme}
-                            requestConfirm={requestConfirm}
-                            onReturnToHome={handleReturnToHomeFromSettings}
-                            isHome={state.view === 'home'}
-                        />
-                    ) : (
-                        <SettingsModal
-                            activeTab={state.activeTab}
-                            onTabChange={setters.setActiveTab}
-                            onClose={closeSettings}
-                            apiConfig={state.apiConfig}
-                            visualConfig={state.visualConfig}
-                            gameConfig={state.gameConfig}
-                            memoryConfig={state.memoryConfig}
-                            prompts={state.prompts}
-                            festivals={state.festivals}
-                            currentTheme={state.currentTheme}
-                            history={state.历史记录}
-                            memorySystem={state.记忆系统}
-                            socialList={state.社交}
-                            runtimeState={runtimeStateSections}
-                            currentStory={state.剧情}
-                            openingConfig={state.开局配置}
-                            contextSnapshot={contextSnapshot}
-                            onSaveApi={actions.saveSettings}
-                            onSaveVisual={actions.saveVisualSettings}
-                            onSaveGame={actions.saveGameSettings}
-                            onSaveMemory={actions.saveMemorySettings}
-                            onCreateNpc={actions.createNpcManually}
-                            onSaveNpc={actions.updateNpcManually}
-                            onDeleteNpc={actions.deleteNpcManually}
-                            onStartNpcMemorySummary={actions.handleQueueManualNpcMemorySummary}
-                            onUploadNpcImage={actions.uploadNpcImageToSlot}
-                            onReplaceVariableSection={actions.updateRuntimeVariableSection}
-                            onApplyVariableCommand={actions.applyRuntimeVariableCommand}
-                            onUpdatePrompts={actions.updatePrompts}
-                            onUpdateFestivals={actions.updateFestivals}
-                            onThemeChange={setters.setCurrentTheme}
-                            requestConfirm={requestConfirm}
-                            onReturnToHome={handleReturnToHomeFromSettings}
-                            isHome={state.view === 'home'}
-                        />
-                    )}
+                    <SettingsPanel
+                        navMode={isMobile ? 'pills' : 'sidebar'}
+                        tabs={isMobile ? mobileTabs : desktopTabs}
+                        activeTab={state.activeTab as any}
+                        onTabChange={setters.setActiveTab as any}
+                        onClose={closeSettings}
+                        apiConfig={state.apiConfig}
+                        visualConfig={state.visualConfig}
+                        gameConfig={state.gameConfig}
+                        memoryConfig={state.memoryConfig}
+                        prompts={state.prompts}
+                        festivals={state.festivals}
+                        currentTheme={state.currentTheme}
+                        history={state.历史记录}
+                        memorySystem={state.记忆系统}
+                        socialList={state.社交}
+                        runtimeState={runtimeStateSections}
+                        currentStory={state.剧情}
+                        openingConfig={state.开局配置}
+                        contextSnapshot={contextSnapshot}
+                        onSaveApi={actions.saveSettings}
+                        onSaveVisual={actions.saveVisualSettings}
+                        onSaveGame={actions.saveGameSettings}
+                        onSaveMemory={actions.saveMemorySettings}
+                        onCreateNpc={actions.createNpcManually}
+                        onSaveNpc={actions.updateNpcManually}
+                        onDeleteNpc={actions.deleteNpcManually}
+                        onStartNpcMemorySummary={actions.handleQueueManualNpcMemorySummary}
+                        onUploadNpcImage={actions.uploadNpcImageToSlot}
+                        onReplaceVariableSection={actions.updateRuntimeVariableSection}
+                        onApplyVariableCommand={actions.applyRuntimeVariableCommand}
+                        onUpdatePrompts={actions.updatePrompts}
+                        onUpdateFestivals={actions.updateFestivals}
+                        onThemeChange={setters.setCurrentTheme}
+                        requestConfirm={requestConfirm}
+                        onReturnToHome={handleReturnToHomeFromSettings}
+                        isHome={state.view === 'home'}
+                    />
                 </懒加载边界>
             )}
 

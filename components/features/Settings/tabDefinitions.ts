@@ -1,0 +1,53 @@
+import { SettingsTabItem } from './SettingsPanel';
+
+export const desktopTabs: SettingsTabItem[] = [
+    { id: 'game', label: '游戏设定' },
+    { id: 'reality', label: '真实世界' },
+    { id: 'tavern_preset', label: '酒馆预设' },
+    { id: 'world', label: '世界设定' },
+    { id: 'memory', label: '记忆配置' },
+    { id: 'visual', label: '视觉显示' },
+    { id: 'npc_management', label: 'NPC管理' },
+    { id: 'variable_manager', label: '变量管理' },
+    { id: 'music', label: '背景音乐' },
+    { id: 'history', label: '互动历史' },
+    { id: 'context', label: '上下文' },
+    { id: 'api', label: '接口连接' },
+    { id: 'image_generation', label: '文生图' },
+    { id: 'integrated_models', label: '模型配置' },
+    { id: 'independent_api_gpt', label: '独立API GPT' },
+    { id: 'novel_decomposition', label: '小说分解接口' },
+    { id: 'novel_decomposition_runtime', label: '当前小说分解注入' },
+    { id: 'prompt', label: '提示词' },
+    { id: 'theme', label: '界面风格' },
+    { id: 'storage', label: '数据存储' }
+];
+
+export const mobileTabs: SettingsTabItem[] = [
+    { id: 'game', label: '游戏' },
+    { id: 'reality', label: '真实' },
+    { id: 'tavern_preset', label: '酒馆' },
+    { id: 'world', label: '世界' },
+    { id: 'memory', label: '记忆' },
+    { id: 'visual', label: '视觉' },
+    { id: 'npc_management', label: 'NPC' },
+    { id: 'variable_manager', label: '变量' },
+    { id: 'music', label: '音乐' },
+    { id: 'history', label: '历史' },
+    { id: 'context', label: '上下文' },
+    { id: 'api', label: '接口' },
+    { id: 'image_generation', label: '文生图' },
+    { id: 'integrated_models', label: '集成' },
+    { id: 'recall', label: '回忆' },
+    { id: 'memory_summary_model', label: '总结' },
+    { id: 'polish', label: '优化' },
+    { id: 'world_evolution', label: '演变' },
+    { id: 'variable_model', label: '变量模型' },
+    { id: 'planning_model', label: '规划' },
+    { id: 'independent_api_gpt', label: '独立GPT' },
+    { id: 'novel_decomposition', label: '拆分接口' },
+    { id: 'novel_decomposition_runtime', label: '拆分注入' },
+    { id: 'prompt', label: '提示词' },
+    { id: 'theme', label: '风格' },
+    { id: 'storage', label: '存储' }
+];
