@@ -1,6 +1,7 @@
 import React from 'react';
 import GameButton from '../../ui/GameButton';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
+import { SectionCollapse } from '../../ui/SectionCollapse';
 import InlineSelect from '../../ui/InlineSelect';
 import {
     关系侧重选项,
@@ -664,7 +665,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <SectionCollapse title="身份选项" subtitle="点击展开查看所有身份" count={全部背景选项.length} defaultOpen={false}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {全部背景选项.map((bg, idx) => {
                                 const isSelected = selectedBackground.名称 === bg.名称;
                                 return (
@@ -695,7 +697,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     </div>
                                 );
                             })}
-                        </div>
+                            </div>
+                        </SectionCollapse>
                     </OrnateBorder>
 
                     {/* Talents Section */}
@@ -776,7 +779,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             <div className="text-xs text-gray-500">建议搭配：战斗 + 生存 + 社交 / 探索，角色会更立体</div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <SectionCollapse title="天赋列表" subtitle="点击展开查看所有天赋" count={全部天赋选项.length} defaultOpen={false}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {全部天赋选项.map((t, idx) => {
                                 const isSelected = !!selectedTalents.find(x => x.名称 === t.名称);
                                 return (
@@ -806,7 +810,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     </div>
                                 );
                             })}
-                        </div>
+                            </div>
+                        </SectionCollapse>
                     </OrnateBorder>
 
                     {/* Qiyun Section */}
@@ -846,7 +851,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-80 overflow-y-auto">
+                        <SectionCollapse title="气运列表" subtitle="点击展开查看所有气运" count={30} defaultOpen={false}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {气运数据列表.slice(0, 30).map((q, idx) => {
                                 const isSelected = !!selectedQiyun.find(x => x.名称 === q.名称);
                                 return (
@@ -878,7 +884,8 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     </div>
                                 );
                             })}
-                        </div>
+                            </div>
+                        </SectionCollapse>
                     </OrnateBorder>
                 </div>
             )}
