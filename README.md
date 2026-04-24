@@ -72,6 +72,10 @@ npm run build
 npm run preview
 ```
 
+### 用户手册
+
+详细使用说明请参阅 [用户手册](./docs/user-manual.md)。
+
 ### 提示词压力测试
 
 ```bash
