@@ -11,7 +11,7 @@ import { 核心_境界体系 } from './core/realm';
 import { 核心_思维链 } from './core/cot';   // New
 import { 核心_战斗思维链 } from './core/cotCombat';
 import { 核心_判定思维链 } from './core/cotJudge';
-import { 核心_古代现实基本逻辑 } from './core/ancientRealism';
+import { 核心_古代现实基本逻辑, 获取时代现实提示词 } from './core/eraRealism';
 import { 核心_行动选项规范 } from './core/actionOptions';
 import { 核心_时间推进法则 } from './core/timeProgress';
 
@@ -84,3 +84,6 @@ export const 默认提示词: 提示词结构[] = [
     写作_风格,
     写作_避免极端情绪
 ];
+
+// Re-export era realism function for dynamic loading
+export { 获取时代现实提示词 };
