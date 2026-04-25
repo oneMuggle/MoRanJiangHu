@@ -14,8 +14,8 @@ import {
     格式化角色替换规则摘要
 } from '../../../utils/openingConfig';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
-import { 气运数据列表 } from '../../../data/qiyun';
 import { type UseNewGameWizardStateReturn } from './useNewGameWizardState';
+import { SearchInput, ChipGroup } from '../../ui/FilterBar';
 
 type DropdownProps = {
     value: number;
@@ -170,7 +170,12 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         customBackground, setCustomBackground, showCustomBackground, 正在编辑背景名,
         showCustomPresetEditor, customPresetMeta, setCustomPresetMeta,
         正在编辑开局预设ID,
-        全部背景选项, 全部天赋选项,
+        过滤后背景选项, 过滤后天赋选项, 过滤后气运选项,
+        背景搜索词, set背景搜索词,
+        天赋搜索词, set天赋搜索词,
+        气运搜索词, set气运搜索词,
+        气运类别过滤, 选择气运类别,
+        气运稀有度过滤, 选择气运稀有度,
         当前性别模式,
         背景长期说明, 天赋说明,
         当前附加小说数据集, 当前角色替换规则列表,
@@ -665,9 +670,13 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                         )}
 
-                        <SectionCollapse title="身份选项" subtitle="点击展开查看所有身份" count={全部背景选项.length} defaultOpen={false}>
+                        <SectionCollapse title="身份选项" subtitle="点击展开查看所有身份" count={过滤后背景选项.length} defaultOpen={false}>
+                            <SearchInput value={背景搜索词} onChange={set背景搜索词} placeholder="搜索背景名称、描述或效果..." />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {全部背景选项.map((bg, idx) => {
+                            {过滤后背景选项.length === 0 && 背景搜索词 ? (
+                                <div className="col-span-full text-center py-8 text-gray-500 text-sm">无匹配结果，请尝试其他关键词</div>
+                            ) : null}
+                            {过滤后背景选项.map((bg, idx) => {
                                 const isSelected = selectedBackground.名称 === bg.名称;
                                 return (
                                     <div
@@ -779,9 +788,13 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             <div className="text-xs text-gray-500">建议搭配：战斗 + 生存 + 社交 / 探索，角色会更立体</div>
                         </div>
 
-                        <SectionCollapse title="天赋列表" subtitle="点击展开查看所有天赋" count={全部天赋选项.length} defaultOpen={false}>
+                        <SectionCollapse title="天赋列表" subtitle="点击展开查看所有天赋" count={过滤后天赋选项.length} defaultOpen={false}>
+                            <SearchInput value={天赋搜索词} onChange={set天赋搜索词} placeholder="搜索天赋名称、描述或效果..." />
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {全部天赋选项.map((t, idx) => {
+                            {过滤后天赋选项.length === 0 && 天赋搜索词 ? (
+                                <div className="col-span-full text-center py-8 text-gray-500 text-sm">无匹配结果，请尝试其他关键词</div>
+                            ) : null}
+                            {过滤后天赋选项.map((t, idx) => {
                                 const isSelected = !!selectedTalents.find(x => x.名称 === t.名称);
                                 return (
                                     <div
@@ -851,9 +864,41 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                         )}
 
-                        <SectionCollapse title="气运列表" subtitle="点击展开查看所有气运" count={气运数据列表.length} defaultOpen={false}>
+                        <SectionCollapse title="气运列表" subtitle="点击展开查看所有气运" count={过滤后气运选项.length} defaultOpen={false}>
+                            <div className="space-y-3 mb-4">
+                                <SearchInput value={气运搜索词} onChange={set气运搜索词} placeholder="搜索气运名称或描述..." />
+                                <ChipGroup
+                                    chips={[
+                                        { label: '真·气运', value: '真·气运' },
+                                        { label: '限制版气运', value: '限制版气运' },
+                                        { label: '因果律', value: '因果律' },
+                                        { label: '天道规则', value: '天道规则' },
+                                        { label: '绝对无敌', value: '绝对无敌' },
+                                        { label: '脑洞破防', value: '脑洞破防' },
+                                        { label: '法则扭曲', value: '法则扭曲' },
+                                        { label: '白嫖躺赢', value: '白嫖躺赢' },
+                                        { label: '怠惰降维', value: '怠惰降维' },
+                                        { label: '精神暴击', value: '精神暴击' },
+                                        { label: '合欢秘辛', value: '合欢秘辛' }
+                                    ]}
+                                    selected={气运类别过滤}
+                                    onChange={选择气运类别}
+                                />
+                                <ChipGroup
+                                    chips={[
+                                        { label: '传说', value: '传说' },
+                                        { label: '稀有', value: '稀有' },
+                                        { label: '普通', value: '普通' }
+                                    ]}
+                                    selected={气运稀有度过滤}
+                                    onChange={选择气运稀有度}
+                                />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {气运数据列表.map((q, idx) => {
+                            {过滤后气运选项.length === 0 && (气运搜索词 || 气运类别过滤 || 气运稀有度过滤) ? (
+                                <div className="col-span-full text-center py-8 text-gray-500 text-sm">无匹配结果，请调整筛选条件</div>
+                            ) : null}
+                            {过滤后气运选项.map((q, idx) => {
                                 const isSelected = !!selectedQiyun.find(x => x.名称 === q.名称);
                                 return (
                                     <div

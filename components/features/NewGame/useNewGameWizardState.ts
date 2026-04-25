@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as dbService from '../../../services/dbService';
 import { 读取小说拆分数据集列表 } from '../../../services/novel-decomposition/novelDecompositionStore';
-import { randomQiyun, 气运数据 } from '../../../data/qiyun';
+import { randomQiyun, 气运数据, 气运数据列表 } from '../../../data/qiyun';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
 import { 开局预设方案结构 } from '../../../data/newGamePresets';
 import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度 } from '../../../types';
@@ -102,6 +102,13 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, requestCo
     const [成人内容开启, 设置成人内容开启] = useState(false);
     const [里武侠开启, 设置里武侠开启] = useState(false);
 
+    // Search & filter
+    const [背景搜索词, set背景搜索词] = useState('');
+    const [天赋搜索词, set天赋搜索词] = useState('');
+    const [气运搜索词, set气运搜索词] = useState('');
+    const [气运类别过滤, set气运类别过滤] = useState<import('../../../data/qiyun').气运类别 | null>(null);
+    const [气运稀有度过滤, set气运稀有度过滤] = useState<import('../../../data/qiyun').气运稀有度 | null>(null);
+
     // Custom Inputs
     const [customTalent, setCustomTalent] = useState<天赋结构>({ 名称: '', 描述: '', 效果: '' });
     const [showCustomTalent, setShowCustomTalent] = useState(false);
@@ -117,6 +124,9 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, requestCo
     // --- Logic: Helpers ---
     const monthOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
     const dayOptions = useMemo(() => Array.from({ length: 31 }, (_, i) => i + 1), []);
+
+    const 选择气运类别 = (v: string | null) => set气运类别过滤(v as import('../../../data/qiyun').气运类别 | null);
+    const 选择气运稀有度 = (v: string | null) => set气运稀有度过滤(v as import('../../../data/qiyun').气运稀有度 | null);
 
     const 标准化天赋 = (raw: 天赋结构): 天赋结构 | null => {
         const 名称 = raw?.名称?.trim() || '';
@@ -166,6 +176,43 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, requestCo
             (item.nsfw !== true || worldConfig.nsfw场景类型 !== '无')
         );
     }, [自定义天赋列表, charGender, worldConfig.nsfw场景类型]);
+
+    const 全部气运选项 = useMemo(() => {
+        return 气运数据列表.filter(item => {
+            const nsfwOk = item.nsfw等级 !== undefined && item.nsfw等级 > 0
+                ? worldConfig.nsfw场景类型 !== '无'
+                : true;
+            return nsfwOk;
+        });
+    }, [worldConfig.nsfw场景类型]);
+
+    const 过滤匹配 = (文本: string, 搜索词: string): boolean => {
+        if (!搜索词) return true;
+        return 文本.includes(搜索词);
+    };
+
+    const 过滤后背景选项 = useMemo(() => {
+        return 全部背景选项.filter(item =>
+            过滤匹配(item.名称, 背景搜索词) || 过滤匹配(item.描述, 背景搜索词) || 过滤匹配(item.效果, 背景搜索词)
+        );
+    }, [全部背景选项, 背景搜索词]);
+
+    const 过滤后天赋选项 = useMemo(() => {
+        return 全部天赋选项.filter(item =>
+            过滤匹配(item.名称, 天赋搜索词) || 过滤匹配(item.描述, 天赋搜索词) || 过滤匹配(item.效果, 天赋搜索词)
+        );
+    }, [全部天赋选项, 天赋搜索词]);
+
+    const 过滤后气运选项 = useMemo(() => {
+        return 全部气运选项.filter(item => {
+            const 名称匹配 = 过滤匹配(item.名称, 气运搜索词);
+            const 描述匹配 = 过滤匹配(item.描述, 气运搜索词);
+            const 搜索通过 = 名称匹配 || 描述匹配;
+            const 类别通过 = !气运类别过滤 || item.类别 === 气运类别过滤;
+            const 稀有度通过 = !气运稀有度过滤 || item.稀有度 === 气运稀有度过滤;
+            return 搜索通过 && 类别通过 && 稀有度通过;
+        });
+    }, [全部气运选项, 气运搜索词, 气运类别过滤, 气运稀有度过滤]);
 
     const 重置自定义天赋编辑 = () => {
         setCustomTalent({ 名称: '', 描述: '', 效果: '' });
@@ -817,10 +864,17 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, requestCo
         正在编辑开局预设ID, set正在编辑开局预设ID,
         customPresetMeta, setCustomPresetMeta,
         openingExtraRequirement, setOpeningExtraRequirement,
+        背景搜索词, set背景搜索词,
+        天赋搜索词, set天赋搜索词,
+        气运搜索词, set气运搜索词,
+        气运类别过滤, set气运类别过滤,
+        气运稀有度过滤, set气运稀有度过滤,
+        选择气运类别, 选择气运稀有度,
 
         // Computed
         STEPS, monthOptions, dayOptions,
-        全部背景选项, 全部天赋选项,
+        全部背景选项, 全部天赋选项, 全部气运选项,
+        过滤后背景选项, 过滤后天赋选项, 过滤后气运选项,
         当前性别模式,
         totalStatBudget, usedPoints, remainingPoints,
         stepProgress, currentStepLabel, selectedTalentNames,
