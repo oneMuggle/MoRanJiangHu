@@ -2,7 +2,7 @@
 import { decompressSync, unzlibSync, unzipSync } from 'fflate';
 import type { 当前可用接口结构 } from '../../../utils/apiConfig';
 import type { 香闺秘档部位类型 } from '../../../models/imageGeneration';
-import type { PNG解析参数结构, PNG画风预设来源类型, 角色锚点结构, 图片词组序列化策略类型 } from '../../../models/system';
+import type { PNG解析参数结构, PNG画风预设来源类型, 角色锚点结构, 图片词组序列化策略类型, 文生图后端类型 } from '../../../models/system';
 import { 角色图片分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerCharacterCot';
 import { 场景图片分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerSceneCot';
 import { 部位特写分词COT伪装历史消息提示词 } from '../../../prompts/runtime/imageTokenizerSecretPartCot';
@@ -3387,6 +3387,208 @@ export const generateSceneImagePrompt = async (
         生图词组,
         场景类型: parsed.场景类型,
         场景判定说明: parsed.场景判定说明
+    };
+};
+
+export interface 图片连接测试结果 {
+    ok: boolean;
+    detail: string;
+    backendType: 文生图后端类型;
+}
+
+export const testImageConnection = async (
+    apiConfig: 当前可用接口结构
+): Promise<图片连接测试结果> => {
+    const backendType: 文生图后端类型 = apiConfig.图片后端类型 || 'openai';
+    const startedAt = Date.now();
+
+    try {
+        switch (backendType) {
+            case 'sd_webui': {
+                const result = await 测试SDWebUI连接(apiConfig, startedAt);
+                return { ...result, backendType };
+            }
+            case 'comfyui': {
+                const result = await 测试ComfyUI连接(apiConfig, startedAt);
+                return { ...result, backendType };
+            }
+            case 'novelai': {
+                const result = await 测试NovelAI连接(apiConfig, startedAt);
+                return { ...result, backendType };
+            }
+            case 'openai':
+            default: {
+                const result = await 测试OpenAI兼容连接(apiConfig, startedAt);
+                return { ...result, backendType };
+            }
+        }
+    } catch (error: any) {
+        const elapsed = Date.now() - startedAt;
+        const message = error?.message || '未知错误';
+        return {
+            ok: false,
+            backendType,
+            detail: `耗时: ${elapsed}ms\n\n错误: ${message}`
+        };
+    }
+};
+
+const 测试SDWebUI连接 = async (
+    apiConfig: 当前可用接口结构,
+    startedAt: number
+): Promise<{ ok: boolean; detail: string }> => {
+    const baseUrl = (apiConfig.baseUrl || '').trim();
+    if (!baseUrl) return { ok: false, detail: '缺少 Base URL' };
+
+    const endpoint = `${清理末尾斜杠(baseUrl)}/sdapi/v1/cmd-flags`;
+    const response = await fetch(endpoint, { method: 'GET' });
+
+    if (!response.ok) {
+        const elapsed = Date.now() - startedAt;
+        const text = await response.text().catch(() => '');
+        return {
+            ok: false,
+            detail: `耗时: ${elapsed}ms\nHTTP ${response.status}${text ? ` - ${text.slice(0, 300)}` : ''}`
+        };
+    }
+
+    const elapsed = Date.now() - startedAt;
+    const data = await response.json().catch(() => null);
+    return {
+        ok: true,
+        detail: `耗时: ${elapsed}ms\n\n服务状态: 正常${data?.api_cmdline_flags ? '\n命令行参数: 可访问' : ''}`
+    };
+};
+
+const 测试ComfyUI连接 = async (
+    apiConfig: 当前可用接口结构,
+    startedAt: number
+): Promise<{ ok: boolean; detail: string }> => {
+    const baseUrl = (apiConfig.baseUrl || '').trim();
+    if (!baseUrl) return { ok: false, detail: '缺少 Base URL' };
+
+    const endpoint = `${清理末尾斜杠(baseUrl)}/system_stats`;
+    const response = await fetch(endpoint, { method: 'GET' });
+
+    if (!response.ok) {
+        const elapsed = Date.now() - startedAt;
+        const text = await response.text().catch(() => '');
+        return {
+            ok: false,
+            detail: `耗时: ${elapsed}ms\nHTTP ${response.status}${text ? ` - ${text.slice(0, 300)}` : ''}`
+        };
+    }
+
+    const elapsed = Date.now() - startedAt;
+    const data = await response.json().catch(() => null);
+    const systemInfo = data?.system || {};
+    const devicesInfo = data?.devices || [];
+    return {
+        ok: true,
+        detail: `耗时: ${elapsed}ms\n\n服务状态: 正常${systemInfo.os ? `\n系统: ${systemInfo.os}` : ''}${devicesInfo.length > 0 ? `\nGPU: ${devicesInfo[0]?.name || '可用'}` : ''}`
+    };
+};
+
+const 测试NovelAI连接 = async (
+    apiConfig: 当前可用接口结构,
+    startedAt: number
+): Promise<{ ok: boolean; detail: string }> => {
+    const apiKey = (apiConfig.apiKey || '').trim();
+    if (!apiKey) return { ok: false, detail: '缺少 NovelAI Persistent API Token' };
+
+    const endpoint = 'https://api.novelai.net/user/subscription';
+    const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+    });
+
+    if (!response.ok) {
+        const elapsed = Date.now() - startedAt;
+        const text = await response.text().catch(() => '');
+        return {
+            ok: false,
+            detail: `耗时: ${elapsed}ms\nHTTP ${response.status}${text ? ` - ${text.slice(0, 300)}` : ''}`
+        };
+    }
+
+    const elapsed = Date.now() - startedAt;
+    const data = await response.json().catch(() => null);
+    return {
+        ok: true,
+        detail: `耗时: ${elapsed}ms\n\n鉴权状态: 有效${data?.subscription?.tier ? `\n订阅等级: ${data.subscription.tier}` : ''}`
+    };
+};
+
+const 测试OpenAI兼容连接 = async (
+    apiConfig: 当前可用接口结构,
+    startedAt: number
+): Promise<{ ok: boolean; detail: string }> => {
+    const apiKey = (apiConfig.apiKey || '').trim();
+    const baseUrl = (apiConfig.baseUrl || '').trim();
+    const model = (apiConfig.model || '').trim();
+
+    if (!baseUrl) return { ok: false, detail: '缺少 Base URL' };
+    if (!apiKey) return { ok: false, detail: '缺少 API Key' };
+    if (!model) return { ok: false, detail: '缺少模型名称' };
+
+    const endpoint = 构建图片端点(baseUrl, apiConfig.图片接口路径, apiConfig.图片接口路径模式);
+    if (!endpoint) return { ok: false, detail: '无法构建有效的图片生成端点' };
+
+    const isChatCompletions = /\/chat\/completions$/i.test(endpoint);
+    const requestBody: Record<string, unknown> = isChatCompletions
+        ? {
+            model,
+            stream: false,
+            messages: [{ role: 'user', content: 'Draw a simple red dot on white background' }]
+        }
+        : {
+            model,
+            prompt: 'simple red dot',
+            n: 1,
+            size: '256x256'
+        };
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: 构建生图请求头(apiConfig),
+        body: JSON.stringify(requestBody)
+    });
+
+    const elapsed = Date.now() - startedAt;
+
+    if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        return {
+            ok: false,
+            detail: `耗时: ${elapsed}ms\nHTTP ${response.status}${text ? ` - ${text.slice(0, 500)}` : ''}`
+        };
+    }
+
+    const rawText = await response.text();
+    const parsed = 解析可能是JSON字符串(rawText);
+    const result = 提取图片生成结果(parsed);
+
+    if (result) {
+        return {
+            ok: true,
+            detail: `耗时: ${elapsed}ms\n\n图片生成: 成功${result.图片URL ? (result.图片URL.startsWith('data:') ? `\nBase64 长度: ${result.图片URL.length}` : `\n图片 URL: ${result.图片URL.slice(0, 100)}`) : result.本地路径 ? `\n本地路径: ${result.本地路径}` : ''}`
+        };
+    }
+
+    const completionText = parsed ? 提取OpenAI完整文本(parsed) : '';
+    const textToParse = completionText || rawText;
+    const markdownUrlRegex = /!\[.*?\]\(([^)]+)\)/;
+    const markdownMatch = textToParse.match(markdownUrlRegex);
+    if (markdownMatch && markdownMatch[1]) {
+        return {
+            ok: true,
+            detail: `耗时: ${elapsed}ms\n\n图片生成: 成功 (Markdown 格式)\n图片 URL: ${markdownMatch[1].trim().slice(0, 100)}`
+        };
+    }
+
+    return {
+        ok: false,
+        detail: `耗时: ${elapsed}ms\n\n端点响应成功，但无法解析图片结果:\n${rawText.slice(0, 500)}`
     };
 };
 

@@ -192,6 +192,8 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
     const [transformerPresetScope, setTransformerPresetScope] = useState<词组预设页签>('nai');
     const [message, setMessage] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
+    const [testingConnection, setTestingConnection] = useState(false);
+    const [testResultModal, setTestResultModal] = useState<{ open: boolean; title: string; content: string; ok: boolean }>({ open: false, title: '', content: '', ok: false });
     const artistImportRef = React.useRef<HTMLInputElement | null>(null);
     const transformerImportRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -629,6 +631,69 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
             setMessage(`${label}获取成功`);
         }
         setModelLoading((prev) => ({ ...prev, [key]: false }));
+    };
+
+    const handleTestImageConnection = async (config: 文生图接口配置结构) => {
+        const backendType = config.后端类型;
+        const hasBaseUrl = Boolean(config.API地址?.trim());
+        const needsApiKey = backendType === 'openai' || backendType === 'novelai';
+        const needsModel = backendType === 'openai' || backendType === 'novelai';
+        const needsWorkflow = backendType === 'comfyui';
+
+        const missingChecks: string[] = [];
+        if (!hasBaseUrl) missingChecks.push('API 地址');
+        if (needsApiKey && !config.API密钥?.trim()) missingChecks.push('API 密钥');
+        if (needsModel && !config.模型?.trim()) missingChecks.push('模型名称');
+        if (needsWorkflow && !config.ComfyUI工作流JSON?.trim()) missingChecks.push('ComfyUI 工作流 JSON');
+        if (missingChecks.length > 0) {
+            setMessage(`请先填写: ${missingChecks.join('、')}`);
+            return;
+        }
+
+        setMessage('');
+        setTestingConnection(true);
+        try {
+            const imageAIService = await import('../../../services/ai/image');
+            const result = await imageAIService.testImageConnection({
+                id: config.id,
+                名称: config.名称,
+                供应商: 'openai',
+                baseUrl: config.API地址?.trim() || '',
+                apiKey: config.API密钥?.trim() || '',
+                model: config.模型?.trim() || '',
+                图片后端类型: backendType,
+                图片接口路径: config.接口路径模式 === 'custom' ? config.自定义接口路径 : undefined,
+                图片接口路径模式: config.接口路径模式,
+                图片响应格式: config.响应格式,
+                图片走OpenAI自定义格式: config.OpenAI自定义格式 === true,
+                ComfyUI工作流JSON: config.ComfyUI工作流JSON
+            });
+            const backendLabel = 文生图后端选项.find((o) => o.value === result.backendType)?.label || result.backendType;
+            const meta = [
+                `配置: ${config.名称 || config.id}`,
+                `后端: ${backendLabel}`,
+                `API 地址: ${config.API地址}`,
+                '',
+                '---',
+                '',
+                result.detail
+            ].join('\n');
+            setTestResultModal({
+                open: true,
+                title: result.ok ? '连接测试成功' : '连接测试失败',
+                content: meta,
+                ok: result.ok
+            });
+        } catch (e: any) {
+            setTestResultModal({
+                open: true,
+                title: '连接测试失败',
+                content: String(e?.message || '未知错误'),
+                ok: false
+            });
+        } finally {
+            setTestingConnection(false);
+        }
     };
 
     const handleExportArtistPresets = () => {
@@ -1877,11 +1942,49 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
 
             {message && <p className="animate-pulse text-xs text-wuxia-cyan">{message}</p>}
 
-            <div className="border-t border-fuchsia-500/20 pt-6">
-                <GameButton onClick={handleSave} variant="primary" className="w-full">
+            <div className="flex gap-3">
+                <GameButton
+                    onClick={() => handleTestImageConnection(当前文生图配置)}
+                    variant="secondary"
+                    className="flex-1"
+                    disabled={testingConnection}
+                >
+                    {testingConnection ? '测试中...' : '测试连接'}
+                </GameButton>
+                <GameButton onClick={handleSave} variant="primary" className="flex-[2]">
                     {showSuccess ? '✔ 文生图配置已保存' : '保存文生图配置'}
                 </GameButton>
             </div>
+
+            {testResultModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                    <div className="mx-4 w-full max-w-lg rounded-xl border border-fuchsia-500/30 bg-gray-900 p-6 shadow-2xl">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h4 className={`text-lg font-bold font-serif ${testResultModal.ok ? 'text-green-400' : 'text-red-400'}`}>
+                                {testResultModal.title || '连接测试结果'}
+                            </h4>
+                            <button
+                                onClick={() => setTestResultModal((prev) => ({ ...prev, open: false }))}
+                                className="text-gray-400 hover:text-white"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="whitespace-pre-wrap rounded-lg bg-black/40 p-4 text-xs text-gray-200 font-mono max-h-80 overflow-y-auto">
+                            {testResultModal.content}
+                        </div>
+                        <div className="mt-4">
+                            <GameButton
+                                onClick={() => setTestResultModal((prev) => ({ ...prev, open: false }))}
+                                variant={testResultModal.ok ? 'primary' : 'secondary'}
+                                className="w-full"
+                            >
+                                关闭
+                            </GameButton>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
