@@ -16,6 +16,7 @@ import {
 import { 预设天赋, 预设背景 } from '../../../data/presets';
 import { type UseNewGameWizardStateReturn } from './useNewGameWizardState';
 import { SearchInput, ChipGroup } from '../../ui/FilterBar';
+import { 内置时代配置 } from '../../../models/system';
 
 type DropdownProps = {
     value: number;
@@ -98,6 +99,11 @@ const 难度下拉选项 = [
     { value: 'hard' as const, label: '困难 (刀光剑影)' },
     { value: 'extreme' as const, label: '极限 (修罗炼狱)' }
 ];
+const 时代选项 = 内置时代配置.map(cfg => ({
+    value: cfg.id,
+    label: cfg.名称,
+    hint: `${cfg.时代} — ${cfg.科技水平描述}`
+}));
 const 世界版图下拉选项 = [
     { value: '弹丸之地' as const, label: '弹丸之地 (一岛或一城)' },
     { value: '九州宏大' as const, label: '九州宏大 (万里河山)' },
@@ -202,10 +208,40 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         } else if (新能力类型 === '超能力线') {
             if (新武力等级 === '修仙') 新武力等级 = '高武';
         } else if (新能力类型 === '传统武侠') {
-            if (新武力等级 === '修仙') 新武力等级 = '高武';
+            if (新武力等级 === '修仙') 新武力等级 = '中武';
         }
         setWorldConfig({ ...worldConfig, 能力类型: 新能力类型, 武力等级: 新武力等级 });
     };
+
+    const 处理时代变更 = (newEraId: string) => {
+        const era = 内置时代配置.find(c => c.id === newEraId);
+        if (!era) return;
+        setWorldConfig(prev => ({
+            ...prev,
+            时代配置ID: newEraId,
+            能力类型: era.默认能力类型 ?? prev.能力类型,
+            武力等级: era.默认武力等级 ?? prev.武力等级,
+            worldSize: era.默认世界版图 ?? prev.worldSize,
+            sectDensity: era.默认组织密度 ?? prev.sectDensity,
+            dynastySetting: era.默认王朝占位符 ?? prev.dynastySetting,
+            tianjiaoSetting: era.默认天骄占位符 ?? prev.tianjiaoSetting,
+        }));
+    };
+
+    const 当前时代 = 内置时代配置.find(c => c.id === (worldConfig.时代配置ID || 'era_ancient_wuxia'));
+    const 组织密度标签 = 当前时代?.组织密度标签 || '宗门密度';
+    const 时代预设卡片 = 当前时代?.世界观预设卡片 ?? [
+        { name: '传统武侠', overrides: { 能力类型: '传统武侠' as const, 武力等级: '中武' as const } },
+        { name: '修仙世界', overrides: { 能力类型: '修仙体系' as const, 武力等级: '修仙' as const } },
+        { name: '高武世界', overrides: { 能力类型: '传统武侠' as const, 武力等级: '高武' as const } },
+        { name: '低武江湖', overrides: { 能力类型: '传统武侠' as const, 武力等级: '低武' as const } },
+    ];
+
+    const 时代过滤能力类型选项 = (() => {
+        const 可用 = 当前时代?.可用能力类型;
+        if (!可用) return 能力类型选项;
+        return 能力类型选项.filter(o => 可用.includes(o.value));
+    })();
 
     const 过滤后武力等级选项 = (() => {
         if (worldConfig.能力类型 === '修仙体系') {
@@ -239,6 +275,20 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 />
                             </div>
                             <div className="space-y-2">
+                                <label className="text-sm text-wuxia-cyan font-bold">时代背景</label>
+                                <InlineSelect
+                                    value={worldConfig.时代配置ID || 'era_ancient_wuxia'}
+                                    options={时代选项}
+                                    onChange={处理时代变更}
+                                />
+                                <div className="text-[11px] text-gray-500 leading-6">
+                                    {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.hint}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="space-y-2">
                                 <label className="text-sm text-wuxia-cyan font-bold">游戏难度</label>
                                 <InlineSelect
                                     value={worldConfig.difficulty}
@@ -248,6 +298,23 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <div className="text-[11px] text-gray-500">
                                     总属性点预算：{获取难度总属性点(worldConfig.difficulty)}。
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* 世界观预设 - moved up for quick-start */}
+                        <div className="mt-6">
+                            <div className="text-[11px] uppercase tracking-[0.35em] text-wuxia-gold/70 font-mono mb-3">Quick Presets</div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {时代预设卡片.map((preset, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => setWorldConfig({ ...worldConfig, ...preset.overrides })}
+                                        className="text-left rounded-xl border border-gray-800 bg-black/25 px-4 py-3 hover:border-wuxia-gold/40 hover:bg-black/35 transition-all"
+                                    >
+                                        <div className="font-bold text-sm font-serif text-gray-200">{preset.name}</div>
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
@@ -261,7 +328,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm text-wuxia-cyan font-bold">宗门密度</label>
+                                <label className="text-sm text-wuxia-cyan font-bold">{组织密度标签}</label>
                                 <InlineSelect
                                     value={worldConfig.sectDensity}
                                     options={宗门密度下拉选项}
@@ -275,11 +342,11 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <label className="text-sm text-wuxia-cyan font-bold">能力类型</label>
                                 <InlineSelect
                                     value={worldConfig.能力类型}
-                                    options={能力类型选项}
+                                    options={时代过滤能力类型选项}
                                     onChange={处理能力类型变更}
                                 />
                                 <div className="text-[11px] text-gray-500 leading-6">
-                                    {能力类型选项.find((item) => item.value === worldConfig.能力类型)?.hint}
+                                    {时代过滤能力类型选项.find((item) => item.value === worldConfig.能力类型)?.hint}
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -323,20 +390,51 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         )}
 
                         <div className="mt-6 rounded-2xl border border-gray-800 bg-black/25 p-4 space-y-4">
-                            <label className="text-sm text-wuxia-cyan font-bold">王朝设定</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm text-wuxia-cyan font-bold">王朝设定</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setWorldConfig({ ...worldConfig, dynastySetting: 当前时代?.默认王朝占位符 ?? '群雄逐鹿，王朝末年' })}
+                                    className="text-[11px] text-gray-500 hover:text-wuxia-gold transition-colors"
+                                    title="恢复时代默认"
+                                >
+                                    ↺ 恢复默认
+                                </button>
+                            </div>
                             <input
                                 value={worldConfig.dynastySetting}
                                 onChange={(e) => setWorldConfig({ ...worldConfig, dynastySetting: e.target.value })}
                                 placeholder="例如：群雄逐鹿，王朝末年"
                                 className="w-full bg-black/50 border-2 border-transparent focus:border-wuxia-gold p-3 text-white outline-none rounded-md transition-all"
                             />
-                            <label className="text-sm text-wuxia-cyan font-bold">天骄设定</label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm text-wuxia-cyan font-bold">天骄设定</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setWorldConfig({ ...worldConfig, tianjiaoSetting: 当前时代?.默认天骄占位符 ?? '大争之世，天骄并起' })}
+                                    className="text-[11px] text-gray-500 hover:text-wuxia-gold transition-colors"
+                                    title="恢复时代默认"
+                                >
+                                    ↺ 恢复默认
+                                </button>
+                            </div>
                             <input
                                 value={worldConfig.tianjiaoSetting}
                                 onChange={(e) => setWorldConfig({ ...worldConfig, tianjiaoSetting: e.target.value })}
                                 placeholder="例如：大争之世，天骄并起"
                                 className="w-full bg-black/50 border-2 border-transparent focus:border-wuxia-gold p-3 text-white outline-none rounded-md transition-all"
                             />
+                        </div>
+
+                        <div className="mt-6 rounded-2xl border border-gray-800 bg-black/25 p-4 space-y-2">
+                            <label className="text-sm text-wuxia-cyan font-bold">开局额外要求（可选）</label>
+                            <textarea
+                                value={wizard.openingExtraRequirement}
+                                onChange={(e) => wizard.setOpeningExtraRequirement(e.target.value)}
+                                placeholder="例如：开局先走日常线，不要直接爆发战斗；先铺垫家族关系。"
+                                className="w-full h-20 bg-black/50 border-2 border-transparent focus:border-wuxia-gold p-3 text-white outline-none rounded-md transition-all resize-none"
+                            />
+                            <div className="text-[11px] text-gray-500">会随开局任务一起发送给模型，仅影响本次开局生成。</div>
                         </div>
                     </OrnateBorder>
 
@@ -423,32 +521,6 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                    </OrnateBorder>
-
-                    <OrnateBorder className="p-6 md:p-7">
-                        <div className="border-b border-wuxia-gold/30 pb-4 mb-5">
-                            <div className="text-[11px] uppercase tracking-[0.35em] text-wuxia-gold/70 font-mono">World Presets</div>
-                            <h3 className="text-2xl font-serif font-bold text-wuxia-gold mt-2">世界观预设</h3>
-                            <p className="text-xs text-gray-400 mt-2 leading-6">选择预设快速填充世界观设定，也可在上方手动修改。</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
-                                { name: '传统武侠', overrides: { 能力类型: '传统武侠' as const, 武力等级: '中武' as const } },
-                                { name: '修仙世界', overrides: { 能力类型: '修仙体系' as const, 武力等级: '修仙' as const } },
-                                { name: '高武世界', overrides: { 能力类型: '传统武侠' as const, 武力等级: '高武' as const } },
-                                { name: '低武江湖', overrides: { 能力类型: '传统武侠' as const, 武力等级: '低武' as const } },
-                            ].map((preset, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => setWorldConfig({ ...worldConfig, ...preset.overrides })}
-                                    className="text-left rounded-2xl border border-gray-800 bg-black/25 p-5 hover:border-wuxia-gold/40 hover:bg-black/35 transition-all"
-                                >
-                                    <div className="font-bold text-base font-serif text-gray-200">{preset.name}</div>
-                                </button>
-                            ))}
                         </div>
                     </OrnateBorder>
                 </div>
@@ -1225,6 +1297,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                     <OrnateBorder className="max-w-lg w-full p-6">
                         <div className="text-sm space-y-3 font-mono text-gray-300">
                             <p>世界: <span className="text-white">{worldConfig.worldName}</span></p>
+                            <p>时代: <span className="text-white">{内置时代配置.find(c => c.id === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.名称 || '古代武侠'}</span></p>
                             <p>难度: <span className="text-white uppercase">{worldConfig.difficulty}</span></p>
                             <p>世界观额外要求: <span className="text-white">{worldConfig.worldExtraRequirement.trim() || '无'}</span></p>
                             <p>手动世界观提示词: <span className="text-white">{worldConfig.manualWorldPrompt.trim() ? '已提供' : '未提供'}</span></p>
