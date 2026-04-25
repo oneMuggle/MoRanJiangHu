@@ -74,10 +74,15 @@ export const 执行世界生成工作流 = async (
     const openingStreaming = true;
     const normalizedGameConfig = 规范化游戏设置(deps.gameConfig);
     const 启用修炼体系 = normalizedGameConfig.启用修炼体系 !== false;
+
+    // 先切换到 game 视图，确保后续错误消息在聊天区可见
+    deps.setView('game');
+
     const currentApi = 获取主剧情接口配置(deps.apiConfig);
     if (!接口配置是否可用(currentApi)) {
         deps.追加系统消息('[开局生成失败] 请先在设置中填写 API 地址/API Key，并选择主剧情使用模型。');
         deps.setShowSettings(true);
+        deps.setLoading(false);
         return;
     }
 
@@ -107,7 +112,6 @@ export const 执行世界生成工作流 = async (
 
     if (openingStreaming) {
         const worldStreamMarker = Date.now();
-        deps.setView('game');
         deps.设置历史记录([
             {
                 role: 'system',
