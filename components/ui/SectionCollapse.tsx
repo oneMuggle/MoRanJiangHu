@@ -49,9 +49,9 @@ export const SectionCollapse: React.FC<SectionCollapseProps> = ({
                 </div>
             </button>
             <div
-                className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}
+                className={`transition-all duration-300 ${isOpen ? 'max-h-[8000px] opacity-100' : 'max-h-0 opacity-0'}`}
             >
-                <div className="px-5 pb-5">{children}</div>
+                <div className="px-5 pb-5 max-h-[70vh] overflow-y-auto custom-scrollbar">{children}</div>
             </div>
         </div>
     );
