@@ -18,12 +18,6 @@ const TavernPresetSettings = React.lazy(() => import('./TavernPresetSettings'));
 const MemorySettings = React.lazy(() => import('./MemorySettings'));
 const HistoryViewer = React.lazy(() => import('./HistoryViewer'));
 const ContextViewer = React.lazy(() => import('./ContextViewer'));
-const RecallModelSettings = React.lazy(() => import('./RecallModelSettings'));
-const MemorySummaryModelSettings = React.lazy(() => import('./MemorySummaryModelSettings'));
-const PolishModelSettings = React.lazy(() => import('./PolishModelSettings'));
-const WorldEvolutionModelSettings = React.lazy(() => import('./WorldEvolutionModelSettings'));
-const VariableModelSettings = React.lazy(() => import('./VariableModelSettings'));
-const PlanningModelSettings = React.lazy(() => import('./PlanningModelSettings'));
 const IntegratedModelSettings = React.lazy(() => import('./IntegratedModelSettings'));
 const IndependentApiGptModeSettings = React.lazy(() => import('./IndependentApiGptModeSettings'));
 const NovelDecompositionApiSettings = React.lazy(() => import('./NovelDecompositionApiSettings'));
@@ -57,8 +51,6 @@ type ContextSnapshot = {
 
 export type SettingsTabId =
     | 'api' | 'image_generation' | 'integrated_models'
-    | 'recall' | 'memory_summary_model' | 'polish'
-    | 'world_evolution' | 'variable_model' | 'planning_model'
     | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime'
     | 'prompt' | 'storage' | 'theme' | 'visual' | 'world'
     | 'game' | 'reality' | 'tavern_preset' | 'memory'
@@ -128,12 +120,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         if (activeTab === 'api') return <ApiSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'image_generation') return <ImageGenerationSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'integrated_models') return <IntegratedModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'recall') return <RecallModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'memory_summary_model') return <MemorySummaryModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'polish') return <PolishModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'world_evolution') return <WorldEvolutionModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'variable_model') return <VariableModelSettings settings={apiConfig} onSave={onSaveApi} />;
-        if (activeTab === 'planning_model') return <PlanningModelSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'independent_api_gpt' && gameConfig && onSaveGame) return <IndependentApiGptModeSettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'novel_decomposition') return <NovelDecompositionApiSettings settings={apiConfig} onSave={onSaveApi} />;
         if (activeTab === 'novel_decomposition_runtime') {
