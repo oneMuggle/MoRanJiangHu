@@ -6,15 +6,9 @@ import {
     接口设置结构,
     提示词结构,
     视觉设置结构,
-    节日结构,
-    GameResponse,
     游戏设置结构,
-    记忆配置结构,
     记忆系统结构,
     WorldGenConfig,
-    世界数据结构,
-    战斗状态结构,
-    详细门派结构,
     剧情系统结构,
     剧情规划结构,
     女主剧情规划结构,
@@ -32,13 +26,19 @@ import {
     世界书结构,
     世界书预设组结构,
     世界书作用域,
-    TavernCommand
+    TavernCommand,
+    GameResponse,
+    记忆配置结构,
+    详细门派结构,
+    节日结构,
+    世界数据结构,
+    战斗状态结构
 } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import * as dbService from '../services/dbService';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
-import { 规范化接口设置, 获取当前接口配置, 获取主剧情接口配置, 获取剧情回忆接口配置, 获取记忆总结接口配置, 获取文章优化接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
+import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
 import type { 当前可用接口结构 } from '../utils/apiConfig';
 import {
     规范化记忆系统,
@@ -84,7 +84,7 @@ import {
 } from './useGame/storyState';
 import type { 开场命令基态 } from './useGame/storyState';
 import { 执行世界演变更新工作流 } from './useGame/worldEvolutionWorkflow';
-import { 主角角色锚点标识, 创建图片预设工作流, 提取NPC生图基础数据附带私密描述 } from './useGame/imagePresetWorkflow';
+import { 创建图片预设工作流, 提取NPC生图基础数据附带私密描述 } from './useGame/imagePresetWorkflow';
 import { 创建设置持久化工作流 } from './useGame/config/settingsPersistenceWorkflow';
 import { 创建历史回合工作流 } from './useGame/historyTurnWorkflow';
 import { 创建存读档工作流 } from './useGame/saveLoad/saveLoadWorkflow';
@@ -98,38 +98,18 @@ import { 创建主角图片工作流 } from './useGame/playerImageWorkflow';
 import { 创建运行时变量工作流 } from './useGame/runtimeVariableWorkflow';
 import { 创建变量校准协调器 as 创建变量生成协调器 } from './useGame/variableCalibrationCoordinator';
 import { useWorldEvolutionControl } from './useGame/worldEvolutionControl';
-import { normalizeCanonicalGameTime, 环境时间转标准串, 提取环境月日, 结构化时间转标准串 } from './useGame/timeUtils';
-import { 构建NPC上下文, 提取NPC生图基础数据, 提取NPC香闺秘档部位生图数据, 提取主角生图基础数据 } from './useGame/npcContext';
+import { normalizeCanonicalGameTime, 环境时间转标准串, 提取环境月日 } from './useGame/timeUtils';
+import { 提取NPC生图基础数据, 提取NPC香闺秘档部位生图数据, 提取主角生图基础数据 } from './useGame/npcContext';
 import { 应用NPC记忆总结, 构建手动NPC记忆总结候选, 构建自动NPC记忆总结候选, 构建NPC记忆总结回退文案 } from './useGame/npcMemorySummary';
 import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
 import { 规范化可选开局配置 } from '../utils/openingConfig';
-import {
-    构建COT伪装提示词,
-    构建酒馆预设消息链,
-    构建运行时提示词池,
-    规范化比较文本,
-    酒馆预设模式可用
-} from './useGame/promptRuntime';
-import { 构建世界观种子提示词, 构建世界生成任务上下文提示词 } from '../prompts/runtime/worldSetup';
-import { 世界观生成COT提示词, 世界观生成COT伪装历史消息提示词 } from '../prompts/runtime/worldGenerationCot';
-import {
-    默认文章优化提示词
-} from '../prompts/runtime/defaults';
+import { 构建COT伪装提示词, 规范化比较文本, 酒馆预设模式可用 } from './useGame/promptRuntime';
 import { 构建文生图运行时额外提示词 } from '../prompts/runtime/nsfw';
-import { 构建AI角色声明提示词 } from '../prompts/runtime/roleIdentity';
-import {
-    构建字数要求提示词,
-    构建免责声明输出要求提示词,
-    获取输出协议提示词,
-    获取行动选项提示词
-} from '../prompts/runtime/protocolDirectives';
-import { 构建剧情风格助手提示词 } from '../prompts/runtime/storyStyles';
 import { 构建真实世界模式提示词 } from '../prompts/runtime/realWorldMode';
 import { 核心_文章优化思维链 } from '../prompts/core/cotPolish';
 import { 核心_开局思维链 } from '../prompts/core/cotOpening';
-import { 数值_世界演化 } from '../prompts/stats/world';
 import {
     规范化环境信息,
     构建完整地点文本,
@@ -144,36 +124,83 @@ import { 获取图片展示地址, 压缩图片资源字段 } from '../utils/ima
 import { 设置键 } from '../utils/settingsSchema';
 import { countOpenAIChatMessagesTokens, countOpenAITextTokens } from '../utils/tokenEstimate';
 
+// 提取的子系统
+import { 提取原始报错详情, 格式化错误详情, 提取解析失败原始信息 } from './useGame/errorFormatting';
+import {
+    获取原始AI消息,
+    计算回复耗时秒,
+    估算消息Token,
+    估算AI输出Token,
+    游戏时间转排序值,
+    提取文本中的游戏时间列表,
+    当前时间已达到,
+    提取响应完整正文文本,
+    收集最近完整正文回合,
+    构建最近完整正文上下文
+} from './useGame/responseTextHelpers';
+import { 自动重试最大次数, 替换流式草稿为失败提示, 更新流式草稿为自动重试提示, 游戏设置启用自动重试, 提取自动重试原因, 是否可自动重试错误, 执行带自动重试的生成请求 } from './useGame/autoRetry';
+import { 去重文本数组, 收集剧情规划时间触发原因, 收集女主规划时间触发原因, 收集剧情正文命中原因, 收集女主正文命中原因, 过滤规划补丁命令 } from './useGame/planningReasonCollector';
+import { 创建回档快照系统, type 回合快照结构 } from './useGame/rollbackSnapshot';
+import { 创建通知系统, type 右下角提示结构 } from './useGame/notificationSystem';
+import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记忆总结阶段类型 } from './useGame/memorySummaryHandlers';
+import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/variableGenerationProgress';
+import { 创建后台生图监控 } from './useGame/backgroundImageMonitor';
+
+type 回忆检索进度 = {
+    phase: 'start' | 'stream' | 'done' | 'error';
+    text?: string;
+};
+
+type 正文润色进度 = {
+    phase: 'start' | 'done' | 'error' | 'skipped';
+    text?: string;
+    rawText?: string;
+    commandTexts?: string[];
+};
+
+type 变量生成进度 = {
+    phase: 'start' | 'done' | 'error' | 'skipped' | 'cancelled';
+    text?: string;
+    rawText?: string;
+    commandTexts?: string[];
+};
+
+type 独立阶段标识 = 'polish' | 'world' | 'planning' | 'variable';
+type 独立阶段失败决策 = 'retry' | 'skip';
+type 独立阶段失败决策参数 = {
+    stageId: 独立阶段标识;
+    stageLabel: string;
+    errorText: string;
+};
+
+type 规划分析进度 = {
+    phase: 'start' | 'done' | 'error' | 'skipped';
+    text?: string;
+    rawText?: string;
+    commandTexts?: string[];
+};
+
+type 世界演变进度 = {
+    phase: 'start' | 'done' | 'error' | 'skipped';
+    text?: string;
+    rawText?: string;
+    commandTexts?: string[];
+};
+
+type 发送选项 = {
+    onRecallProgress?: (progress: 回忆检索进度) => void;
+    onPolishProgress?: (progress: 正文润色进度) => void;
+    onWorldEvolutionProgress?: (progress: 世界演变进度) => void;
+    onPlanningProgress?: (progress: 规划分析进度) => void;
+    onVariableGenerationProgress?: (progress: 变量生成进度) => void;
+    onStageFailureDecision?: (params: 独立阶段失败决策参数) => Promise<独立阶段失败决策> | 独立阶段失败决策;
+};
+
 const 加载图片AI服务 = () => import('../services/ai/image/runtime');
 const 加载NPC生图工作流 = () => import('./useGame/npcImageWorkflow');
 const 加载NPC香闺秘档生图工作流 = () => import('./useGame/npcSecretImageWorkflow');
 const 加载场景生图工作流 = () => import('./useGame/sceneImageWorkflow');
 
-type 回合快照结构 = {
-    玩家输入: string;
-    游戏时间: string;
-    回档前状态: {
-        角色: 角色数据结构;
-        环境: 环境信息结构;
-        社交: any[];
-        世界: 世界数据结构;
-        战斗: 战斗状态结构;
-        玩家门派: 详细门派结构;
-        任务列表: any[];
-        约定列表: any[];
-        剧情: 剧情系统结构;
-        剧情规划: 剧情规划结构;
-        女主剧情规划?: 女主剧情规划结构;
-        同人剧情规划?: 同人剧情规划结构;
-        同人女主剧情规划?: 同人女主剧情规划结构;
-        记忆系统: 记忆系统结构;
-    };
-    回档前持久态: {
-        视觉设置: 视觉设置结构;
-        场景图片档案: 场景图片档案;
-    };
-    回档前历史: 聊天记录结构[];
-};
 
 type 最近开局配置结构 = {
     worldConfig: WorldGenConfig;
@@ -225,89 +252,6 @@ type 发送结果 = {
     errorTitle?: string;
 };
 
-const 自动重试最大次数 = 3;
-
-type 回忆检索进度 = {
-    phase: 'start' | 'stream' | 'done' | 'error';
-    text?: string;
-};
-
-type 正文润色进度 = {
-    phase: 'start' | 'done' | 'error' | 'skipped';
-    text?: string;
-    rawText?: string;
-    commandTexts?: string[];
-};
-
-type 变量生成进度 = {
-    phase: 'start' | 'done' | 'error' | 'skipped' | 'cancelled';
-    text?: string;
-    rawText?: string;
-    commandTexts?: string[];
-};
-
-type 独立阶段标识 = 'polish' | 'world' | 'planning' | 'variable';
-type 独立阶段失败决策 = 'retry' | 'skip';
-type 独立阶段失败决策参数 = {
-    stageId: 独立阶段标识;
-    stageLabel: string;
-    errorText: string;
-};
-
-type 规划分析进度 = {
-    phase: 'start' | 'done' | 'error' | 'skipped';
-    text?: string;
-    rawText?: string;
-    commandTexts?: string[];
-};
-
-type 世界演变进度 = {
-    phase: 'start' | 'done' | 'error' | 'skipped';
-    text?: string;
-    rawText?: string;
-    commandTexts?: string[];
-};
-
-type 变量生成上下文缓存项 = {
-    回合: number;
-    玩家输入: string;
-    正文: string;
-    本回合命令: string[];
-    校准说明: string[];
-    校准命令: string[];
-};
-
-type 发送选项 = {
-    onRecallProgress?: (progress: 回忆检索进度) => void;
-    onPolishProgress?: (progress: 正文润色进度) => void;
-    onWorldEvolutionProgress?: (progress: 世界演变进度) => void;
-    onPlanningProgress?: (progress: 规划分析进度) => void;
-    onVariableGenerationProgress?: (progress: 变量生成进度) => void;
-    onStageFailureDecision?: (params: 独立阶段失败决策参数) => Promise<独立阶段失败决策> | 独立阶段失败决策;
-};
-
-type 记忆总结阶段类型 = 'idle' | 'remind' | 'processing' | 'review';
-type NPC记忆总结任务结构 = {
-    id: string;
-    类型: 'npc_memory';
-    npcId: string;
-    npcName: string;
-    批次: string[];
-    批次条数: number;
-    起始索引: number;
-    结束索引: number;
-    起始时间: string;
-    结束时间: string;
-    提示词模板: string;
-    触发方式: 'auto' | 'manual';
-    预留原始条数: number;
-};
-type 右下角提示结构 = {
-    id: string;
-    title: string;
-    message: string;
-    tone?: 'info' | 'success' | 'error';
-};
 
 export const useGame = () => {
     const gameState = useGameState();
@@ -411,6 +355,7 @@ export const useGame = () => {
     const 已提示后台私密生图任务Ref = useRef<Set<string>>(new Set());
     const 后台场景生图监控Ref = useRef<Array<{ since: number; 摘要: string }>>([]);
     const 已提示后台场景生图任务Ref = useRef<Set<string>>(new Set());
+    const performAutoSaveRef = useRef<((...args: any[]) => void) | null>(null);
     const [右下角提示列表, set右下角提示列表] = useState<右下角提示结构[]>([]);
     const [聊天区自动滚动抑制令牌, set聊天区自动滚动抑制令牌] = useState(0);
     const [聊天区强制置底令牌, set聊天区强制置底令牌] = useState(0);
@@ -434,11 +379,7 @@ export const useGame = () => {
         imageManagerConfigRef.current = 规范化图片管理设置(imageManagerConfig);
     }, [imageManagerConfig]);
 
-    useEffect(() => {
-        刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: NPC记忆总结阶段 === 'processing' || NPC记忆总结阶段 === 'review' });
-    }, [社交, memoryConfig]);
-
-    // --- Actions ---
+    // --- Actions (before subsystems) ---
     const 深拷贝 = <T,>(data: T): T => {
         if (data === undefined || data === null) {
             return data;
@@ -448,226 +389,110 @@ export const useGame = () => {
         }
         return JSON.parse(JSON.stringify(data)) as T;
     };
-    const 重置自动存档状态 = () => {
-        最近自动存档时间戳Ref.current = 0;
-        最近自动存档签名Ref.current = '';
-    };
-    const 删除最近自动存档并重置状态 = async (): Promise<void> => {
-        try {
-            await dbService.删除最近自动存档();
-        } catch (error) {
-            console.error('删除最近自动存档失败', error);
-        } finally {
-            重置自动存档状态();
-        }
-    };
-    const 推送右下角提示 = (toast: Omit<右下角提示结构, 'id'>) => {
-        const nextId = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-        set右下角提示列表(prev => [...prev, { id: nextId, ...toast }].slice(-4));
-        window.setTimeout(() => {
-            set右下角提示列表(prev => prev.filter(item => item.id !== nextId));
-        }, 4200);
-    };
     const 应用视觉设置到状态 = (value: Partial<视觉设置结构> | null | undefined) => {
         const normalized = 规范化视觉设置(value || {});
         visualConfigRef.current = normalized;
         setVisualConfig(normalized);
         void dbService.保存设置(设置键.视觉设置, normalized);
     };
+    const 应用场景图片档案到状态 = (value: 场景图片档案 | null | undefined) => {
+        const normalized = 规范化场景图片档案(value || {});
+        场景图片档案Ref.current = normalized;
+        set场景图片档案(normalized);
+        void dbService.保存设置(设置键.场景图片档案, normalized);
+    };
+
+    // --- 子系统初始化 ---
+    const 通知系统 = 创建通知系统(set右下角提示列表);
+    const 推送右下角提示 = 通知系统.推送右下角提示;
+
+    const 回档快照系统 = 创建回档快照系统({
+        回合快照栈Ref,
+        可重Roll计数,
+        set可重Roll计数,
+        最近自动存档时间戳Ref,
+        最近自动存档签名Ref,
+        深拷贝,
+        规范化角色物品容器映射,
+        规范化环境信息,
+        规范化社交列表,
+        规范化世界状态,
+        规范化剧情状态,
+        规范化剧情规划状态: 基础规范化剧情规划状态,
+        规范化女主剧情规划状态: 基础规范化女主剧情规划状态,
+        规范化同人剧情规划状态: 基础规范化同人剧情规划状态,
+        规范化同人女主剧情规划状态: 基础规范化同人女主剧情规划状态,
+        应用并同步记忆系统: (memory) => 应用并同步记忆系统(memory),
+        设置历史记录: 设置历史记录,
+        应用视觉设置到状态,
+        应用场景图片档案到状态
+    });
+    const { 同步重Roll计数, 清空重Roll快照, 推入重Roll快照, 弹出重Roll快照, 回档到快照, 重置自动存档状态, 删除最近自动存档并重置状态 } = 回档快照系统;
+
+    const 变量生成进度系统 = 创建变量生成进度系统({
+        最近变量生成上下文Ref,
+        变量生成中,
+        set变量生成中,
+        开局变量生成进度,
+        set开局变量生成进度,
+        世界演变进行中Ref,
+        variableGenerationAbortControllerRef,
+        深拷贝
+    });
+    const { 序列化变量校准命令, 清空变量生成上下文缓存, 记录变量生成上下文, 收集最近变量生成上下文, 等待世界演变空闲, handleCancelVariableGeneration } = 变量生成进度系统;
+
+    const 记忆总结处理器 = 创建记忆总结处理器({
+        待处理记忆总结任务,
+        set待处理记忆总结任务,
+        记忆总结阶段,
+        set记忆总结阶段,
+        记忆总结草稿,
+        set记忆总结草稿,
+        记忆总结错误,
+        set记忆总结错误,
+        待处理NPC记忆总结队列,
+        set待处理NPC记忆总结队列,
+        NPC记忆总结阶段,
+        setNPC记忆总结阶段,
+        NPC记忆总结草稿,
+        setNPC记忆总结草稿,
+        NPC记忆总结错误,
+        setNPC记忆总结错误,
+        社交,
+        设置社交,
+        记忆系统,
+        设置记忆系统,
+        memoryConfig,
+        apiConfig,
+        历史记录,
+        performAutoSave: (...args) => performAutoSaveRef.current?.(...args),
+        规范化社交列表
+    });
+    const { 构建记忆总结用户提示词, 清理记忆总结输出, handleStartMemorySummary, handleCancelMemorySummary, handleBackToMemorySummaryRemind, handleUpdateMemorySummaryDraft, handleStartManualMemorySummary, handleApplyMemorySummary, 构建NPC记忆总结任务, 构建NPC记忆总结用户提示词, 清空NPC记忆总结流程, 刷新NPC记忆总结队列, 应用并同步社交列表, 清空记忆总结流程, 刷新记忆总结任务, 应用并同步记忆系统, handleStartNpcMemorySummary, handleCancelNpcMemorySummary, handleBackToNpcMemorySummaryRemind, handleUpdateNpcMemorySummaryDraft, handleQueueManualNpcMemorySummary, handleApplyNpcMemorySummary } = 记忆总结处理器;
+
+    const 后台生图监控 = 创建后台生图监控({
+        推送右下角提示,
+        NPC生图任务队列,
+        场景生图任务队列
+    });
+
+    useEffect(() => {
+        刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: NPC记忆总结阶段 === 'processing' || NPC记忆总结阶段 === 'review' });
+    }, [社交, memoryConfig]);
+
+    // --- Actions ---
     const 应用图片管理设置到状态 = (value: Partial<图片管理设置结构> | null | undefined) => {
         const normalized = 规范化图片管理设置(value || 默认图片管理设置);
         imageManagerConfigRef.current = normalized;
         setImageManagerConfig(normalized);
         void dbService.保存设置(设置键.图片管理设置, normalized);
     };
-    const 应用场景图片档案到状态 = (value: 场景图片档案 | null | undefined) => {
-        const normalized = 按场景图上限裁剪档案(value || {}, 获取场景图历史上限()).档案;
-        场景图片档案Ref.current = normalized;
-        set场景图片档案(normalized);
-        void dbService.保存设置(设置键.场景图片档案, normalized);
-    };
     const 关闭右下角提示 = (toastId: string) => {
         if (!toastId) return;
         set右下角提示列表(prev => prev.filter(item => item.id !== toastId));
     };
 
-    const 构建NPC记忆总结任务 = (
-        npc: NPC结构,
-        trigger: 'auto' | 'manual'
-    ): NPC记忆总结任务结构 | null => {
-        const candidate = trigger === 'manual'
-            ? 构建手动NPC记忆总结候选(npc?.记忆, memoryConfig)
-            : 构建自动NPC记忆总结候选(npc?.记忆, memoryConfig);
-        if (!candidate || !npc?.id) return null;
-        const promptTemplate = (规范化记忆配置(memoryConfig).NPC记忆总结提示词 || '').trim();
-        return {
-            id: `npc_memory_${npc.id}_${candidate.起始原始索引}_${candidate.结束原始索引}_${candidate.批次条数}_${trigger}`,
-            类型: 'npc_memory',
-            npcId: npc.id,
-            npcName: npc.姓名 || npc.id,
-            批次: candidate.批次.map((item, index) => `[${index}] [${item.时间 || '未知时间'}] ${item.内容}`),
-            批次条数: candidate.批次条数,
-            起始索引: candidate.起始原始索引,
-            结束索引: candidate.结束原始索引,
-            起始时间: candidate.起始时间,
-            结束时间: candidate.结束时间,
-            提示词模板: promptTemplate,
-            触发方式: trigger,
-            预留原始条数: candidate.预留原始条数
-        };
-    };
-
-    const 构建NPC记忆总结用户提示词 = (task: NPC记忆总结任务结构): string => {
-        const lines = [
-            `请将以下 NPC 原始记忆压缩为一条总结记忆。`,
-            `NPC：${task.npcName}`,
-            `索引范围：${task.起始索引} - ${task.结束索引}`,
-            `时间范围：${task.起始时间} - ${task.结束时间}`,
-            `条目数量：${task.批次条数}`,
-            `总结后仍保留的较新原始记忆条数：${task.预留原始条数}`,
-            '输入条目如下：',
-            ...task.批次
-        ];
-        return lines.join('\n');
-    };
-
-    const 清空NPC记忆总结流程 = (options?: { 保留队列?: boolean }) => {
-        if (!options?.保留队列) {
-            set待处理NPC记忆总结队列([]);
-        }
-        setNPC记忆总结阶段('idle');
-        setNPC记忆总结草稿('');
-        setNPC记忆总结错误('');
-    };
-
-    const 刷新NPC记忆总结队列 = (
-        socialData: NPC结构[],
-        options?: { 静默?: boolean }
-    ) => {
-        const normalizedList = 规范化社交列表安全(socialData, { 合并同名: false });
-        const rebuiltQueue = normalizedList
-            .map((npc) => 构建NPC记忆总结任务(npc, 'auto'))
-            .filter((item): item is NPC记忆总结任务结构 => Boolean(item));
-
-        set待处理NPC记忆总结队列((prev) => {
-            const activeId = prev[0]?.id;
-            if (!activeId) return rebuiltQueue;
-            const activeTask = rebuiltQueue.find((item) => item.id === activeId);
-            const rest = rebuiltQueue.filter((item) => item.id !== activeId);
-            return activeTask ? [activeTask, ...rest] : rebuiltQueue;
-        });
-
-        if (rebuiltQueue.length === 0) {
-            清空NPC记忆总结流程();
-            return;
-        }
-        if (!options?.静默 && NPC记忆总结阶段 === 'idle') {
-            setNPC记忆总结阶段('remind');
-        }
-    };
-
-    const 应用并同步社交列表 = (
-        nextSocial: NPC结构[],
-        options?: { 静默NPC总结提示?: boolean }
-    ): NPC结构[] => {
-        const normalized = 规范化社交列表安全(nextSocial, { 合并同名: false });
-        设置社交(normalized);
-        刷新NPC记忆总结队列(normalized, { 静默: options?.静默NPC总结提示 === true });
-        void performAutoSave({ social: normalized, history: 历史记录, force: true });
-        return normalized;
-    };
-
-    const 清空记忆总结流程 = (options?: { 保留任务?: boolean }) => {
-        if (!options?.保留任务) {
-            set待处理记忆总结任务(null);
-        }
-        set记忆总结阶段('idle');
-        set记忆总结草稿('');
-        set记忆总结错误('');
-    };
-
-    const 刷新记忆总结任务 = (
-        memoryData: 记忆系统结构,
-        options?: { 静默?: boolean }
-    ) => {
-        const nextTask = 构建待处理记忆压缩任务(
-            规范化记忆系统(memoryData),
-            规范化记忆配置(memoryConfig)
-        );
-        if (!nextTask) {
-            清空记忆总结流程();
-            return;
-        }
-        const sameTask = 待处理记忆总结任务?.id === nextTask.id;
-        set待处理记忆总结任务(nextTask);
-        if (sameTask && (记忆总结阶段 === 'processing' || 记忆总结阶段 === 'review')) {
-            return;
-        }
-        if (!sameTask) {
-            set记忆总结草稿('');
-            set记忆总结错误('');
-        }
-        if (!options?.静默) {
-            set记忆总结阶段('remind');
-        }
-    };
-
-    const 应用并同步记忆系统 = (
-        nextMemory: 记忆系统结构,
-        options?: { 静默总结提示?: boolean }
-    ): 记忆系统结构 => {
-        const normalized = 规范化记忆系统(nextMemory);
-        设置记忆系统(normalized);
-        刷新记忆总结任务(normalized, { 静默: options?.静默总结提示 === true });
-        return normalized;
-    };
-
-    const 同步重Roll计数 = () => {
-        set可重Roll计数(回合快照栈Ref.current.length);
-    };
-
-    const 清空重Roll快照 = () => {
-        回合快照栈Ref.current = [];
-        同步重Roll计数();
-    };
-
-    const 推入重Roll快照 = (snapshot: 回合快照结构) => {
-        回合快照栈Ref.current.push(snapshot);
-        同步重Roll计数();
-    };
-
-    const 弹出重Roll快照 = (): 回合快照结构 | null => {
-        const snapshot = 回合快照栈Ref.current.pop() || null;
-        同步重Roll计数();
-        return snapshot;
-    };
-
-    const 回档到快照 = (
-        snapshot: 回合快照结构,
-        options?: { 保留图片状态?: boolean }
-    ) => {
-        设置角色(规范化角色物品容器映射(深拷贝(snapshot.回档前状态.角色)));
-        设置环境(规范化环境信息(深拷贝(snapshot.回档前状态.环境)));
-        设置社交(规范化社交列表(深拷贝(snapshot.回档前状态.社交)));
-        设置世界(规范化世界状态(深拷贝(snapshot.回档前状态.世界)));
-        设置战斗(深拷贝(snapshot.回档前状态.战斗));
-        设置玩家门派(深拷贝(snapshot.回档前状态.玩家门派));
-        设置任务列表(深拷贝(snapshot.回档前状态.任务列表));
-        设置约定列表(深拷贝(snapshot.回档前状态.约定列表));
-        设置剧情(规范化剧情状态(深拷贝(snapshot.回档前状态.剧情)));
-        设置剧情规划(规范化剧情规划状态(深拷贝(snapshot.回档前状态.剧情规划)));
-        设置女主剧情规划(规范化女主剧情规划状态(深拷贝(snapshot.回档前状态.女主剧情规划)));
-        设置同人剧情规划(规范化同人剧情规划状态(深拷贝(snapshot.回档前状态.同人剧情规划)));
-        设置同人女主剧情规划(规范化同人女主剧情规划状态(深拷贝(snapshot.回档前状态.同人女主剧情规划)));
-        应用并同步记忆系统(深拷贝(snapshot.回档前状态.记忆系统));
-        设置历史记录(深拷贝(snapshot.回档前历史));
-        if (options?.保留图片状态 !== true) {
-            应用视觉设置到状态(深拷贝(snapshot.回档前持久态?.视觉设置 || {}));
-            应用场景图片档案到状态(深拷贝(snapshot.回档前持久态?.场景图片档案 || {}));
-        }
-    };
-
-    // Frontend联动：当游戏时间命中节日设定时，自动同步“名称/简介/效果”到环境
+    // Frontend联动：当游戏时间命中节日设定时，自动同步”名称/简介/效果”到环境
     useEffect(() => {
         const md = 提取环境月日(环境);
         const matched = md ? festivals.find(f => f.月 === md.month && f.日 === md.day) : undefined;
@@ -721,444 +546,6 @@ export const useGame = () => {
         设置游戏初始时间(回忆开局时间);
     }, [环境, 游戏初始时间, 记忆系统, 设置游戏初始时间]);
 
-    const 获取原始AI消息 = (rawText: string): string => (typeof rawText === 'string' ? rawText : '');
-    const 计算回复耗时秒 = (startedAt: number, endedAt: number = Date.now()): number => {
-        if (!Number.isFinite(startedAt) || startedAt <= 0) return 0;
-        const elapsed = endedAt - startedAt;
-        if (!Number.isFinite(elapsed) || elapsed <= 0) return 0;
-        return Math.max(1, Math.round(elapsed / 1000));
-    };
-    const 估算消息Token = (
-        messages: Array<{ role?: string; content?: string; name?: string }>,
-        model?: string
-    ): number => countOpenAIChatMessagesTokens(messages, model);
-    const 估算AI输出Token = (rawText: string, model?: string): number => (
-        countOpenAITextTokens(typeof rawText === 'string' ? rawText : '', model)
-    );
-    const 游戏时间转排序值 = (input?: string): number | null => {
-        const canonical = normalizeCanonicalGameTime(input);
-        if (!canonical) return null;
-        const matched = canonical.match(/^(\d{1,6}):(\d{2}):(\d{2}):(\d{2}):(\d{2})$/);
-        if (!matched) return null;
-        return (
-            Number(matched[1]) * 100000000 +
-            Number(matched[2]) * 1000000 +
-            Number(matched[3]) * 10000 +
-            Number(matched[4]) * 100 +
-            Number(matched[5])
-        );
-    };
-    const 提取文本中的游戏时间列表 = (text?: string): string[] => {
-        if (!text || typeof text !== 'string') return [];
-        const matched = text.match(/\d{1,6}:\d{1,2}:\d{1,2}:\d{1,2}:\d{1,2}/g) || [];
-        const deduped: string[] = [];
-        matched.forEach((item) => {
-            const canonical = normalizeCanonicalGameTime(item);
-            if (canonical && !deduped.includes(canonical)) deduped.push(canonical);
-        });
-        return deduped;
-    };
-    const 当前时间已达到 = (currentTime?: string, targetTime?: string): boolean => {
-        const currentSort = 游戏时间转排序值(currentTime);
-        const targetSort = 游戏时间转排序值(targetTime);
-        if (currentSort === null || targetSort === null) return false;
-        return currentSort >= targetSort;
-    };
-    const 提取响应完整正文文本 = (response?: GameResponse): string => {
-        const logs = Array.isArray(response?.logs) ? response.logs : [];
-        return logs
-            .map((item) => `${item?.sender || '旁白'}：${item?.text || ''}`.trim())
-            .filter(Boolean)
-            .join('\n')
-            .trim();
-    };
-    type 最近正文回合结构 = {
-        玩家输入: string;
-        游戏时间: string;
-        正文: string;
-    };
-    const 收集最近完整正文回合 = (params: {
-        history: 聊天记录结构[];
-        currentPlayerInput?: string;
-        currentGameTime?: string;
-        currentResponse?: GameResponse;
-        maxTurns?: number;
-    }): 最近正文回合结构[] => {
-        const maxTurns = Math.max(1, Number(params.maxTurns) || 3);
-        const collected: 最近正文回合结构[] = [];
-        const pushTurn = (item: 最近正文回合结构) => {
-            if (!item.正文.trim()) return;
-            const signature = `${item.游戏时间}__${item.玩家输入}__${item.正文}`;
-            if (collected.some((existing) => `${existing.游戏时间}__${existing.玩家输入}__${existing.正文}` === signature)) {
-                return;
-            }
-            collected.push(item);
-        };
-
-        const currentBody = 提取响应完整正文文本(params.currentResponse);
-        if (currentBody) {
-            pushTurn({
-                玩家输入: params.currentPlayerInput || '',
-                游戏时间: params.currentGameTime || '',
-                正文: currentBody
-            });
-        }
-
-        const history = Array.isArray(params.history) ? params.history : [];
-        for (let i = history.length - 1; i >= 0 && collected.length < maxTurns; i -= 1) {
-            const item = history[i];
-            if (item?.role !== 'assistant' || !item?.structuredResponse) continue;
-            const body = 提取响应完整正文文本(item.structuredResponse);
-            if (!body) continue;
-            let playerInput = '';
-            for (let j = i - 1; j >= 0; j -= 1) {
-                if (history[j]?.role === 'user') {
-                    playerInput = typeof history[j]?.content === 'string' ? history[j].content : '';
-                    break;
-                }
-            }
-            pushTurn({
-                玩家输入: playerInput,
-                游戏时间: item.gameTime || '',
-                正文: body
-            });
-        }
-
-        return collected.slice(0, maxTurns).reverse();
-    };
-    const 构建最近完整正文上下文 = (rounds: 最近正文回合结构[]): string => (
-        (Array.isArray(rounds) ? rounds : [])
-            .map((item, index) => [
-                `【正文片段${index + 1}】`,
-                item.游戏时间 ? `游戏时间：${item.游戏时间}` : '游戏时间：未知',
-                item.玩家输入 ? `玩家输入：${item.玩家输入}` : '玩家输入：',
-                '完整正文：',
-                item.正文
-            ].join('\n'))
-            .join('\n\n')
-            .trim()
-    );
-    const 去重文本数组 = (items: string[]): string[] => {
-        const result: string[] = [];
-        (Array.isArray(items) ? items : []).forEach((item) => {
-            const text = typeof item === 'string' ? item.trim() : '';
-            if (text && !result.includes(text)) result.push(text);
-        });
-        return result;
-    };
-    const 收集剧情规划时间触发原因 = (planLike?: 剧情规划结构, envLike?: 环境信息结构): string[] => {
-        const currentTime = 环境时间转标准串(envLike);
-        if (!currentTime) return [];
-        const normalizedPlan = 规范化剧情规划状态(planLike);
-        const reasons: string[] = [];
-        (Array.isArray(normalizedPlan?.待触发事件) ? normalizedPlan.待触发事件 : []).forEach((item: any) => {
-            const name = typeof item?.事件名 === 'string' ? item.事件名.trim() : '未命名事件';
-            [item?.计划触发时间, item?.最早触发时间, item?.最晚触发时间].forEach((time) => {
-                if (当前时间已达到(currentTime, time)) {
-                    reasons.push(`剧情待触发事件「${name}」已到时间点 ${time}`);
-                }
-            });
-        });
-        (Array.isArray(normalizedPlan?.当前章任务) ? normalizedPlan.当前章任务 : []).forEach((item: any) => {
-            const name = typeof item?.标题 === 'string' ? item.标题.trim() : '未命名任务';
-            [item?.计划执行时间, item?.最早执行时间, item?.最晚执行时间].forEach((time) => {
-                if (当前时间已达到(currentTime, time)) {
-                    reasons.push(`剧情任务「${name}」已到执行时间 ${time}`);
-                }
-            });
-        });
-        return 去重文本数组(reasons);
-    };
-    const 收集女主规划时间触发原因 = (planLike?: 女主剧情规划结构, envLike?: 环境信息结构): string[] => {
-        const currentTime = 环境时间转标准串(envLike);
-        if (!currentTime) return [];
-        const normalizedPlan = 规范化女主剧情规划状态(planLike);
-        if (!normalizedPlan) return [];
-        const reasons: string[] = [];
-        (Array.isArray(normalizedPlan?.女主互动事件) ? normalizedPlan.女主互动事件 : []).forEach((item: any) => {
-            const eventId = typeof item?.事件名 === 'string' ? item.事件名.trim() : '未知排期';
-            const heroineName = typeof item?.女主姓名 === 'string' ? item.女主姓名.trim() : '未知女主';
-            [item?.计划触发时间, item?.最早触发时间, item?.最晚触发时间].forEach((time) => {
-                if (当前时间已达到(currentTime, time)) {
-                    reasons.push(`女主互动事件「${heroineName}/${eventId}」已到时间点 ${time}`);
-                }
-            });
-        });
-        return 去重文本数组(reasons);
-    };
-    const 收集剧情正文命中原因 = (
-        storyLike?: 剧情系统结构,
-        planLike?: 剧情规划结构,
-        latestBodyText?: string
-    ): string[] => {
-        const body = typeof latestBodyText === 'string' ? latestBodyText.trim() : '';
-        if (!body) return [];
-        const normalizedStory = 规范化剧情状态(storyLike);
-        const normalizedPlan = 规范化剧情规划状态(planLike);
-        const keywords = 去重文本数组([
-            normalizedStory?.当前章节?.标题 || '',
-            ...(Array.isArray(normalizedPlan?.待触发事件) ? normalizedPlan.待触发事件.map((item: any) => item?.事件名 || '') : []),
-            ...(Array.isArray(normalizedPlan?.当前章任务) ? normalizedPlan.当前章任务.map((item: any) => item?.标题 || '') : [])
-        ]).filter((item) => item.length >= 2);
-        return keywords
-            .filter((keyword) => body.includes(keyword))
-            .map((keyword) => `最近正文命中剧情线索「${keyword}」`);
-    };
-    const 收集女主正文命中原因 = (planLike?: 女主剧情规划结构, latestBodyText?: string): string[] => {
-        const body = typeof latestBodyText === 'string' ? latestBodyText.trim() : '';
-        if (!body) return [];
-        const normalizedPlan = 规范化女主剧情规划状态(planLike);
-        if (!normalizedPlan) return [];
-        const keywords = 去重文本数组([
-            ...(Array.isArray(normalizedPlan?.女主条目) ? normalizedPlan.女主条目.map((item: any) => item?.女主姓名 || '') : [])
-        ]).filter((item) => item.length >= 2);
-        return keywords
-            .filter((keyword) => body.includes(keyword))
-            .map((keyword) => `最近正文命中女主线索「${keyword}」`);
-    };
-    const 过滤规划补丁命令 = (
-        commands: TavernCommand[],
-        allowedPrefixes: string[]
-    ): TavernCommand[] => (
-        (Array.isArray(commands) ? commands : [])
-            .filter((cmd) => cmd && typeof cmd.key === 'string' && typeof cmd.action === 'string')
-            .filter((cmd) => allowedPrefixes.some((prefix) => cmd.key === prefix || cmd.key.startsWith(`${prefix}.`) || cmd.key.startsWith(`${prefix}[`)))
-    );
-    const 提取原始报错详情 = (error: any): string => {
-        const raw = error?.detail ?? error?.message ?? error ?? '未知错误';
-        if (typeof raw === 'string') return raw;
-        try {
-            return JSON.stringify(raw, null, 2);
-        } catch {
-            return String(raw);
-        }
-    };
-    const 格式化错误详情 = (error: any): string => {
-        if (!error) return '未知错误';
-        if (typeof error === 'string') return error;
-        const lines: string[] = [];
-        if (error?.name) lines.push(`Name: ${error.name}`);
-        if (typeof error?.status === 'number') lines.push(`Status: ${error.status}`);
-        if (typeof error?.message === 'string' && error.message.trim()) {
-            lines.push(`Message: ${error.message}`);
-        }
-        const detail = error?.detail ?? error?.parseDetail;
-        if (detail) {
-            const detailText = typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2);
-            lines.push('Detail:');
-            lines.push(detailText);
-        }
-        if (lines.length > 0) return lines.join('\n');
-        try {
-            return JSON.stringify(error, null, 2);
-        } catch {
-            return String(error);
-        }
-    };
-    const 提取解析失败原始信息 = (error: any): string => {
-        if (!error) return '返回内容不符合标签协议';
-        if (typeof error === 'string' && error.trim().length > 0) return error.trim();
-        if (typeof error?.parseDetail === 'string' && error.parseDetail.trim().length > 0) {
-            return error.parseDetail.trim();
-        }
-        if (typeof error?.message === 'string' && error.message.trim().length > 0) {
-            return error.message.trim();
-        }
-        return '返回内容不符合标签协议';
-    };
-
-    const 构建记忆总结用户提示词 = (task: 记忆压缩任务结构): string => {
-        const sourceLabel = task.来源层 === '短期' ? '短期记忆' : '中期记忆';
-        const targetLabel = task.目标层 === '中期' ? '中期记忆' : '长期记忆';
-        const lines = [
-            `请将以下${sourceLabel}压缩为${targetLabel}。`,
-            `时间范围：${task.起始时间} - ${task.结束时间}`,
-            `条目数量：${task.批次条数}`,
-            '输入条目如下：',
-            ...task.批次.map((item, index) => `[${index + 1}] ${item}`),
-            '再次强调：若无重要内容，输出空字符串。'
-        ];
-        return lines.join('\n');
-    };
-
-    const 清理记忆总结输出 = (rawText: string): string => {
-        let text = (rawText || '').trim();
-        if (!text) return '';
-        text = text
-            .replace(/^```(?:text|markdown)?\s*/i, '')
-            .replace(/```$/i, '')
-            .trim();
-        if (!text) return '';
-        if (/^(?:无|暂无|无重要内容|无需输出|空|空字符串|无重要事件)[。！!？?]*$/i.test(text)) {
-            return '';
-        }
-        return text;
-    };
-
-    const handleStartMemorySummary = async (): Promise<void> => {
-        if (!待处理记忆总结任务) return;
-        const summaryApi = 获取记忆总结接口配置(apiConfig);
-        if (!接口配置是否可用(summaryApi)) {
-            set记忆总结错误('未配置可用接口，无法执行记忆总结。');
-            set记忆总结阶段('review');
-            return;
-        }
-        const task = 待处理记忆总结任务;
-        set记忆总结阶段('processing');
-        set记忆总结错误('');
-        try {
-            const raw = await textAIService.generateMemoryRecall(
-                task.提示词模板,
-                构建记忆总结用户提示词(task),
-                summaryApi
-            );
-            set记忆总结草稿(清理记忆总结输出(raw));
-            set记忆总结阶段('review');
-        } catch (error: any) {
-            set记忆总结草稿('');
-            set记忆总结错误(提取原始报错详情(error) || '记忆总结失败。');
-            set记忆总结阶段('review');
-        }
-    };
-
-    const handleCancelMemorySummary = () => {
-        清空记忆总结流程({ 保留任务: true });
-    };
-
-    const handleBackToMemorySummaryRemind = () => {
-        if (!待处理记忆总结任务) return;
-        set记忆总结阶段('remind');
-        set记忆总结错误('');
-    };
-
-    const handleUpdateMemorySummaryDraft = (nextDraft: string) => {
-        set记忆总结草稿(nextDraft);
-    };
-
-    const handleStartManualMemorySummary = (
-        来源层: '短期' | '中期',
-        起始索引: number,
-        结束索引: number
-    ) => {
-        const task = 构建手动记忆压缩任务(
-            规范化记忆系统(记忆系统),
-            规范化记忆配置(memoryConfig),
-            来源层,
-            起始索引,
-            结束索引
-        );
-        if (!task) {
-            return;
-        }
-        set待处理记忆总结任务(task);
-        set记忆总结草稿('');
-        set记忆总结错误('');
-        set记忆总结阶段('remind');
-    };
-
-    const handleApplyMemorySummary = () => {
-        if (!待处理记忆总结任务) return;
-        const nextMemory = 应用记忆压缩结果(
-            规范化记忆系统(记忆系统),
-            待处理记忆总结任务,
-            记忆总结草稿
-        );
-        set记忆总结阶段('idle');
-        set记忆总结草稿('');
-        set记忆总结错误('');
-        const appliedMemory = 应用并同步记忆系统(nextMemory);
-        void performAutoSave({ memory: appliedMemory });
-    };
-
-    const handleStartNpcMemorySummary = async (): Promise<void> => {
-        const currentTask = 待处理NPC记忆总结队列[0];
-        if (!currentTask) return;
-        const summaryApi = 获取记忆总结接口配置(apiConfig);
-        if (!接口配置是否可用(summaryApi)) {
-            setNPC记忆总结错误('未配置可用接口，无法执行 NPC 记忆总结。');
-            setNPC记忆总结阶段('review');
-            return;
-        }
-        setNPC记忆总结阶段('processing');
-        setNPC记忆总结错误('');
-        try {
-            const raw = await textAIService.generateMemoryRecall(
-                currentTask.提示词模板,
-                构建NPC记忆总结用户提示词(currentTask),
-                summaryApi
-            );
-            const cleaned = 清理记忆总结输出(raw);
-            setNPC记忆总结草稿(cleaned || 构建NPC记忆总结回退文案(
-                currentTask.批次.map((item) => {
-                    const match = item.match(/^\[\d+\]\s+\[(.*?)\]\s+(.*)$/);
-                    return {
-                        时间: match?.[1] || '未知时间',
-                        内容: match?.[2] || item
-                    };
-                })
-            ));
-            setNPC记忆总结阶段('review');
-        } catch (error: any) {
-            setNPC记忆总结草稿('');
-            setNPC记忆总结错误(提取原始报错详情(error) || 'NPC 记忆总结失败。');
-            setNPC记忆总结阶段('review');
-        }
-    };
-
-    const handleCancelNpcMemorySummary = () => {
-        清空NPC记忆总结流程({ 保留队列: true });
-    };
-
-    const handleBackToNpcMemorySummaryRemind = () => {
-        if (!待处理NPC记忆总结队列[0]) return;
-        setNPC记忆总结阶段('remind');
-        setNPC记忆总结错误('');
-    };
-
-    const handleUpdateNpcMemorySummaryDraft = (nextDraft: string) => {
-        setNPC记忆总结草稿(nextDraft);
-    };
-
-    const handleQueueManualNpcMemorySummary = (npcId: string) => {
-        const targetNpc = (Array.isArray(社交) ? 社交 : []).find((npc) => npc?.id === npcId);
-        if (!targetNpc) return;
-        const manualTask = 构建NPC记忆总结任务(targetNpc, 'manual');
-        if (!manualTask) return;
-        set待处理NPC记忆总结队列((prev) => {
-            const rest = prev.filter((item) => item.id !== manualTask.id);
-            return [manualTask, ...rest];
-        });
-        setNPC记忆总结草稿('');
-        setNPC记忆总结错误('');
-        setNPC记忆总结阶段('remind');
-    };
-
-    const handleApplyNpcMemorySummary = () => {
-        const currentTask = 待处理NPC记忆总结队列[0];
-        if (!currentTask) return;
-        const targetNpc = (Array.isArray(社交) ? 社交 : []).find((npc) => npc?.id === currentTask.npcId);
-        if (!targetNpc) {
-            刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: true });
-            清空NPC记忆总结流程({ 保留队列: true });
-            return;
-        }
-        const candidate = currentTask.触发方式 === 'manual'
-            ? 构建手动NPC记忆总结候选(targetNpc.记忆, memoryConfig)
-            : 构建自动NPC记忆总结候选(targetNpc.记忆, memoryConfig);
-        if (!candidate) {
-            刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: true });
-            setNPC记忆总结阶段('idle');
-            setNPC记忆总结草稿('');
-            setNPC记忆总结错误('');
-            return;
-        }
-        const nextNpc = 应用NPC记忆总结(targetNpc, candidate, NPC记忆总结草稿);
-        const nextSocial = (Array.isArray(社交) ? 社交 : []).map((npc) => npc?.id === targetNpc.id ? nextNpc : npc);
-        应用并同步社交列表(nextSocial);
-        setNPC记忆总结阶段('idle');
-        setNPC记忆总结草稿('');
-        setNPC记忆总结错误('');
-    };
     const 构建标签解析选项 = (config: 游戏设置结构) => ({
         validateTagCompleteness: config?.启用标签检测完整性 === true,
         enableTagRepair: config?.启用标签修复 !== false,
@@ -1454,88 +841,6 @@ export const useGame = () => {
         });
     };
 
-    useEffect(() => {
-        if (!后台手动生图监控Ref.current.length) return;
-        const pendingMonitors = 后台手动生图监控Ref.current.filter((monitor) => {
-            const matchedTask = (Array.isArray(NPC生图任务队列) ? NPC生图任务队列 : []).find((task) => (
-                (task?.NPC标识 === monitor.npcId || task?.NPC标识 === `id:${monitor.npcId}`)
-                && (task?.来源 === 'manual' || task?.来源 === 'retry')
-                && (task?.创建时间 || 0) >= monitor.since
-            ));
-            if (!matchedTask || (matchedTask.状态 !== 'success' && matchedTask.状态 !== 'failed')) {
-                return true;
-            }
-            if (已提示后台生图任务Ref.current.has(matchedTask.id)) {
-                return false;
-            }
-            已提示后台生图任务Ref.current.add(matchedTask.id);
-            推送右下角提示({
-                title: matchedTask.状态 === 'success' ? '手动生图完成' : '手动生图失败',
-                message: matchedTask.状态 === 'success'
-                    ? `${monitor.npcName}的${monitor.构图}已生成完成。`
-                    : `${monitor.npcName}的${monitor.构图}生成失败：${matchedTask.错误信息 || '未知错误'}`,
-                tone: matchedTask.状态 === 'success' ? 'success' : 'error'
-            });
-            return false;
-        });
-        后台手动生图监控Ref.current = pendingMonitors;
-    }, [NPC生图任务队列]);
-
-    useEffect(() => {
-        if (!后台私密生图监控Ref.current.length) return;
-        const pendingMonitors = 后台私密生图监控Ref.current.filter((monitor) => {
-            const matchedTask = (Array.isArray(NPC生图任务队列) ? NPC生图任务队列 : []).find((task) => (
-                (task?.NPC标识 === monitor.npcId || task?.NPC标识 === `id:${monitor.npcId}`)
-                && task?.来源 === 'manual'
-                && task?.构图 === '部位特写'
-                && task?.部位 === monitor.部位
-                && (task?.创建时间 || 0) >= monitor.since
-            ));
-            if (!matchedTask || (matchedTask.状态 !== 'success' && matchedTask.状态 !== 'failed')) {
-                return true;
-            }
-            if (已提示后台私密生图任务Ref.current.has(matchedTask.id)) {
-                return false;
-            }
-            已提示后台私密生图任务Ref.current.add(matchedTask.id);
-            推送右下角提示({
-                title: matchedTask.状态 === 'success' ? '私密特写完成' : '私密特写失败',
-                message: matchedTask.状态 === 'success'
-                    ? `${monitor.npcName}的${monitor.部位}特写已生成完成。`
-                    : `${monitor.npcName}的${monitor.部位}特写生成失败：${matchedTask.错误信息 || '未知错误'}`,
-                tone: matchedTask.状态 === 'success' ? 'success' : 'error'
-            });
-            return false;
-        });
-        后台私密生图监控Ref.current = pendingMonitors;
-    }, [NPC生图任务队列]);
-
-    useEffect(() => {
-        if (!后台场景生图监控Ref.current.length) return;
-        const pendingMonitors = 后台场景生图监控Ref.current.filter((monitor) => {
-            const matchedTask = (Array.isArray(场景生图任务队列) ? 场景生图任务队列 : []).find((task) => (
-                task?.来源 === 'manual'
-                && (task?.创建时间 || 0) >= monitor.since
-            ));
-            if (!matchedTask || (matchedTask.状态 !== 'success' && matchedTask.状态 !== 'failed')) {
-                return true;
-            }
-            if (已提示后台场景生图任务Ref.current.has(matchedTask.id)) {
-                return false;
-            }
-            已提示后台场景生图任务Ref.current.add(matchedTask.id);
-            推送右下角提示({
-                title: matchedTask.状态 === 'success' ? '场景生图完成' : '场景生图失败',
-                message: matchedTask.状态 === 'success'
-                    ? `${monitor.摘要 || '当前正文场景'}已生成完成。`
-                    : `${monitor.摘要 || '当前正文场景'}生成失败：${matchedTask.错误信息 || '未知错误'}`,
-                tone: matchedTask.状态 === 'success' ? 'success' : 'error'
-            });
-            return false;
-        });
-        后台场景生图监控Ref.current = pendingMonitors;
-    }, [场景生图任务队列]);
-
     const 读取修炼体系开关 = (): boolean => gameConfig?.启用修炼体系 !== false;
 
     const 构建文生图额外要求 = (extra?: string): string => {
@@ -1587,109 +892,6 @@ export const useGame = () => {
         推送右下角提示
     });
 
-    const 序列化变量校准命令 = (cmd: any): string => {
-        const action = typeof cmd?.action === 'string' ? cmd.action : 'set';
-        const key = typeof cmd?.key === 'string' ? cmd.key : '';
-        if (action === 'delete') return `delete ${key}`;
-        try {
-            return `${action} ${key} = ${JSON.stringify(cmd?.value ?? null)}`;
-        } catch {
-            return `${action} ${key} = ${String(cmd?.value ?? null)}`;
-        }
-    };
-
-    const 提取响应正文文本 = (response: any): string => {
-        const logs = Array.isArray(response?.logs) ? response.logs : [];
-        const lines = logs
-            .map((log: any) => {
-                const sender = typeof log?.sender === 'string' ? log.sender.trim() : '旁白';
-                const text = typeof log?.text === 'string' ? log.text.trim() : '';
-                return text ? `【${sender}】${text}` : '';
-            })
-            .filter(Boolean);
-        return lines.join('\n');
-    };
-
-    const 清空变量生成上下文缓存 = () => {
-        最近变量生成上下文Ref.current = [];
-    };
-
-    const 记录变量生成上下文 = (params: { playerInput: string; response: any }) => {
-        const response = params.response;
-        if (!response || typeof response !== 'object') return;
-        const 正文 = 提取响应正文文本(response);
-        const 本回合命令 = Array.isArray(response?.tavern_commands)
-            ? response.tavern_commands.map(序列化变量校准命令).filter(Boolean)
-            : [];
-        const 校准说明 = Array.isArray(response?.variable_calibration_report)
-            ? response.variable_calibration_report.map((entry: any) => (typeof entry === 'string' ? entry.trim() : '')).filter(Boolean)
-            : [];
-        const 校准补充命令 = Array.isArray(response?.variable_calibration_commands)
-            ? response.variable_calibration_commands.map(序列化变量校准命令).filter(Boolean)
-            : [];
-        const 校准命令 = [...校准补充命令].filter(Boolean);
-        if (!(params.playerInput || '').trim() && !正文 && 本回合命令.length <= 0 && 校准说明.length <= 0 && 校准命令.length <= 0) {
-            return;
-        }
-        const entry: 变量生成上下文缓存项 = {
-            回合: 最近变量生成上下文Ref.current.length + 1,
-            玩家输入: (params.playerInput || '').trim(),
-            正文,
-            本回合命令,
-            校准说明,
-            校准命令
-        };
-        最近变量生成上下文Ref.current = [...最近变量生成上下文Ref.current, entry].slice(-2);
-    };
-
-    const 收集最近变量生成上下文 = (history: any[], limit = 2) => {
-        if (最近变量生成上下文Ref.current.length > 0) {
-            const safeLimit = Math.max(0, Math.min(3, limit));
-            return 最近变量生成上下文Ref.current.slice(-safeLimit).map((item) => 深拷贝(item));
-        }
-        const safeLimit = Math.max(0, Math.min(3, limit));
-        if (safeLimit <= 0 || !Array.isArray(history)) return [];
-        let assistantTurn = 0;
-        let latestUserInput = '';
-        const records: Array<{
-            回合: number;
-            玩家输入: string;
-            正文: string;
-            本回合命令: string[];
-            校准说明: string[];
-            校准命令: string[];
-        }> = [];
-        history.forEach((item) => {
-            if (item?.role === 'user') {
-                latestUserInput = typeof item?.content === 'string' ? item.content.trim() : '';
-                return;
-            }
-            if (item?.role !== 'assistant' || !item?.structuredResponse) return;
-            assistantTurn += 1;
-            const response = item.structuredResponse;
-            const 校准说明 = Array.isArray(response?.variable_calibration_report)
-                ? response.variable_calibration_report.map((entry: any) => (typeof entry === 'string' ? entry.trim() : '')).filter(Boolean)
-                : [];
-            const 校准补充命令 = Array.isArray(response?.variable_calibration_commands)
-                ? response.variable_calibration_commands.map(序列化变量校准命令).filter(Boolean)
-                : [];
-            const 校准命令 = [...校准补充命令].filter(Boolean);
-            const 本回合命令 = Array.isArray(response?.tavern_commands)
-                ? response.tavern_commands.map(序列化变量校准命令).filter(Boolean)
-                : [];
-            const 正文 = 提取响应正文文本(response);
-            if (!latestUserInput && !正文 && 本回合命令.length <= 0 && 校准说明.length <= 0 && 校准命令.length <= 0) return;
-            records.push({
-                回合: assistantTurn,
-                玩家输入: latestUserInput,
-                正文,
-                本回合命令,
-                校准说明,
-                校准命令
-            });
-        });
-        return records.slice(-safeLimit);
-    };
 
     const 执行单个NPC生图 = async (npc: any, options?: { force?: boolean; source?: 生图任务来源类型; 构图?: '头像' | '半身' | '立绘'; 画风?: 当前可用接口结构['画风']; 画师串?: string; 画师串预设ID?: string; PNG画风预设ID?: string; 额外要求?: string; 尺寸?: string; 复用提示词?: { 生图词组: string; 最终正向提示词: string; 最终负向提示词: string } }) => {
         const { 执行NPC生图工作流 } = await 加载NPC生图工作流();
@@ -1789,103 +991,6 @@ export const useGame = () => {
             && 历史记录.some(item => item?.role === 'user' && typeof item?.content === 'string' && item.content.trim().length > 0);
     };
 
-    const 替换流式草稿为失败提示 = (history: 聊天记录结构[], errorMessage: string): 聊天记录结构[] => {
-        const next = Array.isArray(history) ? [...history] : [];
-        const failureText = `【生成失败】${errorMessage || '未知错误'}`;
-        for (let i = next.length - 1; i >= 0; i -= 1) {
-            const item = next[i];
-            if (item?.role === 'assistant' && !item?.structuredResponse) {
-                next[i] = {
-                    ...item,
-                    content: failureText
-                };
-                return next;
-            }
-        }
-        return [
-            ...next,
-            {
-                role: 'assistant',
-                content: failureText,
-                timestamp: Date.now()
-            }
-        ];
-    };
-
-    const 更新流式草稿为自动重试提示 = (
-        history: 聊天记录结构[],
-        attempt: number,
-        maxAttempts: number,
-        reason?: string
-    ): 聊天记录结构[] => {
-        const next = Array.isArray(history) ? [...history] : [];
-        const retryText = `【自动重试中】第 ${attempt} / ${maxAttempts} 次${reason ? `：${reason}` : ''}`;
-        for (let i = next.length - 1; i >= 0; i -= 1) {
-            const item = next[i];
-            if (item?.role === 'assistant' && !item?.structuredResponse) {
-                next[i] = {
-                    ...item,
-                    content: retryText
-                };
-                return next;
-            }
-        }
-        return [
-            ...next,
-            {
-                role: 'assistant',
-                content: retryText,
-                timestamp: Date.now()
-            }
-        ];
-    };
-
-    const 游戏设置启用自动重试 = (config?: Partial<游戏设置结构> | null): boolean => {
-        return config?.启用自动重试 === true;
-    };
-
-    const 提取自动重试原因 = (error: any): string => {
-        if (error instanceof textAIService.StoryResponseParseError || error?.name === 'StoryResponseParseError') {
-            return '解析失败，正在重新生成';
-        }
-        if (typeof error?.message === 'string' && error.message.trim()) {
-            return error.message.trim();
-        }
-        if (typeof error === 'string' && error.trim()) {
-            return error.trim();
-        }
-        return '请求失败，正在重试';
-    };
-
-    const 是否可自动重试错误 = (error: any): boolean => {
-        if (!error) return false;
-        if (error?.name === 'AbortError') return false;
-        return error instanceof textAIService.StoryResponseParseError
-            || error?.name === 'StoryResponseParseError'
-            || true;
-    };
-
-    const 执行带自动重试的生成请求 = async <T,>(params: {
-        enabled: boolean;
-        action: () => Promise<T>;
-        onRetry?: (attempt: number, maxAttempts: number, reason: string) => void;
-    }): Promise<T> => {
-        const maxAttempts = params.enabled ? 自动重试最大次数 : 1;
-        let lastError: any = null;
-        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-            try {
-                return await params.action();
-            } catch (error: any) {
-                lastError = error;
-                if (!params.enabled || attempt >= maxAttempts || !是否可自动重试错误(error)) {
-                    throw error;
-                }
-                const reason = 提取自动重试原因(error);
-                params.onRetry?.(attempt + 1, maxAttempts, reason);
-            }
-        }
-        throw lastError;
-    };
     const 执行正文润色 = async (
         baseResponse: GameResponse,
         rawText: string,
@@ -2167,21 +1272,6 @@ export const useGame = () => {
         执行世界演变更新
     });
 
-    const 等待世界演变空闲 = async (signal?: AbortSignal, timeoutMs = 20000): Promise<void> => {
-        const startedAt = Date.now();
-        while (世界演变进行中Ref.current) {
-            if (signal?.aborted) {
-                throw new DOMException('变量生成已取消', 'AbortError');
-            }
-            if (Date.now() - startedAt >= timeoutMs) {
-                break;
-            }
-            await new Promise<void>((resolve) => {
-                window.setTimeout(resolve, 80);
-            });
-        }
-    };
-
     let 执行重解析变量生成委托 = async (params: {
         snapshot: any;
         playerInput: string;
@@ -2283,12 +1373,6 @@ export const useGame = () => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
-        if (variableGenerationAbortControllerRef.current) {
-            variableGenerationAbortControllerRef.current.abort();
-        }
-    };
-
-    const handleCancelVariableGeneration = () => {
         if (variableGenerationAbortControllerRef.current) {
             variableGenerationAbortControllerRef.current.abort();
         }
@@ -2719,6 +1803,9 @@ export const useGame = () => {
         获取当前视觉设置快照: () => 规范化视觉设置(深拷贝(visualConfigRef.current || visualConfig)),
         获取当前场景图片档案快照: () => 规范化场景图片档案(深拷贝(场景图片档案Ref.current || 场景图片档案))
     });
+
+    // 填充前向引用
+    performAutoSaveRef.current = performAutoSave;
 
     const {
         createNpcManually,
