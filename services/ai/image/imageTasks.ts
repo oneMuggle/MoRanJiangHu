@@ -3467,25 +3467,109 @@ const 测试ComfyUI连接 = async (
     const baseUrl = (apiConfig.baseUrl || '').trim();
     if (!baseUrl) return { ok: false, detail: '缺少 Base URL' };
 
-    const endpoint = `${清理末尾斜杠(baseUrl)}/system_stats`;
-    const response = await fetch(endpoint, { method: 'GET' });
+    const cleanBaseUrl = 清理末尾斜杠(baseUrl);
+    const details: string[] = [];
 
-    if (!response.ok) {
+    // Phase 1: 基础连通性测试 — /system_stats
+    const systemStatsEndpoint = `${cleanBaseUrl}/system_stats`;
+    const systemStatsResponse = await fetch(systemStatsEndpoint, { method: 'GET' });
+
+    if (!systemStatsResponse.ok) {
         const elapsed = Date.now() - startedAt;
-        const text = await response.text().catch(() => '');
+        const text = await systemStatsResponse.text().catch(() => '');
         return {
             ok: false,
-            detail: `耗时: ${elapsed}ms\nHTTP ${response.status}${text ? ` - ${text.slice(0, 300)}` : ''}`
+            detail: `耗时: ${elapsed}ms\n服务状态: 不可达 (HTTP ${systemStatsResponse.status}${text ? ` - ${text.slice(0, 200)}` : ''})`
         };
     }
 
+    const systemStatsData = await systemStatsResponse.json().catch(() => null);
+    const systemInfo = systemStatsData?.system || {};
+    const devicesInfo = systemStatsData?.devices || [];
+    details.push(`服务状态: 正常`);
+    if (systemInfo.os) details.push(`系统: ${systemInfo.os}`);
+    if (devicesInfo.length > 0) {
+        const gpu = devicesInfo[0];
+        const gpuInfo = [gpu.name, gpu.vram ? `${(gpu.vram / 1024).toFixed(1)}GB VRAM` : '', gpu.type].filter(Boolean).join(' / ');
+        details.push(`GPU: ${gpuInfo || '可用'}`);
+    }
+
+    // Phase 2: 工作流可用性测试 — 提交空队列 /queue
+    const queueEndpoint = `${cleanBaseUrl}/queue`;
+    const queueResponse = await fetch(queueEndpoint, { method: 'GET' });
+    if (queueResponse.ok) {
+        const queueData = await queueResponse.json().catch(() => null);
+        details.push(`队列服务: 可用`);
+        if (queueData?.queue_running?.length > 0) {
+            details.push(`当前任务: ${queueData.queue_running.length} 个正在执行`);
+        }
+        if (queueData?.queue_pending?.length > 0) {
+            details.push(`排队任务: ${queueData.queue_pending.length} 个等待中`);
+        }
+    }
+
+    // Phase 3: 工作流提交测试 — 使用用户提供的 workflow JSON 进行真实提交验证
+    const workflowJson = apiConfig.ComfyUI工作流JSON;
+    if (workflowJson && workflowJson.trim()) {
+        try {
+            const parsed = JSON.parse(workflowJson);
+            const promptEndpoint = `${cleanBaseUrl}/prompt`;
+            const promptResponse = await fetch(promptEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: parsed, client_id: 'wuxia-test' })
+            });
+
+            if (promptResponse.ok) {
+                const promptData = await promptResponse.json().catch(() => null);
+                const promptId = promptData?.prompt_id;
+                if (promptId) {
+                    details.push(`工作流提交: 成功 (prompt_id: ${promptId.slice(0, 8)}...)`);
+
+                    // 轮询 history 确认能拿到结果
+                    const historyEndpoint = `${cleanBaseUrl}/history/${promptId}`;
+                    let historyOk = false;
+                    for (let i = 0; i < 15; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        const historyResponse = await fetch(historyEndpoint, { method: 'GET' });
+                        if (historyResponse.ok) {
+                            const historyText = await historyResponse.text();
+                            if (historyText && historyText !== '{}' && historyText.trim() !== 'null') {
+                                const historyData = JSON.parse(historyText);
+                                const imageUrl = 提取ComfyUI图片地址(historyData, baseUrl);
+                                if (imageUrl) {
+                                    details.push(`图片生成: 成功 (${imageUrl.slice(0, 80)}...)`);
+                                    historyOk = true;
+                                    break;
+                                } else {
+                                    details.push(`图片生成: 工作流完成但无图片输出`);
+                                    historyOk = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!historyOk) {
+                        details.push(`图片生成: 超时(15s)，未收到结果`);
+                    }
+                } else {
+                    details.push(`工作流提交: 未返回 prompt_id`);
+                }
+            } else {
+                const errorText = await promptResponse.text().catch(() => '');
+                details.push(`工作流提交: 失败 (HTTP ${promptResponse.status}${errorText ? ` - ${errorText.slice(0, 150)}` : ''})`);
+            }
+        } catch (parseError: any) {
+            details.push(`工作流提交: 跳过 (workflow JSON 解析失败)`);
+        }
+    } else {
+        details.push(`工作流提交: 跳过 (未填写 ComfyUI 工作流 JSON)`);
+    }
+
     const elapsed = Date.now() - startedAt;
-    const data = await response.json().catch(() => null);
-    const systemInfo = data?.system || {};
-    const devicesInfo = data?.devices || [];
     return {
         ok: true,
-        detail: `耗时: ${elapsed}ms\n\n服务状态: 正常${systemInfo.os ? `\n系统: ${systemInfo.os}` : ''}${devicesInfo.length > 0 ? `\nGPU: ${devicesInfo[0]?.name || '可用'}` : ''}`
+        detail: `耗时: ${elapsed}ms\n\n${details.join('\n')}`
     };
 };
 

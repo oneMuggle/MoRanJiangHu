@@ -196,6 +196,11 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
     const [testResultModal, setTestResultModal] = useState<{ open: boolean; title: string; content: string; ok: boolean }>({ open: false, title: '', content: '', ok: false });
     const artistImportRef = React.useRef<HTMLInputElement | null>(null);
     const transformerImportRef = React.useRef<HTMLInputElement | null>(null);
+    const [workflowDialogOpen, setWorkflowDialogOpen] = useState(false);
+    const [workflowList, setWorkflowList] = useState<Array<{ path: string; name: string; category: string }>>([]);
+    const [workflowLoading, setWorkflowLoading] = useState(false);
+    const [workflowError, setWorkflowError] = useState('');
+    const [workflowFilter, setWorkflowFilter] = useState<string>('all');
 
     useEffect(() => {
         const normalized = 规范化接口设置(settings);
@@ -264,6 +269,45 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
             };
         });
         setMessage('配置已删除。');
+    };
+
+    const handleLoadWorkflowFromCNB = async () => {
+        setWorkflowDialogOpen(true);
+        setWorkflowLoading(true);
+        setWorkflowError('');
+        setWorkflowFilter('all');
+        try {
+            const res = await fetch('/api/comfyui-workflows?action=list');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            setWorkflowList(data.workflows || []);
+        } catch (err: unknown) {
+            setWorkflowError(`加载工作流列表失败: ${err instanceof Error ? err.message : String(err)}`);
+            setWorkflowList([]);
+        } finally {
+            setWorkflowLoading(false);
+        }
+    };
+
+    const handleSelectWorkflow = async (workflowPath: string, workflowName: string) => {
+        setWorkflowLoading(true);
+        setWorkflowError('');
+        try {
+            const res = await fetch(`/api/comfyui-workflows?action=get&file=${encodeURIComponent(workflowPath)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (data.workflow) {
+                updateImageGenConfig({ ComfyUI工作流JSON: JSON.stringify(data.workflow, null, 2) });
+                setWorkflowDialogOpen(false);
+                setMessage(`已加载工作流: ${workflowName}`);
+            } else {
+                setWorkflowError('获取工作流失败: 返回为空');
+            }
+        } catch (err: unknown) {
+            setWorkflowError(`加载工作流失败: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            setWorkflowLoading(false);
+        }
     };
 
     const 主剧情解析模型 = useMemo(() => {
@@ -635,13 +679,17 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
 
     const handleTestImageConnection = async (config: 文生图接口配置结构) => {
         const backendType = config.后端类型;
-        const hasBaseUrl = Boolean(config.API地址?.trim());
+        const isCnbMode = backendType === 'comfyui' && form.功能模型占位.comfyui地址模式 === 'cnb';
+        const resolvedBaseUrl = isCnbMode
+            ? (form.功能模型占位.cnbComfyui地址?.trim() || '')
+            : (config.API地址?.trim() || '');
+        const hasBaseUrl = Boolean(resolvedBaseUrl);
         const needsApiKey = backendType === 'openai' || backendType === 'novelai';
         const needsModel = backendType === 'openai' || backendType === 'novelai';
         const needsWorkflow = backendType === 'comfyui';
 
         const missingChecks: string[] = [];
-        if (!hasBaseUrl) missingChecks.push('API 地址');
+        if (!hasBaseUrl) missingChecks.push(isCnbMode ? 'CNB ComfyUI 地址' : 'API 地址');
         if (needsApiKey && !config.API密钥?.trim()) missingChecks.push('API 密钥');
         if (needsModel && !config.模型?.trim()) missingChecks.push('模型名称');
         if (needsWorkflow && !config.ComfyUI工作流JSON?.trim()) missingChecks.push('ComfyUI 工作流 JSON');
@@ -658,7 +706,7 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 id: config.id,
                 名称: config.名称,
                 供应商: 'openai',
-                baseUrl: config.API地址?.trim() || '',
+                baseUrl: resolvedBaseUrl,
                 apiKey: config.API密钥?.trim() || '',
                 model: config.模型?.trim() || '',
                 图片后端类型: backendType,
@@ -669,10 +717,11 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                 ComfyUI工作流JSON: config.ComfyUI工作流JSON
             });
             const backendLabel = 文生图后端选项.find((o) => o.value === result.backendType)?.label || result.backendType;
+            const addressLabel = isCnbMode ? `CNB 地址: ${form.功能模型占位.cnbComfyui地址}` : `API 地址: ${config.API地址}`;
             const meta = [
                 `配置: ${config.名称 || config.id}`,
                 `后端: ${backendLabel}`,
-                `API 地址: ${config.API地址}`,
+                addressLabel,
                 '',
                 '---',
                 '',
@@ -1128,7 +1177,16 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                             </div>
                         )}
                         <div className="space-y-2">
-                            <label className={标签样式}>ComfyUI Workflow JSON</label>
+                            <div className="flex items-center justify-between">
+                                <label className={标签样式}>ComfyUI Workflow JSON</label>
+                                <button
+                                    type="button"
+                                    onClick={handleLoadWorkflowFromCNB}
+                                    className="rounded-md bg-cyan-600/20 px-3 py-1 text-xs text-cyan-200 hover:bg-cyan-600/30 transition-colors"
+                                >
+                                    从 CNB 加载
+                                </button>
+                            </div>
                             <textarea
                                 value={当前文生图配置.ComfyUI工作流JSON}
                                 onChange={(e) => updateImageGenConfig({ ComfyUI工作流JSON: e.target.value })}
@@ -1141,6 +1199,71 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
                     <div className="rounded-xl border border-sky-500/20 bg-sky-950/10 px-4 py-3 text-xs leading-6 text-sky-100">
                         纯原生 ComfyUI 需要 workflow JSON，提交到 <code>/prompt</code> 后再轮询 <code>/history/&#123;prompt_id&#125;</code>。
                         支持占位符：{ComfyUI工作流占位提示}
+                    </div>
+                </div>
+            )}
+
+            {/* CNB 工作流选择对话框 */}
+            {workflowDialogOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setWorkflowDialogOpen(false)}>
+                    <div
+                        className="mx-4 max-h-[80vh] w-full max-w-2xl rounded-2xl border border-cyan-500/30 bg-gray-900 shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between border-b border-cyan-500/20 px-6 py-4">
+                            <h3 className="text-lg font-bold text-cyan-200">从 CNB 加载工作流</h3>
+                            <button
+                                type="button"
+                                onClick={() => setWorkflowDialogOpen(false)}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="px-6 py-3">
+                            {workflowFilter !== 'all' && workflowList.length > 0 ? (
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                    {['all', ...new Set(workflowList.map(w => w.category))].map((cat) => (
+                                        <button
+                                            key={cat}
+                                            type="button"
+                                            onClick={() => setWorkflowFilter(cat)}
+                                            className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                                                workflowFilter === cat
+                                                    ? 'bg-cyan-600 text-white'
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                        >
+                                            {cat === 'all' ? '全部' : cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : null}
+                            {workflowLoading ? (
+                                <div className="py-8 text-center text-gray-400">加载中...</div>
+                            ) : workflowError ? (
+                                <div className="py-4 text-center text-red-400">{workflowError}</div>
+                            ) : workflowList.length === 0 ? (
+                                <div className="py-8 text-center text-gray-400">未找到工作流</div>
+                            ) : (
+                                <div className="max-h-[50vh] space-y-2 overflow-y-auto">
+                                    {(workflowFilter === 'all' ? workflowList : workflowList.filter(w => w.category === workflowFilter)).map((wf) => (
+                                        <button
+                                            key={wf.path}
+                                            type="button"
+                                            onClick={() => handleSelectWorkflow(wf.path, wf.name)}
+                                            className="flex w-full items-center justify-between rounded-lg border border-gray-700 bg-gray-800/50 px-4 py-3 hover:border-cyan-500/50 hover:bg-gray-800 transition-colors text-left"
+                                        >
+                                            <div>
+                                                <div className="text-sm font-medium text-white">{wf.name}</div>
+                                                <div className="text-xs text-gray-500">{wf.path}</div>
+                                            </div>
+                                            <span className="rounded-full bg-cyan-900/50 px-2 py-0.5 text-xs text-cyan-300">{wf.category}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
