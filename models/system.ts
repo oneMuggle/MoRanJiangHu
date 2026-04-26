@@ -15,6 +15,9 @@ import { 同人剧情规划结构 } from './fandomPlanning/story';
 import { 同人女主剧情规划结构 } from './fandomPlanning/heroinePlan';
 import { 战斗状态结构 } from './battle';
 
+export { 获取时代主题方案, 时代主题方案列表 } from './eraTheme';
+export type { 时代主题方案 } from './eraTheme';
+
 export type 接口供应商类型 = 'gemini' | 'claude' | 'openai' | 'deepseek' | 'zhipu' | 'openai_compatible';
 
 export type OpenAI兼容方案类型 = 'custom' | 'siliconflow' | 'together' | 'groq';
@@ -633,6 +636,57 @@ export const 内置时代配置: 时代配置[] = [
     }
 ];
 
+export interface 时代信息结构 {
+    配置ID: string;
+    名称: string;
+    时代背景: 时代背景;
+}
+
+export interface 时代主题映射 {
+    [eraId: string]: {
+        推荐主题: ThemePreset;
+        主题描述: string;
+    };
+}
+
+export const 时代主题映射表: 时代主题映射 = {
+    'era_ancient_wuxia': {
+        推荐主题: 'ink',
+        主题描述: '墨色经典，沉稳厚重'
+    },
+    'era_republic_modern': {
+        推荐主题: 'sand',
+        主题描述: '朔漠旧卷，古卷气质'
+    },
+    'era_modern_urban': {
+        推荐主题: 'moon',
+        主题描述: '霜月清辉，现代简约'
+    },
+    'era_cyberpunk_nearfuture': {
+        推荐主题: 'violet',
+        主题描述: '紫阙夜华，赛博氛围'
+    },
+    'era_scifi_future': {
+        推荐主题: 'azure',
+        主题描述: '青鸾入梦，科技未来'
+    }
+};
+
+export const 获取时代推荐主题 = (eraId: string): ThemePreset | null => {
+    const mapping = 时代主题映射表[eraId];
+    return mapping?.推荐主题 ?? null;
+};
+
+export const 获取时代信息 = (eraId: string): 时代信息结构 | null => {
+    const era = 内置时代配置.find((e) => e.id === eraId);
+    if (!era) return null;
+    return {
+        配置ID: era.id,
+        名称: era.名称,
+        时代背景: era.时代
+    };
+};
+
 export type 能力类型 = '传统武侠' | '修仙体系' | '超能力线' | '混合世界';
 
 export type 超能力分类 = '心灵感应' | '念力' | '预知' | '治愈' | '元素操控' | '时空' | '变身' | '灵能' | '高科技' | '综合' | '未觉醒';
@@ -888,6 +942,7 @@ export interface 存档结构 {
     核心提示词快照?: 核心提示词快照结构;
     角色锚点列表?: 角色锚点结构[];
     当前角色锚点ID?: string;
+    时代信息?: 时代信息结构;
 }
 
 export type PromptCategory = '核心设定' | '数值设定' | '难度设定' | '写作设定' | '自定义';

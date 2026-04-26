@@ -24,16 +24,20 @@ import {
     同人女主剧情规划结构,
     图片管理设置结构,
     OpeningConfig,
+    时代信息结构
 } from '../types';
 import { 默认中期转长期提示词, 默认短期转中期提示词, 默认NPC记忆总结提示词 } from '../prompts/runtime/defaults';
 import { 节日列表 } from '../data/world'; 
 import * as dbService from '../services/dbService';
-import { THEMES, 应用主题到根元素 } from '../styles/themes';
+import { THEMES, 应用主题到根元素, 应用时代主题到根元素 } from '../styles/themes';
+import { 获取时代主题方案 } from '../models/system';
+import { 设置时代UI文案 } from '../utils/eraUIText';
 import { 创建空接口设置, 规范化接口设置 } from '../utils/apiConfig';
 import { 默认游戏设置, 规范化游戏设置 } from '../utils/gameSettings';
 import { 设置键 } from '../utils/settingsSchema';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
+import { 内置时代配置, 获取时代信息 } from '../models/system';
 import {
     创建开场空白世界,
     创建开场空白剧情,
@@ -220,6 +224,8 @@ export const useGameState = () => {
     const [promptsReady, setPromptsReady] = useState(false);
     const [festivals, setFestivals] = useState<节日结构[]>(节日列表);
     const [currentTheme, setCurrentTheme] = useState<ThemePreset>('ink');
+    const [currentEra, setCurrentEra] = useState<string>('era_ancient_wuxia');
+    const [时代信息, 设置时代信息] = useState<时代信息结构 | undefined>(undefined);
     const scrollRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
     const variableGenerationAbortControllerRef = useRef<AbortController | null>(null);
@@ -291,6 +297,18 @@ export const useGameState = () => {
                 if (savedGameConfig) setGameConfig(规范化游戏设置(savedGameConfig as Partial<游戏设置结构>));
                 const savedMemoryConfig = await dbService.读取设置(设置键.记忆设置);
                 if (savedMemoryConfig) setMemoryConfig(规范化记忆配置(savedMemoryConfig as Partial<记忆配置结构>));
+
+                const savedEra = await dbService.读取设置(设置键.应用时代);
+                if (savedEra && typeof savedEra === 'string') {
+                    setCurrentEra(savedEra);
+                    const eraInfo = 获取时代信息(savedEra);
+                    if (eraInfo) 设置时代信息(eraInfo);
+                    const eraTheme = 获取时代主题方案(savedEra);
+                    if (eraTheme) {
+                        应用时代主题到根元素(eraTheme);
+                        设置时代UI文案(eraTheme);
+                    }
+                }
 
             } catch (e) { console.error(e); }
         };
@@ -399,6 +417,8 @@ export const useGameState = () => {
         ensurePromptsLoaded,
         festivals, setFestivals,
         currentTheme, setCurrentTheme,
+        currentEra, setCurrentEra,
+        时代信息, 设置时代信息,
         scrollRef, abortControllerRef, variableGenerationAbortControllerRef
     };
 };

@@ -4,6 +4,7 @@ import { 世界书存储键, 世界书预设组存储键 } from './worldbook';
 
 export const 设置键 = {
     应用主题: 'app_theme',
+    应用时代: 'app_era',
     API配置: 'api_settings',
     提示词池: 'prompts',
     节日配置: 'festivals',
@@ -111,6 +112,13 @@ export const 设置项定义列表: 设置项定义[] = [
         category: 'interface',
         description: '当前界面主题方案。',
         order: 10
+    },
+    {
+        key: 设置键.应用时代,
+        label: '应用时代',
+        category: 'interface',
+        description: '当前时代背景设置，影响新游戏默认配置与UI主题。',
+        order: 15
     },
     {
         key: 设置键.API配置,

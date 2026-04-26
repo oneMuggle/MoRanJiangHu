@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { 环境信息结构, 节日结构, 视觉设置结构 } from '../../types';
 import { 构建区域文字样式 } from '../../utils/visualSettings';
 import { normalizeCanonicalGameTime } from '../../hooks/useGame/timeUtils';
+import { useUIText } from '../../hooks/useUIText';
 
 interface Props {
     环境: 环境信息结构;
@@ -178,6 +179,7 @@ const toGameMinuteValue = (time: { year: number; month: number; day: number; hou
 };
 
 const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festivals = [], visualConfig }) => {
+    const 文案 = useUIText();
     const [mobileLeftMode, setMobileLeftMode] = useState<'weather' | 'environment'>('weather');
     const [mobileRightMode, setMobileRightMode] = useState<'journey' | 'festival'>('journey');
     const [expandedType, setExpandedType] = useState<'weather' | 'environment' | 'festival' | null>(null);
@@ -245,13 +247,13 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
 
     const weatherEnd = (环境 as any)?.天气?.结束日期 || '长久';
 
-    const mobileLeftLabel = mobileLeftMode === 'weather' ? '天气' : '环境';
+    const mobileLeftLabel = mobileLeftMode === 'weather' ? 文案.天气标签 : 文案.环境标签;
     const mobileLeftValue = mobileLeftMode === 'weather'
         ? weatherDisplay
         : environmentDisplay;
-    const mobileRightLabel = mobileRightMode === 'journey' ? '历程' : '节日';
+    const mobileRightLabel = mobileRightMode === 'journey' ? 文案.历程标签 : 文案.节日标签;
     const mobileRightValue = mobileRightMode === 'journey'
-        ? `第 ${derivedDayCount} 天`
+        ? `${文案.历程标签} ${derivedDayCount}`
         : festivalDisplay;
     const locationBadge = useMemo(() => {
         const rawSmall = typeof 环境?.小地点 === 'string' ? 环境.小地点.trim() : '';
@@ -265,7 +267,7 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
             .map((part) => (typeof part === 'string' ? part.trim() : ''))
             .filter(Boolean);
         const uniqueSegments = segments.filter((part, idx) => segments.indexOf(part) === idx);
-        return uniqueSegments.length > 0 ? uniqueSegments.join(' - ') : '未知地点';
+        return uniqueSegments.length > 0 ? uniqueSegments.join(' - ') : 文案.未知地点;
     }, [环境?.大地点, 环境?.中地点, 环境?.小地点, 环境?.具体地点]);
     const mobileLocationBadge = useMemo(() => {
         const rawSmall = typeof 环境?.小地点 === 'string' ? 环境.小地点.trim() : '';
@@ -279,7 +281,7 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
             .map((part) => (typeof part === 'string' ? part.trim() : ''))
             .filter(Boolean);
         const uniqueSegments = segments.filter((part, idx) => segments.indexOf(part) === idx);
-        return uniqueSegments.length > 0 ? uniqueSegments.join(' - ') : '未知地点';
+        return uniqueSegments.length > 0 ? uniqueSegments.join(' - ') : 文案.未知地点;
     }, [环境?.中地点, 环境?.小地点, 环境?.具体地点]);
 
     const toggleFullScreen = () => {
@@ -324,8 +326,8 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                             onLongPress={() => handleMobileLongPress(mobileLeftMode)}
                         />
                         {expandedType === 'weather' && mobileLeftMode === 'weather' && (
-                            <DetailCard 
-                                title="天象变更"
+                            <DetailCard
+                                title={文案.天气卡片标题}
                                 className="left-0"
                                 onClose={() => setExpandedType(null)}
                                 visualConfig={visualConfig}
@@ -339,7 +341,7 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                         )}
                         {expandedType === 'environment' && mobileLeftMode === 'environment' && (
                             <DetailCard 
-                                title="周遭环境"
+                                title={文案.环境卡片标题}
                                 className="left-0"
                                 onClose={() => setExpandedType(null)}
                                 visualConfig={visualConfig}
@@ -361,16 +363,16 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                     <div className="hidden md:flex items-center">
                         <div className="relative">
                             <TopItem 
-                                label="天气" 
-                                value={weatherDisplay} 
-                                visualConfig={visualConfig} 
+                                label={文案.天气标签}
+                                value={weatherDisplay}
+                                visualConfig={visualConfig}
                                 isExpanded={expandedType === 'weather'}
                                 onMouseEnter={() => setExpanded('weather')}
                                 onMouseLeave={() => setExpanded(null)}
                             />
                             {expandedType === 'weather' && (
                                 <DetailCard 
-                                    title="天象变更"
+                                    title={文案.天气卡片标题}
                                     className="left-0"
                                     onMouseEnter={() => setExpanded('weather')}
                                     onMouseLeave={() => setExpanded(null)}
@@ -395,16 +397,16 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                         <Divider />
                         <div className="relative">
                             <TopItem 
-                                label="环境" 
-                                value={environmentDisplay} 
-                                visualConfig={visualConfig} 
+                                label={文案.环境标签}
+                                value={environmentDisplay}
+                                visualConfig={visualConfig}
                                 isExpanded={expandedType === 'environment'}
                                 onMouseEnter={() => setExpanded('environment')}
                                 onMouseLeave={() => setExpanded(null)}
                             />
                             {expandedType === 'environment' && (
                                 <DetailCard 
-                                    title="周遭环境"
+                                    title={文案.环境卡片标题}
                                     className="left-0"
                                     onMouseEnter={() => setExpanded('environment')}
                                     onMouseLeave={() => setExpanded(null)}
@@ -489,17 +491,17 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                     <div className="hidden md:flex items-center">
                         <div className="relative">
                             <TopItem 
-                                label="节日" 
-                                value={festivalDisplay} 
-                                highlight={!!currentFestival} 
-                                visualConfig={visualConfig} 
+                                label={文案.节日标签}
+                                value={festivalDisplay}
+                                highlight={!!currentFestival}
+                                visualConfig={visualConfig}
                                 isExpanded={expandedType === 'festival'}
                                 onMouseEnter={() => setExpanded('festival')}
                                 onMouseLeave={() => setExpanded(null)}
                             />
                             {expandedType === 'festival' && (
                                 <DetailCard 
-                                    title="今日时节"
+                                    title={文案.节日卡片标题}
                                     className="right-0 origin-top-right"
                                     onMouseEnter={() => setExpanded('festival')}
                                     onMouseLeave={() => setExpanded(null)}
@@ -520,7 +522,7 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                             )}
                         </div>
                         <Divider />
-                        <TopItem label="历程" value={`第 ${derivedDayCount} 天`} visualConfig={visualConfig} />
+                        <TopItem label={文案.历程标签} value={`第 ${derivedDayCount} 天`} visualConfig={visualConfig} />
                     </div>
                 </div>
             </div>

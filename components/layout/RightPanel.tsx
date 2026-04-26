@@ -4,6 +4,7 @@ import { 视觉设置结构 } from '../../types';
 import { 构建区域文字样式 } from '../../utils/visualSettings';
 import { useMusic } from '../features/Music/MusicProvider';
 import MusicPlayerUI from '../features/Music/MusicPlayerUI';
+import { useUIText } from '../../hooks/useUIText';
 
 interface Props {
     onOpenSettings: () => void;
@@ -44,6 +45,7 @@ const RightPanel: React.FC<Props> = ({
     onSave, onLoad, visualConfig
 }) => {
     const { enabled, currentLyric } = useMusic();
+    const 文案 = useUIText();
     const areaStyle = 构建区域文字样式(visualConfig, '右侧栏');
     const 字号缩放 = (ratio: number, min = 9) => `${Math.max(min, Math.round((Number(areaStyle.fontSize) || 13) * ratio))}px`;
     
@@ -74,9 +76,9 @@ const RightPanel: React.FC<Props> = ({
     ];
 
     const SYSTEM_ITEMS = [
-        { label: '保存进度', action: onSave },
+        { label: 文案.保存进度按钮, action: onSave },
         { label: '读取进度', action: onLoad },
-        { label: '江湖设置', action: onOpenSettings },
+        { label: 文案.江湖设置按钮, action: onOpenSettings },
     ];
 
     return (

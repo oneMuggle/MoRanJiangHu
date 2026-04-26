@@ -24,6 +24,7 @@ import {
 } from '../../../utils/openingConfig';
 import { 默认境界母板提示词 } from '../../../prompts/runtime/fandom';
 import { 设置键 } from '../../../utils/settingsSchema';
+import { 内置时代配置 } from '../../../models/system';
 import { 体系类型 } from '../../../types';
 
 // --- Constants ---
@@ -47,12 +48,13 @@ interface UseNewGameWizardStateProps {
     ) => void;
     onCancel: () => void;
     loading: boolean;
+    currentEra?: string;
     requestConfirm?: (options: { title?: string; message: string; confirmText?: string; cancelText?: string; danger?: boolean }) => Promise<boolean>;
 }
 
 export type UseNewGameWizardStateReturn = ReturnType<typeof useNewGameWizardState>;
 
-export function useNewGameWizardState({ onComplete, onCancel, loading, requestConfirm }: UseNewGameWizardStateProps) {
+export function useNewGameWizardState({ onComplete, onCancel, loading, currentEra, requestConfirm }: UseNewGameWizardStateProps) {
     // --- State: World Config ---
     const [worldConfig, setWorldConfig] = useState<WorldGenConfig>({
         worldName: '太古界',
@@ -70,6 +72,26 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, requestCo
         manualRealmPrompt: '',
         difficulty: 'normal' as 游戏难度
     });
+
+    // Sync global era setting into wizard world config, applying era defaults
+    useEffect(() => {
+        if (!currentEra || typeof currentEra !== 'string') return;
+        const era = 内置时代配置.find(c => c.id === currentEra);
+        if (!era) return;
+        setWorldConfig(prev => {
+            if (prev.时代配置ID === currentEra) return prev;
+            return {
+                ...prev,
+                时代配置ID: currentEra,
+                能力类型: era.默认能力类型 ?? prev.能力类型,
+                武力等级: era.默认武力等级 ?? prev.武力等级,
+                worldSize: era.默认世界版图 ?? prev.worldSize,
+                sectDensity: era.默认组织密度 ?? prev.sectDensity,
+                dynastySetting: era.默认王朝占位符 ?? prev.dynastySetting,
+                tianjiaoSetting: era.默认天骄占位符 ?? prev.tianjiaoSetting,
+            };
+        });
+    }, [currentEra]);
 
     const [selectedQiyun, setSelectedQiyun] = useState<气运数据[]>([]);
 

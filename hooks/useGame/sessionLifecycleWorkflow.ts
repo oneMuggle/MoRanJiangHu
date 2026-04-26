@@ -108,6 +108,7 @@ type 会话生命周期依赖 = {
     设置同人剧情规划: (value: any) => void;
     设置同人女主剧情规划: (value: any) => void;
     设置开局配置: (value: OpeningConfig | undefined) => void;
+    设置时代信息: (value: any) => void;
     setGameConfig: (value: any) => void;
     设置开局变量生成进度: (value: any) => void;
     设置开局世界演变进度: (value: any) => void;

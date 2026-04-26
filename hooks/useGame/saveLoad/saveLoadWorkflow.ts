@@ -16,7 +16,8 @@ import type {
     同人女主剧情规划结构,
     剧情系统结构,
     世界数据结构,
-    提示词结构
+    提示词结构,
+    时代信息结构
 } from '../../../types';
 import { 执行手动存档, 执行自动存档, 执行读取存档 } from '../saveCoordinator';
 import type { 自动存档快照结构 } from '../saveCoordinator';
@@ -49,6 +50,7 @@ type 存档编排工作流依赖 = {
     获取当前场景图片档案快照: () => 场景图片档案;
     获取角色锚点列表: () => any[];
     获取当前角色锚点ID: () => string;
+    获取当前时代信息: () => 时代信息结构 | undefined;
     规范化环境信息: (envLike?: any) => 环境信息结构;
     构建完整地点文本: (envLike?: any) => string;
     规范化世界状态: (raw?: any) => 世界数据结构;
@@ -81,6 +83,7 @@ type 存档编排工作流依赖 = {
     设置游戏初始时间: (value: string) => void;
     设置角色锚点列表: (value: any[]) => void;
     设置当前角色锚点ID: (value: string) => void;
+    设置时代信息: (value: 时代信息结构 | undefined) => void;
     setView: (value: 'home' | 'game' | 'new_game') => void;
     setShowSaveLoad: (value: { show: boolean; mode: 'save' | 'load' }) => void;
     设置最近开局配置: (value: any) => void;
@@ -134,7 +137,8 @@ export const 创建存读档工作流 = (deps: 存档编排工作流依赖) => {
         visualConfig: deps.获取当前视觉设置快照(),
         sceneImageArchive: deps.获取当前场景图片档案快照(),
         角色锚点列表: deps.获取角色锚点列表(),
-        当前角色锚点ID: deps.获取当前角色锚点ID()
+        当前角色锚点ID: deps.获取当前角色锚点ID(),
+        时代信息: deps.获取当前时代信息()
     });
 
     const 构建协调依赖 = () => ({
@@ -174,6 +178,7 @@ export const 创建存读档工作流 = (deps: 存档编排工作流依赖) => {
         设置游戏初始时间: deps.设置游戏初始时间,
         设置角色锚点列表: deps.设置角色锚点列表,
         设置当前角色锚点ID: deps.设置当前角色锚点ID,
+        设置时代信息: deps.设置时代信息,
         setView: deps.setView,
         setShowSaveLoad: deps.setShowSaveLoad,
         设置最近开局配置: deps.设置最近开局配置,

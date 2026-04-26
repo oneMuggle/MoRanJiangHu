@@ -1,8 +1,10 @@
 import React from 'react';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
+import { 时代主题方案 } from '../../../models/eraTheme';
 import {
     接口设置结构, 提示词结构, ThemePreset, 视觉设置结构, 节日结构, 聊天记录结构,
-    游戏设置结构, 记忆配置结构, 记忆系统结构, NPC结构, TavernCommand, OpeningConfig, 剧情系统结构
+    游戏设置结构, 记忆配置结构, 记忆系统结构, NPC结构, TavernCommand, OpeningConfig, 剧情系统结构,
+    时代配置, 时代信息结构
 } from '../../../types';
 
 const ApiSettings = React.lazy(() => import('./ApiSettings'));
@@ -73,6 +75,11 @@ export interface SettingsPanelProps {
     prompts: 提示词结构[];
     festivals: 节日结构[];
     currentTheme: ThemePreset;
+    currentEra?: string;
+    eraInfo?: 时代信息结构;
+    eraTheme?: 时代主题方案;
+    availableEras?: 时代配置[];
+    onEraChange?: (eraId: string) => void;
     history: 聊天记录结构[];
     memorySystem?: 记忆系统结构;
     socialList: NPC结构[];
@@ -111,8 +118,8 @@ const 设置加载占位 = (
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
     activeTab, onTabChange, onClose,
-    apiConfig, visualConfig, gameConfig, memoryConfig, prompts, festivals, currentTheme, history, memorySystem, socialList, runtimeState, currentStory, openingConfig, contextSnapshot,
-    onSaveApi, onSaveVisual, onSaveGame, onSaveMemory, onCreateNpc, onSaveNpc, onDeleteNpc, onStartNpcMemorySummary, onUploadNpcImage, onReplaceVariableSection, onApplyVariableCommand, onUpdatePrompts, onUpdateFestivals, onThemeChange,
+    apiConfig, visualConfig, gameConfig, memoryConfig, prompts, festivals, currentTheme, currentEra, eraInfo, eraTheme, availableEras, onEraChange, history, memorySystem, socialList, runtimeState, currentStory, openingConfig, contextSnapshot,
+    onSaveApi, onSaveVisual, onSaveGame, onSaveMemory, onCreateNpc, onSaveNpc, onDeleteNpc, onStartNpcMemorySummary, onUploadNpcImage, onReplaceVariableSection, onApplyVariableCommand, onUpdatePrompts, onUpdateFestivals, onThemeChange, onEraChange: onEraChangeProp,
     onReturnToHome, isHome, requestConfirm,
     navMode, tabs,
 }) => {
@@ -134,7 +141,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
         }
         if (activeTab === 'prompt') return <PromptManager prompts={prompts} onUpdate={onUpdatePrompts} requestConfirm={requestConfirm} runtimePromptStates={contextSnapshot?.runtimePromptStates} />;
         if (activeTab === 'world') return <WorldSettings festivals={festivals || []} onUpdate={onUpdateFestivals} requestConfirm={requestConfirm} />;
-        if (activeTab === 'theme') return <ThemeSettings currentTheme={currentTheme} onThemeChange={onThemeChange} />;
+        if (activeTab === 'theme') return <ThemeSettings currentTheme={currentTheme} onThemeChange={onThemeChange} currentEra={currentEra} availableEras={availableEras} onEraChange={onEraChange || onEraChangeProp} />;
         if (activeTab === 'visual') return <VisualSettings settings={visualConfig} onSave={onSaveVisual} />;
         if (activeTab === 'npc_management') {
             return (
@@ -177,7 +184,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 </div>
             );
         }
-        if (activeTab === 'game' && gameConfig && onSaveGame) return <GameSettings settings={gameConfig} onSave={onSaveGame} />;
+        if (activeTab === 'game' && gameConfig && onSaveGame) return <GameSettings settings={gameConfig} onSave={onSaveGame} currentEra={currentEra} onEraChange={onEraChange} availableEras={availableEras} eraTheme={eraTheme} />;
         if (activeTab === 'reality' && gameConfig && onSaveGame) return <RealitySettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'tavern_preset' && gameConfig && onSaveGame) return <TavernPresetSettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'memory' && memoryConfig && onSaveMemory) return <MemorySettings settings={memoryConfig} onSave={onSaveMemory} />;

@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 游戏设置结构 } from '../../../types';
+import { 时代主题方案 } from '../../../models/eraTheme';
+import { 时代配置, 游戏设置结构 } from '../../../types';
 import GameButton from '../../ui/GameButton';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 
 interface Props {
     settings: 游戏设置结构;
     onSave: (settings: 游戏设置结构) => void;
+    currentEra?: string;
+    onEraChange?: (eraId: string) => void;
+    availableEras?: 时代配置[];
+    eraTheme?: 时代主题方案;
 }
 
-const GameSettings: React.FC<Props> = ({ settings, onSave }) => {
+const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChange, availableEras, eraTheme }) => {
     const [form, setForm] = useState<游戏设置结构>(settings);
     const [showSuccess, setShowSuccess] = useState(false);
     const [openMenu, setOpenMenu] = useState<'perspective' | 'style' | 'ntl' | null>(null);
@@ -133,6 +138,45 @@ const GameSettings: React.FC<Props> = ({ settings, onSave }) => {
 
     return (
         <div ref={rootRef} className="space-y-6 animate-fadeIn">
+            {availableEras && availableEras.length > 0 && (
+                <div className="space-y-3">
+                    <div className="text-sm text-wuxia-cyan font-bold">时代背景</div>
+                    <div className="text-xs text-gray-400">时代是界面风格的大前提，切换后将改变整体配色、字体与界面文案。</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {availableEras.map((era) => {
+                            const isSelected = era.id === (currentEra || 'era_ancient_wuxia');
+                            const scheme = eraTheme?.id === era.id ? eraTheme : undefined;
+                            const colorPreview = scheme
+                                ? [scheme.配色['ink-black'], scheme.配色['ink-gray'], scheme.配色['primary'], scheme.配色['secondary']].map(v => `rgb(${v})`)
+                                : era.id === 'era_ancient_wuxia' ? ['rgb(14 13 11)', 'rgb(26 26 26)', 'rgb(230 200 110)', 'rgb(68 170 170)']
+                                : era.id === 'era_republic_modern' ? ['rgb(20 16 12)', 'rgb(42 34 26)', 'rgb(196 166 125)', 'rgb(160 130 90)']
+                                : era.id === 'era_modern_urban' ? ['rgb(13 17 23)', 'rgb(22 27 34)', 'rgb(88 166 255)', 'rgb(63 185 80)']
+                                : era.id === 'era_cyberpunk_nearfuture' ? ['rgb(6 6 16)', 'rgb(18 12 36)', 'rgb(200 100 255)', 'rgb(0 255 230)']
+                                : ['rgb(5 13 20)', 'rgb(10 25 40)', 'rgb(79 195 247)', 'rgb(0 230 118)'];
+                            return (
+                                <button
+                                    key={era.id}
+                                    type="button"
+                                    onClick={() => onEraChange?.(era.id)}
+                                    className={`rounded-xl border p-3 text-left transition-all ${
+                                        isSelected
+                                            ? 'border-wuxia-gold/60 bg-wuxia-gold/10 ring-1 ring-wuxia-gold/30'
+                                            : 'border-gray-700/50 bg-black/30 hover:border-gray-500'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-1.5 mb-2">
+                                        {colorPreview.map((c: string, i: number) => (
+                                            <span key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
+                                        ))}
+                                    </div>
+                                    <div className="text-sm text-white font-bold">{era.名称}</div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center border-b border-wuxia-gold/30 pb-3 mb-6">
                 <h3 className="text-wuxia-gold font-serif font-bold text-xl">游戏设定</h3>
                 {showSuccess && <span className="text-green-400 text-xs font-bold animate-pulse">✔ 设定已保存</span>}

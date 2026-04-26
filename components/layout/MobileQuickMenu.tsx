@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMusic } from '../features/Music/MusicProvider';
+import { useUIText } from '../../hooks/useUIText';
 
 interface Props {
     activeWindow: string | null;
@@ -69,6 +70,7 @@ const MobileQuickMenu: React.FC<Props> = ({
     enableNovelDecomposition = false
 }) => {
     const [showAllMenus, setShowAllMenus] = useState(false);
+    const 文案 = useUIText();
     const { enabled, isPlaying, tracks, currentTrackId } = useMusic();
     const currentTrackCover = useMemo(
         () => tracks.find((track) => track.id === currentTrackId)?.封面URL || '',
@@ -151,7 +153,7 @@ const MobileQuickMenu: React.FC<Props> = ({
                         ))}
                         <QuickButton
                             icon="more"
-                            label={showAllMenus ? '收起' : '更多'}
+                            label={showAllMenus ? 文案.收起按钮 : 文案.更多按钮}
                             active={showAllMenus}
                             onClick={() => setShowAllMenus((prev) => !prev)}
                         />
@@ -163,8 +165,8 @@ const MobileQuickMenu: React.FC<Props> = ({
                 <div className="px-2 pt-2 pb-1">
                     <div className="rounded-2xl border border-gray-800 bg-black/50 shadow-[0_8px_20px_rgba(0,0,0,0.4)] overflow-hidden">
                         <div className="px-3 py-2 border-b border-gray-800 flex items-center justify-between">
-                            <span className="text-[10px] tracking-[0.18em] text-gray-500">全部功能</span>
-                            <span className="text-[10px] text-wuxia-cyan/80">{allMenus.length} 项</span>
+                            <span className="text-[10px] tracking-[0.18em] text-gray-500">{文案.全部功能标题}</span>
+                            <span className="text-[10px] text-wuxia-cyan/80">{allMenus.length} {文案.项后缀}</span>
                         </div>
                         <div className="max-h-44 overflow-y-auto no-scrollbar p-2">
                             <div className="grid grid-cols-4 gap-2">

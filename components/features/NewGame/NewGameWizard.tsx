@@ -3,6 +3,7 @@ import GameButton from '../../ui/GameButton';
 import { NewGameWizardContent } from './NewGameWizardContent';
 import { useNewGameWizardState } from './useNewGameWizardState';
 import type { OpeningConfig, WorldGenConfig, 角色数据结构 } from '../../../types';
+import { useUIText } from '../../../hooks/useUIText';
 
 interface Props {
     onComplete: (
@@ -15,21 +16,23 @@ interface Props {
     ) => void;
     onCancel: () => void;
     loading: boolean;
+    currentEra?: string;
     requestConfirm?: (options: { title?: string; message: string; confirmText?: string; cancelText?: string; danger?: boolean }) => Promise<boolean>;
 }
 
 const STEPS = ['世界观', '角色基础', '天赋背景', '开局配置', '确认生成'];
 
-const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, requestConfirm }) => {
-    const wizard = useNewGameWizardState({ onComplete, onCancel, loading, requestConfirm });
+const NewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, currentEra, requestConfirm }) => {
+    const wizard = useNewGameWizardState({ onComplete, onCancel, loading, currentEra, requestConfirm });
     const { step, setStep, stepProgress, currentStepLabel, handleNextStep, handleGenerate } = wizard;
+    const 文案 = useUIText();
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm">
             <div className="relative w-full h-full max-w-7xl mx-auto flex flex-col bg-black/95 border border-gray-800 shadow-2xl overflow-hidden">
                 {/* Header */}
                 <div className="h-16 border-b border-gray-800/80 bg-black/60 backdrop-blur-md flex items-center justify-between px-8">
-                    <h1 className="text-xl font-serif font-bold text-wuxia-gold tracking-wider">创建新角色</h1>
+                    <h1 className="text-xl font-serif font-bold text-wuxia-gold tracking-wider">{文案.新建游戏按钮}</h1>
                     <button onClick={onCancel} className="text-sm text-gray-400 hover:text-white transition-colors">
                         取消
                     </button>

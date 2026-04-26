@@ -4,6 +4,7 @@ import { 导出ZIP存档文件, 解析ZIP存档文件 } from '../../../services/
 import { 存档结构 } from '../../../types';
 import { parseJsonWithRepair } from '../../../utils/jsonRepair';
 import GameButton from '../../ui/GameButton';
+import { useUIText } from '../../../hooks/useUIText';
 
 interface Props {
     onClose: () => void;
@@ -18,6 +19,7 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
     const [activeTab, setActiveTab] = useState<'auto' | 'manual'>('manual');
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(false);
+    const 文案 = useUIText();
     const [saveProtectionEnabled, setSaveProtectionEnabled] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -213,7 +215,7 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
 
                 <div className="h-16 shrink-0 border-b border-gray-800/50 bg-black/40 flex items-center justify-between px-6 relative z-50">
                     <h3 className="text-wuxia-gold font-serif font-bold text-2xl tracking-[0.3em] drop-shadow-md" style={{ fontFamily: 'var(--ui-页面标题-font-family, inherit)', fontSize: 'var(--ui-页面标题-font-size, 28px)', lineHeight: 'var(--ui-页面标题-line-height, 1.2)' }}>
-                        {mode === 'save' ? '铭刻时光' : '时光回溯'}
+                        {mode === 'save' ? 文案.存档标题 : 文案.加载存档标题}
                     </h3>
                     <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors text-2xl" style={{ fontFamily: 'var(--ui-按钮-font-family, inherit)' }}>×</button>
                 </div>
@@ -223,10 +225,10 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
                         <div className="w-[30%] bg-black/20 border-r border-gray-800/50 p-6 flex flex-col gap-4">
                             <h4 className="text-wuxia-gold font-bold text-sm uppercase tracking-widest" style={{ fontFamily: 'var(--ui-分组标题-font-family, inherit)', fontSize: 'var(--ui-分组标题-font-size, 18px)' }}>手动存档</h4>
                             <p className="text-xs text-gray-400 leading-relaxed" style={{ fontFamily: 'var(--ui-辅助文本-font-family, inherit)', fontSize: 'var(--ui-辅助文本-font-size, 12px)', lineHeight: 'var(--ui-辅助文本-line-height, 1.5)' }}>
-                                手动与自动存档都会完整保存全部内容。导出时会按 ZIP 拆分为图片、聊天记录、游戏数据三个目录。
+                                {文案.手动存档说明 || '手动与自动存档都会完整保存全部内容。导出时会按 ZIP 拆分为图片、聊天记录、游戏数据三个目录。'}
                             </p>
                             <GameButton onClick={() => { void handleSave(); }} disabled={!onSaveGame || busy} variant="primary" className="w-full">
-                                立即保存
+                                {文案.立即保存按钮}
                             </GameButton>
                         </div>
                     )}
@@ -239,7 +241,7 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
                                 variant="secondary"
                                 className="px-4 py-2 text-xs"
                             >
-                                导出存档
+                                {文案.导出按钮}
                             </GameButton>
                             <GameButton
                                 onClick={() => { void handleTriggerImport(); }}
@@ -247,7 +249,7 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
                                 variant="secondary"
                                 className="px-4 py-2 text-xs"
                             >
-                                导入存档
+                                {文案.导入按钮}
                             </GameButton>
                             <input
                                 ref={fileInputRef}
@@ -268,22 +270,22 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
                                 onClick={() => setActiveTab('manual')}
                                 className={`flex-1 py-3 text-sm font-bold tracking-widest transition-colors ${activeTab === 'manual' ? 'bg-wuxia-gold/10 text-wuxia-gold border-b-2 border-wuxia-gold' : 'text-gray-500 hover:text-gray-300'}`}
                             >
-                                手动存档
+                                {文案.手动存档tab}
                             </button>
                             <button
                                 onClick={() => setActiveTab('auto')}
                                 className={`flex-1 py-3 text-sm font-bold tracking-widest transition-colors ${activeTab === 'auto' ? 'bg-wuxia-gold/10 text-wuxia-gold border-b-2 border-wuxia-gold' : 'text-gray-500 hover:text-gray-300'}`}
                             >
-                                自动存档
+                                {文案.自动存档tab}
                             </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
                             {filteredSaves.length === 0 && !loading && (
-                                <div className="text-center text-gray-600 py-10">暂无记录</div>
+                                <div className="text-center text-gray-600 py-10">{文案.无记录文字}</div>
                             )}
                             {loading && (
-                                <div className="text-center text-gray-500 py-10">读取中...</div>
+                                <div className="text-center text-gray-500 py-10">{文案.读取中文字}</div>
                             )}
 
                             {filteredSaves.map((save) => (
@@ -301,6 +303,11 @@ const SaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode,
                                             <span className="text-xs text-gray-500">
                                                 {save.角色数据?.境界 || '未知境界'}
                                             </span>
+                                            {save.时代信息 && (
+                                                <span className="text-[10px] px-1.5 rounded border border-purple-500/50 text-purple-400 bg-purple-900/10">
+                                                    {save.时代信息.名称}
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="text-[10px] text-gray-600 font-mono" style={{ fontFamily: 'var(--ui-等宽信息-font-family, inherit)', fontSize: 'var(--ui-等宽信息-font-size, 12px)' }}>
                                             {读取时间文本(save)}

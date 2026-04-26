@@ -216,25 +216,6 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         setWorldConfig({ ...worldConfig, 能力类型: 新能力类型, 武力等级: 新武力等级 });
     };
 
-    const 处理时代变更 = (newEraId: string) => {
-        const era = 内置时代配置.find(c => c.id === newEraId);
-        if (!era) return;
-        setWorldConfig(prev => ({
-            ...prev,
-            时代配置ID: newEraId,
-            能力类型: era.默认能力类型 ?? prev.能力类型,
-            武力等级: era.默认武力等级 ?? prev.武力等级,
-            worldSize: era.默认世界版图 ?? prev.worldSize,
-            sectDensity: era.默认组织密度 ?? prev.sectDensity,
-            dynastySetting: era.默认王朝占位符 ?? prev.dynastySetting,
-            tianjiaoSetting: era.默认天骄占位符 ?? prev.tianjiaoSetting,
-        }));
-        // 非古代时代重置体系选择
-        if (!Array.isArray(era.支持体系)) {
-            设置古代体系选择('武侠');
-        }
-    };
-
     const 当前时代 = 内置时代配置.find(c => c.id === (worldConfig.时代配置ID || 'era_ancient_wuxia'));
     const 组织密度标签 = 当前时代?.组织密度标签 || '宗门密度';
     const 支持体系 = 当前时代?.支持体系;
@@ -293,14 +274,13 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm text-wuxia-cyan font-bold">时代背景</label>
-                                <InlineSelect
-                                    value={worldConfig.时代配置ID || 'era_ancient_wuxia'}
-                                    options={时代选项}
-                                    onChange={处理时代变更}
-                                />
+                                <div className="px-3 py-2 bg-black/30 border border-gray-700/50 rounded-md text-gray-300 text-sm">
+                                    {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.label || '古代武侠'}
+                                </div>
                                 <div className="text-[11px] text-gray-500 leading-6">
                                     {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.hint}
                                 </div>
+                                <div className="text-[11px] text-wuxia-cyan/60">在设置面板 → 界面风格中切换时代</div>
                             </div>
                         </div>
 

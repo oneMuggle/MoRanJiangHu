@@ -3,6 +3,7 @@ import { 角色数据结构, 游戏设置结构, 视觉设置结构 } from '../.
 import { useImageAssetPrefetch } from '../../hooks/useImageAssetPrefetch';
 import { 构建区域文字样式 } from '../../utils/visualSettings';
 import { 获取图片资源文本地址 } from '../../utils/imageAssets';
+import { useUIText } from '../../hooks/useUIText';
 
 interface Props {
     角色: 角色数据结构;
@@ -109,6 +110,7 @@ const MiniBodyPart: React.FC<{ name: string; current: number; max: number; statu
 
 const LeftPanel: React.FC<Props> = ({ 角色, onOpenCharacter, onUploadAvatar, visualConfig, gameConfig }) => {
     useImageAssetPrefetch(角色?.头像图片URL);
+    const 文案 = useUIText();
     const 金钱 = 角色.金钱 || { 金元宝: 0, 银子: 0, 铜钱: 0 };
     const 玩家BUFF列表 = Array.isArray(角色.玩家BUFF) ? 角色.玩家BUFF : [];
     const 启用饱腹口渴系统 = gameConfig?.启用饱腹口渴系统 !== false;
@@ -185,7 +187,7 @@ const LeftPanel: React.FC<Props> = ({ 角色, onOpenCharacter, onUploadAvatar, v
             <div className="mb-4 h-[152px] border-b border-gray-800/50 pb-4 shrink-0 flex flex-col items-center justify-center">
                 <div className="w-full flex items-center justify-between gap-3">
                     <div className="min-w-0 flex flex-col items-center justify-center flex-1">
-                        <div className="w-full text-wuxia-gold/70 italic text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 缩放字号(0.7, 9) }}>{角色.称号 || '无称号'}</div>
+                        <div className="w-full text-wuxia-gold/70 italic text-center leading-tight whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 缩放字号(0.7, 9) }}>{角色.称号 || 文案.无称号文字}</div>
                         <button
                             type="button"
                             onClick={onOpenCharacter}
@@ -226,7 +228,7 @@ const LeftPanel: React.FC<Props> = ({ 角色, onOpenCharacter, onUploadAvatar, v
                                         {(角色.姓名 || '侠').slice(0, 1)}
                                     </div>
                                     <div className="mt-1 uppercase tracking-[0.2em] text-gray-500" style={{ fontSize: 缩放字号(0.54, 7) }}>
-                                        上传头像
+                                        {文案.上传头像文字}
                                     </div>
                                 </div>
                             )}
@@ -236,26 +238,26 @@ const LeftPanel: React.FC<Props> = ({ 角色, onOpenCharacter, onUploadAvatar, v
             </div>
 
             <div className="mb-3 shrink-0 flex flex-col gap-1">
-                <FlatBar label="精力" current={角色.当前精力} max={角色.最大精力} type="stamina" visualConfig={visualConfig} />
+                <FlatBar label={文案.精力标签} current={角色.当前精力} max={角色.最大精力} type="stamina" visualConfig={visualConfig} />
                 {启用修炼体系 && (
-                    <FlatBar label="内力" current={角色.当前内力} max={角色.最大内力} type="inner" visualConfig={visualConfig} />
+                    <FlatBar label={文案.内力标签} current={角色.当前内力} max={角色.最大内力} type="inner" visualConfig={visualConfig} />
                 )}
                 {启用饱腹口渴系统 && (
                     <>
-                        <FlatBar label="饱腹" current={角色.当前饱腹} max={角色.最大饱腹} type="food" visualConfig={visualConfig} />
-                        <FlatBar label="水分" current={角色.当前口渴} max={角色.最大口渴} type="water" visualConfig={visualConfig} />
+                        <FlatBar label={文案.饱腹标签} current={角色.当前饱腹} max={角色.最大饱腹} type="food" visualConfig={visualConfig} />
+                        <FlatBar label={文案.水分标签} current={角色.当前口渴} max={角色.最大口渴} type="water" visualConfig={visualConfig} />
                     </>
                 )}
-                <FlatBar label="经验" current={角色.当前经验} max={角色.升级经验} type="exp" visualConfig={visualConfig} />
+                <FlatBar label={文案.经验标签} current={角色.当前经验} max={角色.升级经验} type="exp" visualConfig={visualConfig} />
             </div>
             <div className="mb-3 shrink-0 border border-gray-800/60 bg-black/30 px-2 py-1.5 flex items-center justify-between font-mono" style={{ color: 'rgba(209,213,219,1)', fontSize: 缩放字号(0.7, 9) }}>
-                <span className="text-gray-500">钱财</span>
-                <span>元宝 {金钱.金元宝} / 银 {金钱.银子} / 铜 {金钱.铜钱}</span>
+                <span className="text-gray-500">{文案.钱财标签}</span>
+                <span>{文案.元宝单位} {金钱.金元宝} / {文案.银单位} {金钱.银子} / {文案.铜单位} {金钱.铜钱}</span>
             </div>
 
             <div className="shrink-0 flex flex-col mb-2">
                 <div className="border border-gray-800 bg-white/5 p-2 flex flex-col relative group hover:border-gray-700 transition-colors">
-                    <h3 className="text-wuxia-gold/70 mb-2 uppercase tracking-[0.2em] text-center bg-black/80 -mt-4 mx-auto px-2 w-fit border border-gray-900 shadow-sm" style={{ fontSize: 缩放字号(0.77, 10) }}>身躯</h3>
+                    <h3 className="text-wuxia-gold/70 mb-2 uppercase tracking-[0.2em] text-center bg-black/80 -mt-4 mx-auto px-2 w-fit border border-gray-900 shadow-sm" style={{ fontSize: 缩放字号(0.77, 10) }}>{文案.身躯标题}</h3>
                     <div className="flex-col pr-1 space-y-0.5">
                         {bodyParts.map((part) => (
                             <MiniBodyPart key={part.name} name={part.name} current={part.current} max={part.max} status={part.status} visualConfig={visualConfig} />
@@ -282,7 +284,7 @@ const LeftPanel: React.FC<Props> = ({ 角色, onOpenCharacter, onUploadAvatar, v
             )}
 
             <div className="shrink-0 pt-2 border-t border-gray-800/50 flex-1 overflow-y-auto no-scrollbar">
-                <h3 className="text-wuxia-gold/70 mb-2 uppercase tracking-[0.2em] text-center" style={{ fontSize: 缩放字号(0.77, 10) }}>行头</h3>
+                <h3 className="text-wuxia-gold/70 mb-2 uppercase tracking-[0.2em] text-center" style={{ fontSize: 缩放字号(0.77, 10) }}>{文案.行头标题}</h3>
                 <div className="space-y-1">
                     {equipmentOrder.map((item) => (
                         <div key={item.key} className="flex justify-between items-center group cursor-help border-b border-gray-800/30 pb-0.5 last:border-0 hover:bg-white/5 px-1" style={{ fontSize: 缩放字号(0.7, 9) }}>

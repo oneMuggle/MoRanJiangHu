@@ -19,7 +19,8 @@ import type {
     游戏设置结构,
     场景图片档案,
     角色锚点结构,
-    OpeningConfig
+    OpeningConfig,
+    时代信息结构
 } from '../../types';
 import { 核心_世界观 } from '../../prompts/core/world';
 import { 核心_境界体系 } from '../../prompts/core/realm';
@@ -73,6 +74,7 @@ type 存档协调当前状态 = {
     sceneImageArchive: 场景图片档案;
     角色锚点列表: 角色锚点结构[];
     当前角色锚点ID: string;
+    时代信息?: 时代信息结构;
 };
 
 type 存档协调依赖 = {
@@ -112,6 +114,7 @@ type 存档协调依赖 = {
     设置游戏初始时间: (value: string) => void;
     设置角色锚点列表: (value: 角色锚点结构[]) => void;
     设置当前角色锚点ID: (value: string) => void;
+    设置时代信息: (value: 时代信息结构 | undefined) => void;
     setView: (value: 'home' | 'game' | 'new_game') => void;
     setShowSaveLoad: (value: { show: boolean; mode: 'save' | 'load' }) => void;
     设置最近开局配置: (value: any) => void;
@@ -278,7 +281,8 @@ export const 创建存档数据 = (
         场景图片档案: deps.规范化场景图片档案(deps.深拷贝(sceneImageArchiveSource)),
         核心提示词快照,
         角色锚点列表: deps.深拷贝(currentState.角色锚点列表),
-        当前角色锚点ID: currentState.当前角色锚点ID
+        当前角色锚点ID: currentState.当前角色锚点ID,
+        时代信息: currentState.时代信息 ? deps.深拷贝(currentState.时代信息) : undefined
     };
 };
 
@@ -401,6 +405,9 @@ export const 执行读取存档 = async (
     deps.设置游戏初始时间(typeof save.游戏初始时间 === 'string' ? save.游戏初始时间 : '');
     deps.设置角色锚点列表(Array.isArray(save.角色锚点列表) ? deps.深拷贝(save.角色锚点列表) : []);
     deps.设置当前角色锚点ID(typeof save.当前角色锚点ID === 'string' ? save.当前角色锚点ID : '');
+    if (save.时代信息 && typeof save.时代信息 === 'object') {
+        deps.设置时代信息(save.时代信息);
+    }
 
     deps.setHasSave(true);
     deps.setView('game');

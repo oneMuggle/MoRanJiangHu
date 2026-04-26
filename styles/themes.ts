@@ -1,3 +1,4 @@
+import { 时代主题方案 } from '../models/eraTheme';
 import { ThemePreset } from '../types';
 
 type 主题定义 = {
@@ -147,6 +148,31 @@ export const THEMES: Record<ThemePreset, Record<string, string>> = Object.fromEn
 export const 获取主题定义 = (theme: ThemePreset): 主题定义 => (
     主题列表.find((item) => item.id === theme) || 主题列表[0]
 );
+
+export const 应用时代主题到根元素 = (方案: 时代主题方案, root?: HTMLElement) => {
+    const target = root || document.documentElement;
+    const c = 方案.配色;
+    target.style.setProperty('--c-ink-black', c['ink-black']);
+    target.style.setProperty('--c-ink-gray', c['ink-gray']);
+    target.style.setProperty('--c-wuxia-gold', c['primary']);
+    target.style.setProperty('--c-wuxia-gold-dark', c['primary-dark']);
+    target.style.setProperty('--c-wuxia-cyan', c['secondary']);
+    target.style.setProperty('--c-wuxia-red', c['accent']);
+    target.style.setProperty('--c-paper-white', c['paper-white']);
+
+    const f = 方案.字体;
+    target.style.setProperty('--ui-页面标题-font-family', f.页面标题);
+    target.style.setProperty('--ui-正文字体', f.正文);
+    target.style.setProperty('--ui-等宽信息-font-family', f.等宽);
+
+    const existingLixia = target.dataset.lixia;
+    const existingLizhiguai = target.dataset.lizhiguai;
+    const existingTheme = target.dataset.theme;
+    target.dataset.era = 方案.id;
+    if (existingLixia !== undefined) target.dataset.lixia = existingLixia;
+    if (existingLizhiguai !== undefined) target.dataset.lizhiguai = existingLizhiguai;
+    if (existingTheme !== undefined) target.dataset.theme = existingTheme;
+};
 
 export const 应用主题到根元素 = (theme: ThemePreset, root?: HTMLElement) => {
     const target = root || document.documentElement;

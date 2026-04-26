@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as dbService from '../../../services/dbService';
 import { 存档结构 } from '../../../types';
 import GameButton from '../../ui/GameButton';
+import { useUIText } from '../../../hooks/useUIText';
 
 interface Props {
     onClose: () => void;
@@ -14,6 +15,7 @@ interface Props {
 const MobileSaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame, mode, requestConfirm }) => {
     const [saves, setSaves] = useState<存档结构[]>([]);
     const [loading, setLoading] = useState(true);
+    const 文案 = useUIText();
 
     useEffect(() => {
         void loadSaves();
@@ -51,7 +53,7 @@ const MobileSaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame,
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/95 animate-fadeIn">
             <div className="flex items-center justify-between p-4 border-b border-wuxia-gold/30">
-                <h2 className="text-lg font-bold text-wuxia-gold">{mode === 'save' ? '保存游戏' : '读取存档'}</h2>
+                <h2 className="text-lg font-bold text-wuxia-gold">{mode === 'save' ? 文案.存档标题 : 文案.加载存档标题}</h2>
                 <button onClick={onClose} className="text-gray-400 hover:text-white text-xl">×</button>
             </div>
             
@@ -67,7 +69,14 @@ const MobileSaveLoadModal: React.FC<Props> = ({ onClose, onLoadGame, onSaveGame,
                             >
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <div className="text-wuxia-gold font-bold">{save.角色数据?.姓名 || '未知角色'}</div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="text-wuxia-gold font-bold">{save.角色数据?.姓名 || '未知角色'}</div>
+                                            {save.时代信息 && (
+                                                <span className="text-[10px] px-1.5 rounded border border-purple-500/50 text-purple-400 bg-purple-900/10">
+                                                    {save.时代信息.名称}
+                                                </span>
+                                            )}
+                                        </div>
                                         <div className="text-xs text-gray-500 mt-1">
                                             {new Date(save.时间戳).toLocaleString('zh-CN')}
                                         </div>

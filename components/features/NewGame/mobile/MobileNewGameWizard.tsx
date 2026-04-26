@@ -15,13 +15,14 @@ interface Props {
     ) => void;
     onCancel: () => void;
     loading: boolean;
+    currentEra?: string;
     requestConfirm?: (options: { title?: string; message: string; confirmText?: string; cancelText?: string; danger?: boolean }) => Promise<boolean>;
 }
 
 const STEPS = ['世界观', '角色基础', '天赋背景', '开局配置', '确认生成'];
 
-const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, requestConfirm }) => {
-    const wizard = useNewGameWizardState({ onComplete, onCancel, loading, requestConfirm });
+const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, currentEra, requestConfirm }) => {
+    const wizard = useNewGameWizardState({ onComplete, onCancel, loading, currentEra, requestConfirm });
     const { step, setStep, stepProgress, handleNextStep, handleGenerate } = wizard;
 
     return (

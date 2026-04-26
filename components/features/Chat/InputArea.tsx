@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useUIText } from '../../../hooks/useUIText';
 
 type QuickRestartMode = 'world_only' | 'opening_only' | 'all';
 
@@ -105,6 +106,7 @@ const InputArea: React.FC<Props> = ({
     openingPlanningProgress = null,
     openingVariableGenerationProgress = null
 }) => {
+    const 文案 = useUIText();
     const [content, setContent] = useState('');
     const [isStreaming, setIsStreaming] = useState(true);
     const [lastSentContent, setLastSentContent] = useState('');
@@ -629,7 +631,7 @@ const InputArea: React.FC<Props> = ({
                     <input
                         type="text"
                         className="w-full bg-transparent text-[13px] sm:text-[15px] text-paper-white font-serif placeholder-gray-600 focus:outline-none"
-                        placeholder={busy ? "等待处理中..." : "输入你的行动..."}
+                        placeholder={busy ? 文案.等待中占位 : 文案.输入框占位}
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !busy && handleSend()}
@@ -653,7 +655,7 @@ const InputArea: React.FC<Props> = ({
                         onClick={() => { void handleSend(); }} 
                         disabled={!content.trim() || busy} 
                         className="w-11 sm:w-14 h-10 sm:h-12 shrink-0 bg-wuxia-gold text-ink-black rounded-lg sm:rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(230,200,110,0.3)] hover:bg-white hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 disabled:shadow-none"
-                        title="发送"
+                        title={文案.发送按钮}
                     >
                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 sm:w-6 sm:h-6">
                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l6-6m0 0l6 6m-6-6v12a6 6 0 01-12 0v-3" />

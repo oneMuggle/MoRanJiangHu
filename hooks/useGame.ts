@@ -32,10 +32,14 @@ import {
     详细门派结构,
     节日结构,
     世界数据结构,
-    战斗状态结构
+    战斗状态结构,
+    时代信息结构
 } from '../types';
 import { useEffect, useRef, useState } from 'react';
 import * as dbService from '../services/dbService';
+import { 获取时代信息, 获取时代推荐主题, 获取时代主题方案 } from '../models/system';
+import { 应用时代主题到根元素 } from '../styles/themes';
+import { 设置时代UI文案 } from '../utils/eraUIText';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
 import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
@@ -304,6 +308,7 @@ export const useGame = () => {
         ensurePromptsLoaded,
         festivals, setFestivals,
         currentTheme, setCurrentTheme,
+        currentEra, setCurrentEra,
         scrollRef, abortControllerRef, variableGenerationAbortControllerRef
     } = gameState;
     const 回合快照栈Ref = useRef<回合快照结构[]>([]);
@@ -348,6 +353,8 @@ export const useGame = () => {
     const 场景生图自动应用任务Ref = useRef('');
     const 场景图片档案Ref = useRef<场景图片档案>({});
     const [场景图片档案, set场景图片档案] = useState<场景图片档案>({});
+    const 时代信息Ref = useRef<时代信息结构 | undefined>(undefined);
+    const [时代信息, set时代信息] = useState<时代信息结构 | undefined>(undefined);
     const [场景生图任务队列, set场景生图任务队列] = useState<场景生图任务记录[]>([]);
     const 后台手动生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 构图: '头像' | '半身' | '立绘' }>>([]);
     const 已提示后台生图任务Ref = useRef<Set<string>>(new Set());
@@ -400,6 +407,25 @@ export const useGame = () => {
         场景图片档案Ref.current = normalized;
         set场景图片档案(normalized);
         void dbService.保存设置(设置键.场景图片档案, normalized);
+    };
+    const 应用时代信息到状态 = (value: 时代信息结构 | undefined) => {
+        时代信息Ref.current = value;
+        set时代信息(value);
+    };
+    const 处理时代变更 = async (eraId: string) => {
+        setCurrentEra(eraId);
+        void dbService.保存设置(设置键.应用时代, eraId);
+        const eraInfo = 获取时代信息(eraId);
+        应用时代信息到状态(eraInfo || undefined);
+        const eraTheme = 获取时代主题方案(eraId);
+        if (eraTheme) {
+            应用时代主题到根元素(eraTheme);
+            设置时代UI文案(eraTheme);
+        }
+        const recommendedTheme = 获取时代推荐主题(eraId);
+        if (recommendedTheme) {
+            setCurrentTheme(recommendedTheme);
+        }
     };
 
     // --- 子系统初始化 ---
@@ -1620,6 +1646,7 @@ export const useGame = () => {
         获取当前场景图片档案快照: () => 规范化场景图片档案(深拷贝(场景图片档案Ref.current || 场景图片档案)),
         获取角色锚点列表: () => 规范化接口设置(apiConfigRef.current).功能模型占位.角色锚点列表,
         获取当前角色锚点ID: () => 规范化接口设置(apiConfigRef.current).功能模型占位.当前角色锚点ID,
+        获取当前时代信息: () => 时代信息Ref.current,
         构建完整地点文本,
         规范化环境信息,
         规范化世界状态,
@@ -1668,6 +1695,7 @@ export const useGame = () => {
                 }
             }));
         },
+        设置时代信息: 应用时代信息到状态,
         setView,
         setShowSaveLoad,
         设置最近开局配置,
@@ -1754,6 +1782,7 @@ export const useGame = () => {
         设置同人剧情规划,
         设置同人女主剧情规划,
         设置开局配置,
+        设置时代信息: 应用时代信息到状态,
         setGameConfig,
         设置开局变量生成进度: set开局变量生成进度,
         设置开局世界演变进度: set开局世界演变进度,
@@ -1967,11 +1996,12 @@ export const useGame = () => {
             worldbookPresetGroups: 世界书预设组列表,
             notifications: 右下角提示列表,
             chatScrollSuppressToken: 聊天区自动滚动抑制令牌,
-            chatForceScrollToken: 聊天区强制置底令牌
+            chatForceScrollToken: 聊天区强制置底令牌,
+            eraInfo: 时代信息Ref.current
         },
         setters: {
             setShowSettings, setShowInventory, setShowEquipment, setShowBattle, setShowSocial, setShowTeam, setShowKungfu, setShowWorld, setShowMap, setShowSect, setShowTask, setShowAgreement, setShowStory, setShowHeroinePlan, setShowMemory, setShowSaveLoad,
-            setActiveTab, setCurrentTheme,
+            setActiveTab, setCurrentTheme, setCurrentEra,
             setApiConfig, setVisualConfig, setImageManagerConfig, setPrompts
         },
         actions: {
@@ -2072,7 +2102,8 @@ export const useGame = () => {
             importPngStylePresets: 导入PNG画风预设,
             setPersistentWallpaper: 设置常驻壁纸,
             clearPersistentWallpaper: 清除常驻壁纸,
-            pushNotification: 推送右下角提示
+            pushNotification: 推送右下角提示,
+            handleEraChange: 处理时代变更
         }
     };
 };

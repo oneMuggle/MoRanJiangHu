@@ -7,4 +7,9 @@
   --c-wuxia-cyan: 68 170 170;
   --c-wuxia-red: 163 24 24;
   --c-paper-white: 230 230 230;
+
+  /* Era theme font variables (default to ancient wuxia) */
+  --ui-页面标题-font-family: 'KaiTi', 'STKaiti', 'SimSun', 'Noto Serif SC', serif;
+  --ui-正文字体: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  --ui-等宽信息-font-family: 'KaiTi', 'STKaiti', monospace;
 }

@@ -2,6 +2,7 @@
 import React from 'react';
 import GameButton from '../ui/GameButton';
 import { GitHubSyncButton } from '../features/Auth/GitHubSyncButton';
+import { useUIText } from '../../hooks/useUIText';
 
 const requestBrowserFullscreen = () => {
     const doc = document as Document & {
@@ -51,6 +52,7 @@ interface Props {
 }
 
 const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorldbookManager, onNovelDecomposition, onSettings, hasSave }) => {
+    const 文案 = useUIText();
     return (
         <div className="h-full w-full flex flex-col items-center justify-center relative overflow-hidden bg-black z-40 rounded-xl">
             {/* Background Effects */}
@@ -71,9 +73,9 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                     fontSize: 'var(--ui-按钮-font-size, 14px)',
                     lineHeight: 'var(--ui-按钮-line-height, 1.2)'
                 }}
-                title="切换全屏"
+                    title={文案.全屏按钮}
             >
-                全屏
+                {文案.全屏按钮}
             </button>
 
             {/* Main Title Area */}
@@ -90,15 +92,15 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                         lineHeight: 'var(--ui-页面标题-line-height, 1.2)',
                         fontStyle: 'var(--ui-页面标题-font-style, normal)'
                     }}
-                    title="点击切换全屏"
+                        title={文案.首页主标题}
                  >
-                    墨色江湖
+                    {文案.首页主标题}
                  </h1>
                  
                  <div className="flex items-center gap-3 md:gap-6 opacity-80">
                      <div className="h-px w-10 md:w-16 bg-gradient-to-r from-transparent to-wuxia-red"></div>
                      <h2 className="text-lg md:text-2xl font-serif text-wuxia-red tracking-[0.3em] md:tracking-[0.5em] uppercase font-bold text-shadow-sm" style={{ fontFamily: 'var(--ui-分组标题-font-family, inherit)', lineHeight: 'var(--ui-分组标题-line-height, 1.35)' }}>
-                        无尽武林
+                        {文案.首页副标题}
                      </h2>
                      <div className="h-px w-10 md:w-16 bg-gradient-to-l from-transparent to-wuxia-red"></div>
                  </div>
@@ -107,7 +109,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
             {/* Menu Options */}
             <div className="relative z-10 flex flex-col gap-4 md:gap-6 w-64 animate-slide-in delay-100 px-4">
                 <GameButton onClick={onStart} variant="primary" className="text-base md:text-lg py-3 md:py-4 shadow-lg min-h-[44px]">
-                    踏入江湖
+                    {文案.开始游戏按钮}
                 </GameButton>
 
                 <GameButton
@@ -116,15 +118,15 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                     className={`text-base md:text-lg py-3 md:py-4 shadow-lg min-h-[44px] ${!hasSave ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
                     disabled={!hasSave}
                 >
-                    重入江湖
+                    {文案.继续游戏按钮}
                 </GameButton>
 
                 <GameButton onClick={onImageManager} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
-                    图片管理
+                    {文案.图片管理按钮}
                 </GameButton>
 
                 <GameButton onClick={onWorldbookManager} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
-                    世界书管理
+                    {文案.世界书按钮}
                 </GameButton>
 
                 <GameButton onClick={onNovelDecomposition} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
@@ -132,7 +134,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                 </GameButton>
 
                 <GameButton onClick={onSettings} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-80 hover:opacity-100 min-h-[44px]">
-                    设置
+                    {文案.设置按钮}
                 </GameButton>
             </div>
 
