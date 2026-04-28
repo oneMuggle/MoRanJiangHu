@@ -155,9 +155,10 @@ const 觉醒程度选项 = [
 
 interface NewGameWizardContentProps {
     wizard: UseNewGameWizardStateReturn;
+    openEraSelector: () => void;
 }
 
-export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wizard }) => {
+export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wizard, openEraSelector }) => {
     const {
         step,
         worldConfig, setWorldConfig,
@@ -274,13 +275,22 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm text-wuxia-cyan font-bold">时代背景</label>
-                                <div className="px-3 py-2 bg-black/30 border border-gray-700/50 rounded-md text-gray-300 text-sm">
-                                    {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.label || '古代武侠'}
+                                <div className="flex gap-2">
+                                    <div className="flex-1 px-3 py-2 bg-black/30 border border-gray-700/50 rounded-md text-gray-300 text-sm">
+                                        {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.label || '古代武侠'}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => openEraSelector()}
+                                        className="px-4 py-2 bg-wuxia-gold/10 border border-wuxia-gold/30 text-wuxia-gold text-sm rounded-md hover:bg-wuxia-gold/20 transition-colors"
+                                    >
+                                        详细选择
+                                    </button>
                                 </div>
                                 <div className="text-[11px] text-gray-500 leading-6">
                                     {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.hint}
                                 </div>
-                                <div className="text-[11px] text-wuxia-cyan/60">在设置面板 → 界面风格中切换时代</div>
+                                <div className="text-[11px] text-wuxia-cyan/60">点击"详细选择"可浏览全部22个时代</div>
                             </div>
                         </div>
 

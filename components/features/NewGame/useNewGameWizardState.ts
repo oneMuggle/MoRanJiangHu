@@ -114,6 +114,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
     const [stats, setStats] = useState<属性结构>(创建默认属性分配);
     const [openingConfig, setOpeningConfig] = useState<OpeningConfig>(默认开局配置);
     const [openingConfigEnabled, setOpeningConfigEnabled] = useState(false);
+    const [showEraSelector, setShowEraSelector] = useState(false);
 
     // Talents & Background
     const [selectedBackground, setSelectedBackground] = useState<背景结构>(预设背景[0]);
@@ -927,6 +928,9 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         保存自定义开局预设列表, 保存当前为自定义开局方案,
         编辑自定义开局方案信息, 用当前配置覆盖开局方案, 删除自定义开局方案,
         handleGenerate,
+
+        // EraSelector
+        showEraSelector, setShowEraSelector,
         读取UTF8文本文件, 导出文本文件,
         导入手动提示词文件, 导出手动世界观提示词, 导出手动境界提示词, 导出境界提示词模板,
 
