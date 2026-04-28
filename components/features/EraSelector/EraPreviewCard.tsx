@@ -1,6 +1,7 @@
 import React from 'react';
 import type { EraNode } from '../../../models/eraTheme';
 import { ERA_ICON_MAP, ERA_BG_CONFIG } from './eraIconMap';
+import { useEraAssets } from '../../../hooks/useEraAssets';
 
 interface Props {
     epoch: EraNode;
@@ -147,14 +148,28 @@ const InfoCard: React.FC<{ label: string; value: string }> = ({ label, value }) 
 );
 
 // 素材状态徽章
-// P1-3: 暂时返回 'unknown' 状态（等 P2 eraAssetsService）
+// P2: 接入 useEraAssets hook 获取真实状态
 const EraAssetStatusBadge: React.FC<{ subEraId: string }> = ({ subEraId }) => {
-    // TODO(P2): 接入 eraAssetsService.checkEraAssetsStatus() 获取真实状态
-    // 暂时返回 unknown，等 P2 阶段实现动态检查
-    void subEraId; // 消除未使用警告
+    const { status, isLoading } = useEraAssets(subEraId);
+
+    if (isLoading) {
+        return (
+            <span className="px-2 py-1 rounded text-xs font-mono bg-gray-800/60 text-gray-400 border border-gray-700">
+                ...
+            </span>
+        );
+    }
+
+    const cfg: Record<string, { cls: string; label: string }> = {
+        ready: { cls: 'bg-green-900/60 text-green-400 border-green-700', label: '有素材' },
+        pending: { cls: 'bg-yellow-900/40 text-yellow-400 border-yellow-700', label: '待生成' },
+        missing: { cls: 'bg-red-900/40 text-red-400 border-red-700', label: '缺失' },
+        unknown: { cls: 'bg-gray-800/60 text-gray-400 border border-gray-700', label: 'unknown' },
+    };
+    const c = cfg[status] || cfg.unknown;
     return (
-        <span className="px-2 py-1 rounded text-xs font-mono bg-gray-800/60 text-gray-400 border border-gray-700">
-            unknown
+        <span className={`px-2 py-1 rounded text-xs font-mono ${c.cls}`}>
+            {c.label}
         </span>
     );
 };

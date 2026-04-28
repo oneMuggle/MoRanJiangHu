@@ -157,6 +157,8 @@ export interface StoryRequestOptions {
     requireActionOptionsTag?: boolean;
     requireDynamicWorldTag?: boolean;
     errorDetailLimit?: number;
+    /** 时代 ID（从 WorldGenConfig.时代配置ID 获取），用于素材服务和提示词增强 */
+    eraId?: string;
 }
 
 interface WorldStreamOptions {
