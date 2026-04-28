@@ -27,11 +27,10 @@ npm run stress:test  # 提示词压力测试
 ```
 components/    UI 组件、弹窗、功能面板
 data/          内置预设和静态数据
-docs/          设计/重构分析文档
+docs/          文档（技术文档、用户手册、规划文档）
 functions/     Cloudflare Pages Functions (GitHub 同步 API)
 hooks/         业务逻辑和 React hooks
 models/        领域模型和类型定义
-plans/         功能规划和阶段性方案
 prompts/       提示词系统 (core/runtime/writing/stats 分层)
 scripts/       开发辅助脚本
 services/      AI、数据库、同步服务
@@ -153,8 +152,7 @@ VITE_GITHUB_CLIENT_ID=your_github_oauth_client_id
 
 - [README.md](./README.md) - 项目概述和快速开始
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - 贡献指南
-- `docs/` - 设计分析文档
-- `plans/` - 功能规划文档
+- [docs/README.md](./docs/README.md) - 文档索引（技术文档、用户手册、规划文档）
 
 ## 子模块 AGENTS.md
 
