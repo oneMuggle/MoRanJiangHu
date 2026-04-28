@@ -169,110 +169,6 @@ const 提取候选命令文本 = (text: string): string => {
     const commandHeaderRegex = /^(?:(?:[-*•])\s*|\d+[.)、]\s*)?(add|set|push|delete)\s+([^\s=＝]+)(?:\s*(?:[=＝]\s*|\s+)([\s\S]+))?$/i;
     const commands: string[] = [];
 
-    const 清理命令尾部分隔符 = (source: string): string => {
-        const text = (source || '').trimEnd();
-        if (!text) return '';
-        let inString = false;
-        let stringQuote = '';
-        let escaped = false;
-        let balance = 0;
-        for (const ch of text) {
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                    continue;
-                }
-                if (ch === '\\') {
-                    escaped = true;
-                    continue;
-                }
-                if (ch === stringQuote) {
-                    inString = false;
-                    stringQuote = '';
-                }
-                continue;
-            }
-            if (ch === '"' || ch === '\'') {
-                inString = true;
-                stringQuote = ch;
-                continue;
-            }
-            if (ch === '{' || ch === '[') {
-                balance += 1;
-                continue;
-            }
-            if (ch === '}' || ch === ']') {
-                balance = Math.max(0, balance - 1);
-            }
-        }
-        if (balance > 0) return text;
-        return text.replace(/[；;，,]\s*$/, '').trimEnd();
-    };
-
-    const 计算括号平衡 = (source: string): number => {
-        let balance = 0;
-        let inString = false;
-        let stringQuote = '';
-        let escaped = false;
-        for (const ch of source) {
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                    continue;
-                }
-                if (ch === '\\') {
-                    escaped = true;
-                    continue;
-                }
-                if (ch === stringQuote) {
-                    inString = false;
-                    stringQuote = '';
-                }
-                continue;
-            }
-            if (ch === '"' || ch === '\'') {
-                inString = true;
-                stringQuote = ch;
-                continue;
-            }
-            if (ch === '{' || ch === '[') {
-                balance += 1;
-                continue;
-            }
-            if (ch === '}' || ch === ']') {
-                balance -= 1;
-            }
-        }
-        return balance;
-    };
-    const 收集多行命令值 = (
-        lines: string[],
-        startIndex: number,
-        initialValueText: string
-    ): { valueText: string; consumedUntil: number } => {
-        let consumedUntil = startIndex;
-        let valueText = (initialValueText || '').trim();
-        const nextLine = lines[startIndex + 1]?.trim() || '';
-
-        if (!valueText && (nextLine.startsWith('{') || nextLine.startsWith('['))) {
-            consumedUntil += 1;
-            valueText = lines[consumedUntil].trimEnd();
-        }
-
-        if (!(valueText.startsWith('{') || valueText.startsWith('['))) {
-            return { valueText, consumedUntil };
-        }
-
-        let balance = 计算括号平衡(valueText);
-        while (balance > 0 && consumedUntil + 1 < lines.length) {
-            consumedUntil += 1;
-            valueText = `${valueText}\n${lines[consumedUntil].trimEnd()}`;
-            balance = 计算括号平衡(valueText);
-        }
-
-        return { valueText, consumedUntil };
-    };
-
     for (let i = 0; i < rawLines.length; i += 1) {
         const line = rawLines[i].trim();
         const match = line.match(commandHeaderRegex);
@@ -693,6 +589,71 @@ const 清理命令尾部分隔符 = (source: string): string => {
     return text.replace(/[；;，,]\s*$/, '').trimEnd();
 };
 
+const 计算括号平衡 = (source: string): number => {
+    let balance = 0;
+    let inString = false;
+    let stringQuote = '';
+    let escaped = false;
+    for (const ch of source) {
+        if (inString) {
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (ch === '\\') {
+                escaped = true;
+                continue;
+            }
+            if (ch === stringQuote) {
+                inString = false;
+                stringQuote = '';
+            }
+            continue;
+        }
+        if (ch === '"' || ch === '\'') {
+            inString = true;
+            stringQuote = ch;
+            continue;
+        }
+        if (ch === '{' || ch === '[') {
+            balance += 1;
+            continue;
+        }
+        if (ch === '}' || ch === ']') {
+            balance -= 1;
+        }
+    }
+    return balance;
+};
+
+const 收集多行命令值 = (
+    sourceLines: string[],
+    startIndex: number,
+    initialValueText: string
+): { valueText: string; consumedUntil: number } => {
+    let consumedUntil = startIndex;
+    let valueText = (initialValueText || '').trim();
+    const nextLine = sourceLines[startIndex + 1]?.trim() || '';
+
+    if (!valueText && (nextLine.startsWith('{') || nextLine.startsWith('['))) {
+        consumedUntil += 1;
+        valueText = sourceLines[consumedUntil];
+    }
+
+    if (!(valueText.startsWith('{') || valueText.startsWith('['))) {
+        return { valueText, consumedUntil };
+    }
+
+    let balance = 计算括号平衡(valueText);
+    while (balance > 0 && consumedUntil + 1 < sourceLines.length) {
+        consumedUntil += 1;
+        valueText = `${valueText}\n${sourceLines[consumedUntil]}`;
+        balance = 计算括号平衡(valueText);
+    }
+
+    return { valueText, consumedUntil };
+};
+
 const 归一化命令动作 = (rawAction: string): 'add' | 'set' | 'push' | 'delete' | 'sub' | '' => {
     const action = (rawAction || '').trim().toLowerCase();
     switch (action) {
@@ -897,70 +858,6 @@ export const 解析命令块 = (commandBlock: string): Array<{ action: 'add' | '
         .filter(Boolean)
         .filter(line => !line.startsWith('```'));
     const commands: Array<{ action: 'add' | 'set' | 'push' | 'delete'; key: string; value: any }> = [];
-    const 计算括号平衡 = (source: string): number => {
-        let balance = 0;
-        let inString = false;
-        let stringQuote = '';
-        let escaped = false;
-        for (const ch of source) {
-            if (inString) {
-                if (escaped) {
-                    escaped = false;
-                    continue;
-                }
-                if (ch === '\\') {
-                    escaped = true;
-                    continue;
-                }
-                if (ch === stringQuote) {
-                    inString = false;
-                    stringQuote = '';
-                }
-                continue;
-            }
-            if (ch === '"' || ch === '\'') {
-                inString = true;
-                stringQuote = ch;
-                continue;
-            }
-            if (ch === '{' || ch === '[') {
-                balance += 1;
-                continue;
-            }
-            if (ch === '}' || ch === ']') {
-                balance -= 1;
-            }
-        }
-        return balance;
-    };
-    const 收集多行命令值 = (
-        sourceLines: string[],
-        startIndex: number,
-        initialValueText: string
-    ): { valueText: string; consumedUntil: number } => {
-        let consumedUntil = startIndex;
-        let valueText = (initialValueText || '').trim();
-        const nextLine = sourceLines[startIndex + 1]?.trim() || '';
-
-        if (!valueText && (nextLine.startsWith('{') || nextLine.startsWith('['))) {
-            consumedUntil += 1;
-            valueText = sourceLines[consumedUntil];
-        }
-
-        if (!(valueText.startsWith('{') || valueText.startsWith('['))) {
-            return { valueText, consumedUntil };
-        }
-
-        let balance = 计算括号平衡(valueText);
-        while (balance > 0 && consumedUntil + 1 < sourceLines.length) {
-            consumedUntil += 1;
-            valueText = `${valueText}\n${sourceLines[consumedUntil]}`;
-            balance = 计算括号平衡(valueText);
-        }
-
-        return { valueText, consumedUntil };
-    };
-
     for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i];
         const normalized = line
