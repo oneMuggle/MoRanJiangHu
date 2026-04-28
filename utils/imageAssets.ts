@@ -6,6 +6,17 @@ type 图片资源结构 = {
 const 图片资源引用前缀 = 'wuxia-asset://';
 const 图片资源缓存 = new Map<string, string>();
 
+// CDN manifest 状态
+let cdnManifestLoaded = false;
+const cdnResourceMap = new Map<string, string>(); // assetId -> cdnUrl
+
+// CDN 配置 - 优雅降级：环境变量为空时不尝试加载
+const CDN_BASE_URL = (typeof window !== 'undefined' && (window as any).__CDN_BASE_URL__)
+    || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CDN_BASE_URL)
+    || '';
+
+const MANIFEST_URL = CDN_BASE_URL ? `${CDN_BASE_URL.replace(/\/$/, '')}/manifest.json` : '';
+
 const 读取文本 = (value: unknown): string => (
     typeof value === 'string' ? value.trim() : ''
 );
@@ -92,3 +103,80 @@ export const 格式化本地图片描述 = (value: unknown): string => {
     if (/^data:image\//i.test(text)) return '应用内本地缓存';
     return text;
 };
+
+// ============== CDN 资源加载 ==============
+
+/**
+ * 是否启用了 CDN 加载
+ */
+export const 已启用CDN = (): boolean => cdnManifestLoaded;
+
+/**
+ * 从 manifest.json 加载 CDN 资源映射
+ * manifest 结构: { resources: { images/audio: { subdir: [{ id, cdn_url, ... }] } } }
+ */
+const loadCdnManifest = async (): Promise<void> => {
+    if (!MANIFEST_URL || cdnManifestLoaded) return;
+    try {
+        const response = await fetch(MANIFEST_URL, { cache: 'force-cache' });
+        if (!response.ok) return;
+        const data = await response.json();
+
+        const resources = data?.resources;
+        if (!resources || typeof resources !== 'object') return;
+
+        for (const category of Object.values(resources)) {
+            if (typeof category !== 'object' || category === null) continue;
+            for (const subList of Object.values(category as Record<string, unknown>)) {
+                if (!Array.isArray(subList)) continue;
+                for (const entry of subList) {
+                    if (entry && typeof entry === 'object' && 'id' in entry && 'cdn_url' in entry) {
+                        cdnResourceMap.set(
+                            (entry as Record<string, string>).id,
+                            (entry as Record<string, string>).cdn_url,
+                        );
+                    }
+                }
+            }
+        }
+
+        cdnManifestLoaded = true;
+    } catch {
+        // 优雅降级：manifest 加载失败不影响本地缓存
+    }
+};
+
+/**
+ * 确保 CDN manifest 已加载（懒加载，仅调用一次）
+ */
+export const 确保CDN清单已加载 = (): void => {
+    if (cdnManifestLoaded || !MANIFEST_URL) return;
+    loadCdnManifest().catch(() => {});
+};
+
+/**
+ * 尝试从 CDN 解析资源 ID 为 URL
+ * 返回 undefined 表示 CDN 中不存在该资源
+ */
+export const 从CDN解析资源 = (assetId: string): string | undefined => {
+    if (!cdnManifestLoaded) return undefined;
+    const id = 读取文本(assetId);
+    if (!id) return undefined;
+
+    // 直接匹配 assetId
+    const direct = cdnResourceMap.get(id);
+    if (direct) return direct;
+
+    // 尝试带路径前缀的匹配（如 images/characters/xxx）
+    for (const [key, url] of cdnResourceMap) {
+        if (key === id || key.endsWith(`/${id}`) || key.endsWith(`_${id}`)) {
+            return url;
+        }
+    }
+    return undefined;
+};
+
+/**
+ * 获取 CDN 基础 URL（用于调试/配置检查）
+ */
+export const 获取CDN基础地址 = (): string => CDN_BASE_URL;

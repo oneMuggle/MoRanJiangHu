@@ -1,6 +1,6 @@
 
 import { 存档结构 } from '../types';
-import { 创建图片资源引用, 解析图片资源引用ID, 是否图片资源引用, 注册图片资源缓存, 批量注册图片资源缓存, 清空图片资源缓存 } from '../utils/imageAssets';
+import { 创建图片资源引用, 解析图片资源引用ID, 是否图片资源引用, 注册图片资源缓存, 批量注册图片资源缓存, 清空图片资源缓存, 确保CDN清单已加载, 从CDN解析资源 } from '../utils/imageAssets';
 import { 获取设置项定义, 设置分类定义表, 设置键, type 设置分类类型 } from '../utils/settingsSchema';
 import { 默认功能模型占位, 规范化接口设置 } from '../utils/apiConfig';
 
@@ -236,24 +236,61 @@ export const 保存图片资源 = async (dataUrl: string, preferredId?: string):
 export const 读取图片资源 = async (refOrId: string): Promise<string> => {
     const id = 解析图片资源引用ID(refOrId) || (typeof refOrId === 'string' ? refOrId.trim() : '');
     if (!id) return '';
+
+    // 1. 尝试 IndexedDB
     const db = await 初始化数据库();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([IMAGE_ASSETS_STORE], 'readonly');
-        const store = transaction.objectStore(IMAGE_ASSETS_STORE);
-        const request = store.get(id);
-        request.onsuccess = () => {
-            const dataUrl = typeof request.result?.dataUrl === 'string' ? request.result.dataUrl.trim() : '';
-            if (dataUrl) {
-                注册图片资源缓存(id, dataUrl);
-                const signature = 生成图片资源签名(dataUrl);
-                if (signature) {
-                    图片资源签名缓存.set(signature, 创建图片资源引用(id));
+    try {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+            const transaction = db.transaction([IMAGE_ASSETS_STORE], 'readonly');
+            const store = transaction.objectStore(IMAGE_ASSETS_STORE);
+            const request = store.get(id);
+            request.onsuccess = () => {
+                const dataUrl = typeof request.result?.dataUrl === 'string' ? request.result.dataUrl.trim() : '';
+                if (dataUrl) {
+                    注册图片资源缓存(id, dataUrl);
+                    const signature = 生成图片资源签名(dataUrl);
+                    if (signature) {
+                        图片资源签名缓存.set(signature, 创建图片资源引用(id));
+                    }
                 }
+                resolve(dataUrl);
+            };
+            request.onerror = () => reject(request.error);
+        });
+        if (dataUrl) return dataUrl;
+    } catch {
+        // IndexedDB 读取失败，继续尝试 CDN
+    }
+
+    // 2. 尝试从 CDN 加载
+    确保CDN清单已加载();
+    const cdnUrl = 从CDN解析资源(id);
+    if (cdnUrl) {
+        try {
+            const response = await fetch(cdnUrl);
+            if (response.ok) {
+                const blob = await response.blob();
+                const dataUrl = await new Promise<string>((res, rej) => {
+                    const reader = new FileReader();
+                    reader.onload = () => res(reader.result as string);
+                    reader.onerror = rej;
+                    reader.readAsDataURL(blob);
+                });
+                注册图片资源缓存(id, dataUrl);
+                // 写入 IndexedDB 作为本地缓存
+                try {
+                    await 保存图片资源(dataUrl, id);
+                } catch {
+                    // 写入失败不影响使用
+                }
+                return dataUrl;
             }
-            resolve(dataUrl);
-        };
-        request.onerror = () => reject(request.error);
-    });
+        } catch {
+            // CDN 加载失败，优雅降级
+        }
+    }
+
+    return '';
 };
 
 export const 预热图片资源缓存 = async (): Promise<number> => {
