@@ -130,7 +130,7 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
                 </GameButton>
 
                 <GameButton onClick={onNovelDecomposition} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
-                    小说分解
+                    {文案.小说分解按钮}
                 </GameButton>
 
                 <GameButton onClick={onSettings} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-80 hover:opacity-100 min-h-[44px]">
