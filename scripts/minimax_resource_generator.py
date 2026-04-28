@@ -255,11 +255,24 @@ def _call_minimax_image_api(api_key: str, prompt: str, output_path: Path,
     try:
         with urllib.request.urlopen(req, timeout=120) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-            
-        if result.get("data") and result["data"][0].get("url"):
-            # 下载图片
-            image_url = result["data"][0]["url"]
-            img_req = urllib.request.Request(image_url)
+
+        # 图片 URL 在 data[0].image_urls[0]（image-01 返回结构）
+        img_url = None
+        if result.get("data"):
+            d = result["data"]
+            if isinstance(d, list) and d:
+                # 新结构: data[0].image_urls[]
+                if d[0].get("image_urls"):
+                    img_url = d[0]["image_urls"][0]
+                elif d[0].get("url"):
+                    img_url = d[0]["url"]
+            elif isinstance(d, dict) and d.get("image_urls"):
+                img_url = d["image_urls"][0]
+            elif isinstance(d, dict) and d.get("url"):
+                img_url = d["url"]
+
+        if img_url:
+            img_req = urllib.request.Request(img_url)
             with urllib.request.urlopen(img_req, timeout=60) as img_resp:
                 img_data = img_resp.read()
             
@@ -801,8 +814,30 @@ def run_full_pipeline(dry_run: bool = False, era_id: Optional[str] = None, uploa
 
     # Step 2: 执行生成
     if era_id:
-        # 只生成指定 era
-        target_pendings = [p for p in pending if p["id"] == era_id]
+        # --era 参数：强制处理该 era（不受 pending 状态限制）
+        # 构造与 get_pending_suberas() 相同格式的记录
+        era_dir = ERA_ASSETS_DIR / era_id
+        manifest_path = era_dir / "manifest.json"
+        manifest = {"id": era_id, "status": "pending", "images": [], "bgm": ""}
+        if manifest_path.exists():
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+        bgm_tags = parse_era_theme_bgm_tags(era_id)
+        art_style = parse_era_theme_art_style(era_id)
+        if not art_style:
+            art_style = "高质量游戏美术风格"
+        existing_images = [f.name for f in era_dir.iterdir()
+                          if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.webp']]
+        target_pendings = [{
+            "id": era_id,
+            "images": manifest.get("images", []),
+            "bgm": manifest.get("bgm", ""),
+            "bgmTags": bgm_tags,
+            "artStyle": art_style,
+            "existingImages": existing_images,
+            "missingCount": len([img for img in manifest.get("images", [])
+                                 if not any(img in ex for ex in existing_images)]),
+        }]
     else:
         target_pendings = pending
 
