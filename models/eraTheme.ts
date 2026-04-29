@@ -78,6 +78,13 @@ export interface EraCharacterArchetype {
     abilities: string[];
 }
 
+/** 文风示例段落 */
+export interface EraWritingSample {
+    id: string;
+    title: string;
+    excerpt: string;
+}
+
 export type EpochDepth = 0 | 1 | 2;
 
 /** UI文案（兼容旧接口） */
@@ -113,7 +120,7 @@ export interface EraNode {
     characterArchetypes?: EraCharacterArchetype[];
 
     // 文风示例段落（仅 SubEra）
-    writingSamples?: string[];
+    writingSamples?: EraWritingSample[];
 
     // 核心冲突类型（仅 SubEra）
     conflictTypes?: string[];
@@ -4330,6 +4337,11 @@ export function resolveEraNode(id: string): {
         uiStyle: EraUIStyle;
         bgmTags: string[];
         artStyle: string | undefined;
+        promptVars: EraPromptVars | undefined;
+        openingScenes: EraOpeningScene[] | undefined;
+        characterArchetypes: EraCharacterArchetype[] | undefined;
+        writingSamples: EraWritingSample[] | undefined;
+        conflictTypes: string[] | undefined;
     };
     sources: string[];
 } | null {
@@ -4349,11 +4361,22 @@ export function resolveEraNode(id: string): {
         return null;
     };
 
+    // 仅取当前节点自身的值（不继承）
+    const getNodeOnly = <T>(getter: (n: EraNode) => T | undefined): T | undefined => {
+        return getter(node);
+    };
+
     const colorsDef = getFirstDefined((n) => n.colors);
     const typographyDef = getFirstDefined((n) => n.typography);
     const uiStyleDef = getFirstDefined((n) => n.uiStyle);
     const bgmTagsDef = getFirstDefined((n) => n.bgmTags);
     const artStyleDef = getFirstDefined((n) => n.artStyle);
+    const promptVarsDef = getFirstDefined((n) => n.promptVars);
+    const conflictTypesDef = getFirstDefined((n) => n.conflictTypes);
+
+    const openingScenesDef = getNodeOnly((n) => n.openingScenes);
+    const characterArchetypesDef = getNodeOnly((n) => n.characterArchetypes);
+    const writingSamplesDef = getNodeOnly((n) => n.writingSamples);
 
     // Epoch层的默认值兜底（确保永远有值）
     const defaultColors: EraColors = ancientEpoch.colors!;
@@ -4368,6 +4391,11 @@ export function resolveEraNode(id: string): {
             uiStyle: uiStyleDef?.value ?? defaultUIStyle,
             bgmTags: bgmTagsDef?.value ?? [],
             artStyle: artStyleDef?.value,
+            promptVars: promptVarsDef?.value,
+            openingScenes: openingScenesDef,
+            characterArchetypes: characterArchetypesDef,
+            writingSamples: writingSamplesDef,
+            conflictTypes: conflictTypesDef?.value,
         },
         sources: [
             colorsDef?.sourceId,
@@ -4375,6 +4403,8 @@ export function resolveEraNode(id: string): {
             uiStyleDef?.sourceId,
             bgmTagsDef?.sourceId,
             artStyleDef?.sourceId,
+            promptVarsDef?.sourceId,
+            conflictTypesDef?.sourceId,
         ].filter(Boolean) as string[],
     };
 }
