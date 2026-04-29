@@ -4,6 +4,8 @@ import { NewGameWizardContent } from '../NewGameWizardContent';
 import { useNewGameWizardState } from '../useNewGameWizardState';
 import { EraSelector } from '../../EraSelector';
 import type { OpeningConfig, WorldGenConfig, 角色数据结构 } from '../../../../types';
+import { 获取时代主题方案 } from '../../../../models/eraTheme';
+import { 应用时代主题到根元素 } from '../../../../styles/themes';
 
 interface Props {
     onComplete: (
@@ -36,6 +38,10 @@ const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, c
                     value={wizard.worldConfig.时代配置ID || 'ancient_eastern_wuxia'}
                     onChange={(eraId) => {
                         wizard.setWorldConfig((prev: WorldGenConfig) => ({ ...prev, 时代配置ID: eraId }));
+                        const eraScheme = 获取时代主题方案(eraId);
+                        if (eraScheme) {
+                            应用时代主题到根元素(eraScheme);
+                        }
                         setShowEraSelector(false);
                     }}
                     onCancel={() => setShowEraSelector(false)}
