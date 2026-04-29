@@ -107,8 +107,6 @@ export const EraSelector: React.FC<Props> = ({ value, onChange, onCancel }) => {
                                 epoch={currentSubEra.epoch}
                                 era={currentSubEra.era}
                                 subEra={currentSubEra.subEra}
-                                isSelected={selectedSubEra === value}
-                                onSelect={() => setSelectedSubEra(currentSubEra.subEra.id)}
                             />
                         ) : (
                             <div className="h-full flex items-center justify-center text-gray-500">

@@ -7,8 +7,6 @@ interface Props {
     epoch: EraNode;
     era: EraNode;
     subEra: EraNode;
-    isSelected: boolean;
-    onSelect: () => void;
 }
 
 /**
@@ -19,8 +17,6 @@ export const EraPreviewCard: React.FC<Props> = ({
     epoch,
     era,
     subEra,
-    isSelected,
-    onSelect,
 }) => {
     const bgmTags = subEra.bgmTags || era.bgmTags || epoch.bgmTags || [];
     const artStyle = subEra.artStyle || era.artStyle || epoch.artStyle || '待配置';
@@ -124,18 +120,6 @@ export const EraPreviewCard: React.FC<Props> = ({
                     </div>
                 </div>
             )}
-
-            {/* 选择按钮 */}
-            <button
-                onClick={onSelect}
-                className={`w-full py-4 rounded-lg font-serif tracking-wider text-lg transition-all ${
-                    isSelected
-                        ? 'bg-wuxia-gold/30 text-wuxia-gold border-2 border-wuxia-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                        : 'bg-wuxia-gold/10 text-wuxia-gold border border-wuxia-gold/30 hover:bg-wuxia-gold/20 hover:border-wuxia-gold/50'
-                }`}
-            >
-                {isSelected ? '✓ 已选择此时代' : '选择此时代'}
-            </button>
         </div>
     );
 };
