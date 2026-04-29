@@ -1,8 +1,8 @@
 # 三层时代架构 — 实施进度追踪
 
-> 最后更新: 2026-04-29 02:30
+> 最后更新: 2026-04-29 17:30
 > 分支: main
-> 最新提交: Phase D-3 (8e1dd85)
+> 最新提交: Phase D-6 (cc4cf58)
 
 ---
 
@@ -35,7 +35,7 @@
 
 ---
 
-## Phase D: 提示词层接入 ✅ 部分完成
+## Phase D: 提示词层接入 ✅ 已完成
 
 ### D-1: resolveEraNode 扩展 ✅ 已完成
 **提交:** `3ff9d75` — 新增 promptVars/openingScenes/characterArchetypes/writingSamples/conflictTypes 返回字段
@@ -46,13 +46,18 @@
 ### D-3: openingStoryWorkflow 接入 openingScenes ✅ 已完成
 **提交:** `8e1dd85` — 新建 prompts/runtime/eraOpeningScene.ts，开场剧情随机选取时代场景
 
-### D-4: 角色生成接入 characterArchetypes ⏳ 待开始
-### D-5: 写作风格提示接入 writingSamples ⏳ 待开始
-### D-6: 时代现实主义提示词接入 (eraRealism) ⏳ 待开始
+### D-4: 角色生成接入 characterArchetypes ✅ 已完成
+**提交:** `fb1cbd2` — 角色原型注入开场初始化任务提示词
+
+### D-5: 写作风格提示接入 writingSamples ✅ 已完成
+**提交:** `a723bef` — 文风示例注入系统提示词
+
+### D-6: 时代现实主义提示词接入 (eraRealism) ✅ 已完成
+**提交:** `cc4cf58` — 现实主义约束接入系统提示词
 
 ---
 
-## Phase E: 资源需求更新 ⏳ 待开始
+## Phase E: 资源需求更新 ⏳ 下一步
 - [ ] 更新 `docs/plans/era-theme-resource-list.md`
 
 ---
@@ -60,5 +65,5 @@
 ## 断点恢复
 
 1. `git log --oneline -5` 确认最新提交
-2. Phase D 剩余子步骤: D-4(角色生成 characterArchetypes)、D-5(写作风格 writingSamples)、D-6(eraRealism 接入)
+2. Phase D 已全部完成，下一步: Phase E — 更新资源需求文档
 3. 每完成一个子步骤提交 git
