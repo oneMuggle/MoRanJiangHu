@@ -4378,10 +4378,11 @@ export function resolveEraNode(id: string): {
     const characterArchetypesDef = getNodeOnly((n) => n.characterArchetypes);
     const writingSamplesDef = getNodeOnly((n) => n.writingSamples);
 
-    // Epoch层的默认值兜底（确保永远有值）
-    const defaultColors: EraColors = ancientEpoch.colors!;
-    const defaultTypography: EraTypography = ancientEpoch.typography!;
-    const defaultUIStyle: EraUIStyle = ancientEpoch.uiStyle!;
+    // 根 Epoch 层的默认值兜底（确保永远有值，且使用节点自身所属纪元的配色）
+    const rootEpoch = path[0];
+    const defaultColors: EraColors = rootEpoch?.colors ?? ancientEpoch.colors!;
+    const defaultTypography: EraTypography = rootEpoch?.typography ?? ancientEpoch.typography!;
+    const defaultUIStyle: EraUIStyle = rootEpoch?.uiStyle ?? ancientEpoch.uiStyle!;
 
     return {
         node,

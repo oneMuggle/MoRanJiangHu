@@ -71,3 +71,23 @@
 
 1. `git log --oneline -5` 确认最新提交
 2. Phase D + E 已全部完成, 全部代码已提交
+
+---
+
+## Phase F: Bug 修复与数据补全
+
+### F-1: CRITICAL Bug — worldGenerationWorkflow 缺少 eraId ✅ 已修复
+- `hooks/useGame/worldGenerationWorkflow.ts:433` 添加 `eraId: worldConfig.时代配置ID || null`
+- `类型 世界生成选项` 新增 `eraId?: string | null`
+
+### F-2: HIGH Bug — resolveEraNode 兜底配色错误 ✅ 已修复
+- `models/eraTheme.ts:4382-4384` 将 hardcoded `ancientEpoch` 改为 `path[0]`（节点自身所属 Epoch）
+
+### F-3: 数据缺失 — 6 个 Era 缺少 promptVars ⚠ 待修复
+- **影响**: 21 个 SubEra 继承不到 `promptVars`
+- **缺失 Era**: `ancient_eastern`, `ancient_western`, `modern_eastern`, `modern_western`, `contemporary_eastern`, `contemporary_western`
+- **原因**: Phase C-1 仅补充了 SubEra 级别或较新 Era 的 promptVars，遗漏了 6 个早期 Era
+
+### F-4: 数据缺失 — conflictTypes 覆盖率不足 ⚠ 待修复
+- 仅 17 个 conflictTypes 定义，部分 Era/SubEra 缺失
+- `resolveEraNode()` 返回 `conflictTypes: undefined` 对多个 SubEra
