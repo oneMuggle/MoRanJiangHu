@@ -51,7 +51,7 @@ import { 核心_境界体系 } from '../../prompts/core/realm';
 import { 构建里武侠世界提示词 } from '../../prompts/runtime/liWuxiaWorld';
 import { 构建里志怪世界提示词 } from '../../prompts/runtime/liZhiguaiWorld';
 import { 构建志怪世界提示词 } from '../../prompts/runtime/zhiguaiWorld';
-import { 构建时代主题注入 } from '../../prompts/runtime/eraTheme';
+import { 构建时代主题注入, 构建时代文风注入 } from '../../prompts/runtime/eraTheme';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -1421,6 +1421,7 @@ export const 构建系统提示词 = ({
         actionOptionsPromptContent,
         按当前设置过滤提示词(worldbookInjection.systemRuleText),
         构建时代主题注入(options?.eraId),
+        构建时代文风注入(options?.eraId),
         normalizedGameConfig.启用里武侠模式 === true ? 构建里武侠世界提示词() : null,
         normalizedGameConfig.启用里志怪模式 === true ? 构建里志怪世界提示词() : null,
         // 表志怪：古代体系选择为志怪/双修时注入，里志怪已开启则跳过（避免重复）

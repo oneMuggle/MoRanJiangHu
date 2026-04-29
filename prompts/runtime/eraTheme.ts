@@ -71,3 +71,20 @@ export const 构建时代角色原型注入 = (eraId: string | null | undefined)
 以下角色原型反映了当前时代的典型人物特征。初始化社交网络或生成 NPC 时可参考这些原型的气质、能力和外观风格：
 ${lines.join('\n')}`;
 };
+
+/** 从时代元数据中构建文风示例注入提示词 */
+export const 构建时代文风注入 = (eraId: string | null | undefined): string => {
+    if (!eraId) return '';
+
+    const resolved = resolveEraNode(eraId);
+    if (!resolved) return '';
+
+    const samples = resolved.inherited.writingSamples;
+    if (!samples || samples.length === 0) return '';
+
+    const lines = samples.map((s) => `《${s.title}》：${s.excerpt}`);
+
+    return `【时代文风示例】
+以下段落展示了当前时代应有的叙事腔调、词汇选择和描写节奏。写作时应参考这些文风的语感：
+${lines.join('\n')}`;
+};
