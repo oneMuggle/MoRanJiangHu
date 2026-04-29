@@ -245,6 +245,11 @@ const primordialEpoch: EraNode = makeNode(
                             对话占比: '15%-25%',
                             禁忌: ['文字记载', '金属工具', '城市化'],
                         },
+                        openingScenes: [
+                                { id: 'pa_1', name: '部落篝火', description: '夜幕下的部落营地，篝火旁长老讲述祖先传说' },
+                                { id: 'pa_2', name: '狩猎出征', description: '勇士们手持长矛，准备猎捕草原猛兽' },
+                                { id: 'pa_3', name: '巫觋占卜', description: '部落巫觋以兽骨占卜，预视吉凶' }
+                        ],
                     }
                 ),
                 // SubEra: 美洲原住民
@@ -283,6 +288,11 @@ const primordialEpoch: EraNode = makeNode(
                             对话占比: '15%-25%',
                             禁忌: ['文字记载', '金属工具', '城市化'],
                         },
+                        openingScenes: [
+                                { id: 'pam_1', name: '羽蛇神殿', description: '雨林深处的古老神殿，羽蛇神的雕像威严矗立' },
+                                { id: 'pam_2', name: '太阳祭典', description: '金字塔顶端，太阳祭典正在进行' },
+                                { id: 'pam_3', name: '丛林猎场', description: '茂密的美洲丛林，猎人与野兽的对决' }
+                        ],
                     }
                 ),
                 // SubEra: 北欧萨满
@@ -321,6 +331,11 @@ const primordialEpoch: EraNode = makeNode(
                             对话占比: '15%-25%',
                             禁忌: ['文字记载', '金属工具', '城市化'],
                         },
+                        openingScenes: [
+                                { id: 'pn_1', name: '冰原行军', description: '北欧冰原上，部落队伍在风雪中艰难前行' },
+                                { id: 'pn_2', name: '世界之树', description: '传说中世界之树的根部，神灵与凡人的交汇点' },
+                                { id: 'pn_3', name: '符文石刻', description: '巨石上的符文记载着古老的北欧神话' }
+                        ],
                     }
                 ),
             ]
@@ -470,6 +485,11 @@ const ancientEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'wuxia_1', name: '破庙风雨', description: '山间破庙，风雨交加，江湖客避雨于此，暗藏杀机' },
+                                { id: 'wuxia_2', name: '客栈风波', description: '荒野客栈，三教九流汇聚，一壶浊酒引出恩怨情仇' },
+                                { id: 'wuxia_3', name: '华山论剑', description: '武林大会前夕，各路人马齐聚，剑拔弩张' }
+                        ],
                     }
                 ),
                 // SubEra: 志怪
@@ -556,6 +576,11 @@ const ancientEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'zhiguai_1', name: '荒村夜话', description: '荒废古村，老槐树下，狐仙夜访书生' },
+                                { id: 'zhiguai_2', name: '古井怨灵', description: '深宅古井，每月十五传来女子哭声' },
+                                { id: 'zhiguai_3', name: '狐仙报恩', description: '猎狐不杀之恩，三年后红妆女子叩门' }
+                        ],
                     }
                 ),
                 // SubEra: 神话
@@ -642,6 +667,11 @@ const ancientEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'myth_1', name: '昆仑仙境', description: '云雾缭绕的昆仑山巅，仙人居所，凡人难至' },
+                                { id: 'myth_2', name: '东海龙宫', description: '碧波深处的水晶宫殿，龙王端坐，虾兵蟹将列队' },
+                                { id: 'myth_3', name: '封神台上', description: '封神台上风云变，三百六十五路正神待封' }
+                        ],
                     }
                 ),
                 // SubEra: 权谋
@@ -738,6 +768,11 @@ const ancientEpoch: EraNode = makeNode(
                             对话占比: '40%-50%',
                             禁忌: ['武侠打斗', '修仙法术', '现代科技'],
                         },
+                        openingScenes: [
+                                { id: 'intrigue_1', name: '金殿早朝', description: '紫禁城金銮殿，群臣列队，一封弹劾奏折掀起朝堂波澜' },
+                                { id: 'intrigue_2', name: '暗巷密会', description: '深夜小巷，两位朝臣密谋，烛光摇曳间定下大计' },
+                                { id: 'intrigue_3', name: '科举放榜', description: '贡院放榜之日，寒门学子与世家子弟的命运分界' }
+                        ],
                     }
                 ),
                 // SubEra: 修仙
@@ -834,6 +869,11 @@ const ancientEpoch: EraNode = makeNode(
                             对话占比: '30%-40%',
                             禁忌: ['现代科技', '纯权谋', '日常种田'],
                         },
+                        openingScenes: [
+                                { id: 'cultivation_1', name: '灵根测试', description: '宗门收徒大典，测灵石前，少年命运即将改变' },
+                                { id: 'cultivation_2', name: '洞府闭关', description: '深山洞府，灵气汇聚，修士闭关突破瓶颈' },
+                                { id: 'cultivation_3', name: '秘境开启', description: '万年秘境现世，各派弟子争相进入寻宝' }
+                        ],
                     }
                 ),
             ]
@@ -947,6 +987,11 @@ const ancientEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'greek_1', name: '奥林匹斯山巅', description: '众神聚于奥林匹斯山巅，商讨凡人命运' },
+                            { id: 'greek_2', name: '雅典学院', description: '雅典学院中，哲人辩论，真理与诡辩交锋' },
+                            { id: 'greek_3', name: '特洛伊城外', description: '特洛伊城外，希腊联军列阵，英雄的抉择' }
+                    ],
                 }),
                 makeNode('ancient_western_roman', '古罗马', 2, 'ancient_western', {
                     description: '罗马帝国，军团与元老院',
@@ -1029,6 +1074,11 @@ const ancientEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'roman_1', name: '元老院辩论', description: '罗马元老院内，激烈的政治辩论决定着帝国走向' },
+                            { id: 'roman_2', name: '角斗场血战', description: '大角斗场，万人欢呼，奴隶角斗士的生死搏杀' },
+                            { id: 'roman_3', name: '军团出征', description: '罗马军团列阵出征，鹰旗飘扬，铁甲铿锵' }
+                    ],
                 }),
                 makeNode('ancient_western_medieval', '中世纪欧洲', 2, 'ancient_western', {
                     description: '骑士、城堡、教会',
@@ -1111,6 +1161,11 @@ const ancientEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'medieval_1', name: '城堡围困', description: '中世纪城堡被围，守军粮尽，骑士准备最后的冲锋' },
+                            { id: 'medieval_2', name: '修道院密谋', description: '幽暗修道院中，修士们守护着足以颠覆教廷的秘密' },
+                            { id: 'medieval_3', name: '骑士受封', description: '大教堂前，领主为年轻武士授剑，册封骑士' }
+                    ],
                 }),
                 // SubEra: 维京
                 makeNode(
@@ -1206,6 +1261,11 @@ const ancientEpoch: EraNode = makeNode(
                             对话占比: '25%-35%',
                             禁忌: ['现代科技', '都市日常', '修仙法术'],
                         },
+                        openingScenes: [
+                                { id: 'viking_1', name: '长船登陆', description: '维京长船破浪而来，龙首船头，勇士们踏上异乡' },
+                                { id: 'viking_2', name: '英灵殿盛宴', description: '瓦尔哈拉大殿，英灵们豪饮，准备诸神黄昏之战' },
+                                { id: 'viking_3', name: '符文占卜', description: '风雪之夜，萨满以卢恩符文占卜，预视命运' }
+                        ],
                     }
                 ),
                 // SubEra: 凯尔特
@@ -1302,6 +1362,11 @@ const ancientEpoch: EraNode = makeNode(
                             对话占比: '25%-35%',
                             禁忌: ['现代科技', '都市日常', '修仙法术'],
                         },
+                        openingScenes: [
+                                { id: 'celtic_1', name: '巨石阵仪式', description: '迷雾中的巨石阵，德鲁伊举行古老仪式' },
+                                { id: 'celtic_2', name: '圆桌骑士', description: '卡美洛城堡，圆桌旁骑士们立下神圣誓言' },
+                                { id: 'celtic_3', name: '精灵森林', description: '幽深凯尔特森林，精灵出没，魔法与现实交织' }
+                        ],
                     }
                 ),
             ]
@@ -1450,6 +1515,11 @@ const modernEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'republic_1', name: '十里洋场', description: '上海滩十里洋场，霓虹闪烁，暗流涌动' },
+                                { id: 'republic_2', name: '北平胡同', description: '北平老胡同，茶馆里各色人等议论时政' },
+                                { id: 'republic_3', name: '军阀混战', description: '军阀混战，百姓流离失所，义士挺身而出' }
+                        ],
                     }
                 ),
                 // SubEra: 明治·大正日本
@@ -1536,6 +1606,11 @@ const modernEpoch: EraNode = makeNode(
                             音乐标签: '音楽',
                             一键生成标题: 'ワンクリックで現在のシーンを生成',
                         },
+                        openingScenes: [
+                                { id: 'meiji_1', name: '银座大街', description: '明治维新后银座大街，和洋并存，文明开化' },
+                                { id: 'meiji_2', name: '武士末路', description: '废刀令下，末代武士的最后坚守' },
+                                { id: 'meiji_3', name: '新浪潮', description: '大正浪漫，文学青年与摩登女郎的新思潮' }
+                        ],
                     }
                 ),
                 // SubEra: 晚清
@@ -1632,6 +1707,11 @@ const modernEpoch: EraNode = makeNode(
                             对话占比: '35%-45%',
                             禁忌: ['修仙法术', '现代科技', '纯武侠'],
                         },
+                        openingScenes: [
+                                { id: 'late_qing_1', name: '虎门销烟', description: '虎门海滩，浓烟滚滚，林则徐主持销烟' },
+                                { id: 'late_qing_2', name: '戊戌变法', description: '紫禁城中，维新派试图力挽狂澜' },
+                                { id: 'late_qing_3', name: '义和团起', description: '民间拳民聚义，声称刀枪不入' }
+                        ],
                     }
                 ),
             ]
@@ -1745,6 +1825,11 @@ const modernEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'victorian_1', name: '雾都伦敦', description: '浓雾笼罩的伦敦街头，侦探追踪神秘案件' },
+                            { id: 'victorian_2', name: '工业革命', description: '工厂烟囱林立，蒸汽机轰鸣，工人运动兴起' },
+                            { id: 'victorian_3', name: '贵族晚宴', description: '维多利亚式庄园晚宴，礼仪与阴谋并存' }
+                    ],
                 }),
                 makeNode('modern_western_jazz_age', '爵士时代', 2, 'modern_western', {
                     description: '咆哮二十年代，美国禁酒令，Art Deco',
@@ -1827,6 +1912,11 @@ const modernEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'jazz_1', name: '盖茨比派对', description: '长岛豪宅，爵士乐彻夜不停，禁酒令下的狂欢' },
+                            { id: 'jazz_2', name: '地下酒吧', description: '纽约地下酒吧，走私酒与黑帮势力暗涌' },
+                            { id: 'jazz_3', name: '爵士俱乐部', description: '哈莱姆区爵士俱乐部，音乐与种族碰撞' }
+                    ],
                 }),
                 makeNode('modern_western_postwar', '战后重建', 2, 'modern_western', {
                     description: '1940s-1950s，二战后的复兴与冷战序幕',
@@ -1909,6 +1999,11 @@ const modernEpoch: EraNode = makeNode(
                         音乐标签: '音乐',
                         一键生成标题: '一键生成当前场景',
                     },
+                    openingScenes: [
+                            { id: 'postwar_1', name: '废墟重建', description: '战后废墟中，人们重建家园，旧秩序与新思想碰撞' },
+                            { id: 'postwar_2', name: '冷战阴影', description: '冷战时期，间谍与反间谍的暗战' },
+                            { id: 'postwar_3', name: '民权运动', description: '民权运动风起云涌，游行与抗争的时代' }
+                    ],
                 }),
             ]
         ),
@@ -2056,6 +2151,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'urban_1', name: '都市霓虹', description: '现代都市霓虹闪烁，写字楼里暗藏玄机' },
+                                { id: 'urban_2', name: '地下拳场', description: '城市边缘的地下拳场，格斗与赌资交易' },
+                                { id: 'urban_3', name: '午夜街头', description: '午夜街头，两个陌生人的命运交汇' }
+                        ],
                     }
                 ),
                 // SubEra: 乡村
@@ -2142,6 +2242,11 @@ const contemporaryEpoch: EraNode = makeNode(
                     音乐标签: '音乐',
                     一键生成标题: '一键生成当前场景',
                 },
+                openingScenes: [
+                        { id: 'rural_1', name: '山村古井', description: '偏远山村，古井旁的闲聊暗含村里秘密' },
+                        { id: 'rural_2', name: '庙会赶集', description: '乡间庙会，各色摊贩与江湖艺人汇聚' },
+                        { id: 'rural_3', name: '祠堂议事', description: '宗族祠堂，长辈们商议要事，年轻一代不满' }
+                ],
             }
         ),
         // SubEra: 末日废土
@@ -2228,6 +2333,11 @@ const contemporaryEpoch: EraNode = makeNode(
                     音乐标签: '音乐',
                     一键生成标题: '一键生成当前场景',
                 },
+                openingScenes: [
+                        { id: 'postapoc_1', name: '废墟幸存者', description: '核爆后的废墟城市，幸存者寻找物资' },
+                        { id: 'postapoc_2', name: '地下避难所', description: '深埋地下的避难所，资源日益匮乏' },
+                        { id: 'postapoc_3', name: '废土驿站', description: '废土上的补给站，各路旅人交换信息与物资' }
+                ],
             }
         ),
             ]
@@ -2325,6 +2435,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'noir_1', name: '雨夜侦探', description: '暴雨之夜，私家侦探收到一封匿名委托信' },
+                                { id: 'noir_2', name: '蛇蝎美人', description: '酒吧角落，美艳女子与黑帮大佬密谈' },
+                                { id: 'noir_3', name: '码头交易', description: '深夜码头，一场见不得光的交易正在进行' }
+                        ],
                     }
                 ),
                 // SubEra: 嬉皮士文化
@@ -2411,6 +2526,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'hippie_1', name: '伍德斯托克', description: '音乐节现场，吉他声与欢呼声交织' },
+                                { id: 'hippie_2', name: '公路旅行', description: '破旧面包车上的公路之旅，追寻自由与和平' },
+                                { id: 'hippie_3', name: '公社生活', description: '嬉皮士公社，共享与反叛的乌托邦实验' }
+                        ],
                     }
                 ),
             ]
@@ -2537,6 +2657,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             一键生成标题: '一键生成当前场景',
                         },
                         conflictTypes: ['人尸对抗', '幸存者内斗', '资源争夺', '感染恐惧'],
+                        openingScenes: [
+                                { id: 'zombie_1', name: '末日初临', description: '第一波丧尸爆发，城市陷入混乱与恐慌' },
+                                { id: 'zombie_2', name: '安全区堡垒', description: '军方建立的安全区，铁丝网外的丧尸嘶吼' },
+                                { id: 'zombie_3', name: '废弃超市', description: '幸存者在废弃超市搜物资，危机四伏' }
+                        ],
                     }
                 ),
                 // SubEra: 极寒末日
@@ -2624,6 +2749,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             一键生成标题: '一键生成当前场景',
                         },
                         conflictTypes: ['极端天气', '资源短缺', '避难所争夺', '人性考验'],
+                        openingScenes: [
+                                { id: 'extreme_cold_1', name: '冰河世纪', description: '全球骤冷，城市被冰雪覆盖，幸存者艰难求生' },
+                                { id: 'extreme_cold_2', name: '暖炉营地', description: '围绕巨大暖炉建立的临时营地，资源争夺不断' },
+                                { id: 'extreme_cold_3', name: '冰封城市', description: '被冰雪封冻的摩天大楼，电梯井成为垂直通道' }
+                        ],
                     }
                 ),
                 // SubEra: 生化危机
@@ -2711,6 +2841,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             一键生成标题: '一键生成当前场景',
                         },
                         conflictTypes: ['病毒扩散', '变异威胁', '实验室调查', '隔离区求生'],
+                        openingScenes: [
+                                { id: 'biohazard_1', name: '实验室泄漏', description: '生物实验室意外泄漏，变异体开始扩散' },
+                                { id: 'biohazard_2', name: '隔离区', description: '被军方封锁的隔离区，幸存者在其中挣扎' },
+                                { id: 'biohazard_3', name: '疫苗争夺', description: '最后一批疫苗引发各方势力争夺' }
+                        ],
                     }
                 ),
                 // SubEra: 核冬天
@@ -2798,6 +2933,11 @@ const contemporaryEpoch: EraNode = makeNode(
                             一键生成标题: '一键生成当前场景',
                         },
                         conflictTypes: ['辐射危害', '领地争夺', '遗迹探索', '重建文明'],
+                        openingScenes: [
+                                { id: 'nuclear_1', name: '蘑菇云后', description: '核爆之后，天空被灰暗笼罩，辐射尘弥漫' },
+                                { id: 'nuclear_2', name: '地下堡垒', description: '政府地下堡垒中，权力博弈仍在继续' },
+                                { id: 'nuclear_3', name: '辐射荒原', description: '辐射荒原上的流浪者，寻找未被污染的土地' }
+                        ],
                     }
                 ),
             ]
@@ -2955,6 +3095,11 @@ const nearFutureEpoch: EraNode = makeNode(
                             音乐标签: '音频',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'cyber_1', name: '霓虹雨夜', description: '霓虹灯下的雨夜街头，义体改造人与黑客擦肩而过' },
+                                { id: 'cyber_2', name: '数据深渊', description: '潜入网络空间的深处，数据深渊中藏着企业秘密' },
+                                { id: 'cyber_3', name: '公司大厦', description: '企业巨头的摩天大楼，顶层是权力中心，底层是蝼蚁' }
+                        ],
                     }
                 ),
                 // SubEra: 反乌托邦
@@ -3041,6 +3186,11 @@ const nearFutureEpoch: EraNode = makeNode(
                             音乐标签: '音频',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'dystopia_1', name: '监控之下', description: '无处不在的监控摄像头，公民的每个行为都被记录' },
+                                { id: 'dystopia_2', name: '思想审查', description: '思想警察突袭可疑分子，言论自由已成历史' },
+                                { id: 'dystopia_3', name: '反抗之火', description: '地下反抗组织据点，策划着颠覆极权的行动' }
+                        ],
                     }
                 ),
             ]
@@ -3166,6 +3316,11 @@ const nearFutureEpoch: EraNode = makeNode(
                             音乐标签: '音频',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'spacecol_1', name: '火星基地', description: '火星表面的前哨基地，红色沙尘暴正在逼近' },
+                                { id: 'spacecol_2', name: '星际货船', description: '穿越小行星带的货运飞船，船员各怀心事' },
+                                { id: 'spacecol_3', name: '太空电梯', description: '从赤道延伸至太空站的电梯，人类文明的奇迹' }
+                        ],
                     }
                 ),
             ]
@@ -3322,6 +3477,11 @@ const farFutureEpoch: EraNode = makeNode(
                             音乐标签: '音乐',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'spaceopera_1', name: '星系议会', description: '多星系文明的代表齐聚星际议会，暗藏阴谋' },
+                                { id: 'spaceopera_2', name: '星际舰队', description: '庞大舰队在星系间航行，准备迎接未知战争' },
+                                { id: 'spaceopera_3', name: '异星遗迹', description: '远古文明遗留的异星遗迹，蕴藏着超越时代的科技' }
+                        ],
                     }
                 ),
             ]
@@ -3447,6 +3607,11 @@ const farFutureEpoch: EraNode = makeNode(
                             音乐标签: '音频',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'cyborg_1', name: '意识上传', description: '意识上传中心，人类正跨越肉体与数字的边界' },
+                                { id: 'cyborg_2', name: '机械之城', description: '完全由机械体运营的城市，硅基生命的繁荣' },
+                                { id: 'cyborg_3', name: '人机边界', description: '人类与机械生命的边界线，紧张局势一触即发' }
+                        ],
                     }
                 ),
                 // SubEra: 虚拟现实
@@ -3533,6 +3698,11 @@ const farFutureEpoch: EraNode = makeNode(
                             音乐标签: '音频',
                             一键生成标题: '一键生成当前场景',
                         },
+                        openingScenes: [
+                                { id: 'vr_1', name: '虚拟乌托邦', description: '完美的虚拟世界中，居民忘记了真实的存在' },
+                                { id: 'vr_2', name: '现实锚点', description: '少数人保留着对现实的记忆，试图唤醒沉睡者' },
+                                { id: 'vr_3', name: '数字深渊', description: '虚拟世界的底层，被遗弃的代码和迷失的意识' }
+                        ],
                     }
                 ),
             ]
@@ -3642,6 +3812,11 @@ const postHumanEpoch: EraNode = makeNode(
                             对话占比: '10%-20%',
                             禁忌: ['肉体冒险', '原始社会', '日常琐事', '物理战斗'],
                         },
+                        openingScenes: [
+                                { id: 'energy_1', name: '纯粹光芒', description: '纯能量生命体在宇宙中遨游，超越物质形态' },
+                                { id: 'energy_2', name: '维度裂缝', description: '高维度生命体观测着低维度宇宙的生灭' },
+                                { id: 'energy_3', name: '意识共鸣', description: '亿万个意识体的思想交汇，形成新的宇宙秩序' }
+                        ],
                     }
                 ),
                 // SubEra: 维度旅行
@@ -3680,6 +3855,11 @@ const postHumanEpoch: EraNode = makeNode(
                             对话占比: '10%-20%',
                             禁忌: ['肉体冒险', '原始社会', '日常琐事'],
                         },
+                        openingScenes: [
+                                { id: 'dimension_1', name: '多维交汇处', description: '不同维度的现实在此交汇，物理法则失效' },
+                                { id: 'dimension_2', name: '时间旅行者', description: '超越时间限制的存在，同时存在于过去与未来' },
+                                { id: 'dimension_3', name: '虚空之门', description: '通往未知维度的门扉，迈出即永恒' }
+                        ],
                     }
                 ),
                 // SubEra: 数学实在论
@@ -3718,6 +3898,11 @@ const postHumanEpoch: EraNode = makeNode(
                             对话占比: '10%-20%',
                             禁忌: ['肉体冒险', '原始社会', '日常琐事', '情感叙事'],
                         },
+                        openingScenes: [
+                                { id: 'math_1', name: '数学宇宙', description: '一切皆为数学结构，存在即方程式的解' },
+                                { id: 'math_2', name: '无限集合', description: '在无穷集合的海洋中，意识以逻辑形式存在' },
+                                { id: 'math_3', name: '公理之争', description: '不同公理体系的碰撞，决定着宇宙的底层逻辑' }
+                        ],
                     }
                 ),
             ]
