@@ -15,8 +15,11 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 import * as https from 'https';
-import * as http from 'http';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,12 +41,21 @@ interface EraNode {
   children?: EraNode[];
 }
 
-// MiniMax response
+// MiniMax response — actual shape from image-01 API
 interface MiniMaxImageResponse {
-  seq: number;
-  request_id: string;
-  images?: string[];
-  output_url?: string;
+  id?: string;
+  data?: {
+    image_urls?: string[];
+    output_url?: string;
+  };
+  metadata?: {
+    success_count?: number;
+    failed_count?: number;
+  };
+  base_resp?: {
+    status_code?: number;
+    status_msg?: string;
+  };
   error?: { message: string; code: string };
 }
 
@@ -93,14 +105,14 @@ async function generateImage(
   }
 
   const body = JSON.stringify({
-    model:      IMAGE_MODEL,
+    model: IMAGE_MODEL,
     prompt,
-    size:       IMAGE_SIZE,
-    num_images: 1,
+    image_size: IMAGE_SIZE,
+    n: 1,
   });
 
   return new Promise((resolve) => {
-    const options: http.RequestOptions = {
+    const options: https.RequestOptions = {
       hostname: MINIMAX_ENDPOINT,
       path:     MINIMAX_PATH,
       method:   'POST',
@@ -117,12 +129,13 @@ async function generateImage(
       res.on('end', () => {
         try {
           const json = JSON.parse(data) as MiniMaxImageResponse;
-          if (json.error) {
-            resolve({ error: `MiniMax error ${json.error.code}: ${json.error.message}` });
-          } else if (json.images && json.images.length > 0) {
-            resolve({ base64: json.images[0] });
-          } else if (json.output_url) {
-            resolve({ outputUrl: json.output_url });
+          if (json.error || json.base_resp?.status_code !== 0) {
+            const msg = json.error?.message ?? json.base_resp?.status_msg ?? data.slice(0, 200);
+            resolve({ error: `MiniMax error: ${msg}` });
+          } else if (json.data?.image_urls && json.data.image_urls.length > 0) {
+            resolve({ outputUrl: json.data.image_urls[0] });
+          } else if (json.data?.output_url) {
+            resolve({ outputUrl: json.data.output_url });
           } else {
             resolve({ error: `Unexpected response: ${data.slice(0, 200)}` });
           }
@@ -153,6 +166,22 @@ function saveBase64Image(base64: string, filePath: string): void {
   const buffer = Buffer.from(base64, 'base64');
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, buffer);
+}
+
+function downloadImageFromUrl(url: string, filePath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const file = fs.createWriteStream(filePath);
+    https.get(url, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        // follow redirect
+        downloadImageFromUrl(res.headers.location!, filePath).then(resolve).catch(reject);
+        return;
+      }
+      res.pipe(file);
+      file.on('finish', () => { file.close(); resolve(); });
+    }).on('error', (e) => { fs.unlink(filePath, () => {}); reject(e); });
+  });
 }
 
 function resolveNode(nodes: EraNode[], id: string): EraNode | undefined {
@@ -273,13 +302,18 @@ async function main() {
         console.error(`  [ERROR] ${filename}: ${result.error}`);
         imageError = result.error;
         generatedImages.push('');
-      } else if (result.base64) {
-        saveBase64Image(result.base64, filePath);
-        console.log(`  [OK]   ${filename} saved (${(result.base64.length * 0.75 / 1024).toFixed(1)} KB)`);
-        generatedImages.push(filename);
       } else if (result.outputUrl) {
-        console.log(`  [OK]   ${filename} — async URL: ${result.outputUrl}`);
-        generatedImages.push(filename);
+        console.log(`  [DOWNLOAD] ${filename} from ${result.outputUrl.slice(0, 80)}...`);
+        try {
+          await downloadImageFromUrl(result.outputUrl, filePath);
+          const size = (fs.statSync(filePath).size / 1024).toFixed(1);
+          console.log(`  [OK]   ${filename} saved (${size} KB)`);
+          generatedImages.push(filename);
+        } catch (e) {
+          console.error(`  [ERROR] ${filename} download failed: ${e}`);
+          imageError = String(e);
+          generatedImages.push('');
+        }
       }
     }
 
