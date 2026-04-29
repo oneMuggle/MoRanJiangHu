@@ -26,6 +26,7 @@ import { 核心_开局思维链, 获取开局思维链提示词 } from '../../pr
 import { 核心_境界体系 } from '../../prompts/core/realm';
 import { 获取开场初始化任务提示词 } from '../../prompts/runtime/opening';
 import { 气运初始化任务提示词 } from '../../prompts/runtime/qiyun';
+import { 构建时代开局场景注入 } from '../../prompts/runtime/eraOpeningScene';
 import { 构建开局配置提示词 } from '../../prompts/runtime/openingConfig';
 import { 构建同人运行时提示词包, 校验境界体系提示词完整性 } from '../../prompts/runtime/fandom';
 import { 数值_世界演化 } from '../../prompts/stats/world';
@@ -310,6 +311,7 @@ export const 执行开场剧情生成工作流 = async (
         命令基态?: 开场命令基态;
         开局额外要求?: string;
         开局配置?: OpeningConfig;
+        eraId?: string | null;
     } | undefined,
     deps: 开场剧情生成依赖
 ): Promise<void> => {
@@ -538,6 +540,7 @@ export const 执行开场剧情生成工作流 = async (
                     openingTaskPromptWithFandom,
                     openingNovelDecompositionSystemPrompt,
                     构建开局配置提示词(options?.开局配置),
+                    构建时代开局场景注入(options?.eraId),
                     typeof options?.开局额外要求 === 'string' ? options.开局额外要求 : ''
                 ],
                 openingConfig: options?.开局配置,

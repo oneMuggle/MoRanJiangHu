@@ -109,6 +109,7 @@ type 会话生命周期依赖 = {
     设置同人女主剧情规划: (value: any) => void;
     设置开局配置: (value: OpeningConfig | undefined) => void;
     设置时代信息: (value: any) => void;
+    currentEra: string | null;
     setGameConfig: (value: any) => void;
     设置开局变量生成进度: (value: any) => void;
     设置开局世界演变进度: (value: any) => void;
@@ -203,6 +204,7 @@ export const 创建会话生命周期工作流 = (deps: 会话生命周期依赖
             命令基态?: any;
             开局额外要求?: string;
             开局配置?: OpeningConfig;
+            eraId?: string | null;
         }
     ) => {
         deps.设置开局变量生成进度(null);
@@ -431,7 +433,7 @@ export const 创建会话生命周期工作流 = (deps: 会话生命周期依赖
                     deps.prompts,
                     openingStreaming,
                     currentApi,
-                    { 命令基态: clearedCommandBase, 开局额外要求: openingExtraPrompt, 开局配置: openingConfig }
+                    { 命令基态: clearedCommandBase, 开局额外要求: openingExtraPrompt, 开局配置: openingConfig, eraId: deps.currentEra }
                 );
             } catch (error: any) {
                 console.error('开局剧情重生成失败', error);
