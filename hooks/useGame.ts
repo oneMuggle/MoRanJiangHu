@@ -1784,6 +1784,7 @@ export const useGame = () => {
         设置同人女主剧情规划,
         设置开局配置,
         设置时代信息: 应用时代信息到状态,
+        currentEra,
         setGameConfig,
         设置开局变量生成进度: set开局变量生成进度,
         设置开局世界演变进度: set开局世界演变进度,
