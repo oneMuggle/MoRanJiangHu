@@ -52,3 +52,22 @@ export const 构建时代主题注入 = (eraId: string | null | undefined): stri
 
     return sections.join('\n\n');
 };
+
+/** 从时代元数据中构建角色原型注入提示词 */
+export const 构建时代角色原型注入 = (eraId: string | null | undefined): string => {
+    if (!eraId) return '';
+
+    const resolved = resolveEraNode(eraId);
+    if (!resolved) return '';
+
+    const archetypes = resolved.inherited.characterArchetypes;
+    if (!archetypes || archetypes.length === 0) return '';
+
+    const lines = archetypes.map((a, i) =>
+        `[${i + 1}] ${a.name} — ${a.description} | 外观：${a.appearance} | 能力：${a.abilities.join('、')}`
+    );
+
+    return `【时代角色原型参考】
+以下角色原型反映了当前时代的典型人物特征。初始化社交网络或生成 NPC 时可参考这些原型的气质、能力和外观风格：
+${lines.join('\n')}`;
+};

@@ -509,7 +509,7 @@ export const 执行开场剧情生成工作流 = async (
             slotId: openingGameConfig.启用饱腹口渴系统 === false
                 ? 世界书本体槽位.开局初始化任务_禁用生存
                 : 世界书本体槽位.开局初始化任务_启用生存,
-            fallback: 获取开场初始化任务提示词(openingGameConfig)
+            fallback: 获取开场初始化任务提示词(openingGameConfig, options?.eraId)
         }), openingGameConfig);
         const openingTaskPromptWithFandom = 按功能开关过滤提示词内容([
             openingTaskPrompt,

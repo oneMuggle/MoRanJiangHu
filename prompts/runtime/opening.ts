@@ -2,6 +2,7 @@ import type { 游戏设置结构, 时代配置 } from '../../types';
 import { 内置时代配置 } from '../../types';
 import { 默认累计境界速查提示词 } from '../shared/realmDefaults';
 import { 按功能开关过滤提示词内容, 构建修炼体系附加块 } from '../../utils/promptFeatureToggles';
+import { 构建时代角色原型注入 } from './eraTheme';
 
 const 默认时代配置 = 内置时代配置[0];
 
@@ -179,6 +180,8 @@ export const 开场初始化任务提示词 = [
     '- `<变量规划>` 只覆盖本回合实际初始化和已发生事实，保持结构完整、信息明确、可直接承接。'
 ].join('\n').trim();
 
-export const 获取开场初始化任务提示词 = (config?: Partial<游戏设置结构> | null): string => (
-    按功能开关过滤提示词内容(开场初始化任务提示词, config)
-);
+export const 获取开场初始化任务提示词 = (config?: Partial<游戏设置结构> | null, eraId?: string | null): string => {
+    const base = 按功能开关过滤提示词内容(开场初始化任务提示词, config);
+    const archetypeBlock = 构建时代角色原型注入(eraId);
+    return archetypeBlock ? `${base}\n\n${archetypeBlock}` : base;
+};
