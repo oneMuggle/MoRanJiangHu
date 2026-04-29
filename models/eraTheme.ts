@@ -255,6 +255,10 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pa_hunter_chief', name: '狩猎首领', description: '部落最勇猛的战士，带领猎手们获取食物', appearance: '肌肉发达，手持石制长矛，腰间挂着兽牙项链', abilities: ['追踪术', '野兽搏斗', '战术指挥'] },
                                 { id: 'pa_fire_keeper', name: '守火者', description: '守护部落圣火，是部落的生存象征', appearance: '年迈老者，眼睛在火光中闪烁着奇异光芒', abilities: ['火焰掌控', '火种保存', '仪式主持'] }
                         ],
+                        writingSamples: [
+                                { id: 'pa_ws_1', title: '篝火旁的传说', excerpt: '长老的声音在火光中低沉而有力："当第一颗星星落入大地，我们学会了用火驱散黑暗。祖先的魂魄在火焰中注视着我们。"' },
+                                { id: 'pa_ws_2', title: '狩猎归来', excerpt: '长矛刺穿了羚羊的咽喉，鲜血染红了大地。勇士们齐声欢呼，这是部落今日最丰盛的猎物。' }
+                        ],
                     }
                 ),
                 // SubEra: 美洲原住民
@@ -303,6 +307,10 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pam_jaguar_warrior', name: '美洲虎战士', description: '部落精英战士，以猎杀猛兽证明勇武', appearance: '身披美洲虎皮，手持黑曜石短剑', abilities: ['近身搏杀', '丛林潜行', '陷阱布置'] },
                                 { id: 'pam_merchant', name: '远途商人', description: '跨越多个部落的贸易者，传递各方消息', appearance: '背着沉重的货物袋，脖子上挂着贝壳货币', abilities: ['多部落语言', '货物估价', '路线记忆'] }
                         ],
+                        writingSamples: [
+                                { id: 'pam_ws_1', title: '太阳祭典', excerpt: '金字塔的台阶上，祭司高举双手，迎接第一缕晨光。人群的吟唱声在山谷中回荡，仿佛与天地共鸣。' },
+                                { id: 'pam_ws_2', title: '丛林猎场', excerpt: '猎豹的足迹消失在密林深处，年轻的猎手屏住呼吸，手指紧紧握住黑曜石长矛。' }
+                        ],
                     }
                 ),
                 // SubEra: 北欧萨满
@@ -350,6 +358,10 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pn_seer', name: '符文先知', description: '以卢恩符文预视未来，为部落指引方向', appearance: '独眼老者，手指上刻有符文印记', abilities: ['符文占卜', '命运预视', '古语吟唱'] },
                                 { id: 'pn_berserker', name: '狂战士', description: '战斗中进入狂暴状态的战士，力大无穷', appearance: '身披熊皮，双眼血红，手持双斧', abilities: ['狂暴之力', '恐惧威慑', '双持战斗'] },
                                 { id: 'pn_skald', name: '吟游诗人', description: '传承北欧神话与英雄史诗的记忆者', appearance: '长发披肩，怀抱鲁特琴，眼神灵动', abilities: ['史诗吟唱', '历史记忆', '士气鼓舞'] }
+                        ],
+                        writingSamples: [
+                                { id: 'pn_ws_1', title: '符文启示', excerpt: '老先知在雪地上刻下卢恩符文，每个符号都在寒风中微微发光。"命运已经注定，"他说，"但我们仍有选择的自由。"' },
+                                { id: 'pn_ws_2', title: '长船破浪', excerpt: '龙头船在波涛中起伏，勇士们齐声唱着出征之歌。海风带来盐的味道，前方是未知的土地。' }
                         ],
                     }
                 ),
@@ -510,6 +522,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'wuxia_sect_leader', name: '掌门人', description: '名门正派的领袖，德高望重', appearance: '身着门派服饰，手持拂尘，仙风道骨', abilities: ['镇派绝学', '门派威望', '内力深厚'] },
                                 { id: 'wuxia_poison_master', name: '毒医双修', description: '精通毒药与医术的神秘人物', appearance: '面色苍白，手指常年染着药草之色', abilities: ['毒术', '医术', '药物辨识'] }
                         ],
+                        writingSamples: [
+                                { id: 'wuxia_ws_1', title: '华山论剑', excerpt: '剑光如电，两道身影在半空中交错。青衫剑客的剑气在山风中划出一道弧线，对手退后三步，抱拳道："好剑法。"' },
+                                { id: 'wuxia_ws_2', title: '客栈风波', excerpt: '酒保端上最后一壶浊酒，角落里戴斗笠的男子抬起头来。那一瞬间，整个客栈的空气仿佛凝固了。' }
+                        ],
                     }
                 ),
                 // SubEra: 志怪
@@ -606,6 +622,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'zhiguai_taoist', name: '游方道士', description: '行走于阴阳两界的捉妖人', appearance: '道袍破旧，手持桃木剑，腰间挂满符咒', abilities: ['捉妖术', '符箓阵法', '阴阳眼'] },
                                 { id: 'zhiguai_scholar', name: '落魄书生', description: '屡试不第的书生，却总能遇见奇缘', appearance: '衣衫褴褛但气质儒雅，手中总捧着一卷书', abilities: ['过目不忘', '诗赋成文', '奇缘体质'] }
                         ],
+                        writingSamples: [
+                                { id: 'zhiguai_ws_1', title: '荒村狐仙', excerpt: '月色下的老槐树旁，红衣女子缓缓走来。书生揉了揉眼睛，不知是梦是真。只听她轻声道："公子，我们三年前便见过了。"' },
+                                { id: 'zhiguai_ws_2', title: '古井怨灵', excerpt: '十五的月光照在井上，水面泛起幽蓝的光。一声若有若无的哭泣从深处传来，连风都停了。' }
+                        ],
                     }
                 ),
                 // SubEra: 神话
@@ -701,6 +721,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'myth_immortal', name: '昆仑仙人', description: '居住在昆仑仙山，修炼千年', appearance: '白衣飘飘，鹤发童颜，脚踏祥云', abilities: ['腾云驾雾', '炼丹术', '仙法神通'] },
                                 { id: 'myth_dragon_princess', name: '龙宫公主', description: '东海龙王之女，掌管水下生灵', appearance: '身着水蓝色长裙，发间点缀明珠', abilities: ['御水术', '号令水族', '龙血之力'] },
                                 { id: 'myth_demon_general', name: '镇妖将军', description: '天庭派驻人间的守护者，镇压群妖', appearance: '身披金甲，手持方天画戟，威风凛凛', abilities: ['天将神力', '降妖除魔', '战阵指挥'] }
+                        ],
+                        writingSamples: [
+                                { id: 'myth_ws_1', title: '昆仑仙境', excerpt: '云雾缭绕间，一座白玉桥横跨天际。桥那头，白发老者盘膝而坐，周身仙气环绕，不似凡间中人。' },
+                                { id: 'myth_ws_2', title: '龙宫探秘', excerpt: '碧波之下，水晶宫的光芒令人目眩。虾兵蟹将列队两旁，龙王端坐龙椅，声如洪钟："凡人所求何事？"' }
                         ],
                     }
                 ),
@@ -808,6 +832,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'intrigue_eunuch', name: '掌印太监', description: '皇帝身边的红人，掌握内廷大权', appearance: '面白无须，身穿蟒袍，声音尖细', abilities: ['皇帝信任', '内廷操控', '密探网络'] },
                                 { id: 'intrigue_princess', name: '和亲公主', description: '以婚姻为棋子的皇室女性', appearance: '凤冠霞帔，容貌绝美，眼神坚韧', abilities: ['政治联姻', '后宫手腕', '暗中布局'] }
                         ],
+                        writingSamples: [
+                                { id: 'intrigue_ws_1', title: '金殿博弈', excerpt: '一封奏折在群臣手中传阅，字字如刀。宰相微微一笑："陛下，此事还需三思。"一句话，暗藏多少杀机。' },
+                                { id: 'intrigue_ws_2', title: '暗巷密谋', excerpt: '烛火摇曳间，两人的影子在墙上交错。"此人必须除掉，"低声说，"但要做得天衣无缝。"' }
+                        ],
                     }
                 ),
                 // SubEra: 修仙
@@ -913,6 +941,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'cultivation_elder', name: '宗门长老', description: '修炼数百年的老怪物，深不可测', appearance: '白发苍苍，仙风道骨，周身灵气环绕', abilities: ['元婴期修为', '宗门绝学', '炼器炼丹'] },
                                 { id: 'cultivation_genius', name: '天灵根弟子', description: '百年难遇的修炼天才', appearance: '年轻俊朗/秀美，眼中闪烁着灵气', abilities: ['天灵根', '功法顿悟', '越阶挑战'] },
                                 { id: 'cultivation_demonic', name: '魔道散修', description: '修炼禁术的独行修士', appearance: '黑袍覆面，周身散发阴冷气息', abilities: ['魔功秘术', '邪道阵法', '夺舍重生'] }
+                        ],
+                        writingSamples: [
+                                { id: 'cultivation_ws_1', title: '灵根觉醒', excerpt: '测灵石发出耀眼的光芒，少年的双手微微颤抖。长老们从座位上站起——百年难得一遇的天灵根！' },
+                                { id: 'cultivation_ws_2', title: '洞府突破', excerpt: '灵气如潮水般涌入丹田，经脉传来撕裂般的疼痛。他咬牙运转功法，终于感受到那层壁垒出现了裂痕。' }
                         ],
                     }
                 ),
@@ -1037,6 +1069,10 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'greek_philosopher', name: '雅典哲人', description: '追求真理与智慧的学者', appearance: '白色长袍，胡须浓密，手持橄榄枝', abilities: ['辩证法', '演讲鼓动', '自然哲学'] },
                             { id: 'greek_hero', name: '半神英雄', description: '神与人结合所生的后裔', appearance: '身材魁梧，肌肉结实，手持神赐武器', abilities: ['神赐神力', '战斗天赋', '英雄命运'] }
                     ],
+                    writingSamples: [
+                            { id: 'greek_ws_1', title: '奥林匹斯山巅', excerpt: '众神之王端坐于云端，目光投向下方渺小的凡人世界。"命运三女神已经纺好了线，"他说，"一切都将如期而至。"' },
+                            { id: 'greek_ws_2', title: '雅典辩论', excerpt: '广场上的民众屏息倾听。哲人的声音在石柱间回荡："未经审视的人生不值得过。"' }
+                    ],
                 }),
                 makeNode('ancient_western_roman', '古罗马', 2, 'ancient_western', {
                     description: '罗马帝国，军团与元老院',
@@ -1129,6 +1165,10 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'roman_centurion', name: '百夫长', description: '罗马军团的骨干指挥官', appearance: '身披锁子甲，头盔上有红色鬃毛', abilities: ['军团指挥', '短剑格斗', '盾墙战术'] },
                             { id: 'roman_gladiator', name: '角斗士', description: '在角斗场上为自由而战的奴隶', appearance: '满身伤疤，肌肉发达，手持角斗网和三叉戟', abilities: ['角斗技巧', '观众魅力', '生存本能'] }
                     ],
+                    writingSamples: [
+                            { id: 'roman_ws_1', title: '元老院', excerpt: '"罗马不是一天建成的，"议员站起身来，"但它可以在一天之内被毁掉。"大厅内一片死寂。' },
+                            { id: 'roman_ws_2', title: '角斗士的誓言', excerpt: '他站在铁栏后面，望着外面震耳欲聋的观众席。"我们走向死亡的人，向你致敬。"' }
+                    ],
                 }),
                 makeNode('ancient_western_medieval', '中世纪欧洲', 2, 'ancient_western', {
                     description: '骑士、城堡、教会',
@@ -1220,6 +1260,10 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'medieval_knight', name: '十字军骑士', description: '为信仰而战的圣骑士', appearance: '全身板甲，盾上绘有十字架', abilities: ['骑枪冲锋', '圣光祝福', '骑士誓言'] },
                             { id: 'medieval_monk', name: '修道院学者', description: '守护古老知识的修士', appearance: '粗布僧袍，手指沾满墨水', abilities: ['古籍解读', '草药医术', '抄写术'] },
                             { id: 'medieval_bard', name: '吟游诗人', description: '游历各地的故事传唱者', appearance: '色彩斑斓的服装，手持六弦琴', abilities: ['歌曲鼓舞', '信息收集', '贵族礼仪'] }
+                    ],
+                    writingSamples: [
+                            { id: 'medieval_ws_1', title: '城堡之夜', excerpt: '月光照在石墙上，守卫在城墙上巡逻。远处，敌军的篝火像地上的星星一样蔓延。今夜无眠。' },
+                            { id: 'medieval_ws_2', title: '修道院密卷', excerpt: '老修士翻开羊皮纸，烛光照亮了古老的拉丁文字。"这本书如果被教廷知道，我们都要被烧死。"' }
                     ],
                 }),
                 // SubEra: 维京
@@ -1326,6 +1370,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'viking_shieldmaiden', name: '盾女', description: '与男子并肩作战的女战士', appearance: '红发飘扬，手持盾牌和长剑', abilities: ['盾墙战术', '双持战斗', '狂战士怒吼'] },
                                 { id: 'viking_seidman', name: '萨满术士', description: '掌握北欧巫术的神秘人物', appearance: '脸上画着蓝色符文，身披狼皮', abilities: ['萨满巫术', '天气操控', '灵魂出窍'] }
                         ],
+                        writingSamples: [
+                                { id: 'viking_ws_1', title: '英灵殿', excerpt: '瓦尔哈拉大殿内，英灵们举杯豪饮。"诸神黄昏终将到来，"酋长高声说，"但在那之前，我们要让敌人知道什么是恐惧！"' },
+                                { id: 'viking_ws_2', title: '雪夜占卜', excerpt: '萨满将符文石抛向空中，它们在雪地上落下。"北面的路是危险的，但荣耀也在北方等着我们。"' }
+                        ],
                     }
                 ),
                 // SubEra: 凯尔特
@@ -1431,6 +1479,10 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'celtic_druid', name: '德鲁伊', description: '凯尔特自然魔法的守护者', appearance: '白袍披身，手持橡木杖，头戴槲寄生花环', abilities: ['自然魔法', '变形术', '预言术'] },
                                 { id: 'celtic_bard', name: '凯尔特吟游诗人', description: '口述历史的传承者', appearance: '绿色斗篷，手持竖琴', abilities: ['史诗吟唱', '魔法音乐', '记忆传承'] },
                                 { id: 'celtic_champion', name: '部落勇士', description: '凯尔特部族的最强战士', appearance: '赤裸上身，皮肤上满是凯尔特纹身', abilities: ['狂战士之力', '战吼威慑', '投掷飞斧'] }
+                        ],
+                        writingSamples: [
+                                { id: 'celtic_ws_1', title: '巨石阵', excerpt: '德鲁伊的手放在巨石上，古老的符文在他指尖发光。"大地在告诉我们，季节即将更替。"' },
+                                { id: 'celtic_ws_2', title: '圆桌誓言', excerpt: '"我发誓，"年轻的骑士将剑指向天空，"守护弱小，忠于荣誉，至死不渝。"' }
                         ],
                     }
                 ),
@@ -1590,6 +1642,10 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'republic_journalist', name: '进步记者', description: '以笔为武器的知识分子', appearance: '西装革履，戴着圆框眼镜，手持钢笔', abilities: ['文章写作', '情报搜集', '舆论引导'] },
                                 { id: 'republic_secret_agent', name: '地下特工', description: '潜伏在暗处的秘密工作者', appearance: '穿着普通，但眼神警惕', abilities: ['伪装术', '密码破译', '近身格斗'] }
                         ],
+                        writingSamples: [
+                                { id: 'republic_ws_1', title: '十里洋场', excerpt: '霓虹灯下，上海的街道比白昼还要明亮。西装与旗袍擦肩而过，黄包车夫在人群中穿梭。这是一个新旧交替的时代。' },
+                                { id: 'republic_ws_2', title: '茶馆密议', excerpt: '"局势一天比一天糟，"他压低声音说，"军阀们又打起来了。"茶客们默默摇头。' }
+                        ],
                     }
                 ),
                 // SubEra: 明治·大正日本
@@ -1685,6 +1741,10 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'meiji_samurai', name: '末代武士', description: '坚守武士道的最后武士', appearance: '身着传统和服，腰插双刀', abilities: ['剑术', '武士道', '茶道'] },
                                 { id: 'meiji_mobo', name: '摩登女郎', description: '接受新思潮的都市女性', appearance: '洋装发型，手持香烟', abilities: ['社交舞会', '西方语言', '时尚引领'] },
                                 { id: 'meiji_intellectual', name: '启蒙学者', description: '传播西方文明的知识分子', appearance: '西装革履，手持文明杖', abilities: ['西方哲学', '政治改革', '演讲辩论'] }
+                        ],
+                        writingSamples: [
+                                { id: 'meiji_ws_1', title: '银座大街', excerpt: '和洋建筑并存的街道，电灯初上的傍晚。穿洋装的摩登女郎和着和服的老者擦肩而过——文明开化的东京。' },
+                                { id: 'meiji_ws_2', title: '末代武士', excerpt: '"刀可以放下，但武士道永远在心中。"最后的武士望着废刀令的公告，眼中闪过一丝不甘。' }
                         ],
                     }
                 ),
@@ -1791,6 +1851,10 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'late_qing_mandarin', name: '洋务官员', description: '推行西学的朝廷官员', appearance: '朝服外罩西式披风', abilities: ['官场规则', '洋务管理', '外交谈判'] },
                                 { id: 'late_qing_boxer', name: '义和拳民', description: '自称刀枪不入的民间拳民', appearance: '红头巾，手持大刀', abilities: ['拳术', '民间信仰', '群体鼓动'] },
                                 { id: 'late_qing_revolutionary', name: '革命党人', description: '推翻帝制的革命者', appearance: '剪去辫子，身穿中山装', abilities: ['地下组织', '炸弹制作', '革命演讲'] }
+                        ],
+                        writingSamples: [
+                                { id: 'late_qing_ws_1', title: '虎门销烟', excerpt: '浓烟滚滚，鸦片在石灰中化为灰烬。林则徐站在岸边，目光坚定。"这是大清帝国的决心。"' },
+                                { id: 'late_qing_ws_2', title: '义和拳', excerpt: '"刀枪不入！"拳民们齐声呐喊，符咒在风中燃烧。但他们面对的，是坚船利炮。' }
                         ],
                     }
                 ),
@@ -1915,6 +1979,10 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'victorian_inventor', name: '蒸汽发明家', description: '工业革命中的创新者', appearance: '工装围裙，手上沾满机油', abilities: ['机械设计', '蒸汽动力', '专利保护'] },
                             { id: 'victorian_lady', name: '维多利亚淑女', description: '上流社会的交际花', appearance: '华丽长裙，蕾丝手套，手持阳伞', abilities: ['社交手腕', '琴棋书画', '秘密情报'] }
                     ],
+                    writingSamples: [
+                            { id: 'victorian_ws_1', title: '雾都夜话', excerpt: '浓雾中，一盏煤气灯忽明忽暗。侦探的皮鞋踩在湿漉漉的石板路上，他知道，这又是一个不寻常的夜晚。' },
+                            { id: 'victorian_ws_2', title: '工厂的轰鸣', excerpt: '蒸汽机的轰鸣声震耳欲聋，工人们在机器间穿梭。童工的小手在齿轮间忙碌，资本家的怀表滴答作响。' }
+                    ],
                 }),
                 makeNode('modern_western_jazz_age', '爵士时代', 2, 'modern_western', {
                     description: '咆哮二十年代，美国禁酒令，Art Deco',
@@ -2007,6 +2075,10 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'jazz_gangster', name: '黑帮头目', description: '禁酒令下的走私大王', appearance: '条纹西装，雪茄，金戒指', abilities: ['走私网络', '暴力威胁', '贿赂收买'] },
                             { id: 'jazz_flapper', name: '摩登女郎', description: '追求自由的新女性', appearance: '流苏短裙，珍珠项链，波波头', abilities: ['社交舞会', '汽车驾驶', '反叛精神'] }
                     ],
+                    writingSamples: [
+                            { id: 'jazz_ws_1', title: '盖茨比的夜晚', excerpt: '音乐彻夜不停，香槟的水晶杯在灯光下闪耀。"明天又是新的一天，"他举杯微笑，尽管眼底藏着深深的孤独。' },
+                            { id: 'jazz_ws_2', title: '地下酒吧', excerpt: '推开暗门，爵士乐扑面而来。走私威士忌在吧台上流淌，禁酒令下的狂欢从未停止。' }
+                    ],
                 }),
                 makeNode('modern_western_postwar', '战后重建', 2, 'modern_western', {
                     description: '1940s-1950s，二战后的复兴与冷战序幕',
@@ -2098,6 +2170,10 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'postwar_spy', name: '冷战间谍', description: '铁幕背后的双面间谍', appearance: '灰色风衣，手提公文包', abilities: ['双面伪装', '密码通讯', '逃脱术'] },
                             { id: 'postwar_activist', name: '民权活动家', description: '为平等而奋斗的领导者', appearance: '西装整洁，手持演讲稿', abilities: ['群众演讲', '组织游行', '非暴力抵抗'] },
                             { id: 'postwar_scientist', name: '核物理学家', description: '参与曼哈顿计划的科学家', appearance: '白大褂，眼镜，头发蓬乱', abilities: ['核物理', '密码学', '伦理挣扎'] }
+                    ],
+                    writingSamples: [
+                            { id: 'postwar_ws_1', title: '废墟上的花', excerpt: '在炸毁的建筑旁，一朵野花从碎石中探出头来。老人蹲下身，小心翼翼地浇了些水。生活总会找到出路。' },
+                            { id: 'postwar_ws_2', title: '冷战线人', excerpt: '柏林的雨夜，两个身影在查理检查站附近擦肩而过。一张纸条悄然易手，上面写着："他们发现了。"' }
                     ],
                 }),
             ]
@@ -2256,6 +2332,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'urban_martial_artist', name: '地下拳王', description: '在地下拳场保持不败战绩的格斗家', appearance: '纹身，肌肉线条分明，身上满是伤疤', abilities: ['综合格斗', '抗击打', '地下人脉'] },
                                 { id: 'urban_hacker', name: '白帽黑客', description: '在暗网中寻找真相的技术天才', appearance: '黑眼圈，连帽衫，永远带着笔记本电脑', abilities: ['网络渗透', '数据挖掘', '系统破解'] }
                         ],
+                        writingSamples: [
+                                { id: 'urban_ws_1', title: '午夜霓虹', excerpt: '写字楼的灯光一盏盏熄灭，最后一辆电梯下行。城市不眠，便利店的灯光在街角孤独地亮着。' },
+                                { id: 'urban_ws_2', title: '地下拳场', excerpt: '铁笼里，两个男人拳拳到肉。观众们的呐喊声几乎要掀翻屋顶。汗水和血腥味混在一起。' }
+                        ],
                     }
                 ),
                 // SubEra: 乡村
@@ -2352,6 +2432,10 @@ const contemporaryEpoch: EraNode = makeNode(
                         { id: 'rural_outsider', name: '返乡青年', description: '在大城市打拼后回到家乡的大学生', appearance: '简约休闲装，手机不离手', abilities: ['电商运营', '城市见识', '新媒体'] },
                         { id: 'rural_mysterious_old_man', name: '神秘老人', description: '村里最年长的人，据说知道很多秘密', appearance: '满头白发，坐在老槐树下抽旱烟', abilities: ['村史记忆', '土药方', '人脉情报'] }
                 ],
+                writingSamples: [
+                        { id: 'rural_ws_1', title: '祠堂议事', excerpt: '"祖上传下来的规矩，不能破。"最年长的长辈敲了敲拐杖，年轻人低头不语，心里却有一万个不情愿。' },
+                        { id: 'rural_ws_2', title: '集市', excerpt: '乡间庙会，各色吆喝声此起彼伏。卖糖葫芦的老汉和耍猴的艺人抢着最佳位置，围观的人笑得合不拢嘴。' }
+                ],
             }
         ),
         // SubEra: 末日废土
@@ -2447,6 +2531,10 @@ const contemporaryEpoch: EraNode = makeNode(
                         { id: 'postapoc_survivor', name: '废土猎人', description: '在废墟中搜寻物资的独行侠', appearance: '破旧皮衣，防毒面具，背上背着步枪', abilities: ['废墟探索', '物资辨识', '生存技能'] },
                         { id: 'postapoc_mechanic', name: '废土技师', description: '能用废料组装机械的天才', appearance: '满身油污，工具腰带，自制义眼', abilities: ['机械组装', '能源修复', '武器改装'] },
                         { id: 'postapoc_warlord', name: '掠夺者首领', description: '统领废土帮派的残酷领袖', appearance: '拼凑的盔甲，脸上涂着战纹', abilities: ['帮派指挥', '恐惧威慑', '战术掠夺'] }
+                ],
+                writingSamples: [
+                        { id: 'postapoc_ws_1', title: '废墟寻宝', excerpt: '倒塌的摩天大楼里，他用手电筒照着布满灰尘的货架。一罐未过期的牛肉罐头，在这里比黄金还珍贵。' },
+                        { id: 'postapoc_ws_2', title: '驿站夜话', excerpt: '废土驿站的篝火旁，几个旅人交换着各自的消息。"东边的水源已经枯竭了，"老旅人低声说，"别往那边走。"' }
                 ],
             }
         ),
@@ -2555,6 +2643,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'noir_femme_fatale', name: '蛇蝎美人', description: '利用美貌周旋于各方势力的危险女人', appearance: '红色连衣裙，高跟鞋，涂着鲜红指甲', abilities: ['魅惑术', '谎言伪装', '危险感知'] },
                                 { id: 'noir_corrupt_cop', name: '腐败警官', description: '黑白两道都有势力的警察', appearance: '制服皱巴巴，眼神疲惫但精明', abilities: ['警方人脉', '灰色规则', '枪术'] }
                         ],
+                        writingSamples: [
+                                { id: 'noir_ws_1', title: '雨夜委托', excerpt: '门被推开，一个浑身湿透的女人走了进来。"我需要你的帮助，"她说，雨水顺着她的发丝滴落。我知道，这又是一个麻烦的案子。' },
+                                { id: 'noir_ws_2', title: '码头交易', excerpt: '月光下，两辆车在废弃码头相遇。没有寒暄，没有握手。一个手提箱换一袋白色粉末，然后各自消失在夜色中。' }
+                        ],
                     }
                 ),
                 // SubEra: 嬉皮士文化
@@ -2650,6 +2742,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'hippie_musician', name: '民谣歌手', description: '背着吉他流浪的自由灵魂', appearance: '长发，花衬衫，牛仔裤', abilities: ['吉他弹唱', '感染力', '自由精神'] },
                                 { id: 'hippie_communard', name: '公社领袖', description: '创建乌托邦社区的理想主义者', appearance: '手工编织衣物，赤脚', abilities: ['社区组织', '农业技能', '和平谈判'] },
                                 { id: 'hippie_artist', name: '波普艺术家', description: '用色彩表达对世界看法的创作者', appearance: '颜料斑斑的双手，奇异服饰', abilities: ['艺术创作', '视觉冲击', '反叛表达'] }
+                        ],
+                        writingSamples: [
+                                { id: 'hippie_ws_1', title: '伍德斯托克', excerpt: '吉他声从主舞台传来，五十万人坐在泥泞的草地上。"爱与和平！"人群齐声高呼，仿佛整个世界都在这一刻改变了。' },
+                                { id: 'hippie_ws_2', title: '公路之歌', excerpt: '破旧的面包车在66号公路上颠簸。"我们要去一个没有战争的地方，"他说，车后是漫天的晚霞。' }
                         ],
                     }
                 ),
@@ -2787,6 +2883,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'zombie_soldier', name: '退伍军人', description: '军队溃散后保护平民的前军人', appearance: '迷彩服，战术背心，眼神坚毅', abilities: ['枪械精通', '战术指挥', '近身格斗'] },
                                 { id: 'zombie_scientist', name: '病毒学家', description: '试图找到解药的顶尖科学家', appearance: '实验室白大褂，黑眼圈，手不离笔记本', abilities: ['病毒分析', '疫苗研究', '实验室操作'] }
                         ],
+                        writingSamples: [
+                                { id: 'zombie_ws_1', title: '第一天', excerpt: '新闻主播的声音在颤抖："请所有市民待在家中，不要外出。"窗外，尖叫声越来越近。世界在一夜之间改变了。' },
+                                { id: 'zombie_ws_2', title: '安全区', excerpt: '铁丝网内，幸存者们排着队领取配给。一个小孩问母亲："我们什么时候能回家？"母亲没有回答。' }
+                        ],
                     }
                 ),
                 // SubEra: 极寒末日
@@ -2883,6 +2983,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'extreme_cold_engineer', name: '暖炉工程师', description: '维持营地供暖系统运行的关键人物', appearance: '厚重工装，满脸煤烟，手冻得通红', abilities: ['供暖系统', '机械维修', '能源管理'] },
                                 { id: 'extreme_cold_scout', name: '极地侦察员', description: '在冰雪中探索新资源的勇敢者', appearance: '全套防寒装备，雪地靴，防风镜', abilities: ['雪地追踪', '极寒生存', '冰面导航'] },
                                 { id: 'extreme_cold_leader', name: '营地领袖', description: '在极端环境中做出艰难抉择的领导者', appearance: '厚重的军大衣，面容坚毅', abilities: ['资源分配', '危机决策', '人心凝聚'] }
+                        ],
+                        writingSamples: [
+                                { id: 'extreme_cold_ws_1', title: '冰封', excerpt: '温度计停在零下四十度。曾经繁华的街道被冰雪覆盖，汽车冻结在原地。人类在自然面前如此渺小。' },
+                                { id: 'extreme_cold_ws_2', title: '暖炉', excerpt: '"今天只能再烧半天的煤，"他看着所剩无几的煤堆说。一家人围坐在暖炉旁，靠体温彼此取暖。' }
                         ],
                     }
                 ),
@@ -2981,6 +3085,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'biohazard_containment', name: '隔离区守卫', description: '坚守隔离线不让人逃出的军人', appearance: '生化防护服，手持步枪，眼神疲惫', abilities: ['生化防护', '警戒射击', '感染辨识'] },
                                 { id: 'biohazard_patient_zero', name: '零号病人', description: '首个被感染却存活下来的神秘人物', appearance: '皮肤上有异常纹路，但行为正常', abilities: ['病毒免疫', '变异感应', '抗体血液'] }
                         ],
+                        writingSamples: [
+                                { id: 'biohazard_ws_1', title: '泄漏', excerpt: '警报响起的那一刻，所有人都知道事情失控了。实验室的密封门缓缓落下，将里面的人永远留在了另一个世界。' },
+                                { id: 'biohazard_ws_2', title: '隔离线', excerpt: '身穿防护服的人站在警戒线前。"里面的人，请不要靠近。"他的声音透过面罩传来，沉闷而遥远。' }
+                        ],
                     }
                 ),
                 // SubEra: 核冬天
@@ -3077,6 +3185,10 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'nuclear_ranger', name: '辐射荒原游侠', description: '在辐射区中生存并探索的独行侠', appearance: '自制防护服，盖革计数器，改装车辆', abilities: ['辐射防护', '荒地导航', '废物利用'] },
                                 { id: 'nuclear_bunker_leader', name: '掩体指挥官', description: '管理地下掩体资源分配的领导者', appearance: '军装整洁但略显陈旧', abilities: ['资源管控', '秩序维持', '外交谈判'] },
                                 { id: 'nuclear_mutant', name: '变异人', description: '在辐射中变异但保持理智的存在', appearance: '身体有可见变异但功能正常', abilities: ['辐射适应', '变异能力', '辐射感应'] }
+                        ],
+                        writingSamples: [
+                                { id: 'nuclear_ws_1', title: '蘑菇云', excerpt: '天空中升起巨大的蘑菇云，光芒照亮了整个城市。然后，一切都安静了。风停了，鸟不叫了，时间仿佛静止。' },
+                                { id: 'nuclear_ws_2', title: '掩体', excerpt: '"我们已经在这里住了三年，"他指着墙壁上孩子们的涂鸦说。没有阳光，没有新鲜空气，但活着就是希望。' }
                         ],
                     }
                 ),
@@ -3245,6 +3357,10 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'cyber_street_doc', name: '黑市义体医生', description: '在暗巷里安装非法义体的地下医生', appearance: '手术手套，义体零件挂满墙壁', abilities: ['义体改装', '黑市人脉', '应急手术'] },
                                 { id: 'cyber_corp_agent', name: '企业特工', description: '为巨型公司执行秘密任务的精英', appearance: '高级定制西装，植入武器，完美外表', abilities: ['企业资源', '间谍技巧', '公关操作'] }
                         ],
+                        writingSamples: [
+                                { id: 'cyber_ws_1', title: '霓虹雨', excerpt: '霓虹灯在雨中闪烁，义体改造人从巷口走过，左眼的LED灯发出蓝光。"数据就是力量，"他低声说，消失在数据流中。' },
+                                { id: 'cyber_ws_2', title: '数据深渊', excerpt: '潜入网络空间的瞬间，现实消失了。他漂浮在由代码构成的虚空中，面前是企业的防火墙——一片燃烧的数字墙。' }
+                        ],
                     }
                 ),
                 // SubEra: 反乌托邦
@@ -3340,6 +3456,10 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'dystopia_rebel', name: '反抗军战士', description: '试图推翻极权统治的自由斗士', appearance: '破旧军装，手臂上有反抗标志', abilities: ['游击战术', '地下通信', '武器改装'] },
                                 { id: 'dystopia_thought_police', name: '思想警察', description: '监控并抓捕思想犯的特工', appearance: '黑色制服，面无表情的面孔', abilities: ['思想监控', '审讯技巧', '忠诚扫描'] },
                                 { id: 'dystopia_propagandist', name: '宣传部长', description: '操控舆论的思想工程师', appearance: '笔挺西装，永远带着官方笑容', abilities: ['舆论操控', '信息封锁', '洗脑技术'] }
+                        ],
+                        writingSamples: [
+                                { id: 'dystopia_ws_1', title: '监控之下', excerpt: '"公民编号4729，你的行为评分下降了0.3。"冰冷的电子音从街角的监控器传来。他低头快步走开，不敢有任何多余的动作。' },
+                                { id: 'dystopia_ws_2', title: '地下印刷', excerpt: '在地下室里，油印机吱吱作响。一本没有许可的小册子正在被偷偷印刷。"真相是不被允许的，"印刷者说，"所以我们必须传播它。"' }
                         ],
                     }
                 ),
@@ -3475,6 +3595,10 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'spacecol_pilot', name: '星际领航员', description: '驾驶货船穿梭于星球之间的老手', appearance: '飞行夹克，脸上有微重力晒斑', abilities: ['飞船驾驶', '星际导航', '应急维修'] },
                                 { id: 'spacecol_engineer', name: '基地工程师', description: '在火星基地维持生命系统运转的技术员', appearance: '工装沾满火星尘土，手持工具包', abilities: ['生命维持', '设备维修', '气压调节'] },
                                 { id: 'spacecol_trader', name: '星际商人', description: '在各殖民地之间倒卖资源的商人', appearance: '太空服改装的夹克，随身携带信用芯片', abilities: ['跨星系贸易', '价格谈判', '走私路线'] }
+                        ],
+                        writingSamples: [
+                                { id: 'spacecol_ws_1', title: '火星日出', excerpt: '红色的太阳从地平线升起，沙尘暴在天际翻滚。基地的穹顶在风中微微震动。"又一个火星日，"工程师对着记录仪说。' },
+                                { id: 'spacecol_ws_2', title: '星际货船', excerpt: '飞船穿过小行星带，船体不时发出碰撞的声响。"别担心，这种程度的撞击我们承受得住，"船长说，但他握紧了操纵杆。' }
                         ],
                     }
                 ),
@@ -3642,6 +3766,10 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'spaceopera_xeno', name: '外星考古学家', description: '研究远古外星文明遗迹的学者', appearance: '探险装备，手持扫描仪，满手外星泥土', abilities: ['外星文字解读', '遗迹激活', '文明分析'] },
                                 { id: 'spaceopera_diplomat', name: '星系外交官', description: '在多文明间斡旋的和平使者', appearance: '融合多种文化元素的服饰', abilities: ['多语言', '跨文化理解', '和平谈判'] }
                         ],
+                        writingSamples: [
+                                { id: 'spaceopera_ws_1', title: '星系议会', excerpt: '来自七个文明的代表齐聚一堂。全息投影中，每个文明的旗帜在虚空中飘扬。"我们必须在战争之前找到和平的道路。"' },
+                                { id: 'spaceopera_ws_2', title: '异星遗迹', excerpt: '远古文明的大门缓缓开启，尘封百万年的光芒倾泻而出。"他们留下的不是武器，而是知识，"考古学家惊叹道。' }
+                        ],
                     }
                 ),
             ]
@@ -3777,6 +3905,10 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'cyborg_purist', name: '纯人类守护者', description: '拒绝机械改造、捍卫人类纯粹性的战士', appearance: '没有任何义体，肌肉锻炼到极限', abilities: ['肉体极限', '免疫黑客', '人类团结'] },
                                 { id: 'cyborg_synthesist', name: '机械生命工程师', description: '创造新机械生命形式的天才工程师', appearance: '全身精密机械构造，外表却似真人', abilities: ['机械设计', 'AI觉醒', '形态重构'] }
                         ],
+                        writingSamples: [
+                                { id: 'cyborg_ws_1', title: '意识上传', excerpt: '"准备好了吗？"医生的声音从远方传来。他点了点头。然后——一切都变了。他看到了自己的躯体，但思维却存在于另一个空间。' },
+                                { id: 'cyborg_ws_2', title: '机械之城', excerpt: '没有人类的脚步声，机器人在街道上井然有序地运行。硅基生命的城市比任何人类城市都更高效、更安静、更完美。' }
+                        ],
                     }
                 ),
                 // SubEra: 虚拟现实
@@ -3872,6 +4004,10 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'vr_architect', name: '虚拟世界架构师', description: '设计虚拟世界底层规则的程序员', appearance: '永远连接在虚拟世界中，现实身体消瘦', abilities: ['世界构建', '代码操控', '规则制定'] },
                                 { id: 'vr_awakened', name: '觉醒者', description: '意识到虚拟世界本质并试图唤醒他人的存在', appearance: '在虚拟世界中显现特殊光芒', abilities: ['现实感知', '系统漏洞利用', '意识连接'] },
                                 { id: 'vr_dweller', name: '深度沉浸者', description: '完全适应虚拟世界、忘记现实的居民', appearance: '虚拟形象完美，现实身体萎缩', abilities: ['虚拟操控', '数字生存', '沉浸适应'] }
+                        ],
+                        writingSamples: [
+                                { id: 'vr_ws_1', title: '完美世界', excerpt: '在这个虚拟世界中，没有痛苦，没有饥饿，没有死亡。每个人都是完美的。但完美本身，就是一种不完美。' },
+                                { id: 'vr_ws_2', title: '唤醒', excerpt: '"你看到的天空是假的，"他在虚拟广场上对人群说，"你感受到的阳光是代码。醒来吧，真实的世界在等你。"' }
                         ],
                     }
                 ),
@@ -3992,6 +4128,10 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'energy_observer', name: '宇宙观测者', description: '以旁观者姿态记录宇宙演化的存在', appearance: '不可见的意识场，偶尔显现为光晕', abilities: ['全时观测', '因果感知', '宇宙记忆'] },
                                 { id: 'energy_resonator', name: '共鸣使者', description: '连接亿万个意识体的桥梁', appearance: '柔和的共鸣光环', abilities: ['意识连接', '群体共鸣', '信息融合'] }
                         ],
+                        writingSamples: [
+                                { id: 'energy_ws_1', title: '纯粹存在', excerpt: '没有身体，没有边界，只有纯粹的意识在宇宙中流淌。他——或者说它——感受着恒星的光芒和暗物质的流动。' },
+                                { id: 'energy_ws_2', title: '观测', excerpt: '在无数个维度中，他同时观测着宇宙的过去、现在和未来。时间不是线性的，而是一幅巨大的画卷。' }
+                        ],
                     }
                 ),
                 // SubEra: 维度旅行
@@ -4040,6 +4180,10 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'dimension_anchor', name: '维度锚定者', description: '维持多维交汇处稳定的守护者', appearance: '由多重视角叠加而成的身影', abilities: ['维度锚定', '法则修复', '稳定场生成'] },
                                 { id: 'dimension_archivist', name: '多维档案员', description: '记录所有维度信息的存在', appearance: '由无数光点组成的书卷形态', abilities: ['全维记录', '信息检索', '维度比对'] }
                         ],
+                        writingSamples: [
+                                { id: 'dimension_ws_1', title: '交汇', excerpt: '在多维交汇处，三个维度的物理法则同时生效。一个苹果同时下落、上升和静止。矛盾在这里不再是矛盾。' },
+                                { id: 'dimension_ws_2', title: '门', excerpt: '"迈出这一步，你将不再是你，"维度之门前的守护者说。"但你会成为更完整的存在。"' }
+                        ],
                     }
                 ),
                 // SubEra: 数学实在论
@@ -4087,6 +4231,10 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'math_axiom_keeper', name: '公理守护者', description: '维护宇宙底层数学逻辑的存在', appearance: '由方程式组成的抽象形态', abilities: ['公理验证', '逻辑证明', '系统一致性'] },
                                 { id: 'math_solver', name: '方程式求解者', description: '能在无穷解空间中寻找最优解的存在', appearance: '不断变换的几何形态', abilities: ['全维求解', '最优路径', '收敛控制'] },
                                 { id: 'math_paradox', name: '悖论化身', description: '以矛盾为食、在逻辑裂缝中存在的异常', appearance: '自相矛盾的视觉形态', abilities: ['悖论生成', '逻辑崩塌', '反证法'] }
+                        ],
+                        writingSamples: [
+                                { id: 'math_ws_1', title: '公理', excerpt: '在数学宇宙中，一切都是方程式的解。存在不是物质的，而是逻辑的。"我思故我在"变成了"我被证明故我在"。' },
+                                { id: 'math_ws_2', title: '无限', excerpt: '在无穷集合的海洋中，两个意识体在讨论一个超越所有基数的问题。"即使是无穷，也有大小之分。"' }
                         ],
                     }
                 ),
