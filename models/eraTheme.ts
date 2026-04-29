@@ -250,6 +250,11 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pa_2', name: '狩猎出征', description: '勇士们手持长矛，准备猎捕草原猛兽' },
                                 { id: 'pa_3', name: '巫觋占卜', description: '部落巫觋以兽骨占卜，预视吉凶' }
                         ],
+                        characterArchetypes: [
+                                { id: 'pa_spirit_healer', name: '部落巫医', description: '与神灵沟通的媒介，掌握古老治愈仪式', appearance: '身披兽皮，脸上绘有白色图腾纹路', abilities: ['巫术治愈', '祖先通灵', '毒草辨识'] },
+                                { id: 'pa_hunter_chief', name: '狩猎首领', description: '部落最勇猛的战士，带领猎手们获取食物', appearance: '肌肉发达，手持石制长矛，腰间挂着兽牙项链', abilities: ['追踪术', '野兽搏斗', '战术指挥'] },
+                                { id: 'pa_fire_keeper', name: '守火者', description: '守护部落圣火，是部落的生存象征', appearance: '年迈老者，眼睛在火光中闪烁着奇异光芒', abilities: ['火焰掌控', '火种保存', '仪式主持'] }
+                        ],
                     }
                 ),
                 // SubEra: 美洲原住民
@@ -293,6 +298,11 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pam_2', name: '太阳祭典', description: '金字塔顶端，太阳祭典正在进行' },
                                 { id: 'pam_3', name: '丛林猎场', description: '茂密的美洲丛林，猎人与野兽的对决' }
                         ],
+                        characterArchetypes: [
+                                { id: 'pam_high_priest', name: '大祭司', description: '羽蛇神的代言人，掌握历法与天文知识', appearance: '头戴翡翠羽冠，身穿金线织成的祭祀袍', abilities: ['天象预言', '祭祀仪式', '历法计算'] },
+                                { id: 'pam_jaguar_warrior', name: '美洲虎战士', description: '部落精英战士，以猎杀猛兽证明勇武', appearance: '身披美洲虎皮，手持黑曜石短剑', abilities: ['近身搏杀', '丛林潜行', '陷阱布置'] },
+                                { id: 'pam_merchant', name: '远途商人', description: '跨越多个部落的贸易者，传递各方消息', appearance: '背着沉重的货物袋，脖子上挂着贝壳货币', abilities: ['多部落语言', '货物估价', '路线记忆'] }
+                        ],
                     }
                 ),
                 // SubEra: 北欧萨满
@@ -335,6 +345,11 @@ const primordialEpoch: EraNode = makeNode(
                                 { id: 'pn_1', name: '冰原行军', description: '北欧冰原上，部落队伍在风雪中艰难前行' },
                                 { id: 'pn_2', name: '世界之树', description: '传说中世界之树的根部，神灵与凡人的交汇点' },
                                 { id: 'pn_3', name: '符文石刻', description: '巨石上的符文记载着古老的北欧神话' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'pn_seer', name: '符文先知', description: '以卢恩符文预视未来，为部落指引方向', appearance: '独眼老者，手指上刻有符文印记', abilities: ['符文占卜', '命运预视', '古语吟唱'] },
+                                { id: 'pn_berserker', name: '狂战士', description: '战斗中进入狂暴状态的战士，力大无穷', appearance: '身披熊皮，双眼血红，手持双斧', abilities: ['狂暴之力', '恐惧威慑', '双持战斗'] },
+                                { id: 'pn_skald', name: '吟游诗人', description: '传承北欧神话与英雄史诗的记忆者', appearance: '长发披肩，怀抱鲁特琴，眼神灵动', abilities: ['史诗吟唱', '历史记忆', '士气鼓舞'] }
                         ],
                     }
                 ),
@@ -490,6 +505,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'wuxia_2', name: '客栈风波', description: '荒野客栈，三教九流汇聚，一壶浊酒引出恩怨情仇' },
                                 { id: 'wuxia_3', name: '华山论剑', description: '武林大会前夕，各路人马齐聚，剑拔弩张' }
                         ],
+                        characterArchetypes: [
+                                { id: 'wuxia_wandering_swordsman', name: '流浪剑客', description: '江湖独行侠，剑术高超却不求名利', appearance: '一袭青衫，腰间佩剑，面容冷峻', abilities: ['快剑', '轻功', '酒量过人'] },
+                                { id: 'wuxia_sect_leader', name: '掌门人', description: '名门正派的领袖，德高望重', appearance: '身着门派服饰，手持拂尘，仙风道骨', abilities: ['镇派绝学', '门派威望', '内力深厚'] },
+                                { id: 'wuxia_poison_master', name: '毒医双修', description: '精通毒药与医术的神秘人物', appearance: '面色苍白，手指常年染着药草之色', abilities: ['毒术', '医术', '药物辨识'] }
+                        ],
                     }
                 ),
                 // SubEra: 志怪
@@ -581,6 +601,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'zhiguai_2', name: '古井怨灵', description: '深宅古井，每月十五传来女子哭声' },
                                 { id: 'zhiguai_3', name: '狐仙报恩', description: '猎狐不杀之恩，三年后红妆女子叩门' }
                         ],
+                        characterArchetypes: [
+                                { id: 'zhiguai_fox_spirit', name: '狐仙', description: '修行千年的狐仙，法力高深', appearance: '红衣女子，眼含秋水，举止妖娆', abilities: ['幻化人形', '魅惑术', '千年法力'] },
+                                { id: 'zhiguai_taoist', name: '游方道士', description: '行走于阴阳两界的捉妖人', appearance: '道袍破旧，手持桃木剑，腰间挂满符咒', abilities: ['捉妖术', '符箓阵法', '阴阳眼'] },
+                                { id: 'zhiguai_scholar', name: '落魄书生', description: '屡试不第的书生，却总能遇见奇缘', appearance: '衣衫褴褛但气质儒雅，手中总捧着一卷书', abilities: ['过目不忘', '诗赋成文', '奇缘体质'] }
+                        ],
                     }
                 ),
                 // SubEra: 神话
@@ -671,6 +696,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'myth_1', name: '昆仑仙境', description: '云雾缭绕的昆仑山巅，仙人居所，凡人难至' },
                                 { id: 'myth_2', name: '东海龙宫', description: '碧波深处的水晶宫殿，龙王端坐，虾兵蟹将列队' },
                                 { id: 'myth_3', name: '封神台上', description: '封神台上风云变，三百六十五路正神待封' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'myth_immortal', name: '昆仑仙人', description: '居住在昆仑仙山，修炼千年', appearance: '白衣飘飘，鹤发童颜，脚踏祥云', abilities: ['腾云驾雾', '炼丹术', '仙法神通'] },
+                                { id: 'myth_dragon_princess', name: '龙宫公主', description: '东海龙王之女，掌管水下生灵', appearance: '身着水蓝色长裙，发间点缀明珠', abilities: ['御水术', '号令水族', '龙血之力'] },
+                                { id: 'myth_demon_general', name: '镇妖将军', description: '天庭派驻人间的守护者，镇压群妖', appearance: '身披金甲，手持方天画戟，威风凛凛', abilities: ['天将神力', '降妖除魔', '战阵指挥'] }
                         ],
                     }
                 ),
@@ -773,6 +803,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'intrigue_2', name: '暗巷密会', description: '深夜小巷，两位朝臣密谋，烛光摇曳间定下大计' },
                                 { id: 'intrigue_3', name: '科举放榜', description: '贡院放榜之日，寒门学子与世家子弟的命运分界' }
                         ],
+                        characterArchetypes: [
+                                { id: 'intrigue_strategist', name: '幕后谋士', description: '不出朝堂却能左右局势的智者', appearance: '手持羽扇，面带微笑，眼神却深不可测', abilities: ['谋略布局', '人心洞察', '情报收集'] },
+                                { id: 'intrigue_eunuch', name: '掌印太监', description: '皇帝身边的红人，掌握内廷大权', appearance: '面白无须，身穿蟒袍，声音尖细', abilities: ['皇帝信任', '内廷操控', '密探网络'] },
+                                { id: 'intrigue_princess', name: '和亲公主', description: '以婚姻为棋子的皇室女性', appearance: '凤冠霞帔，容貌绝美，眼神坚韧', abilities: ['政治联姻', '后宫手腕', '暗中布局'] }
+                        ],
                     }
                 ),
                 // SubEra: 修仙
@@ -873,6 +908,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'cultivation_1', name: '灵根测试', description: '宗门收徒大典，测灵石前，少年命运即将改变' },
                                 { id: 'cultivation_2', name: '洞府闭关', description: '深山洞府，灵气汇聚，修士闭关突破瓶颈' },
                                 { id: 'cultivation_3', name: '秘境开启', description: '万年秘境现世，各派弟子争相进入寻宝' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'cultivation_elder', name: '宗门长老', description: '修炼数百年的老怪物，深不可测', appearance: '白发苍苍，仙风道骨，周身灵气环绕', abilities: ['元婴期修为', '宗门绝学', '炼器炼丹'] },
+                                { id: 'cultivation_genius', name: '天灵根弟子', description: '百年难遇的修炼天才', appearance: '年轻俊朗/秀美，眼中闪烁着灵气', abilities: ['天灵根', '功法顿悟', '越阶挑战'] },
+                                { id: 'cultivation_demonic', name: '魔道散修', description: '修炼禁术的独行修士', appearance: '黑袍覆面，周身散发阴冷气息', abilities: ['魔功秘术', '邪道阵法', '夺舍重生'] }
                         ],
                     }
                 ),
@@ -992,6 +1032,11 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'greek_2', name: '雅典学院', description: '雅典学院中，哲人辩论，真理与诡辩交锋' },
                             { id: 'greek_3', name: '特洛伊城外', description: '特洛伊城外，希腊联军列阵，英雄的抉择' }
                     ],
+                    characterArchetypes: [
+                            { id: 'greek_oracle', name: '德尔斐神谕者', description: '阿波罗神殿的女祭司，传达神意', appearance: '头戴月桂冠，双眼蒙着白纱', abilities: ['神谕预言', '神殿仪式', '神圣迷醉'] },
+                            { id: 'greek_philosopher', name: '雅典哲人', description: '追求真理与智慧的学者', appearance: '白色长袍，胡须浓密，手持橄榄枝', abilities: ['辩证法', '演讲鼓动', '自然哲学'] },
+                            { id: 'greek_hero', name: '半神英雄', description: '神与人结合所生的后裔', appearance: '身材魁梧，肌肉结实，手持神赐武器', abilities: ['神赐神力', '战斗天赋', '英雄命运'] }
+                    ],
                 }),
                 makeNode('ancient_western_roman', '古罗马', 2, 'ancient_western', {
                     description: '罗马帝国，军团与元老院',
@@ -1079,6 +1124,11 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'roman_2', name: '角斗场血战', description: '大角斗场，万人欢呼，奴隶角斗士的生死搏杀' },
                             { id: 'roman_3', name: '军团出征', description: '罗马军团列阵出征，鹰旗飘扬，铁甲铿锵' }
                     ],
+                    characterArchetypes: [
+                            { id: 'roman_senator', name: '元老院议员', description: '罗马政治的核心人物', appearance: '身穿白色托加袍，手指上戴着金戒', abilities: ['政治演说', '法律制定', '元老院投票'] },
+                            { id: 'roman_centurion', name: '百夫长', description: '罗马军团的骨干指挥官', appearance: '身披锁子甲，头盔上有红色鬃毛', abilities: ['军团指挥', '短剑格斗', '盾墙战术'] },
+                            { id: 'roman_gladiator', name: '角斗士', description: '在角斗场上为自由而战的奴隶', appearance: '满身伤疤，肌肉发达，手持角斗网和三叉戟', abilities: ['角斗技巧', '观众魅力', '生存本能'] }
+                    ],
                 }),
                 makeNode('ancient_western_medieval', '中世纪欧洲', 2, 'ancient_western', {
                     description: '骑士、城堡、教会',
@@ -1165,6 +1215,11 @@ const ancientEpoch: EraNode = makeNode(
                             { id: 'medieval_1', name: '城堡围困', description: '中世纪城堡被围，守军粮尽，骑士准备最后的冲锋' },
                             { id: 'medieval_2', name: '修道院密谋', description: '幽暗修道院中，修士们守护着足以颠覆教廷的秘密' },
                             { id: 'medieval_3', name: '骑士受封', description: '大教堂前，领主为年轻武士授剑，册封骑士' }
+                    ],
+                    characterArchetypes: [
+                            { id: 'medieval_knight', name: '十字军骑士', description: '为信仰而战的圣骑士', appearance: '全身板甲，盾上绘有十字架', abilities: ['骑枪冲锋', '圣光祝福', '骑士誓言'] },
+                            { id: 'medieval_monk', name: '修道院学者', description: '守护古老知识的修士', appearance: '粗布僧袍，手指沾满墨水', abilities: ['古籍解读', '草药医术', '抄写术'] },
+                            { id: 'medieval_bard', name: '吟游诗人', description: '游历各地的故事传唱者', appearance: '色彩斑斓的服装，手持六弦琴', abilities: ['歌曲鼓舞', '信息收集', '贵族礼仪'] }
                     ],
                 }),
                 // SubEra: 维京
@@ -1266,6 +1321,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'viking_2', name: '英灵殿盛宴', description: '瓦尔哈拉大殿，英灵们豪饮，准备诸神黄昏之战' },
                                 { id: 'viking_3', name: '符文占卜', description: '风雪之夜，萨满以卢恩符文占卜，预视命运' }
                         ],
+                        characterArchetypes: [
+                                { id: 'viking_jarl', name: '部落酋长', description: '维京部族的领导者', appearance: '金发编成辫子，身穿锁子甲，手持圆斧', abilities: ['掠夺指挥', '航海导航', '宴饮豪情'] },
+                                { id: 'viking_shieldmaiden', name: '盾女', description: '与男子并肩作战的女战士', appearance: '红发飘扬，手持盾牌和长剑', abilities: ['盾墙战术', '双持战斗', '狂战士怒吼'] },
+                                { id: 'viking_seidman', name: '萨满术士', description: '掌握北欧巫术的神秘人物', appearance: '脸上画着蓝色符文，身披狼皮', abilities: ['萨满巫术', '天气操控', '灵魂出窍'] }
+                        ],
                     }
                 ),
                 // SubEra: 凯尔特
@@ -1366,6 +1426,11 @@ const ancientEpoch: EraNode = makeNode(
                                 { id: 'celtic_1', name: '巨石阵仪式', description: '迷雾中的巨石阵，德鲁伊举行古老仪式' },
                                 { id: 'celtic_2', name: '圆桌骑士', description: '卡美洛城堡，圆桌旁骑士们立下神圣誓言' },
                                 { id: 'celtic_3', name: '精灵森林', description: '幽深凯尔特森林，精灵出没，魔法与现实交织' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'celtic_druid', name: '德鲁伊', description: '凯尔特自然魔法的守护者', appearance: '白袍披身，手持橡木杖，头戴槲寄生花环', abilities: ['自然魔法', '变形术', '预言术'] },
+                                { id: 'celtic_bard', name: '凯尔特吟游诗人', description: '口述历史的传承者', appearance: '绿色斗篷，手持竖琴', abilities: ['史诗吟唱', '魔法音乐', '记忆传承'] },
+                                { id: 'celtic_champion', name: '部落勇士', description: '凯尔特部族的最强战士', appearance: '赤裸上身，皮肤上满是凯尔特纹身', abilities: ['狂战士之力', '战吼威慑', '投掷飞斧'] }
                         ],
                     }
                 ),
@@ -1520,6 +1585,11 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'republic_2', name: '北平胡同', description: '北平老胡同，茶馆里各色人等议论时政' },
                                 { id: 'republic_3', name: '军阀混战', description: '军阀混战，百姓流离失所，义士挺身而出' }
                         ],
+                        characterArchetypes: [
+                                { id: 'republic_warlord', name: '军阀', description: '掌控一方的军事强人', appearance: '军装笔挺，腰间佩枪，眼神凌厉', abilities: ['军事指挥', '地盘控制', '外交手腕'] },
+                                { id: 'republic_journalist', name: '进步记者', description: '以笔为武器的知识分子', appearance: '西装革履，戴着圆框眼镜，手持钢笔', abilities: ['文章写作', '情报搜集', '舆论引导'] },
+                                { id: 'republic_secret_agent', name: '地下特工', description: '潜伏在暗处的秘密工作者', appearance: '穿着普通，但眼神警惕', abilities: ['伪装术', '密码破译', '近身格斗'] }
+                        ],
                     }
                 ),
                 // SubEra: 明治·大正日本
@@ -1610,6 +1680,11 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'meiji_1', name: '银座大街', description: '明治维新后银座大街，和洋并存，文明开化' },
                                 { id: 'meiji_2', name: '武士末路', description: '废刀令下，末代武士的最后坚守' },
                                 { id: 'meiji_3', name: '新浪潮', description: '大正浪漫，文学青年与摩登女郎的新思潮' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'meiji_samurai', name: '末代武士', description: '坚守武士道的最后武士', appearance: '身着传统和服，腰插双刀', abilities: ['剑术', '武士道', '茶道'] },
+                                { id: 'meiji_mobo', name: '摩登女郎', description: '接受新思潮的都市女性', appearance: '洋装发型，手持香烟', abilities: ['社交舞会', '西方语言', '时尚引领'] },
+                                { id: 'meiji_intellectual', name: '启蒙学者', description: '传播西方文明的知识分子', appearance: '西装革履，手持文明杖', abilities: ['西方哲学', '政治改革', '演讲辩论'] }
                         ],
                     }
                 ),
@@ -1711,6 +1786,11 @@ const modernEpoch: EraNode = makeNode(
                                 { id: 'late_qing_1', name: '虎门销烟', description: '虎门海滩，浓烟滚滚，林则徐主持销烟' },
                                 { id: 'late_qing_2', name: '戊戌变法', description: '紫禁城中，维新派试图力挽狂澜' },
                                 { id: 'late_qing_3', name: '义和团起', description: '民间拳民聚义，声称刀枪不入' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'late_qing_mandarin', name: '洋务官员', description: '推行西学的朝廷官员', appearance: '朝服外罩西式披风', abilities: ['官场规则', '洋务管理', '外交谈判'] },
+                                { id: 'late_qing_boxer', name: '义和拳民', description: '自称刀枪不入的民间拳民', appearance: '红头巾，手持大刀', abilities: ['拳术', '民间信仰', '群体鼓动'] },
+                                { id: 'late_qing_revolutionary', name: '革命党人', description: '推翻帝制的革命者', appearance: '剪去辫子，身穿中山装', abilities: ['地下组织', '炸弹制作', '革命演讲'] }
                         ],
                     }
                 ),
@@ -1830,6 +1910,11 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'victorian_2', name: '工业革命', description: '工厂烟囱林立，蒸汽机轰鸣，工人运动兴起' },
                             { id: 'victorian_3', name: '贵族晚宴', description: '维多利亚式庄园晚宴，礼仪与阴谋并存' }
                     ],
+                    characterArchetypes: [
+                            { id: 'victorian_detective', name: '私家侦探', description: '伦敦雾气中的案件调查者', appearance: '猎鹿帽，烟斗，深色风衣', abilities: ['推理分析', '伪装术', '线索追踪'] },
+                            { id: 'victorian_inventor', name: '蒸汽发明家', description: '工业革命中的创新者', appearance: '工装围裙，手上沾满机油', abilities: ['机械设计', '蒸汽动力', '专利保护'] },
+                            { id: 'victorian_lady', name: '维多利亚淑女', description: '上流社会的交际花', appearance: '华丽长裙，蕾丝手套，手持阳伞', abilities: ['社交手腕', '琴棋书画', '秘密情报'] }
+                    ],
                 }),
                 makeNode('modern_western_jazz_age', '爵士时代', 2, 'modern_western', {
                     description: '咆哮二十年代，美国禁酒令，Art Deco',
@@ -1917,6 +2002,11 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'jazz_2', name: '地下酒吧', description: '纽约地下酒吧，走私酒与黑帮势力暗涌' },
                             { id: 'jazz_3', name: '爵士俱乐部', description: '哈莱姆区爵士俱乐部，音乐与种族碰撞' }
                     ],
+                    characterArchetypes: [
+                            { id: 'jazz_musician', name: '爵士乐手', description: '哈莱姆区的灵魂音乐家', appearance: '西装革履，手持萨克斯风', abilities: ['即兴演奏', '音乐魅力', '夜场人脉'] },
+                            { id: 'jazz_gangster', name: '黑帮头目', description: '禁酒令下的走私大王', appearance: '条纹西装，雪茄，金戒指', abilities: ['走私网络', '暴力威胁', '贿赂收买'] },
+                            { id: 'jazz_flapper', name: '摩登女郎', description: '追求自由的新女性', appearance: '流苏短裙，珍珠项链，波波头', abilities: ['社交舞会', '汽车驾驶', '反叛精神'] }
+                    ],
                 }),
                 makeNode('modern_western_postwar', '战后重建', 2, 'modern_western', {
                     description: '1940s-1950s，二战后的复兴与冷战序幕',
@@ -2003,6 +2093,11 @@ const modernEpoch: EraNode = makeNode(
                             { id: 'postwar_1', name: '废墟重建', description: '战后废墟中，人们重建家园，旧秩序与新思想碰撞' },
                             { id: 'postwar_2', name: '冷战阴影', description: '冷战时期，间谍与反间谍的暗战' },
                             { id: 'postwar_3', name: '民权运动', description: '民权运动风起云涌，游行与抗争的时代' }
+                    ],
+                    characterArchetypes: [
+                            { id: 'postwar_spy', name: '冷战间谍', description: '铁幕背后的双面间谍', appearance: '灰色风衣，手提公文包', abilities: ['双面伪装', '密码通讯', '逃脱术'] },
+                            { id: 'postwar_activist', name: '民权活动家', description: '为平等而奋斗的领导者', appearance: '西装整洁，手持演讲稿', abilities: ['群众演讲', '组织游行', '非暴力抵抗'] },
+                            { id: 'postwar_scientist', name: '核物理学家', description: '参与曼哈顿计划的科学家', appearance: '白大褂，眼镜，头发蓬乱', abilities: ['核物理', '密码学', '伦理挣扎'] }
                     ],
                 }),
             ]
@@ -2156,6 +2251,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'urban_2', name: '地下拳场', description: '城市边缘的地下拳场，格斗与赌资交易' },
                                 { id: 'urban_3', name: '午夜街头', description: '午夜街头，两个陌生人的命运交汇' }
                         ],
+                        characterArchetypes: [
+                                { id: 'urban_ceo', name: '科技新贵', description: '互联网公司的年轻CEO', appearance: '休闲西装，智能手表，永远在接电话', abilities: ['商业嗅觉', '人脉资源', '危机公关'] },
+                                { id: 'urban_martial_artist', name: '地下拳王', description: '在地下拳场保持不败战绩的格斗家', appearance: '纹身，肌肉线条分明，身上满是伤疤', abilities: ['综合格斗', '抗击打', '地下人脉'] },
+                                { id: 'urban_hacker', name: '白帽黑客', description: '在暗网中寻找真相的技术天才', appearance: '黑眼圈，连帽衫，永远带着笔记本电脑', abilities: ['网络渗透', '数据挖掘', '系统破解'] }
+                        ],
                     }
                 ),
                 // SubEra: 乡村
@@ -2247,6 +2347,11 @@ const contemporaryEpoch: EraNode = makeNode(
                         { id: 'rural_2', name: '庙会赶集', description: '乡间庙会，各色摊贩与江湖艺人汇聚' },
                         { id: 'rural_3', name: '祠堂议事', description: '宗族祠堂，长辈们商议要事，年轻一代不满' }
                 ],
+                characterArchetypes: [
+                        { id: 'rural_village_head', name: '村长', description: '掌管全村大小事务的权威人物', appearance: '深色夹克，叼着烟斗，手里拿着对讲机', abilities: ['村务管理', '宗族威望', '土政策'] },
+                        { id: 'rural_outsider', name: '返乡青年', description: '在大城市打拼后回到家乡的大学生', appearance: '简约休闲装，手机不离手', abilities: ['电商运营', '城市见识', '新媒体'] },
+                        { id: 'rural_mysterious_old_man', name: '神秘老人', description: '村里最年长的人，据说知道很多秘密', appearance: '满头白发，坐在老槐树下抽旱烟', abilities: ['村史记忆', '土药方', '人脉情报'] }
+                ],
             }
         ),
         // SubEra: 末日废土
@@ -2337,6 +2442,11 @@ const contemporaryEpoch: EraNode = makeNode(
                         { id: 'postapoc_1', name: '废墟幸存者', description: '核爆后的废墟城市，幸存者寻找物资' },
                         { id: 'postapoc_2', name: '地下避难所', description: '深埋地下的避难所，资源日益匮乏' },
                         { id: 'postapoc_3', name: '废土驿站', description: '废土上的补给站，各路旅人交换信息与物资' }
+                ],
+                characterArchetypes: [
+                        { id: 'postapoc_survivor', name: '废土猎人', description: '在废墟中搜寻物资的独行侠', appearance: '破旧皮衣，防毒面具，背上背着步枪', abilities: ['废墟探索', '物资辨识', '生存技能'] },
+                        { id: 'postapoc_mechanic', name: '废土技师', description: '能用废料组装机械的天才', appearance: '满身油污，工具腰带，自制义眼', abilities: ['机械组装', '能源修复', '武器改装'] },
+                        { id: 'postapoc_warlord', name: '掠夺者首领', description: '统领废土帮派的残酷领袖', appearance: '拼凑的盔甲，脸上涂着战纹', abilities: ['帮派指挥', '恐惧威慑', '战术掠夺'] }
                 ],
             }
         ),
@@ -2440,6 +2550,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'noir_2', name: '蛇蝎美人', description: '酒吧角落，美艳女子与黑帮大佬密谈' },
                                 { id: 'noir_3', name: '码头交易', description: '深夜码头，一场见不得光的交易正在进行' }
                         ],
+                        characterArchetypes: [
+                                { id: 'noir_detective', name: '私家侦探', description: '在雨夜中追查真相的孤独侦探', appearance: '风衣，软呢帽，永远的烟和威士忌', abilities: ['案件推理', '审讯技巧', '城市暗道'] },
+                                { id: 'noir_femme_fatale', name: '蛇蝎美人', description: '利用美貌周旋于各方势力的危险女人', appearance: '红色连衣裙，高跟鞋，涂着鲜红指甲', abilities: ['魅惑术', '谎言伪装', '危险感知'] },
+                                { id: 'noir_corrupt_cop', name: '腐败警官', description: '黑白两道都有势力的警察', appearance: '制服皱巴巴，眼神疲惫但精明', abilities: ['警方人脉', '灰色规则', '枪术'] }
+                        ],
                     }
                 ),
                 // SubEra: 嬉皮士文化
@@ -2530,6 +2645,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'hippie_1', name: '伍德斯托克', description: '音乐节现场，吉他声与欢呼声交织' },
                                 { id: 'hippie_2', name: '公路旅行', description: '破旧面包车上的公路之旅，追寻自由与和平' },
                                 { id: 'hippie_3', name: '公社生活', description: '嬉皮士公社，共享与反叛的乌托邦实验' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'hippie_musician', name: '民谣歌手', description: '背着吉他流浪的自由灵魂', appearance: '长发，花衬衫，牛仔裤', abilities: ['吉他弹唱', '感染力', '自由精神'] },
+                                { id: 'hippie_communard', name: '公社领袖', description: '创建乌托邦社区的理想主义者', appearance: '手工编织衣物，赤脚', abilities: ['社区组织', '农业技能', '和平谈判'] },
+                                { id: 'hippie_artist', name: '波普艺术家', description: '用色彩表达对世界看法的创作者', appearance: '颜料斑斑的双手，奇异服饰', abilities: ['艺术创作', '视觉冲击', '反叛表达'] }
                         ],
                     }
                 ),
@@ -2662,6 +2782,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'zombie_2', name: '安全区堡垒', description: '军方建立的安全区，铁丝网外的丧尸嘶吼' },
                                 { id: 'zombie_3', name: '废弃超市', description: '幸存者在废弃超市搜物资，危机四伏' }
                         ],
+                        characterArchetypes: [
+                                { id: 'zombie_medic', name: '战地医生', description: '在丧尸危机中抢救幸存者的医生', appearance: '白大褂沾满血迹，随身背着急救包', abilities: ['急救医术', '病毒研究', '冷静判断'] },
+                                { id: 'zombie_soldier', name: '退伍军人', description: '军队溃散后保护平民的前军人', appearance: '迷彩服，战术背心，眼神坚毅', abilities: ['枪械精通', '战术指挥', '近身格斗'] },
+                                { id: 'zombie_scientist', name: '病毒学家', description: '试图找到解药的顶尖科学家', appearance: '实验室白大褂，黑眼圈，手不离笔记本', abilities: ['病毒分析', '疫苗研究', '实验室操作'] }
+                        ],
                     }
                 ),
                 // SubEra: 极寒末日
@@ -2753,6 +2878,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'extreme_cold_1', name: '冰河世纪', description: '全球骤冷，城市被冰雪覆盖，幸存者艰难求生' },
                                 { id: 'extreme_cold_2', name: '暖炉营地', description: '围绕巨大暖炉建立的临时营地，资源争夺不断' },
                                 { id: 'extreme_cold_3', name: '冰封城市', description: '被冰雪封冻的摩天大楼，电梯井成为垂直通道' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'extreme_cold_engineer', name: '暖炉工程师', description: '维持营地供暖系统运行的关键人物', appearance: '厚重工装，满脸煤烟，手冻得通红', abilities: ['供暖系统', '机械维修', '能源管理'] },
+                                { id: 'extreme_cold_scout', name: '极地侦察员', description: '在冰雪中探索新资源的勇敢者', appearance: '全套防寒装备，雪地靴，防风镜', abilities: ['雪地追踪', '极寒生存', '冰面导航'] },
+                                { id: 'extreme_cold_leader', name: '营地领袖', description: '在极端环境中做出艰难抉择的领导者', appearance: '厚重的军大衣，面容坚毅', abilities: ['资源分配', '危机决策', '人心凝聚'] }
                         ],
                     }
                 ),
@@ -2846,6 +2976,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'biohazard_2', name: '隔离区', description: '被军方封锁的隔离区，幸存者在其中挣扎' },
                                 { id: 'biohazard_3', name: '疫苗争夺', description: '最后一批疫苗引发各方势力争夺' }
                         ],
+                        characterArchetypes: [
+                                { id: 'biohazard_researcher', name: '首席研究员', description: '在实验室中与变异体赛跑的科学家', appearance: '防护服，护目镜，永远在记录数据', abilities: ['变异分析', '抗体提取', '危机预案'] },
+                                { id: 'biohazard_containment', name: '隔离区守卫', description: '坚守隔离线不让人逃出的军人', appearance: '生化防护服，手持步枪，眼神疲惫', abilities: ['生化防护', '警戒射击', '感染辨识'] },
+                                { id: 'biohazard_patient_zero', name: '零号病人', description: '首个被感染却存活下来的神秘人物', appearance: '皮肤上有异常纹路，但行为正常', abilities: ['病毒免疫', '变异感应', '抗体血液'] }
+                        ],
                     }
                 ),
                 // SubEra: 核冬天
@@ -2937,6 +3072,11 @@ const contemporaryEpoch: EraNode = makeNode(
                                 { id: 'nuclear_1', name: '蘑菇云后', description: '核爆之后，天空被灰暗笼罩，辐射尘弥漫' },
                                 { id: 'nuclear_2', name: '地下堡垒', description: '政府地下堡垒中，权力博弈仍在继续' },
                                 { id: 'nuclear_3', name: '辐射荒原', description: '辐射荒原上的流浪者，寻找未被污染的土地' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'nuclear_ranger', name: '辐射荒原游侠', description: '在辐射区中生存并探索的独行侠', appearance: '自制防护服，盖革计数器，改装车辆', abilities: ['辐射防护', '荒地导航', '废物利用'] },
+                                { id: 'nuclear_bunker_leader', name: '掩体指挥官', description: '管理地下掩体资源分配的领导者', appearance: '军装整洁但略显陈旧', abilities: ['资源管控', '秩序维持', '外交谈判'] },
+                                { id: 'nuclear_mutant', name: '变异人', description: '在辐射中变异但保持理智的存在', appearance: '身体有可见变异但功能正常', abilities: ['辐射适应', '变异能力', '辐射感应'] }
                         ],
                     }
                 ),
@@ -3100,6 +3240,11 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'cyber_2', name: '数据深渊', description: '潜入网络空间的深处，数据深渊中藏着企业秘密' },
                                 { id: 'cyber_3', name: '公司大厦', description: '企业巨头的摩天大楼，顶层是权力中心，底层是蝼蚁' }
                         ],
+                        characterArchetypes: [
+                                { id: 'cyber_netrunner', name: '网络黑客', description: '在赛博空间中穿梭的数字游侠', appearance: '脑后插管，义眼闪烁数据流', abilities: ['网络入侵', '数据窃取', 'ICE破解'] },
+                                { id: 'cyber_street_doc', name: '黑市义体医生', description: '在暗巷里安装非法义体的地下医生', appearance: '手术手套，义体零件挂满墙壁', abilities: ['义体改装', '黑市人脉', '应急手术'] },
+                                { id: 'cyber_corp_agent', name: '企业特工', description: '为巨型公司执行秘密任务的精英', appearance: '高级定制西装，植入武器，完美外表', abilities: ['企业资源', '间谍技巧', '公关操作'] }
+                        ],
                     }
                 ),
                 // SubEra: 反乌托邦
@@ -3190,6 +3335,11 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'dystopia_1', name: '监控之下', description: '无处不在的监控摄像头，公民的每个行为都被记录' },
                                 { id: 'dystopia_2', name: '思想审查', description: '思想警察突袭可疑分子，言论自由已成历史' },
                                 { id: 'dystopia_3', name: '反抗之火', description: '地下反抗组织据点，策划着颠覆极权的行动' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'dystopia_rebel', name: '反抗军战士', description: '试图推翻极权统治的自由斗士', appearance: '破旧军装，手臂上有反抗标志', abilities: ['游击战术', '地下通信', '武器改装'] },
+                                { id: 'dystopia_thought_police', name: '思想警察', description: '监控并抓捕思想犯的特工', appearance: '黑色制服，面无表情的面孔', abilities: ['思想监控', '审讯技巧', '忠诚扫描'] },
+                                { id: 'dystopia_propagandist', name: '宣传部长', description: '操控舆论的思想工程师', appearance: '笔挺西装，永远带着官方笑容', abilities: ['舆论操控', '信息封锁', '洗脑技术'] }
                         ],
                     }
                 ),
@@ -3320,6 +3470,11 @@ const nearFutureEpoch: EraNode = makeNode(
                                 { id: 'spacecol_1', name: '火星基地', description: '火星表面的前哨基地，红色沙尘暴正在逼近' },
                                 { id: 'spacecol_2', name: '星际货船', description: '穿越小行星带的货运飞船，船员各怀心事' },
                                 { id: 'spacecol_3', name: '太空电梯', description: '从赤道延伸至太空站的电梯，人类文明的奇迹' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'spacecol_pilot', name: '星际领航员', description: '驾驶货船穿梭于星球之间的老手', appearance: '飞行夹克，脸上有微重力晒斑', abilities: ['飞船驾驶', '星际导航', '应急维修'] },
+                                { id: 'spacecol_engineer', name: '基地工程师', description: '在火星基地维持生命系统运转的技术员', appearance: '工装沾满火星尘土，手持工具包', abilities: ['生命维持', '设备维修', '气压调节'] },
+                                { id: 'spacecol_trader', name: '星际商人', description: '在各殖民地之间倒卖资源的商人', appearance: '太空服改装的夹克，随身携带信用芯片', abilities: ['跨星系贸易', '价格谈判', '走私路线'] }
                         ],
                     }
                 ),
@@ -3482,6 +3637,11 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'spaceopera_2', name: '星际舰队', description: '庞大舰队在星系间航行，准备迎接未知战争' },
                                 { id: 'spaceopera_3', name: '异星遗迹', description: '远古文明遗留的异星遗迹，蕴藏着超越时代的科技' }
                         ],
+                        characterArchetypes: [
+                                { id: 'spaceopera_admiral', name: '星际舰队指挥官', description: '指挥庞大舰队的军事将领', appearance: '笔挺的星际军装，胸前挂满勋章', abilities: ['舰队指挥', '战略部署', '外交斡旋'] },
+                                { id: 'spaceopera_xeno', name: '外星考古学家', description: '研究远古外星文明遗迹的学者', appearance: '探险装备，手持扫描仪，满手外星泥土', abilities: ['外星文字解读', '遗迹激活', '文明分析'] },
+                                { id: 'spaceopera_diplomat', name: '星系外交官', description: '在多文明间斡旋的和平使者', appearance: '融合多种文化元素的服饰', abilities: ['多语言', '跨文化理解', '和平谈判'] }
+                        ],
                     }
                 ),
             ]
@@ -3612,6 +3772,11 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'cyborg_2', name: '机械之城', description: '完全由机械体运营的城市，硅基生命的繁荣' },
                                 { id: 'cyborg_3', name: '人机边界', description: '人类与机械生命的边界线，紧张局势一触即发' }
                         ],
+                        characterArchetypes: [
+                                { id: 'cyborg_upload_pioneer', name: '意识上传先驱', description: '首批成功将意识上传到数字空间的人', appearance: '半机械身体，眼睛闪烁着数据光', abilities: ['数字分身', '意识备份', '数据感知'] },
+                                { id: 'cyborg_purist', name: '纯人类守护者', description: '拒绝机械改造、捍卫人类纯粹性的战士', appearance: '没有任何义体，肌肉锻炼到极限', abilities: ['肉体极限', '免疫黑客', '人类团结'] },
+                                { id: 'cyborg_synthesist', name: '机械生命工程师', description: '创造新机械生命形式的天才工程师', appearance: '全身精密机械构造，外表却似真人', abilities: ['机械设计', 'AI觉醒', '形态重构'] }
+                        ],
                     }
                 ),
                 // SubEra: 虚拟现实
@@ -3702,6 +3867,11 @@ const farFutureEpoch: EraNode = makeNode(
                                 { id: 'vr_1', name: '虚拟乌托邦', description: '完美的虚拟世界中，居民忘记了真实的存在' },
                                 { id: 'vr_2', name: '现实锚点', description: '少数人保留着对现实的记忆，试图唤醒沉睡者' },
                                 { id: 'vr_3', name: '数字深渊', description: '虚拟世界的底层，被遗弃的代码和迷失的意识' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'vr_architect', name: '虚拟世界架构师', description: '设计虚拟世界底层规则的程序员', appearance: '永远连接在虚拟世界中，现实身体消瘦', abilities: ['世界构建', '代码操控', '规则制定'] },
+                                { id: 'vr_awakened', name: '觉醒者', description: '意识到虚拟世界本质并试图唤醒他人的存在', appearance: '在虚拟世界中显现特殊光芒', abilities: ['现实感知', '系统漏洞利用', '意识连接'] },
+                                { id: 'vr_dweller', name: '深度沉浸者', description: '完全适应虚拟世界、忘记现实的居民', appearance: '虚拟形象完美，现实身体萎缩', abilities: ['虚拟操控', '数字生存', '沉浸适应'] }
                         ],
                     }
                 ),
@@ -3817,6 +3987,11 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'energy_2', name: '维度裂缝', description: '高维度生命体观测着低维度宇宙的生灭' },
                                 { id: 'energy_3', name: '意识共鸣', description: '亿万个意识体的思想交汇，形成新的宇宙秩序' }
                         ],
+                        characterArchetypes: [
+                                { id: 'energy_cosmic_being', name: '纯能量体', description: '超越物质形态的纯能量生命', appearance: '一团变幻莫测的光芒，没有固定形态', abilities: ['能量操控', '物质转化', '维度感知'] },
+                                { id: 'energy_observer', name: '宇宙观测者', description: '以旁观者姿态记录宇宙演化的存在', appearance: '不可见的意识场，偶尔显现为光晕', abilities: ['全时观测', '因果感知', '宇宙记忆'] },
+                                { id: 'energy_resonator', name: '共鸣使者', description: '连接亿万个意识体的桥梁', appearance: '柔和的共鸣光环', abilities: ['意识连接', '群体共鸣', '信息融合'] }
+                        ],
                     }
                 ),
                 // SubEra: 维度旅行
@@ -3860,6 +4035,11 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'dimension_2', name: '时间旅行者', description: '超越时间限制的存在，同时存在于过去与未来' },
                                 { id: 'dimension_3', name: '虚空之门', description: '通往未知维度的门扉，迈出即永恒' }
                         ],
+                        characterArchetypes: [
+                                { id: 'dimension_traveler', name: '维度行者', description: '能够在不同维度间自由穿行的存在', appearance: '半透明，身影在不同维度间闪烁', abilities: ['维度穿越', '法则操控', '多元感知'] },
+                                { id: 'dimension_anchor', name: '维度锚定者', description: '维持多维交汇处稳定的守护者', appearance: '由多重视角叠加而成的身影', abilities: ['维度锚定', '法则修复', '稳定场生成'] },
+                                { id: 'dimension_archivist', name: '多维档案员', description: '记录所有维度信息的存在', appearance: '由无数光点组成的书卷形态', abilities: ['全维记录', '信息检索', '维度比对'] }
+                        ],
                     }
                 ),
                 // SubEra: 数学实在论
@@ -3902,6 +4082,11 @@ const postHumanEpoch: EraNode = makeNode(
                                 { id: 'math_1', name: '数学宇宙', description: '一切皆为数学结构，存在即方程式的解' },
                                 { id: 'math_2', name: '无限集合', description: '在无穷集合的海洋中，意识以逻辑形式存在' },
                                 { id: 'math_3', name: '公理之争', description: '不同公理体系的碰撞，决定着宇宙的底层逻辑' }
+                        ],
+                        characterArchetypes: [
+                                { id: 'math_axiom_keeper', name: '公理守护者', description: '维护宇宙底层数学逻辑的存在', appearance: '由方程式组成的抽象形态', abilities: ['公理验证', '逻辑证明', '系统一致性'] },
+                                { id: 'math_solver', name: '方程式求解者', description: '能在无穷解空间中寻找最优解的存在', appearance: '不断变换的几何形态', abilities: ['全维求解', '最优路径', '收敛控制'] },
+                                { id: 'math_paradox', name: '悖论化身', description: '以矛盾为食、在逻辑裂缝中存在的异常', appearance: '自相矛盾的视觉形态', abilities: ['悖论生成', '逻辑崩塌', '反证法'] }
                         ],
                     }
                 ),
