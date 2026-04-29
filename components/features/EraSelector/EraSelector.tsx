@@ -60,7 +60,7 @@ export const EraSelector: React.FC<Props> = ({ value, onChange, onCancel }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm">
             <div className="relative w-full h-full max-w-6xl mx-auto flex flex-col bg-black/95 border border-wuxia-gold/20 shadow-2xl overflow-hidden">
                 {/* Header */}
                 <div className="h-16 border-b border-gray-800/80 bg-black/60 backdrop-blur-md flex items-center justify-between px-8">
