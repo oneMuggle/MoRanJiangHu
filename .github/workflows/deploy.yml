@@ -22,13 +22,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          echo "Node version: $(node -v)"
-          echo "npm version: $(npm -v)"
-          npm install
-          echo "--- Verify vite installed ---"
-          ls -la node_modules/.bin/vite
-          node -e "console.log('vite version:', require('vite/package.json').version)"
+        run: npm install --ignore-scripts
 
       - name: Build
         run: npx vite build
