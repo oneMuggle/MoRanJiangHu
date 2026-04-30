@@ -153,6 +153,7 @@ const 构建图片端点 = (
         return base;
     }
     if (/\/images\/generations$/i.test(base)) return base;
+    if (/\/chat\/completions$/i.test(base)) return base;
     if (/\/v1$/i.test(base)) return `${base}/images/generations`;
     return `${base}/v1/images/generations`;
 };
@@ -1484,7 +1485,7 @@ const 构建生图请求头 = (apiConfig: 当前可用接口结构): Record<stri
     if (backendType === 'novelai') {
         headers.Accept = 'application/zip';
     }
-    if (apiConfig.apiKey && (backendType === 'openai' || backendType === 'novelai')) {
+    if (apiConfig.apiKey && (backendType === 'openai' || backendType === 'novelai' || backendType === 'grok')) {
         headers.Authorization = `Bearer ${apiConfig.apiKey}`;
     }
     return headers;
@@ -3421,6 +3422,10 @@ export const testImageConnection = async (
                 const result = await 测试OpenAI兼容连接(apiConfig, startedAt);
                 return { ...result, backendType };
             }
+            case 'grok': {
+                const result = await 测试Grok连接(apiConfig, startedAt);
+                return { ...result, backendType };
+            }
         }
     } catch (error: any) {
         const elapsed = Date.now() - startedAt;
@@ -3676,6 +3681,65 @@ const 测试OpenAI兼容连接 = async (
     };
 };
 
+const 测试Grok连接 = async (
+    apiConfig: 当前可用接口结构,
+    startedAt: number
+): Promise<{ ok: boolean; detail: string }> => {
+    const baseUrl = apiConfig.baseUrl;
+    const apiKey = apiConfig.apiKey;
+    const model = apiConfig.model || 'grok-2-image';
+
+    if (!baseUrl?.trim()) return { ok: false, detail: '错误: API 基础地址为空' };
+    if (!apiKey?.trim()) return { ok: false, detail: '错误: API 密钥为空' };
+
+    const endpoint = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+    const testPrompt = 'A simple red circle on a white background, minimalist, clean';
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+            model,
+            stream: false,
+            messages: [{ role: 'user', content: testPrompt }]
+        })
+    });
+
+    const elapsed = Date.now() - startedAt;
+
+    if (!response.ok) {
+        const detail = await response.text().catch(() => '');
+        return {
+            ok: false,
+            detail: `耗时: ${elapsed}ms\n\nGrok API 请求失败 (${response.status}):\n${detail.slice(0, 500)}`
+        };
+    }
+
+    const rawText = await response.text();
+    const parsed = 解析可能是JSON字符串(rawText);
+
+    if (parsed) {
+        const content = parsed.choices?.[0]?.message?.content || '';
+        const markdownUrlRegex = /!\[.*?\]\(([^)]+)\)/;
+        const markdownMatch = content.match(markdownUrlRegex);
+        if (markdownMatch && markdownMatch[1]) {
+            return {
+                ok: true,
+                detail: `耗时: ${elapsed}ms\n\nGrok 连接: 成功\n图片 URL: ${markdownMatch[1].trim().slice(0, 100)}`
+            };
+        }
+    }
+
+    // 即使没解析到图片 URL，只要请求成功也算连接通过
+    return {
+        ok: true,
+        detail: `耗时: ${elapsed}ms\n\nGrok 连接: 成功\n注意: 测试提示词未返回可解析的图片 URL，请检查模型是否支持图片生成`
+    };
+};
+
 export const generateImageByPrompt = async (
     prompt: string,
     apiConfig: 当前可用接口结构,
@@ -3739,6 +3803,17 @@ export const generateImageByPrompt = async (
             跳过基础负面提示词: shouldSkipBaseNegative,
             PNG参数: options?.PNG参数
         });
+    } else if (backendType === 'grok') {
+        requestBody = {
+            model: apiConfig.model,
+            stream: false,
+            messages: [
+                {
+                    role: 'user',
+                    content: promptWithInlineNegative
+                }
+            ]
+        };
     } else {
         requestBody = isChatCompletionsEndpoint
             ? {
