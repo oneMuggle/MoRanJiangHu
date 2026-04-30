@@ -92,6 +92,13 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
                 tianjiaoSetting: era.默认天骄占位符 ?? prev.tianjiaoSetting,
             };
         });
+        // 同步古代体系选择：如果当前体系不在新时代的支持列表中，重置为第一个有效值
+        if (Array.isArray(era.支持体系) && era.支持体系.length > 0) {
+            设置古代体系选择(prev => {
+                if (era.支持体系.includes(prev)) return prev;
+                return era.支持体系[0];
+            });
+        }
     }, [currentEra]);
 
     // 子纪元里模式自动同步：当选择时代时，自动检测并激活对应里模式
