@@ -28,14 +28,14 @@ const LEGACY_TO_NEW: Record<string, string> = {
     era_scifi_future: 'far-future_space_opera',
 };
 
-export type 接口供应商类型 = 'gemini' | 'claude' | 'openai' | 'deepseek' | 'zhipu' | 'openai_compatible';
+export type 接口供应商类型 = 'gemini' | 'claude' | 'openai' | 'deepseek' | 'zhipu' | 'openai_compatible' | 'grok';
 
 export type OpenAI兼容方案类型 = 'custom' | 'siliconflow' | 'together' | 'groq';
 
 export type 请求协议覆盖类型 = 'auto' | 'openai' | 'gemini' | 'claude' | 'deepseek';
 
 export type 图片响应格式类型 = 'url' | 'b64_json';
-export type 文生图后端类型 = 'openai' | 'novelai' | 'sd_webui' | 'comfyui';
+export type 文生图后端类型 = 'openai' | 'novelai' | 'sd_webui' | 'comfyui' | 'grok';
 export type 文生图接口路径模式类型 = 'preset' | 'custom';
 export type 文生图预设接口路径类型 = 'openai_images' | 'openai_chat' | 'novelai_generate' | 'sd_txt2img' | 'comfyui_prompt';
 export type 生图画风类型 = '通用' | '二次元' | '写实' | '国风';
