@@ -52,6 +52,6 @@ jobs:
             echo "Creating wuxia-game project..."
             npx wrangler pages project create wuxia-game --production-branch=main 2>&1 | tee /tmp/wrangler_create.txt
           fi
-          echo "--- Deploying to Cloudflare Pages ---"
-          npx wrangler pages deploy dist --project-name=wuxia-game --commit-message="Deploy from GitHub Actions" 2>&1 | tee /tmp/wrangler_deploy.txt
+          echo "--- Deploying to Cloudflare Pages (production) ---"
+          npx wrangler pages deploy dist --project-name=wuxia-game --commit-message="Deploy from GitHub Actions" --prod 2>&1 | tee /tmp/wrangler_deploy.txt
           echo "--- Deploy done ---"
