@@ -19,15 +19,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm ci || npm install
-          ls -la node_modules/.bin/vite || echo "vite bin MISSING - reinstalling"
-          if [ ! -f node_modules/.bin/vite ]; then
-            npm rebuild vite || true
-            ls -la node_modules/.bin/vite
-          fi
+        run: npm install --ignore-scripts
 
       - name: Build
         run: npm run build
@@ -39,21 +34,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          echo "--- CLOUDFLARE_API_TOKEN prefix (first 8 chars) ---"
-          echo "${CLOUDFLARE_API_TOKEN:0:8}..."
-          echo "--- CLOUDFLARE_ACCOUNT_ID ---"
-          echo "$CLOUDFLARE_ACCOUNT_ID"
-          echo "--- Wrangler version ---"
-          npx wrangler --version
-          echo "--- Check if project exists ---"
-          npx wrangler pages project list 2>&1 | tee /tmp/wrangler_list.txt
-          echo "--- Project list done ---"
-          echo "--- wrangler_list.txt content ---"
-          cat /tmp/wrangler_list.txt
-          echo "--- Searching for wuxia-game in list ---"
-          grep -n "wuxia-game\|wuxia" /tmp/wrangler_list.txt || echo "NOT FOUND in list"
-          echo "--- Deploying to Cloudflare Pages ---"
-          npx wrangler pages deploy dist --project-name=wuxia-game --branch=main --commit-message="Deploy from GitHub Actions ${{ github.sha }}" 2>&1 | tee /tmp/wrangler_deploy.txt
-          echo "--- Deploy output ---"
-          cat /tmp/wrangler_deploy.txt
-          echo "--- Deploy done ---"
+          # 检查项目是否已存在，不存在则创建
+          if npx wrangler pages project list 2>/dev/null | grep -qw "wuxia-game"; then
+            echo "Project wuxia-game already exists"
+          else
+            npx wrangler pages project create wuxia-game --production-branch=main
+          fi
+          npx wrangler pages deploy dist --project-name=wuxia-game --commit-message="Deploy from GitHub Actions"

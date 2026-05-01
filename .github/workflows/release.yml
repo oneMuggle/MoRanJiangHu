@@ -18,15 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm ci || npm install
-          ls -la node_modules/.bin/vite || echo "vite bin MISSING - reinstalling"
-          if [ ! -f node_modules/.bin/vite ]; then
-            npm rebuild vite || true
-            ls -la node_modules/.bin/vite
-          fi
+        run: npm install --ignore-scripts
 
       - name: Build
         run: npm run build
