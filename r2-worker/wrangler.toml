@@ -1,0 +1,7 @@
+name = "r2-public-asset"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "mosheqiankun"
