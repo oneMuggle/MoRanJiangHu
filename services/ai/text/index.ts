@@ -17,6 +17,7 @@ export {
     解析境界体系提示词内容,
     解析世界观提示词内容,
     generateStoryResponse,
+    generateStoryResponseWithFailover,
     generateVariableCalibrationUpdate,
     generateWorldData,
     generateWorldEvolutionUpdate,

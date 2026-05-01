@@ -40,6 +40,7 @@ import {
     请求模型文本,
     替换COT伪装身份占位
 } from '../chatCompletionClient';
+import type { 接口设置结构 } from '../../../models/system';
 import {
     parseStoryRawText,
     type StoryParseOptions,
@@ -1672,4 +1673,141 @@ export const testConnection = async (
         const detail = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
         return { ok: false, detail };
     }
+};
+
+/**
+ * Generate story response with automatic failover to alternate API configs.
+ * Assembles messages once, then tries each available config until one succeeds.
+ */
+export const generateStoryResponseWithFailover = async (
+    settings: 接口设置结构,
+    primaryConfig: 当前可用接口结构 | null,
+    systemPrompt: string,
+    userContext: string,
+    playerInput: string,
+    signal?: AbortSignal,
+    streamOptions?: StoryStreamOptions,
+    extraPrompt?: string,
+    requestOptions?: StoryRequestOptions
+): Promise<StoryResponseResult & { usedConfig: 当前可用接口结构; attempts: number }> => {
+    // Assemble messages first (same for all configs)
+    const orderedMessagesRaw = Array.isArray(requestOptions?.orderedMessages)
+        ? requestOptions.orderedMessages
+            .map((item) => ({
+                role: item?.role,
+                content: typeof item?.content === 'string' ? item.content.trim() : ''
+            }))
+            .filter((item): item is 通用消息 =>
+                (item.role === 'system' || item.role === 'user' || item.role === 'assistant') && item.content.length > 0
+            )
+        : [];
+    const orderedMessages = 规范化文本补全消息链(orderedMessagesRaw, {
+        保留System: true,
+        合并同角色: false
+    });
+
+    // Build candidate configs (same logic as 请求带故障切换)
+    const candidates: 当前可用接口结构[] = [];
+    const seenIds = new Set<string>();
+
+    if (primaryConfig?.id) {
+        candidates.push(primaryConfig);
+        seenIds.add(primaryConfig.id);
+    }
+    for (const cfg of (settings.configs || [])) {
+        if (!seenIds.has(cfg.id) && cfg.baseUrl && cfg.apiKey) {
+            seenIds.add(cfg.id);
+            const model = cfg.model || primaryConfig?.model || '';
+            candidates.push({
+                id: cfg.id,
+                名称: cfg.名称,
+                供应商: cfg.供应商,
+                baseUrl: cfg.baseUrl,
+                apiKey: cfg.apiKey,
+                model,
+                maxTokens: cfg.maxTokens,
+                temperature: cfg.temperature,
+            });
+        }
+    }
+
+    if (candidates.length === 0) {
+        throw new Error('没有可用的 API 配置。');
+    }
+
+    const attemptDetails: Array<{ configId: string; baseUrl: string; error: string }> = [];
+
+    for (let i = 0; i < candidates.length; i++) {
+        const candidate = candidates[i];
+        try {
+            // Use orderedMessages if available, otherwise fall back to legacy assembly
+            const messages = orderedMessages.length > 0 ? orderedMessages : (() => {
+                const normalizedSystemPrompt = typeof systemPrompt === 'string' ? systemPrompt.trim() : '';
+                const normalizedContext = typeof userContext === 'string' ? userContext.trim() : '';
+                const normalizedExtraPrompt = typeof extraPrompt === 'string' ? extraPrompt.trim() : '';
+                const enableCotInjection = requestOptions?.enableCotInjection !== false;
+                const leadingSystemPrompt = typeof requestOptions?.leadingSystemPrompt === 'string'
+                    ? requestOptions.leadingSystemPrompt.trim()
+                    : '';
+                const cotPseudoHistoryPromptRaw = typeof requestOptions?.cotPseudoHistoryPrompt === 'string'
+                    ? requestOptions.cotPseudoHistoryPrompt.trim()
+                    : 默认COT伪装历史消息提示词.trim();
+                const cotPseudoHistoryPrompt = 替换COT伪装身份占位(cotPseudoHistoryPromptRaw, leadingSystemPrompt);
+                const styleAssistantPrompt = typeof requestOptions?.styleAssistantPrompt === 'string'
+                    ? requestOptions.styleAssistantPrompt.trim()
+                    : '';
+                const outputProtocolPrompt = typeof requestOptions?.outputProtocolPrompt === 'string'
+                    ? requestOptions.outputProtocolPrompt.trim()
+                    : '';
+                const lengthRequirementPrompt = typeof requestOptions?.lengthRequirementPrompt === 'string'
+                    ? requestOptions.lengthRequirementPrompt.trim()
+                    : '';
+                const disclaimerRequirementPrompt = typeof requestOptions?.disclaimerRequirementPrompt === 'string'
+                    ? requestOptions.disclaimerRequirementPrompt.trim()
+                    : '';
+
+                const msgs: 通用消息[] = [];
+                if (normalizedSystemPrompt) msgs.push({ role: 'system', content: normalizedSystemPrompt });
+                if (normalizedContext) msgs.push({ role: 'system', content: normalizedContext });
+                if (leadingSystemPrompt) msgs.push({ role: 'system', content: leadingSystemPrompt });
+                if (lengthRequirementPrompt) msgs.push({ role: 'system', content: lengthRequirementPrompt });
+                if (styleAssistantPrompt) msgs.push({ role: 'system', content: styleAssistantPrompt });
+                if (outputProtocolPrompt) msgs.push({ role: 'system', content: outputProtocolPrompt });
+                if (disclaimerRequirementPrompt) msgs.push({ role: 'user', content: disclaimerRequirementPrompt });
+                if (normalizedExtraPrompt) msgs.push({ role: 'user', content: normalizedExtraPrompt });
+
+                const normalizedPlayerInput = typeof playerInput === 'string' && playerInput.trim().length > 0
+                    ? playerInput
+                    : '开始任务。';
+                if (enableCotInjection && cotPseudoHistoryPrompt) {
+                    msgs.push({ role: 'user', content: '开始任务。' });
+                    msgs.push({ role: 'assistant', content: cotPseudoHistoryPrompt });
+                }
+                msgs.push({ role: 'user', content: normalizedPlayerInput });
+                return 规范化文本补全消息链(msgs, { 保留System: true, 合并同角色: true });
+            })();
+
+            const rawText = await 请求模型文本(candidate, messages, {
+                temperature: 0.7,
+                signal,
+                streamOptions,
+                errorDetailLimit: requestOptions?.errorDetailLimit,
+            });
+
+            return {
+                ...解析故事响应(rawText, requestOptions),
+                usedConfig: candidate,
+                attempts: i + 1,
+            };
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : 'Unknown error';
+            attemptDetails.push({ configId: candidate.id, baseUrl: candidate.baseUrl, error: msg });
+            if (signal?.aborted) throw error;
+        }
+    }
+
+    throw new Error(
+        `所有 ${candidates.length} 个 API 配置均失败。` +
+        attemptDetails.map(a => `\n- ${a.configId} (${a.baseUrl}): ${a.error}`).join('')
+    );
 };

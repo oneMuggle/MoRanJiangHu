@@ -12,6 +12,8 @@ import {
     供应商标签,
     规范化接口设置
 } from '../../../utils/apiConfig';
+import ApiConfigAssistant from './ApiConfigAssistant';
+import type { ConfigWithModels, AssignmentRecommendation } from '../../../services/ai/text/configAssistant';
 
 interface Props {
     settings: 接口设置结构;
@@ -158,6 +160,7 @@ const ApiSettings: React.FC<Props> = ({ settings, onSave }) => {
         content: string;
         ok: boolean;
     }>({ open: false, title: '', content: '', ok: false });
+    const [showAssistant, setShowAssistant] = useState(false);
 
     useEffect(() => {
         const normalized = 规范化接口设置(settings);
@@ -295,6 +298,44 @@ const ApiSettings: React.FC<Props> = ({ settings, onSave }) => {
         setMessage('配置已删除。');
     };
 
+    const handleApplyAssistant = (configs: ConfigWithModels[], recommendation: AssignmentRecommendation) => {
+        const newApiConfigs = configs.map((cfg) => ({
+            id: cfg.id,
+            名称: `${cfg.provider} - ${cfg.baseUrl.replace(/.*\/\//, '').replace('/v1', '')}`,
+            供应商: cfg.provider as 接口供应商类型,
+            baseUrl: cfg.baseUrl,
+            apiKey: cfg.apiKey,
+            model: cfg.models[0] || '',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        }));
+
+        // Build 功能模型占位 patch from recommendation
+        const 功能模型占位Patch: Record<string, string> = {};
+        for (const area of recommendation.areas) {
+            if (area.assignedModel) {
+                功能模型占位Patch[area.modelField] = area.assignedModel;
+            }
+        }
+
+        setForm((prev) => {
+            const mergedConfigs = [...prev.configs, ...newApiConfigs.filter((c) => !prev.configs.some((existing) => existing.id === c.id))];
+            return {
+                ...prev,
+                configs: mergedConfigs,
+                activeConfigId: prev.activeConfigId || mergedConfigs[0]?.id,
+                功能模型占位: {
+                    ...prev.功能模型占位,
+                    ...功能模型占位Patch,
+                },
+            };
+        });
+
+        setShowAssistant(false);
+        setMessage(`已从 AI 助手导入 ${newApiConfigs.length} 个配置，并自动分配功能模型。请点击保存生效。`);
+        setShowSuccess(true);
+    };
+
     const handleSave = () => {
         const tokenValidationError = 校验主剧情最大输出配置();
         if (tokenValidationError) {
@@ -388,6 +429,9 @@ const ApiSettings: React.FC<Props> = ({ settings, onSave }) => {
                     <h3 className="text-xl font-bold font-serif text-wuxia-gold">接口配置中心</h3>
                     <div className="mt-1 text-xs text-gray-400">这里只保留主接口连接与主剧情模型设置；功能模型请到对应独立页面管理。</div>
                 </div>
+                <GameButton onClick={() => setShowAssistant(true)} variant="secondary" className="ml-4">
+                    AI 配置助手
+                </GameButton>
             </div>
 
             <div className="space-y-4 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
@@ -720,6 +764,14 @@ const ApiSettings: React.FC<Props> = ({ settings, onSave }) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showAssistant && (
+                <ApiConfigAssistant
+                    onClose={() => setShowAssistant(false)}
+                    currentSettings={form}
+                    onApply={handleApplyAssistant}
+                />
             )}
         </div>
     );
