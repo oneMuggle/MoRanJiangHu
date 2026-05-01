@@ -36,16 +36,15 @@ const ChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext }
         const ctx = gameContext;
         if (!ctx) return result;
 
-        // 门派群
+        // 门派群 — 用全体NPC近似
         if (ctx.角色?.所属门派ID && ctx.角色.所属门派ID !== 'none') {
-            const memberCount = ctx.社交.filter((npc) => npc.所属门派 === ctx.角色?.所属门派ID).length + 1;
             result.push({
                 id: 'sect-group',
                 name: '门派内堂',
                 lastMessage: `${ctx.角色.姓名}：今日练功可曾懈怠？`,
                 lastTime: '近日',
                 unread: 0,
-                members: memberCount,
+                members: ctx.社交.length + 1,
             });
         }
 
