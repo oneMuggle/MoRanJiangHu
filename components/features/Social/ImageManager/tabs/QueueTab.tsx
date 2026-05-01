@@ -11,7 +11,7 @@ import type {
     香闺秘档部位类型,
     画师串预设结构,
     角色锚点结构
-} from '../../../../types';
+} from '../../../../../types';
 import { IconScroll } from '../../../../ui/Icons';
 import { 
     队列状态样式, 

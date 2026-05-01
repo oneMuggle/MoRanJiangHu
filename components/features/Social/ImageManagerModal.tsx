@@ -52,6 +52,8 @@ import {
     预设输入拦截键盘事件
 } from './ImageManager/utils/imageManagerHelpers';
 import { PresetsTab } from './ImageManager/tabs/PresetsTab';
+import { QueueTab } from './ImageManager/tabs/QueueTab';
+import { RulesTab } from './ImageManager/tabs/RulesTab';
 import { ImageViewerOverlay, ManualConfirmOverlay, PromptDisplayOverlay } from './ImageManager/overlays';
 import { ImageManagerShell } from './ImageManager/components';
 
@@ -2581,188 +2583,6 @@ const ImageManagerModal: React.FC<Props> = ({
         </div>
     );
 
-    // @todo-replace: useImageManager/tabs/QueueTab
-    const renderQueueTab = () => (
-        <div className="flex flex-col h-full bg-[#0c0d0f]/90 border border-wuxia-gold/30 rounded shadow-[0_0_30px_rgba(212,175,55,0.05)] p-5 relative">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.03)_0%,transparent_100%)] pointer-events-none"></div>
-            
-            <div className="relative z-10 flex flex-col h-full">
-                <div className="flex flex-wrap items-center justify-between border-b border-wuxia-gold/10 pb-4 mb-4 shrink-0 gap-4">
-                    <div>
-                        <div className="text-wuxia-gold font-serif text-xl tracking-wider text-shadow-glow">统一生成队列</div>
-                        <div className="text-[10px] text-gray-500 mt-1">所有角色和场景的生成任务都会显示在这里。</div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {onClearQueue && (
-                            <>
-                                <button type="button" onClick={() => { void handleClearQueue('completed'); }} disabled={busyActionKey === 'clear_queue_completed'} className={次级按钮样式(true)}>
-                                    清空已完成 NPC 任务
-                                </button>
-                                <button type="button" onClick={() => { void handleClearQueue('all'); }} disabled={busyActionKey === 'clear_queue_all'} className={次级按钮样式(true)}>
-                                    清空全部 NPC 任务
-                                </button>
-                            </>
-                        )}
-                        {onClearSceneQueue && (
-                            <>
-                                <button type="button" onClick={() => { void handleClearSceneQueue('completed'); }} disabled={busyActionKey === 'clear_scene_queue_completed'} className={次级按钮样式(true)}>
-                                    清空已完成场景任务
-                                </button>
-                                <button type="button" onClick={() => { void handleClearSceneQueue('all'); }} disabled={busyActionKey === 'clear_scene_queue_all'} className={次级按钮样式(true)}>
-                                    清空全部场景任务
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4">
-                    {filteredCombinedQueue.length > 0 ? (
-                        filteredCombinedQueue.map((entry) => {
-                            if (entry.类型 === 'scene') {
-                                const task = entry.task as 场景生图任务记录;
-                                return (
-                                    <div key={task.id} className="rounded border border-wuxia-gold/20 bg-black/40 p-4 relative group hover:border-wuxia-gold/40 transition-colors">
-                                        <div className="absolute top-0 right-0 px-2 py-0.5 bg-wuxia-gold/10 border-b border-l border-wuxia-gold/20 text-[10px] text-wuxia-gold/80 font-serif rounded-bl">
-                                            场景任务
-                                        </div>
-                                        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                                            <div className="pr-16">
-                                                <div className="text-lg font-serif text-wuxia-gold/90">{task.摘要 || '未命名场景'}</div>
-                                                <div className="text-[10px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
-                                                    <span className="px-1.5 py-0.5 rounded bg-black/50 border border-wuxia-gold/10 text-wuxia-gold/70">{task.场景类型 || '未分类'}</span>
-                                                    <span>来源: {来源文案[task.来源]}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-[11px] px-2.5 py-1 rounded border shadow-sm ${队列状态样式[task.状态]}`}>{队列状态文案[task.状态]}</span>
-                                                {onDeleteSceneQueueTask && (
-                                                    <button type="button" onClick={() => { void handleDeleteSceneQueueTask(task.id); }} disabled={busyActionKey === `delete_scene_queue_${task.id}`} className={次级按钮样式(true)}>
-                                                        删除
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 text-[11px]">
-                                            <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                                <div className="text-wuxia-gold/50 mb-1">创建时间</div>
-                                                <div className="text-gray-300 font-mono text-[10px]">{格式化时间(task.创建时间)}</div>
-                                            </div>
-                                            <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                                <div className="text-wuxia-gold/50 mb-1">开始 / 完成</div>
-                                                <div className="text-gray-300 font-mono text-[10px]">{格式化时间(task.开始时间)} / {格式化时间(task.完成时间)}</div>
-                                            </div>
-                                            <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                                <div className="text-wuxia-gold/50 mb-1">模型 / 画风</div>
-                                                <div className="text-gray-300 truncate" title={[task.使用模型, task.画风].filter(Boolean).join(' / ')}>{[task.使用模型, task.画风].filter(Boolean).join(' / ') || '未定'}</div>
-                                            </div>
-                                            <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5 relative overflow-hidden">
-                                                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-wuxia-gold/30"></div>
-                                                <div className="text-wuxia-gold/50 mb-1 pl-1">任务进度 ({获取生图阶段中文(task.进度阶段 || 从任务状态推导阶段(task.状态))})</div>
-                                                <div className="text-gray-300 pl-1">{task.进度文本 || task.错误信息 || '场景生成中...'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            }
-
-                            const task = entry.task as NPC生图任务记录;
-                            return (
-                                <div key={task.id} className="rounded border border-wuxia-gold/20 bg-black/40 p-4 relative group hover:border-wuxia-gold/40 transition-colors">
-                                    <div className="absolute top-0 right-0 px-2 py-0.5 bg-wuxia-gold/10 border-b border-l border-wuxia-gold/20 text-[10px] text-wuxia-gold/80 font-serif rounded-bl">
-                                        角色任务
-                                    </div>
-                                    <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                                        <div className="pr-16">
-                                            <div className="text-lg font-serif text-wuxia-gold/90">{task.NPC姓名}</div>
-                                            <div className="text-[10px] text-gray-500 mt-1 flex flex-wrap items-center gap-2">
-                                                <span>{task.NPC性别 || '未知'}</span>
-                                                <span>{task.NPC身份 || '未知身份'}</span>
-                                                <span className="px-1.5 py-0.5 rounded bg-black/50 border border-wuxia-gold/10 text-wuxia-gold/70">{获取NPC构图文案(task.构图, task.部位)}</span>
-                                                <span>来源: {来源文案[task.来源]}</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[11px] px-2.5 py-1 rounded border shadow-sm ${队列状态样式[task.状态]}`}>{队列状态文案[task.状态]}</span>
-                                            {onDeleteQueueTask && (
-                                                <button type="button" onClick={() => { void handleDeleteQueueTask(task.id); }} disabled={busyActionKey === `delete_queue_${task.id}`} className={次级按钮样式(true)}>
-                                                    删除
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 text-[11px]">
-                                        <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                            <div className="text-wuxia-gold/50 mb-1">创建时间</div>
-                                            <div className="text-gray-300 font-mono text-[10px]">{格式化时间(task.创建时间)}</div>
-                                        </div>
-                                        <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                            <div className="text-wuxia-gold/50 mb-1">开始 / 完成</div>
-                                            <div className="text-gray-300 font-mono text-[10px]">{格式化时间(task.开始时间)} / {格式化时间(task.完成时间)}</div>
-                                        </div>
-                                        <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5">
-                                            <div className="text-wuxia-gold/50 mb-1">模型 / 画风</div>
-                                            <div className="text-gray-300 truncate" title={[task.使用模型, task.画风].filter(Boolean).join(' / ')}>{[task.使用模型, task.画风].filter(Boolean).join(' / ') || '未定'}</div>
-                                        </div>
-                                        <div className="rounded border border-wuxia-gold/10 bg-black/50 p-2.5 relative overflow-hidden">
-                                            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-wuxia-gold/30"></div>
-                                            <div className="text-wuxia-gold/50 mb-1 pl-1">任务进度 ({获取生图阶段中文(task.进度阶段 || 从任务状态推导阶段(task.状态))})</div>
-                                            <div className="text-gray-300 pl-1">{task.进度文本 || task.错误信息 || '图片生成中...'}</div>
-                                        </div>
-                                    </div>
-                                    {task.状态 === 'failed' && (
-                                        <div className="mt-4 pt-3 border-t border-wuxia-gold/10 flex flex-wrap justify-end gap-2">
-                                            {(task.生图词组 || task.最终正向提示词) && (
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => setPromptDisplayModal({
-                                                        打开: true,
-                                                        生图词组: task.生图词组,
-                                                        最终正向提示词: task.最终正向提示词,
-                                                        最终负向提示词: task.最终负向提示词,
-                                                        错误信息: task.错误信息
-                                                    })} 
-                                                    className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded border border-fuchsia-400/40 bg-fuchsia-500/10 text-fuchsia-300 hover:bg-fuchsia-500/20 text-xs transition-colors"
-                                                >
-                                                    查看提示词
-                                                </button>
-                                            )}
-                                            {task.构图 !== '部位特写' && (
-                                                <button type="button" onClick={() => 打开手动生图页(从任务标识提取NPCID(task.NPC标识), task.构图 === '部位特写' ? '头像' : (task.构图 || '头像'))} className={次级按钮样式()}>
-                                                    完全重试
-                                                </button>
-                                            )}
-                                            {onRetryImage && task.构图 !== '部位特写' && (task.生图词组 || task.最终正向提示词) && (
-                                                <button type="button" onClick={() => {
-                                                    if (onRetryImage) {
-                                                        const npcId = 从任务标识提取NPCID(task.NPC标识);
-                                                        const 保留提示词 = {
-                                                            生图词组: task.生图词组 || '',
-                                                            最终正向提示词: task.最终正向提示词 || '',
-                                                            最终负向提示词: task.最终负向提示词 || ''
-                                                        };
-                                                        onRetryImage(npcId, { 重试模式: '复用提示词', 保留提示词 });
-                                                    }
-                                                }} className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded border border-amber-400/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 text-xs transition-colors shadow-[0_0_10px_rgba(212,175,55,0.1)]">
-                                                    复用提示词重试
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center p-10 min-h-[300px]">
-                            <div className="text-wuxia-gold/20 text-6xl mb-4 font-serif">☯</div>
-                            <div className="text-wuxia-gold/60 font-serif text-lg mb-2">当前没有生成任务</div>
-                            <div className="text-gray-500 text-xs">新的角色或场景生成任务会显示在这里。</div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
 
     // @todo-replace: useImageManager/tabs/SceneTab
     const renderSceneTab = () => (
@@ -3506,318 +3326,6 @@ const ImageManagerModal: React.FC<Props> = ({
     );
 
 
-    // @todo-replace: useImageManager/tabs/RulesTab
-    const renderRulesTab = () => {
-        const 规则切换按钮样式 = (active: boolean) => `rounded-full border px-4 py-2 text-xs tracking-[0.18em] uppercase transition-all ${
-            active
-                ? 'border-wuxia-gold/50 bg-wuxia-gold/15 text-wuxia-gold shadow-[0_0_12px_rgba(212,175,55,0.12)]'
-                : 'border-wuxia-gold/15 bg-black/30 text-gray-400 hover:border-wuxia-gold/30 hover:text-wuxia-gold/80'
-        }`;
-
-        const 当前规则标题 = activeRuleSection === 'npc'
-            ? 'NPC 转化规则'
-            : activeRuleSection === 'scene'
-                ? '场景转化规则'
-                : '场景判定规则';
-
-        return (
-            <div className="flex flex-col h-full bg-[#0c0d0f]/90 border border-wuxia-gold/30 rounded shadow-[0_0_30px_rgba(212,175,55,0.05)] p-5 relative">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.03)_0%,transparent_100%)] pointer-events-none"></div>
-                <div className="relative z-10 flex items-center justify-between gap-4 pb-4 border-b border-wuxia-gold/10">
-                    <div>
-                        <div className="text-wuxia-gold font-serif text-2xl tracking-widest text-shadow-glow">提示词规则中心</div>
-                        <div className="text-xs text-gray-500 mt-1 uppercase tracking-widest">Rule Center</div>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => { void handleSavePresetConfig(); }}
-                        disabled={!onSaveApiConfig || busyActionKey === 'save_preset_config'}
-                        className={主按钮样式(!onSaveApiConfig || busyActionKey === 'save_preset_config')}
-                    >
-                        保存配置
-                    </button>
-                </div>
-
-                <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-5 mt-5">
-                    <div className="rounded border border-wuxia-gold/20 bg-black/35">
-                        <button
-                            type="button"
-                            onClick={() => setModelRulePanelOpen((prev) => !prev)}
-                            className="w-full flex items-center justify-between gap-4 px-4 py-3 text-left"
-                        >
-                            <div>
-                                <div className="text-[11px] tracking-[0.24em] uppercase text-wuxia-gold/50">模型规则集</div>
-                                <div className="text-xs text-gray-500 mt-1">选择当前启用的模型规则，并编辑基础模式与锚定模式规则。</div>
-                            </div>
-                            <div className="flex items-center gap-3 shrink-0">
-                                <div className="text-xs text-wuxia-gold/70">{editorSelectedModelTransformerPreset?.名称 || '未选择规则集'}</div>
-                                <span className="text-wuxia-gold/70 text-sm">{modelRulePanelOpen ? '收起' : '展开'}</span>
-                            </div>
-                        </button>
-                        {modelRulePanelOpen && (
-                            <div className="px-4 pb-4 border-t border-wuxia-gold/10 space-y-4">
-                                <div className="flex flex-wrap gap-2 pt-4">
-                                    <button type="button" onClick={handleAddModelTransformerPreset} className={次级按钮样式()}>新增规则集</button>
-                                    <button type="button" onClick={handleDeleteModelTransformerPreset} disabled={!editorSelectedModelTransformerPreset} className={次级按钮样式(true)}>删除当前</button>
-                                    <button type="button" onClick={handleExportModelTransformerPresets} className={次级按钮样式()}>导出</button>
-                                    <label className={次级按钮样式()}>
-                                        导入
-                                        <input type="file" accept="application/json" className="hidden" onChange={(e) => { void handleImportModelTransformerPresets(e); }} />
-                                    </label>
-                                </div>
-                                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] gap-4">
-                                    <div className="space-y-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前编辑</label>
-                                            <select value={modelTransformerPresetEditorId} onChange={(e) => setModelTransformerPresetEditorId(e.target.value)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif">
-                                                <option value="">未选择规则集</option>
-                                                {editorModelTransformerPresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        {editorSelectedModelTransformerPreset && (
-                                            <div className="space-y-3">
-                                                <div className="rounded border border-wuxia-gold/10 bg-wuxia-gold/5 p-3 flex items-center justify-between gap-3">
-                                                    <div>
-                                                        <div className="text-sm font-serif text-wuxia-gold/90">启用当前规则集</div>
-                                                        <div className="text-[10px] text-gray-500 mt-1">锚定模式开启后，会直接改用锚定模式模型规则。</div>
-                                                    </div>
-                                                    <ToggleSwitch
-                                                        checked={editorSelectedModelTransformerPreset.是否启用 === true}
-                                                        onChange={(enabled) => handleToggleModelTransformerPreset(editorSelectedModelTransformerPreset.id, enabled)}
-                                                        ariaLabel={`开启 ${editorSelectedModelTransformerPreset.名称}`}
-                                                    />
-                                                </div>
-                                                <div className="rounded border border-wuxia-gold/10 bg-black/30 p-3 flex items-center justify-between gap-3">
-                                                    <div>
-                                                        <div className="text-sm font-serif text-wuxia-gold/90">兼容模式</div>
-                                                        <div className="text-[10px] text-gray-500 mt-1">开启后，画师串与 PNG 画风正面词会先发给 AI 提炼，再写入最终提示词，不再后处理硬拼。</div>
-                                                    </div>
-                                                    <ToggleSwitch
-                                                        checked={presetFeature?.词组转化兼容模式 === true}
-                                                        onChange={(enabled) => updatePresetFeature((feature) => ({ ...feature, 词组转化兼容模式: enabled }))}
-                                                        ariaLabel="切换词组转化兼容模式"
-                                                    />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {editorSelectedModelTransformerPreset ? (
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">规则集名称</label>
-                                                <input type="text" value={editorSelectedModelTransformerPreset.名称} onChange={(e) => updateModelTransformerPreset(editorSelectedModelTransformerPreset.id, (preset) => ({ ...preset, 名称: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-wuxia-gold/90 outline-none focus:border-wuxia-gold/50 transition-all font-serif" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">基础模型规则</label>
-                                                <textarea value={editorSelectedModelTransformerPreset.模型专属提示词} onChange={(e) => updateModelTransformerPreset(editorSelectedModelTransformerPreset.id, (preset) => ({ ...preset, 模型专属提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={5} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">锚定模式模型规则</label>
-                                                <textarea value={editorSelectedModelTransformerPreset.锚定模式模型提示词 || ''} onChange={(e) => updateModelTransformerPreset(editorSelectedModelTransformerPreset.id, (preset) => ({ ...preset, 锚定模式模型提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={5} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded border border-dashed border-wuxia-gold/20 bg-black/20 p-4 text-sm text-wuxia-gold/40 text-center font-serif">请先选择或新增模型规则集。</div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="rounded border border-wuxia-gold/20 bg-black/35 p-4 space-y-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <div className="text-[11px] tracking-[0.24em] uppercase text-wuxia-gold/50">规则模板</div>
-                                <div className="text-xs text-gray-500 mt-1">按模块切换编辑 NPC、场景和场景判定规则。</div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-2">
-                                <button type="button" onClick={() => setActiveRuleSection('npc')} className={规则切换按钮样式(activeRuleSection === 'npc')}>NPC 转化规则</button>
-                                <button type="button" onClick={() => setActiveRuleSection('scene')} className={规则切换按钮样式(activeRuleSection === 'scene')}>场景转化规则</button>
-                                <button type="button" onClick={() => setActiveRuleSection('scene_judge')} className={规则切换按钮样式(activeRuleSection === 'scene_judge')}>场景判定规则</button>
-                            </div>
-                        </div>
-                        <div className="rounded border border-wuxia-gold/10 bg-black/30 p-4">
-                            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-wuxia-gold/10">
-                                <div>
-                                    <div className="text-sm font-serif text-wuxia-gold/85">{当前规则标题}</div>
-                                    <div className="text-xs text-gray-500 mt-1">
-                                        {activeRuleSection === 'npc' && '角色图使用基础规则；锚定开启后改用专属锚定规则。'}
-                                        {activeRuleSection === 'scene' && '场景图使用空间与构图规则；角色锚定存在时改用场景锚定规则。'}
-                                        {activeRuleSection === 'scene_judge' && '用于判断当前文本应生成风景场景还是场景快照。'}
-                                    </div>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {activeRuleSection === 'npc' && (
-                                        <>
-                                            <button type="button" onClick={handleAddNpcTransformerPreset} className={次级按钮样式()}>新增规则</button>
-                                            <button type="button" onClick={handleDeleteNpcTransformerPreset} disabled={!editorSelectedNpcTransformerPreset} className={次级按钮样式(true)}>删除当前</button>
-                                        </>
-                                    )}
-                                    {activeRuleSection === 'scene' && (
-                                        <>
-                                            <button type="button" onClick={handleAddSceneTransformerPreset} className={次级按钮样式()}>新增规则</button>
-                                            <button type="button" onClick={handleDeleteSceneTransformerPreset} disabled={!editorSelectedSceneTransformerPreset} className={次级按钮样式(true)}>删除当前</button>
-                                        </>
-                                    )}
-                                    {activeRuleSection === 'scene_judge' && (
-                                        <>
-                                            <button type="button" onClick={handleAddSceneJudgePreset} className={次级按钮样式()}>新增规则</button>
-                                            <button type="button" onClick={handleDeleteSceneJudgePreset} disabled={!editorSelectedSceneJudgePreset} className={次级按钮样式(true)}>删除当前</button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-
-                            {activeRuleSection === 'npc' && (
-                                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] gap-4">
-                                    <div className="space-y-3">
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前生效</label>
-                                            <select value={当前生效NPC预设ID} onChange={(e) => handleSelectDefaultNpcTransformerPreset(e.target.value)} disabled={Boolean(activeModelTransformerPreset)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <option value="">不启用</option>
-                                                {npcTransformerPresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前编辑</label>
-                                            <select value={npcTransformerPresetEditorId} onChange={(e) => setNpcTransformerPresetEditorId(e.target.value)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif">
-                                                <option value="">未选择规则</option>
-                                                {npcTransformerPresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {editorSelectedNpcTransformerPreset ? (
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">规则名称</label>
-                                                <input type="text" value={editorSelectedNpcTransformerPreset.名称} onChange={(e) => updateTransformerPreset(editorSelectedNpcTransformerPreset.id, (preset) => ({ ...preset, 名称: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-wuxia-gold/90 outline-none focus:border-wuxia-gold/50 transition-all font-serif" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">基础转化规则</label>
-                                                <textarea value={editorSelectedNpcTransformerPreset.提示词} onChange={(e) => updateTransformerPreset(editorSelectedNpcTransformerPreset.id, (preset) => ({ ...preset, 提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={8} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">锚定模式专属规则</label>
-                                                <textarea value={editorSelectedNpcTransformerPreset.角色锚定模式提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedNpcTransformerPreset.id, (preset) => ({ ...preset, 角色锚定模式提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={6} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">无锚点回退规则</label>
-                                                <textarea value={editorSelectedNpcTransformerPreset.无锚点回退提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedNpcTransformerPreset.id, (preset) => ({ ...preset, 无锚点回退提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={4} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">输出格式规则</label>
-                                                <textarea value={editorSelectedNpcTransformerPreset.输出格式提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedNpcTransformerPreset.id, (preset) => ({ ...preset, 输出格式提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={4} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded border border-dashed border-wuxia-gold/20 bg-black/20 p-4 text-sm text-wuxia-gold/40 text-center">暂无 NPC 转化规则。</div>
-                                    )}
-                                </div>
-                            )}
-
-                            {activeRuleSection === 'scene' && (
-                                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] gap-4">
-                                    <div className="space-y-3">
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前生效</label>
-                                            <select value={当前生效场景预设ID} onChange={(e) => handleSelectDefaultSceneTransformerPreset(e.target.value)} disabled={Boolean(activeModelTransformerPreset)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <option value="">不启用</option>
-                                                {sceneTransformerPresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前编辑</label>
-                                            <select value={sceneTransformerPresetEditorId} onChange={(e) => setSceneTransformerPresetEditorId(e.target.value)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif">
-                                                <option value="">未选择规则</option>
-                                                {sceneTransformerPresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {editorSelectedSceneTransformerPreset ? (
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">规则名称</label>
-                                                <input type="text" value={editorSelectedSceneTransformerPreset.名称} onChange={(e) => updateTransformerPreset(editorSelectedSceneTransformerPreset.id, (preset) => ({ ...preset, 名称: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-wuxia-gold/90 outline-none focus:border-wuxia-gold/50 transition-all font-serif" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">基础转化规则</label>
-                                                <textarea value={editorSelectedSceneTransformerPreset.提示词} onChange={(e) => updateTransformerPreset(editorSelectedSceneTransformerPreset.id, (preset) => ({ ...preset, 提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={8} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">场景锚定专属规则</label>
-                                                <textarea value={editorSelectedSceneTransformerPreset.场景角色锚定模式提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedSceneTransformerPreset.id, (preset) => ({ ...preset, 场景角色锚定模式提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={6} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">无锚点回退规则</label>
-                                                <textarea value={editorSelectedSceneTransformerPreset.无锚点回退提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedSceneTransformerPreset.id, (preset) => ({ ...preset, 无锚点回退提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={4} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">输出格式规则</label>
-                                                <textarea value={editorSelectedSceneTransformerPreset.输出格式提示词 || ''} onChange={(e) => updateTransformerPreset(editorSelectedSceneTransformerPreset.id, (preset) => ({ ...preset, 输出格式提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={4} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded border border-dashed border-wuxia-gold/20 bg-black/20 p-4 text-sm text-wuxia-gold/40 text-center">暂无场景转化规则。</div>
-                                    )}
-                                </div>
-                            )}
-
-                            {activeRuleSection === 'scene_judge' && (
-                                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] gap-4">
-                                    <div className="space-y-3">
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前生效</label>
-                                            <select value={当前生效场景判定预设ID} onChange={(e) => handleSelectDefaultSceneJudgePreset(e.target.value)} disabled={Boolean(activeModelTransformerPreset)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <option value="">不启用</option>
-                                                {sceneJudgePresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">当前编辑</label>
-                                            <select value={sceneJudgePresetEditorId} onChange={(e) => setSceneJudgePresetEditorId(e.target.value)} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all font-serif">
-                                                <option value="">未选择规则</option>
-                                                {sceneJudgePresets.map((preset) => (
-                                                    <option key={preset.id} value={preset.id}>{preset.名称}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {editorSelectedSceneJudgePreset ? (
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">规则名称</label>
-                                                <input type="text" value={editorSelectedSceneJudgePreset.名称} onChange={(e) => updateTransformerPreset(editorSelectedSceneJudgePreset.id, (preset) => ({ ...preset, 名称: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-sm text-wuxia-gold/90 outline-none focus:border-wuxia-gold/50 transition-all font-serif" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[11px] text-wuxia-gold/60 uppercase tracking-wider block">判定规则</label>
-                                                <textarea value={editorSelectedSceneJudgePreset.提示词} onChange={(e) => updateTransformerPreset(editorSelectedSceneJudgePreset.id, (preset) => ({ ...preset, 提示词: e.target.value, updatedAt: Date.now() }))} onKeyDown={预设输入拦截键盘事件} rows={10} className="w-full rounded border border-wuxia-gold/20 bg-black/50 px-3 py-2 text-xs text-gray-300 outline-none focus:border-wuxia-gold/50 transition-all custom-scrollbar resize-y font-mono leading-relaxed" />
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded border border-dashed border-wuxia-gold/20 bg-black/20 p-4 text-sm text-wuxia-gold/40 text-center">暂无场景判定规则。</div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     return (
         <div className="fixed inset-0 z-[230] bg-black/90 backdrop-blur-md flex items-center justify-center p-0 md:p-4 animate-fadeIn overflow-hidden">
@@ -3838,7 +3346,18 @@ const ImageManagerModal: React.FC<Props> = ({
                 {activeTab === 'manual' && renderManualTab()}
                 {activeTab === 'library' && renderLibraryTab()}
                 {activeTab === 'scene' && renderSceneTab()}
-                {activeTab === 'queue' && renderQueueTab()}
+                {activeTab === 'queue' && (
+                    <QueueTab
+                        filteredCombinedQueue={filteredCombinedQueue}
+                        busyActionKey={busyActionKey}
+                        onDeleteQueueTask={handleDeleteQueueTask}
+                        onClearQueue={handleClearQueue}
+                        onDeleteSceneQueueTask={handleDeleteSceneQueueTask}
+                        onClearSceneQueue={handleClearSceneQueue}
+                        onRetryImage={onRetryImage}
+                        打开手动生图页={打开手动生图页}
+                    />
+                )}
                 {activeTab === 'history' && renderHistoryTab()}
                 {activeTab === 'presets' && (
                 <PresetsTab
@@ -3903,7 +3422,55 @@ const ImageManagerModal: React.FC<Props> = ({
                     updateArtistPreset={updateArtistPreset}
                 />
             )}
-            {activeTab === 'rules' && renderRulesTab()}
+            {activeTab === 'rules' && (
+                <RulesTab
+                    activeRuleSection={activeRuleSection}
+                    modelRulePanelOpen={modelRulePanelOpen}
+                    busyActionKey={busyActionKey}
+                    presetFeature={presetFeature}
+                    editorModelTransformerPresets={editorModelTransformerPresets}
+                    npcTransformerPresets={npcTransformerPresets}
+                    sceneTransformerPresets={sceneTransformerPresets}
+                    sceneJudgePresets={sceneJudgePresets}
+                    modelTransformerPresetEditorId={modelTransformerPresetEditorId}
+                    npcTransformerPresetEditorId={npcTransformerPresetEditorId}
+                    sceneTransformerPresetEditorId={sceneTransformerPresetEditorId}
+                    sceneJudgePresetEditorId={sceneJudgePresetEditorId}
+                    当前生效NPC预设ID={当前生效NPC预设ID}
+                    当前生效场景预设ID={当前生效场景预设ID}
+                    当前生效场景判定预设ID={当前生效场景判定预设ID}
+                    editorSelectedModelTransformerPreset={editorSelectedModelTransformerPreset}
+                    editorSelectedNpcTransformerPreset={editorSelectedNpcTransformerPreset}
+                    editorSelectedSceneTransformerPreset={editorSelectedSceneTransformerPreset}
+                    editorSelectedSceneJudgePreset={editorSelectedSceneJudgePreset}
+                    activeModelTransformerPreset={activeModelTransformerPreset}
+                    setModelRulePanelOpen={setModelRulePanelOpen}
+                    setActiveRuleSection={setActiveRuleSection}
+                    setModelTransformerPresetEditorId={setModelTransformerPresetEditorId}
+                    setNpcTransformerPresetEditorId={setNpcTransformerPresetEditorId}
+                    setSceneTransformerPresetEditorId={setSceneTransformerPresetEditorId}
+                    setSceneJudgePresetEditorId={setSceneJudgePresetEditorId}
+                    handleSavePresetConfig={handleSavePresetConfig}
+                    handleSelectDefaultNpcTransformerPreset={handleSelectDefaultNpcTransformerPreset}
+                    handleSelectDefaultSceneTransformerPreset={handleSelectDefaultSceneTransformerPreset}
+                    handleSelectDefaultSceneJudgePreset={handleSelectDefaultSceneJudgePreset}
+                    handleAddModelTransformerPreset={handleAddModelTransformerPreset}
+                    handleDeleteModelTransformerPreset={handleDeleteModelTransformerPreset}
+                    handleExportModelTransformerPresets={handleExportModelTransformerPresets}
+                    handleImportModelTransformerPresets={handleImportModelTransformerPresets}
+                    handleToggleModelTransformerPreset={handleToggleModelTransformerPreset}
+                    handleAddNpcTransformerPreset={handleAddNpcTransformerPreset}
+                    handleDeleteNpcTransformerPreset={handleDeleteNpcTransformerPreset}
+                    handleAddSceneTransformerPreset={handleAddSceneTransformerPreset}
+                    handleDeleteSceneTransformerPreset={handleDeleteSceneTransformerPreset}
+                    handleAddSceneJudgePreset={handleAddSceneJudgePreset}
+                    handleDeleteSceneJudgePreset={handleDeleteSceneJudgePreset}
+                    updateModelTransformerPreset={updateModelTransformerPreset}
+                    updateTransformerPreset={updateTransformerPreset}
+                    updatePresetFeature={updatePresetFeature}
+                    onSaveApiConfig={onSaveApiConfig}
+                />
+            )}
         </ImageManagerShell>
 
         {imageViewer && (

@@ -5,7 +5,7 @@ import type {
     模型词组转化器预设结构,
     词组转化器提示词预设结构,
     PNG画风预设结构
-} from '../../../../types';
+} from '../../../../../types';
 import { 
     主按钮样式,
     次级按钮样式
@@ -193,6 +193,7 @@ export const RulesTab: React.FC<RulesTabProps> = ({
                                 )}
                         </div>
                     </div>
+                )}
                 </div>
 
                 <div className="rounded border border-wuxia-gold/20 bg-black/35 p-4 space-y-4">
