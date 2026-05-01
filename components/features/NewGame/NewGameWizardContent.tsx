@@ -338,73 +338,73 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     </div>
                                 </div>
 
-                                {/* 里模式开关 */}
-                                <div className="flex flex-col gap-3">
-                                    {/* 子纪元里模式开关 */}
-                                    <div className="relative flex items-center justify-between gap-4 rounded-md border border-yellow-500/20 bg-black/30 px-4 py-3">
+                                {/* 全局里模式开关 — 里武侠/里志怪（仅古代时代） */}
+                                <div className="flex flex-wrap gap-3">
+                                {(古代体系选择 === '武侠' || 古代体系选择 === '双修') && (
+                                    <div className="relative flex items-center justify-between gap-4 rounded-md border border-wuxia-red/20 bg-black/30 px-4 py-3 flex-1 min-w-[240px]">
                                         <div>
-                                            <div className="text-sm text-yellow-400 font-bold">子纪元里模式</div>
-                                            <div className="text-[11px] text-gray-400">时代暗面规则（随所选时代自动定义）</div>
+                                            <div className="text-sm text-wuxia-red font-bold">里武侠</div>
+                                            <div className="text-[11px] text-gray-400">双修人格、武根系统</div>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
                                             <input
                                                 type="checkbox"
-                                                checked={子纪元里模式开启}
-                                                onChange={(e) => 设置子纪元里模式开启(e.target.checked)}
+                                                checked={里武侠开启}
+                                                onChange={(e) => 设置里武侠开启(e.target.checked)}
                                                 className="sr-only peer"
                                             />
-                                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wuxia-red"></div>
                                         </label>
-                                        {子纪元里模式开启 && (
-                                            <span className="absolute -inset-1 rounded-lg bg-yellow-500/15 animate-pulse pointer-events-none" />
+                                        {里武侠开启 && (
+                                            <span className="absolute -inset-1 rounded-lg bg-wuxia-red/15 animate-pulse pointer-events-none" />
                                         )}
                                     </div>
-                                    {/* 全局里模式开关 */}
-                                    <div className="flex flex-wrap gap-3">
-                                    {(古代体系选择 === '武侠' || 古代体系选择 === '双修') && (
-                                        <div className="relative flex items-center justify-between gap-4 rounded-md border border-wuxia-red/20 bg-black/30 px-4 py-3 flex-1 min-w-[240px]">
-                                            <div>
-                                                <div className="text-sm text-wuxia-red font-bold">里武侠</div>
-                                                <div className="text-[11px] text-gray-400">双修人格、武根系统</div>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={里武侠开启}
-                                                    onChange={(e) => 设置里武侠开启(e.target.checked)}
-                                                    className="sr-only peer"
-                                                />
-                                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-wuxia-red"></div>
-                                            </label>
-                                            {里武侠开启 && (
-                                                <span className="absolute -inset-1 rounded-lg bg-wuxia-red/15 animate-pulse pointer-events-none" />
-                                            )}
+                                )}
+                                {(古代体系选择 === '志怪' || 古代体系选择 === '双修') && (
+                                    <div className="relative flex items-center justify-between gap-4 rounded-md border border-green-500/20 bg-black/30 px-4 py-3 flex-1 min-w-[240px]">
+                                        <div>
+                                            <div className="text-sm text-green-400 font-bold">里志怪</div>
+                                            <div className="text-[11px] text-gray-400">妖根、灵视、因果系统</div>
                                         </div>
-                                    )}
-                                    {(古代体系选择 === '志怪' || 古代体系选择 === '双修') && (
-                                        <div className="relative flex items-center justify-between gap-4 rounded-md border border-green-500/20 bg-black/30 px-4 py-3 flex-1 min-w-[240px]">
-                                            <div>
-                                                <div className="text-sm text-green-400 font-bold">里志怪</div>
-                                                <div className="text-[11px] text-gray-400">妖根、灵视、因果系统</div>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={里志怪开启}
-                                                    onChange={(e) => 设置里志怪开启(e.target.checked)}
-                                                    className="sr-only peer"
-                                                />
-                                                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                                            </label>
-                                            {里志怪开启 && (
-                                                <span className="absolute -inset-1 rounded-lg bg-green-500/15 animate-pulse pointer-events-none" />
-                                            )}
-                                        </div>
-                                    )}
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={里志怪开启}
+                                                onChange={(e) => 设置里志怪开启(e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                        </label>
+                                        {里志怪开启 && (
+                                            <span className="absolute -inset-1 rounded-lg bg-green-500/15 animate-pulse pointer-events-none" />
+                                        )}
                                     </div>
+                                )}
                                 </div>
                             </div>
                         )}
+
+                        {/* 子纪元里模式开关 — 所有时代展示 */}
+                        <div className="mt-6">
+                            <div className="relative flex items-center justify-between gap-4 rounded-md border border-yellow-500/20 bg-black/30 px-4 py-3">
+                                <div>
+                                    <div className="text-sm text-yellow-400 font-bold">子纪元里模式</div>
+                                    <div className="text-[11px] text-gray-400">时代暗面规则（随所选时代自动定义）</div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={子纪元里模式开启}
+                                        onChange={(e) => 设置子纪元里模式开启(e.target.checked)}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                                </label>
+                                {子纪元里模式开启 && (
+                                    <span className="absolute -inset-1 rounded-lg bg-yellow-500/15 animate-pulse pointer-events-none" />
+                                )}
+                            </div>
+                        </div>
 
                         {/* 世界观预设 - moved up for quick-start */}
                         <div className="mt-6">

@@ -448,7 +448,29 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
                 </div>
             </div>
 
-            <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
+            <div className="space-y-3 rounded-md border border-yellow-500/20 bg-black/30 p-4">
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <div className="text-sm text-yellow-400 font-bold">子纪元里模式</div>
+                        <div className="text-xs text-gray-400 mt-1">当前子纪元的暗面模式开关。开启后，设备可切换至时代暗面模式，应用名称、UI 主题色与 AI 提示词将随所选子纪元自动变化。</div>
+                    </div>
+                    <div className="relative">
+                        <ToggleSwitch
+                            checked={(form as any).启用子纪元里模式?.[currentEra ?? ''] ?? true}
+                            onChange={(next) => {
+                                const prev = (form as any).启用子纪元里模式 || {};
+                                实时应用更新({ 启用子纪元里模式: { ...prev, [currentEra ?? '']: next } } as any);
+                            }}
+                            ariaLabel="切换子纪元里模式"
+                        />
+                        {((form as any).启用子纪元里模式?.[currentEra ?? ''] ?? true) && (
+                            <span className="absolute -inset-2 rounded-lg bg-yellow-500/15 animate-pulse pointer-events-none" />
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-3 rounded-md border border-wuxia-red/20 bg-black/30 p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <div className="text-sm text-wuxia-red font-bold">里武侠世界</div>

@@ -662,6 +662,9 @@ const App: React.FC = () => {
             case '设置':
                 setters.setShowSettings(true);
                 break;
+            case '通讯':
+                actions.openDevice();
+                break;
             case '音乐':
                 setShowMobileMusic(true);
                 break;
@@ -894,6 +897,7 @@ const App: React.FC = () => {
                                 onOpenMemory={openMemory}
                                 onOpenImageManager={openImageManagerWithCheck}
                                 onOpenNovelDecomposition={() => { void openNovelDecompositionWorkbench(); }}
+                                onOpenDevice={actions.openDevice}
                                 worldEvolutionEnabled={meta.worldEvolutionEnabled}
                                 worldEvolutionUpdating={meta.worldEvolutionUpdating}
                                 enableHeroinePlan={state.gameConfig.启用女主剧情规划 === true}
@@ -1672,7 +1676,7 @@ const App: React.FC = () => {
                                 deviceState={meta.deviceState}
                                 onAppClick={actions.openDeviceApp}
                                 onModeToggle={actions.toggleDeviceMode}
-                                liModeGlobalEnabled={state.gameConfig?.启用子纪元里模式 !== false}
+                                liModeGlobalEnabled={state.gameConfig?.启用子纪元里模式?.[state.currentEra] ?? true}
                                 onClose={actions.closeDevice}
                             />
                         </懒加载边界>

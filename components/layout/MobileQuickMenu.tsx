@@ -32,7 +32,8 @@ type IconName =
     | 'save'
     | 'load'
     | 'grid'
-    | 'novel';
+    | 'novel'
+    | 'device';
 
 const PRIMARY_MENUS = ['角色', '战斗', '装备', '背包', '社交'];
 
@@ -54,6 +55,7 @@ const MENU_ICON_MAP: Record<string, IconName> = {
     记忆: 'memory',
     图册: 'grid',
     小说分解: 'novel',
+    通讯: 'device',
     设置: 'settings',
     保存: 'save',
     读取: 'load',
@@ -90,6 +92,7 @@ const MobileQuickMenu: React.FC<Props> = ({
         '记忆',
         ...(enableImageManager ? ['图册'] : []),
         ...(enableNovelDecomposition ? ['小说分解'] : []),
+        '通讯',
         '保存',
         '读取',
         '设置',
@@ -293,6 +296,8 @@ const IconGlyph = ({ name, className }: { name: IconName; className?: string }) 
             return <svg viewBox="0 0 24 24" className={svgClass} fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 6.5h12V18H6z" /><path d="m12 9.5-3 3h2v2h2v-2h2z" /></svg>;
         case 'settings':
             return <svg viewBox="0 0 24 24" className={svgClass} fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m12 3.8 1.2 1.8 2.1.4.4 2.1 1.8 1.2-1.8 1.2-.4 2.1-2.1.4-1.2 1.8-1.2-1.8-2.1-.4-.4-2.1-1.8-1.2 1.8-1.2.4-2.1 2.1-.4z" /><circle cx="12" cy="10.8" r="2.2" /></svg>;
+        case 'device':
+            return <svg viewBox="0 0 24 24" className={svgClass} fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M12 18h.01" /></svg>;
         default:
             return <svg viewBox="0 0 24 24" className={svgClass} fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="5" width="5.5" height="5.5" /><rect x="13.5" y="5" width="5.5" height="5.5" /><rect x="5" y="13.5" width="5.5" height="5.5" /><rect x="13.5" y="13.5" width="5.5" height="5.5" /></svg>;
     }

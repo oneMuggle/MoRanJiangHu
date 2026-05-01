@@ -24,6 +24,7 @@ interface Props {
     onOpenMemory: () => void;
     onOpenImageManager?: () => void;
     onOpenNovelDecomposition?: () => void;
+    onOpenDevice?: () => void;
     worldEvolutionEnabled?: boolean;
     worldEvolutionUpdating?: boolean;
     enableHeroinePlan?: boolean;
@@ -37,7 +38,7 @@ const RightPanel: React.FC<Props> = ({
     onOpenSettings, onOpenInventory, onOpenEquipment, onOpenBattle, onOpenTeam,
     onOpenSocial, onOpenKungfu, onOpenWorld, onOpenMap, onOpenSect,
     onOpenTask, onOpenAgreement, onOpenStory, onOpenHeroinePlan, onOpenMemory, onOpenImageManager,
-    onOpenNovelDecomposition,
+    onOpenNovelDecomposition, onOpenDevice,
     worldEvolutionEnabled = false,
     worldEvolutionUpdating = false,
     enableHeroinePlan = false,
@@ -73,6 +74,7 @@ const RightPanel: React.FC<Props> = ({
         { label: '记忆', action: onOpenMemory, color: 'primary' },
         ...(onOpenImageManager ? [{ label: '图册', action: onOpenImageManager, color: 'secondary' }] : []),
         ...(onOpenNovelDecomposition ? [{ label: '小说分解', action: onOpenNovelDecomposition, color: 'secondary' }] : []),
+        ...(onOpenDevice ? [{ label: '通讯', action: onOpenDevice, color: 'secondary' }] : []),
     ];
 
     const SYSTEM_ITEMS = [

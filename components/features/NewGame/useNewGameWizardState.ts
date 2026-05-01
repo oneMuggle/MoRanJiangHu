@@ -57,21 +57,26 @@ export type UseNewGameWizardStateReturn = ReturnType<typeof useNewGameWizardStat
 
 export function useNewGameWizardState({ onComplete, onCancel, loading, currentEra, requestConfirm }: UseNewGameWizardStateProps) {
     // --- State: World Config ---
-    const [worldConfig, setWorldConfig] = useState<WorldGenConfig>({
-        worldName: '太古界',
-        worldSize: '九州宏大',
-        dynastySetting: '群雄逐鹿，王朝末年',
-        sectDensity: '林立',
-        tianjiaoSetting: '大争之世，天骄并起',
-        武力等级: '中武',
-        nsfw场景类型: '无',
-        能力类型: '传统武侠',
-        超能力分类: '未觉醒',
-        觉醒程度: '未觉醒',
-        worldExtraRequirement: '',
-        manualWorldPrompt: '',
-        manualRealmPrompt: '',
-        difficulty: 'normal' as 游戏难度
+    const [worldConfig, setWorldConfig] = useState<WorldGenConfig>(() => {
+        const initialEra = currentEra || 'ancient_eastern_wuxia';
+        const era = 内置时代配置.find(c => c.id === initialEra);
+        return {
+            worldName: '太古界',
+            worldSize: era?.默认世界版图 ?? '九州宏大',
+            dynastySetting: era?.默认王朝占位符 ?? '群雄逐鹿，王朝末年',
+            sectDensity: era?.默认组织密度 ?? '林立',
+            tianjiaoSetting: era?.默认天骄占位符 ?? '大争之世，天骄并起',
+            武力等级: era?.默认武力等级 ?? '中武',
+            nsfw场景类型: '无',
+            能力类型: era?.默认能力类型 ?? '传统武侠',
+            超能力分类: '未觉醒',
+            觉醒程度: '未觉醒',
+            时代配置ID: initialEra,
+            worldExtraRequirement: '',
+            manualWorldPrompt: '',
+            manualRealmPrompt: '',
+            difficulty: 'normal' as 游戏难度
+        };
     });
 
     // Sync global era setting into wizard world config, applying era defaults
@@ -575,7 +580,12 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
                     设置成人内容开启(savedGameSettings.成人内容 === true);
                     设置里武侠开启(savedGameSettings.启用里武侠模式 === true);
                     设置里志怪开启(savedGameSettings.启用里志怪模式 === true);
-                    设置子纪元里模式开启(savedGameSettings.启用子纪元里模式 !== false);
+                    const loadedEra = currentEra || savedGameSettings.时代配置ID || '';
+                    const savedLiModeMap = savedGameSettings.启用子纪元里模式;
+                    const loadedLiMode = typeof savedLiModeMap === 'object'
+                        ? savedLiModeMap?.[loadedEra]
+                        : savedLiModeMap;
+                    设置子纪元里模式开启(loadedLiMode !== false);
                     if (savedGameSettings.古代体系选择) 设置古代体系选择(savedGameSettings.古代体系选择 as 体系类型);
                 }
             } catch (error) {
@@ -870,7 +880,11 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         // Persist 里武侠开关到 IndexedDB，确保后续游戏会话能读取
         try {
             const savedGameSettings = await dbService.读取设置(设置键.游戏设置) || {};
-            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 启用里武侠模式: 里武侠开启, 启用里志怪模式: 里志怪开启, 启用子纪元里模式: 子纪元里模式开启, 古代体系选择 });
+            const savedEra = currentEra || savedGameSettings.时代配置ID || '';
+            const prev = typeof savedGameSettings.启用子纪元里模式 === 'object'
+                ? savedGameSettings.启用子纪元里模式
+                : {};
+            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 启用里武侠模式: 里武侠开启, 启用里志怪模式: 里志怪开启, 启用子纪元里模式: { ...prev, [savedEra]: 子纪元里模式开启 }, 古代体系选择 });
         } catch (error) {
             console.error('保存里武侠开关失败', error);
         }

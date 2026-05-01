@@ -1425,7 +1425,7 @@ export const 构建系统提示词 = ({
         构建时代主题注入(options?.eraId),
         构建时代文风注入(options?.eraId),
         获取时代现实提示词ByEraId(options?.eraId),
-        构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式 !== false),
+        构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true),
         normalizedGameConfig.启用里武侠模式 === true ? 构建里武侠世界提示词() : null,
         normalizedGameConfig.启用里志怪模式 === true ? 构建里志怪世界提示词() : null,
         // 表志怪：古代体系选择为志怪/双修时注入，里志怪已开启则跳过（避免重复）
