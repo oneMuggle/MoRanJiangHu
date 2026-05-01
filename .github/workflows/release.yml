@@ -20,10 +20,16 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm ci || npm install
+          ls -la node_modules/.bin/vite || echo "vite bin MISSING - reinstalling"
+          if [ ! -f node_modules/.bin/vite ]; then
+            npm rebuild vite || true
+            ls -la node_modules/.bin/vite
+          fi
 
       - name: Build
-        run: npx --yes vite build
+        run: npm run build
 
       - name: Create ZIP archive
         run: |
