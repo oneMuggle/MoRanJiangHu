@@ -3,9 +3,5 @@ compatibility_date = "2024-01-01"
 
 [site]
 bucket = "./dist"
-
-[build]
-command = "npm run build"
-cwd = "."
-
-pages_build = { dir = ".", runtime = "esmodules" }
+# 移除 [build] 和 [pages_build]，让 CI 完全控制构建和部署
+# 构建在 GitHub Actions 中完成，wrangler pages deploy 只负责上传 dist
