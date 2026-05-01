@@ -20,11 +20,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Clear npm cache
+        run: npm cache clean --force
+
       - name: Install dependencies
         run: npm install --ignore-scripts
 
       - name: Build
-        run: npx vite build
+        run: ./node_modules/.bin/vite build
         env:
           VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
 
