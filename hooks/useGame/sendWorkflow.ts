@@ -563,11 +563,12 @@ export const 执行主剧情发送工作流 = async (
                 }
             },
             action: async () => {
-                return textAIService.generateStoryResponse(
-                    '',
-                    '',
-                    '',
+                return textAIService.generateStoryResponseWithFailover(
+                    currentState.apiConfig,
                     activeApi,
+                    '',
+                    '',
+                    '',
                     controller.signal,
                     isStreaming
                         ? {
