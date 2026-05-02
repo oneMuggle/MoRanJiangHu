@@ -1420,14 +1420,14 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
 
             {/* STEP 4: CONFIRMATION */}
             {step === 4 && (
-                <div className="h-full flex flex-col items-center justify-center animate-fadeIn space-y-8">
-                    <div className="text-center">
-                        <h2 className="text-3xl font-serif font-black text-wuxia-gold mb-2" style={{ fontFamily: 'var(--ui-页面标题-font-family, inherit)', fontSize: 'var(--ui-页面标题-font-size, 32px)' }}>天道既定</h2>
-                        <p className="text-gray-400 text-sm" style={{ fontFamily: 'var(--ui-辅助文本-font-family, inherit)', fontSize: 'var(--ui-辅助文本-font-size, 12px)' }}>一切准备就绪，即将推演这方世界。</p>
+                <div className="h-full flex flex-col items-center justify-start overflow-y-auto custom-scrollbar px-2 py-6 animate-fadeIn">
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl md:text-3xl font-serif font-black text-wuxia-gold mb-2" style={{ fontFamily: 'var(--ui-页面标题-font-family, inherit)', fontSize: 'var(--ui-页面标题-font-size, 32px)' }}>天道既定</h2>
+                        <p className="text-gray-400 text-xs md:text-sm" style={{ fontFamily: 'var(--ui-辅助文本-font-family, inherit)', fontSize: 'var(--ui-辅助文本-font-size, 12px)' }}>一切准备就绪，即将推演这方世界。</p>
                     </div>
 
-                    <OrnateBorder className="max-w-lg w-full p-6">
-                        <div className="text-sm space-y-3 font-mono text-gray-300">
+                    <OrnateBorder className="max-w-lg w-full p-4 md:p-6">
+                        <div className="text-xs md:text-sm space-y-2 font-mono text-gray-300">
                             <p>世界: <span className="text-white">{worldConfig.worldName}</span></p>
                             <p>时代: <span className="text-white">{(() => { const eraId = worldConfig.时代配置ID || 'era_ancient_wuxia'; const cfg = 全部时代配置.find(c => c.id === eraId); if (cfg) return cfg.名称; const node = allEraNodes.find(n => n.id === eraId); return node?.name || '古代武侠'; })()}</span></p>
                             <p>难度: <span className="text-white uppercase">{worldConfig.difficulty}</span></p>
@@ -1449,7 +1449,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         </div>
                     </OrnateBorder>
 
-                    <OrnateBorder className="w-full max-w-lg p-4">
+                    <OrnateBorder className="w-full max-w-lg p-3 md:p-4">
                         <div className="space-y-2">
                             <div className="text-xs text-gray-300 font-bold tracking-widest">开局额外要求（可选）</div>
                             <div className="text-[11px] text-gray-500">会随开局任务一起发送给模型，仅影响本次开局生成。</div>
@@ -1462,7 +1462,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         </div>
                     </OrnateBorder>
 
-                    <OrnateBorder className="w-full max-w-lg p-4">
+                    <OrnateBorder className="w-full max-w-lg p-3 md:p-4">
                         <div className="space-y-3">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
@@ -1510,10 +1510,10 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                     </OrnateBorder>
 
                     {自定义开局预设列表.length > 0 && (
-                        <OrnateBorder className="w-full max-w-lg p-4">
+                        <OrnateBorder className="w-full max-w-lg p-3 md:p-4">
                             <div className="space-y-3">
                                 <div className="text-xs text-gray-300 font-bold tracking-widest">已保存的开局方案</div>
-                                <div className="space-y-2 max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
+                                <div className="space-y-2 max-h-[240px] md:max-h-[320px] overflow-y-auto custom-scrollbar pr-1">
                                     {自定义开局预设列表.map((preset) => (
                                         <div
                                             key={preset.id}
@@ -1566,7 +1566,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         </OrnateBorder>
                     )}
 
-                    <div className="flex flex-col gap-4 w-full max-w-md">
+                    <div className="hidden md:flex flex-col gap-3 w-full max-w-lg mt-4 mb-2">
                         <GameButton onClick={() => { void handleGenerate(); }} variant="primary" className="w-full py-4 text-lg" disabled={loading}>
                             {loading ? '生成中...' : '一键生成 (世界+剧情)'}
                         </GameButton>

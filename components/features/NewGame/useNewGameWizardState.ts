@@ -477,6 +477,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         const nextWorldConfig: WorldGenConfig = { ...worldConfig, ...preset.worldConfig };
         const nextBackground = 根据名称查找背景(preset.character.背景名称);
         const nextTalents = 根据名称查找天赋列表(preset.character.天赋名称列表);
+        const nextQiyun = Array.isArray(preset.character.气运列表) ? preset.character.气运列表 : [];
         setWorldConfig(nextWorldConfig);
         setCharName(preset.character.姓名);
         setCharGender(preset.character.性别);
@@ -488,6 +489,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         setStats(preset.character.属性);
         setSelectedBackground(nextBackground);
         setSelectedTalents(nextTalents);
+        setSelectedQiyun(nextQiyun);
         const normalizedOpeningConfig = 规范化可选开局配置(preset.openingConfig);
         setOpeningConfigEnabled(Boolean(normalizedOpeningConfig));
         setOpeningConfig(normalizedOpeningConfig || 默认开局配置());
