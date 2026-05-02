@@ -26,18 +26,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install --no-fund --no-audit
+        run: npm install --ignore-scripts --no-fund --no-audit
 
       - name: Build Web App
         run: node node_modules/vite/bin/vite.js build
         env:
           VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
 
-      - name: Setup Capacitor
-        run: node node_modules/@capacitor/cli/bin/capacitor sync android
+      - name: Sync Capacitor
+        run: node node_modules/@capacitor/cli/bin/capacitor sync android --no-interactive
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

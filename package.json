@@ -14,9 +14,9 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@capacitor/android": "^8.3.1",
-    "@capacitor/cli": "^8.3.1",
-    "@capacitor/core": "^8.3.1",
+    "@capacitor/android": "^7.4.5",
+    "@capacitor/cli": "^7.4.5",
+    "@capacitor/core": "^7.4.5",
     "fflate": "^0.8.2",
     "js-tiktoken": "^1.0.21",
     "node": "^25.6.1",
