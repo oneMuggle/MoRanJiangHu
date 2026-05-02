@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 时代主题方案 } from '../../../models/eraTheme';
+import { 时代主题方案, allEraNodes } from '../../../models/eraTheme';
 import { 时代配置, 游戏设置结构 } from '../../../types';
 import GameButton from '../../ui/GameButton';
 import ToggleSwitch from '../../ui/ToggleSwitch';
@@ -487,7 +487,7 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
             <div className="space-y-3 rounded-md border border-yellow-500/20 bg-black/30 p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <div className="text-sm text-yellow-400 font-bold">子纪元里模式</div>
+                        <div className="text-sm text-yellow-400 font-bold">{(() => { const era = allEraNodes.find(n => n.id === currentEra); return era?.liMode?.name || '子纪元里模式'; })()}</div>
                         <div className="text-xs text-gray-400 mt-1">当前子纪元的暗面模式开关。开启后，设备可切换至时代暗面模式，应用名称、UI 主题色与 AI 提示词将随所选子纪元自动变化。</div>
                     </div>
                     <div className="relative">

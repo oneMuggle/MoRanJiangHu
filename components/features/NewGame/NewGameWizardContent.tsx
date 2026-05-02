@@ -17,6 +17,7 @@ import { 预设天赋, 预设背景 } from '../../../data/presets';
 import { type UseNewGameWizardStateReturn } from './useNewGameWizardState';
 import { SearchInput, ChipGroup } from '../../ui/FilterBar';
 import { 全部时代配置 } from '../../../models/system';
+import { allEraNodes } from '../../../models/eraTheme';
 
 const 时代背景颜色: Record<string, { bg: string; text: string; label: string }> = {
     '古代': { bg: 'bg-amber-900/40', text: 'text-amber-400', label: '古代专属' },
@@ -302,7 +303,13 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <label className="text-sm text-wuxia-cyan font-bold">时代背景</label>
                                 <div className="flex gap-2">
                                     <div className="flex-1 px-3 py-2 bg-black/30 border border-gray-700/50 rounded-md text-gray-300 text-sm">
-                                        {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.label || '古代武侠'}
+                                        {(() => {
+                                            const eraId = worldConfig.时代配置ID || 'era_ancient_wuxia';
+                                            const opt = 时代选项.find(item => item.value === eraId);
+                                            if (opt) return opt.label;
+                                            const node = allEraNodes.find(n => n.id === eraId);
+                                            return node?.name || '古代武侠';
+                                        })()}
                                     </div>
                                     <button
                                         type="button"
@@ -315,7 +322,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <div className="text-[11px] text-gray-500 leading-6">
                                     {时代选项.find((item) => item.value === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.hint}
                                 </div>
-                                <div className="text-[11px] text-wuxia-cyan/60">点击"详细选择"可浏览全部22个时代</div>
+                                <div className="text-[11px] text-wuxia-cyan/60">点击"详细选择"可浏览全部{时代选项.length}个时代</div>
                             </div>
                         </div>
 
@@ -1422,7 +1429,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                     <OrnateBorder className="max-w-lg w-full p-6">
                         <div className="text-sm space-y-3 font-mono text-gray-300">
                             <p>世界: <span className="text-white">{worldConfig.worldName}</span></p>
-                            <p>时代: <span className="text-white">{全部时代配置.find(c => c.id === (worldConfig.时代配置ID || 'era_ancient_wuxia'))?.名称 || '古代武侠'}</span></p>
+                            <p>时代: <span className="text-white">{(() => { const eraId = worldConfig.时代配置ID || 'era_ancient_wuxia'; const cfg = 全部时代配置.find(c => c.id === eraId); if (cfg) return cfg.名称; const node = allEraNodes.find(n => n.id === eraId); return node?.name || '古代武侠'; })()}</span></p>
                             <p>难度: <span className="text-white uppercase">{worldConfig.difficulty}</span></p>
                             <p>世界观额外要求: <span className="text-white">{worldConfig.worldExtraRequirement.trim() || '无'}</span></p>
                             <p>手动世界观提示词: <span className="text-white">{worldConfig.manualWorldPrompt.trim() ? '已提供' : '未提供'}</span></p>

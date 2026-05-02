@@ -18,6 +18,7 @@ interface Props {
         openingExtraPrompt?: string
     ) => void;
     onCancel: () => void;
+    onEraSelect?: (eraId: string) => void;
     loading: boolean;
     currentEra?: string;
     requestConfirm?: (options: { title?: string; message: string; confirmText?: string; cancelText?: string; danger?: boolean }) => Promise<boolean>;
@@ -25,7 +26,7 @@ interface Props {
 
 const STEPS = ['世界观', '角色基础', '天赋背景', '开局配置', '确认生成'];
 
-const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, currentEra, requestConfirm }) => {
+const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, onEraSelect, loading, currentEra, requestConfirm }) => {
     const wizard = useNewGameWizardState({ onComplete, onCancel, loading, currentEra, requestConfirm });
     const { step, setStep, stepProgress, handleNextStep, handleGenerate, showEraSelector, setShowEraSelector } = wizard;
 
@@ -39,6 +40,7 @@ const MobileNewGameWizard: React.FC<Props> = ({ onComplete, onCancel, loading, c
                     value={wizard.worldConfig.时代配置ID || 'ancient_eastern_wuxia'}
                     onChange={(eraId) => {
                         wizard.setWorldConfig((prev: WorldGenConfig) => ({ ...prev, 时代配置ID: eraId }));
+                        onEraSelect?.(eraId);
                         const eraScheme = 获取时代主题方案(eraId);
                         if (eraScheme) {
                             应用时代主题到根元素(eraScheme);

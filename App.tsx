@@ -729,6 +729,7 @@ const App: React.FC = () => {
                         <MobileNewGameWizard
                             onComplete={actions.handleGenerateWorld}
                             onCancel={() => { state.setView('home'); }}
+                            onEraSelect={actions.handleEraChange}
                             loading={state.loading}
                             currentEra={state.currentEra}
                             requestConfirm={requestConfirm}
@@ -737,6 +738,7 @@ const App: React.FC = () => {
                         <NewGameWizard
                             onComplete={actions.handleGenerateWorld}
                             onCancel={() => { state.setView('home'); }}
+                            onEraSelect={actions.handleEraChange}
                             loading={state.loading}
                             currentEra={state.currentEra}
                             requestConfirm={requestConfirm}
