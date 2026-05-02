@@ -97,16 +97,32 @@ export async function parseUserConfig(
                 model: c.model,
             }));
     } catch {
-        const baseUrlMatch = userInput.match(/(?:api地址|baseUrl|base_url|地址)\s*[:：]\s*(https?:\/\/[^\s]+)/i);
-        // Support multiple key formats: sk-xxx, gg-xxx, shop-xxx, kaola-xxx, or any non-empty token
-        const apiKeyMatch = userInput.match(/(?:令牌|apiKey|api_key|密钥|token|key|api)\s*[:：]\s*([a-zA-Z0-9_\-]{8,})/i);
-        if (baseUrlMatch || apiKeyMatch) {
-            return [{
-                baseUrl: (baseUrlMatch?.[1] || '').replace(/\/+$/, ''),
-                apiKey: apiKeyMatch?.[1] || '',
-            }];
+        // Regex fallback — multi-config extraction
+        const results: ParsedConfig[] = [];
+
+        // Try to extract JSON configs first
+        const jsonRegex = /\{[^{}]*"(?:url|baseUrl|base_url)"\s*:\s*"([^"]+)"[^{}]*"(?:key|apiKey|api_key|token)"\s*:\s*"([^"]+)"[^{}]*\}/gi;
+        for (const m of userInput.matchAll(jsonRegex)) {
+            results.push({ baseUrl: m[1].replace(/\/+$/, ''), apiKey: m[2] });
         }
-        return [];
+
+        // Split by blank lines into blocks, extract per-block
+        const blocks = userInput.split(/\n\s*\n/);
+        for (const block of blocks) {
+            const urlMatch = block.match(/(?:api地址|api|baseUrl|base_url|网址|url|地址)\s*[:：]\s*(https?:\/\/[^\s,，]+)/i);
+            const keyMatch = block.match(/(?:令牌|apiKey|api_key|密钥|token|key)\s*[:：]\s*([a-zA-Z0-9_\-]{8,})/i);
+            if (urlMatch || keyMatch) {
+                const baseUrl = (urlMatch?.[1] || '').replace(/\/+$/, '');
+                const apiKey = keyMatch?.[1] || '';
+                if (baseUrl && apiKey) {
+                    if (!results.some(r => r.baseUrl === baseUrl && r.apiKey === apiKey)) {
+                        results.push({ baseUrl, apiKey });
+                    }
+                }
+            }
+        }
+
+        return results;
     }
 }
 
