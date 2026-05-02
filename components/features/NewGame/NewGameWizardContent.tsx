@@ -219,6 +219,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         编辑自定义背景, 删除自定义背景,
         保存当前为自定义开局方案, 重置自定义开局预设编辑,
         自定义开局预设列表, 应用预设到表单,
+        当前子纪元默认预设, 应用子纪元默认预设,
         编辑自定义开局方案信息, 用当前配置覆盖开局方案, 删除自定义开局方案,
         重置自定义天赋编辑, 重置自定义背景编辑,
         handleGenerate, loading,
@@ -817,6 +818,41 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
             {/* STEP 2: TALENTS & BACKGROUND */}
             {step === 2 && (
                 <div className="space-y-8 animate-slide-in max-w-5xl mx-auto">
+                    {/* 推荐预设卡片 */}
+                    {当前子纪元默认预设 && (
+                        <OrnateBorder className="p-5 md:p-6 bg-gradient-to-br from-wuxia-gold/8 via-black/50 to-wuxia-cyan/5 border-wuxia-gold/20">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                                <div>
+                                    <div className="text-[11px] uppercase tracking-[0.3em] text-wuxia-gold/70 font-mono">Recommended Preset</div>
+                                    <h3 className="text-xl font-serif font-bold text-wuxia-gold mt-1">{当前子纪元默认预设.名称}</h3>
+                                    <p className="text-xs text-gray-400 mt-1 leading-5">{当前子纪元默认预设.简介}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => 应用子纪元默认预设(当前子纪元默认预设!)}
+                                    className="shrink-0 px-5 py-2.5 rounded-lg bg-wuxia-gold/15 border border-wuxia-gold/40 text-wuxia-gold text-sm font-medium hover:bg-wuxia-gold/25 hover:border-wuxia-gold/60 transition-all"
+                                >
+                                    一键应用
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                <div className="rounded-lg border border-gray-800 bg-black/30 px-4 py-3">
+                                    <div className="text-[10px] tracking-[0.2em] text-gray-500 font-mono mb-1">背景</div>
+                                    <div className="text-gray-200">{当前子纪元默认预设.背景名称}</div>
+                                </div>
+                                <div className="rounded-lg border border-gray-800 bg-black/30 px-4 py-3">
+                                    <div className="text-[10px] tracking-[0.2em] text-gray-500 font-mono mb-1">天赋</div>
+                                    <div className="text-gray-200">{当前子纪元默认预设.天赋名称列表.join(' / ')}</div>
+                                </div>
+                                <div className="rounded-lg border border-gray-800 bg-black/30 px-4 py-3">
+                                    <div className="text-[10px] tracking-[0.2em] text-gray-500 font-mono mb-1">气运</div>
+                                    <div className="text-gray-200">{(当前子纪元默认预设.气运名称列表 || []).join(' / ') || '无'}</div>
+                                </div>
+                            </div>
+                            <div className="mt-3 text-[11px] text-gray-500">应用后仍可自由修改，预设不会锁定任何选项</div>
+                        </OrnateBorder>
+                    )}
+
                     {/* Background Section */}
                     <OrnateBorder className="p-6 md:p-7 bg-gradient-to-br from-black/65 to-wuxia-red/5">
                         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-wuxia-gold/30 pb-4 mb-5">
