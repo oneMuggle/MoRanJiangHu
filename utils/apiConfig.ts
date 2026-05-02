@@ -16,6 +16,7 @@ import {
     解析CnbComfyui地址,
     生成配置ID
 } from './apiConfigConstants';
+import { 默认功能模型占位 } from './apiConfigNormalization';
 
 export { 供应商标签, 推断供应商, OpenAI兼容方案预设 } from './apiConfigConstants';
 export { 默认功能模型占位, 规范化接口设置 } from './apiConfigNormalization';
@@ -65,7 +66,7 @@ export type 词组转化器预设上下文结构 = {
 export const 创建空接口设置 = (): 接口设置结构 => ({
     activeConfigId: null,
     configs: [],
-    功能模型占位: require('./apiConfigNormalization').默认功能模型占位
+    功能模型占位: 默认功能模型占位
 });
 
 export const 创建接口配置模板 = (
