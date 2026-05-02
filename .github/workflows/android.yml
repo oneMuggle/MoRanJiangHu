@@ -37,7 +37,7 @@ jobs:
           VITE_GITHUB_CLIENT_ID: ${{ secrets.VITE_GITHUB_CLIENT_ID }}
 
       - name: Sync Capacitor
-        run: node node_modules/@capacitor/cli/bin/capacitor sync android --no-interactive
+        run: node node_modules/@capacitor/cli/bin/capacitor sync android
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
