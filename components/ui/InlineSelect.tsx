@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export type InlineSelectOption<T extends string = string> = {
     value: T;
@@ -106,10 +106,10 @@ const InlineSelect = <T extends string>({
                                         onChange(option.value);
                                         setOpen(false);
                                     }}
-                                    className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center justify-between gap-2 ${
+                                    className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center justify-between gap-2 min-h-[40px] ${
                                         active
                                             ? 'bg-wuxia-gold/15 text-wuxia-gold'
-                                            : 'text-gray-200 hover:bg-white/5'
+                                            : 'text-gray-200 hover:bg-white/5 active:bg-white/10'
                                     }`}
                                 >
                                     <span className="truncate">{option.label}</span>

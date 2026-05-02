@@ -8,8 +8,8 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const GameButton: React.FC<Props> = ({ children, variant = 'primary', active = false, className = '', contentClassName = '', style, ...props }) => {
     // Base styles: Skewed container
-    const baseStyle = "group relative px-6 py-3 font-serif font-black uppercase transition-all duration-300 transform -skew-x-12 cursor-pointer outline-none overflow-hidden";
-    
+    const baseStyle = "group relative px-4 py-2.5 sm:px-6 sm:py-3 font-serif font-black uppercase transition-all duration-300 transform -skew-x-12 cursor-pointer outline-none overflow-hidden min-h-[44px]";
+
     // Background and Border logic
     let variantClasses = "";
     let textClasses = "relative z-10 transform skew-x-12 tracking-widest transition-colors duration-300";
@@ -17,19 +17,19 @@ const GameButton: React.FC<Props> = ({ children, variant = 'primary', active = f
 
     switch (variant) {
         case 'primary':
-            variantClasses = active 
-                ? "bg-wuxia-gold text-ink-black border-2 border-wuxia-gold shadow-[0_0_15px_rgba(230,200,110,0.5)]" 
-                : "bg-ink-black/80 text-wuxia-gold border-2 border-wuxia-gold hover:bg-wuxia-gold hover:text-ink-black";
+            variantClasses = active
+                ? "bg-wuxia-gold text-ink-black border-2 border-wuxia-gold shadow-[0_0_15px_rgba(230,200,110,0.5)]"
+                : "bg-ink-black/80 text-wuxia-gold border-2 border-wuxia-gold hover:bg-wuxia-gold hover:text-ink-black active:bg-wuxia-gold/70";
             decoColor = "bg-white";
             break;
         case 'secondary':
             variantClasses = active
                 ? "bg-wuxia-cyan text-ink-black border-2 border-wuxia-cyan"
-                : "bg-ink-black/80 text-wuxia-cyan border-2 border-wuxia-cyan hover:bg-wuxia-cyan hover:text-ink-black";
+                : "bg-ink-black/80 text-wuxia-cyan border-2 border-wuxia-cyan hover:bg-wuxia-cyan hover:text-ink-black active:bg-wuxia-cyan/70";
             decoColor = "bg-white";
             break;
         case 'danger':
-            variantClasses = "bg-ink-black/80 text-wuxia-red border-2 border-wuxia-red hover:bg-wuxia-red hover:text-white";
+            variantClasses = "bg-ink-black/80 text-wuxia-red border-2 border-wuxia-red hover:bg-wuxia-red hover:text-white active:bg-wuxia-red/70";
             decoColor = "bg-wuxia-red";
             break;
     }

@@ -244,14 +244,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                             {!isHome && onReturnToHome && (
                                                 <button
                                                     onClick={onReturnToHome}
-                                                    className="px-2 py-1 text-[10px] border border-red-900/60 text-red-400 rounded"
+                                                    className="px-2 py-1 text-[10px] border border-red-900/60 text-red-400 rounded min-h-[44px]"
                                                 >
                                                     返回
                                                 </button>
                                             )}
                                             <button
                                                 onClick={onClose}
-                                                className="px-2 py-1 text-[10px] border border-wuxia-gold/50 text-wuxia-gold rounded"
+                                                className="px-2 py-1 text-[10px] border border-wuxia-gold/50 text-wuxia-gold rounded min-h-[44px]"
                                             >
                                                 关闭
                                             </button>
@@ -263,7 +263,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                                 <button
                                                     key={`m-${item.id}`}
                                                     onClick={() => onTabChange(item.id)}
-                                                    className={`px-3 py-1.5 rounded border text-xs whitespace-nowrap transition-colors ${
+                                                    className={`px-3 py-1.5 rounded border text-xs whitespace-nowrap transition-colors min-h-[44px] flex items-center active:opacity-80 ${
                                                         activeTab === item.id
                                                             ? 'border-wuxia-gold bg-wuxia-gold/10 text-wuxia-gold'
                                                             : 'border-gray-700 text-gray-400'
@@ -308,7 +308,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             {!isHome && onReturnToHome && (
                                 <button
                                     onClick={onReturnToHome}
-                                    className="px-2.5 py-1 text-[10px] rounded border border-red-900/60 text-red-400 bg-red-900/10"
+                                    className="px-2.5 py-1 text-[10px] rounded border border-red-900/60 text-red-400 bg-red-900/10 min-h-[44px]"
                                 >
                                     返回
                                 </button>
@@ -330,7 +330,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 <button
                                     key={`mobile-tab-${item.id}`}
                                     onClick={() => onTabChange(item.id)}
-                                    className={`px-3 py-1.5 rounded-full text-[11px] border transition-colors ${
+                                    className={`px-3 py-1.5 rounded-full text-[11px] border transition-colors min-h-[44px] flex items-center active:opacity-80 ${
                                         activeTab === item.id
                                             ? 'border-wuxia-gold bg-wuxia-gold/12 text-wuxia-gold'
                                             : 'border-gray-800 text-gray-500 bg-black/40'

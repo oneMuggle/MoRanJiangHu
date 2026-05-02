@@ -24,7 +24,7 @@ export const SectionCollapse: React.FC<SectionCollapseProps> = ({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors text-left"
+                className="w-full flex items-center justify-between px-3 py-3 md:px-5 md:py-4 hover:bg-white/5 transition-colors text-left min-h-[44px]"
             >
                 <div className="flex items-center gap-3 min-w-0">
                     <svg
@@ -51,7 +51,7 @@ export const SectionCollapse: React.FC<SectionCollapseProps> = ({
             <div
                 className={`transition-all duration-300 ${isOpen ? 'max-h-[8000px] opacity-100' : 'max-h-0 opacity-0'}`}
             >
-                <div className="px-5 pb-5 max-h-[70vh] overflow-y-auto custom-scrollbar">{children}</div>
+                <div className="px-3 pb-3 md:px-5 md:pb-5 max-h-[60vh] md:max-h-[70vh] overflow-y-auto custom-scrollbar">{children}</div>
             </div>
         </div>
     );

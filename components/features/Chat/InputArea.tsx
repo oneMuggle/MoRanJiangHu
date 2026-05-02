@@ -522,7 +522,7 @@ const InputArea: React.FC<Props> = ({
                                     setAttachedRecallPreview('');
                                     setShowAttachedRecall(false);
                                 }}
-                                className="text-[10px] px-2 py-1 border border-red-800/60 text-red-300 rounded hover:bg-red-900/20"
+                                className="text-[10px] px-2 py-1 border border-red-800/60 text-red-300 rounded hover:bg-red-900/20 active:bg-red-900/30 min-h-[44px]"
                             >
                                 移除
                             </button>
@@ -544,7 +544,7 @@ const InputArea: React.FC<Props> = ({
                             type="button"
                             onClick={() => { void handleQuickRestartSelect('world_only'); }}
                             disabled={busy}
-                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40"
+                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40 min-h-[44px]"
                         >
                             仅重生世界观
                         </button>
@@ -552,7 +552,7 @@ const InputArea: React.FC<Props> = ({
                             type="button"
                             onClick={() => { void handleQuickRestartSelect('opening_only'); }}
                             disabled={busy}
-                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40"
+                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40 min-h-[44px]"
                         >
                             仅重生开局剧情
                         </button>
@@ -560,7 +560,7 @@ const InputArea: React.FC<Props> = ({
                             type="button"
                             onClick={() => { void handleQuickRestartSelect('all'); }}
                             disabled={busy}
-                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40"
+                            className="text-xs px-3 py-2 rounded border border-gray-700 text-gray-200 hover:border-teal-300 hover:text-teal-200 disabled:opacity-40 min-h-[44px]"
                         >
                             世界观 + 开局剧情
                         </button>
@@ -569,7 +569,7 @@ const InputArea: React.FC<Props> = ({
                         <button
                             type="button"
                             onClick={() => setShowQuickRestartMenu(false)}
-                            className="text-[11px] px-2 py-1 rounded border border-gray-700 text-gray-400 hover:text-gray-200"
+                            className="text-[11px] px-2 py-1 rounded border border-gray-700 text-gray-400 hover:text-gray-200 min-h-[44px]"
                         >
                             收起
                         </button>
@@ -670,7 +670,7 @@ const InputArea: React.FC<Props> = ({
                     className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
                 >
                     <div
-                        className="mx-auto w-full max-w-4xl rounded-lg border border-wuxia-cyan/35 bg-black/95 p-5 shadow-[0_0_36px_rgba(0,0,0,0.85)]"
+                        className="mx-auto w-full max-w-[min(896px,95vw)] rounded-lg border border-wuxia-cyan/35 bg-black/95 p-4 sm:p-5 shadow-[0_0_36px_rgba(0,0,0,0.85)]"
                     >
                         <div className="flex items-center justify-between gap-4 mb-4">
                             <h4 className="text-lg font-serif font-bold text-wuxia-cyan">
@@ -703,14 +703,14 @@ const InputArea: React.FC<Props> = ({
                             <button
                                 type="button"
                                 onClick={() => { void handleApplyParseRepair('auto'); }}
-                                className="px-4 py-2 text-xs font-bold rounded border border-wuxia-cyan/50 text-wuxia-cyan hover:bg-wuxia-cyan/10"
+                                className="px-4 py-2 text-xs font-bold rounded border border-wuxia-cyan/50 text-wuxia-cyan hover:bg-wuxia-cyan/10 active:bg-wuxia-cyan/20 min-h-[44px]"
                             >
                                 自动修复并应用
                             </button>
                             <button
                                 type="button"
                                 onClick={() => { void handleApplyParseRepair('manual'); }}
-                                className="px-4 py-2 text-xs font-bold rounded border border-wuxia-gold/50 text-wuxia-gold hover:bg-wuxia-gold/10"
+                                className="px-4 py-2 text-xs font-bold rounded border border-wuxia-gold/50 text-wuxia-gold hover:bg-wuxia-gold/10 active:bg-wuxia-gold/20 min-h-[44px]"
                             >
                                 手动编辑后应用
                             </button>
@@ -726,7 +726,7 @@ const InputArea: React.FC<Props> = ({
                                         error: ''
                                     });
                                 }}
-                                className="px-4 py-2 text-xs font-bold rounded border border-red-900/60 text-red-300 hover:bg-red-900/20"
+                                className="px-4 py-2 text-xs font-bold rounded border border-red-900/60 text-red-300 hover:bg-red-900/20 active:bg-red-900/30 min-h-[44px]"
                             >
                                 重ROLL
                             </button>
@@ -741,7 +741,7 @@ const InputArea: React.FC<Props> = ({
                     onClick={() => setErrorModal(prev => ({ ...prev, open: false }))}
                 >
                     <div
-                        className="mx-auto w-full max-w-3xl rounded-lg border border-wuxia-gold/30 bg-black/90 p-5 shadow-[0_0_30px_rgba(0,0,0,0.8)]"
+                        className="mx-auto w-full max-w-[min(768px,95vw)] rounded-lg border border-wuxia-gold/30 bg-black/90 p-4 sm:p-5 shadow-[0_0_30px_rgba(0,0,0,0.8)]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between gap-4 mb-4">
@@ -764,7 +764,7 @@ const InputArea: React.FC<Props> = ({
                             <button
                                 type="button"
                                 onClick={() => setErrorModal(prev => ({ ...prev, open: false }))}
-                                className="px-6 py-2 text-xs font-bold bg-wuxia-gold text-ink-black rounded hover:bg-white transition-colors"
+                                className="px-6 py-2 text-xs font-bold bg-wuxia-gold text-ink-black rounded hover:bg-white active:bg-gray-200 transition-colors min-h-[44px]"
                             >
                                 关闭
                             </button>

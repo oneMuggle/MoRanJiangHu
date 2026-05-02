@@ -28,12 +28,12 @@ export function SearchInput({ value, onChange, placeholder = '搜索...' }: Sear
         value={local}
         onChange={e => setLocal(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-8 py-1.5 text-sm rounded-md bg-white/5 border border-white/10 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-1 focus:ring-yellow-500/30"
+        className="w-full pl-9 pr-8 py-2 sm:py-1.5 text-sm rounded-md bg-white/5 border border-white/10 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-1 focus:ring-yellow-500/30 min-h-[40px]"
       />
       {local && (
         <button
           onClick={() => setLocal('')}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-300 hover:bg-white/10 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-300 hover:bg-white/10 transition-colors"
           title="清除"
         >
           ×
@@ -59,7 +59,7 @@ export function ChipGroup({ chips, selected, onChange }: ChipGroupProps) {
     <div className="flex flex-wrap gap-1.5">
       <button
         onClick={() => onChange(null)}
-        className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+        className={`px-3 py-1.5 sm:py-1 text-xs rounded-full border transition-colors min-h-[32px] ${
           selected === null
             ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300'
             : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
@@ -71,7 +71,7 @@ export function ChipGroup({ chips, selected, onChange }: ChipGroupProps) {
         <button
           key={chip.value}
           onClick={() => onChange(selected === chip.value ? null : chip.value)}
-          className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
+          className={`px-3 py-1.5 sm:py-1 text-xs rounded-full border transition-colors min-h-[32px] ${
             selected === chip.value
               ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300'
               : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-300'
