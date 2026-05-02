@@ -267,6 +267,29 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
             </div>
 
             <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
+                <div className="space-y-2">
+                    <div className="text-sm text-wuxia-cyan font-bold">剧情推进速度</div>
+                    <div className="text-xs text-gray-400">控制 AI 生成行动选项时的剧情推进节奏。影响选项的时间跨度和叙事密度。</div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {(['缓慢', '正常', '快速', '跳过至关键节点'] as const).map((speed) => (
+                            <button
+                                key={speed}
+                                type="button"
+                                onClick={() => 实时应用更新({ 剧情推进速度: speed })}
+                                className={`px-4 py-2 text-sm rounded-md border transition-all ${
+                                    form.剧情推进速度 === speed
+                                        ? 'border-wuxia-gold bg-wuxia-gold/15 text-wuxia-gold font-bold'
+                                        : 'border-gray-600 text-gray-300 hover:border-wuxia-gold/40 hover:text-white'
+                                }`}
+                            >
+                                {speed}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <div className="text-sm text-wuxia-cyan font-bold">防止说话（NoControl）</div>
@@ -390,6 +413,19 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
                         ariaLabel="切换NSFW模式"
                     />
                 </div>
+                {form.启用NSFW模式 === true && (
+                    <div className="flex items-center justify-between gap-4 pt-2 border-t border-wuxia-gold/10">
+                        <div>
+                            <div className="text-sm text-wuxia-cyan font-bold">NSFW促进选项</div>
+                            <div className="text-xs text-gray-400 mt-1">开启后，当场景存在暧昧氛围时，行动选项中会包含促进亲密关系的动作。非暧昧场景不受影响。</div>
+                        </div>
+                        <ToggleSwitch
+                            checked={form.启用NSFW促进选项 === true}
+                            onChange={(next) => 实时应用更新({ 启用NSFW促进选项: next })}
+                            ariaLabel="切换NSFW促进选项"
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">

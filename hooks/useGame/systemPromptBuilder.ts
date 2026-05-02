@@ -54,6 +54,7 @@ import { 构建志怪世界提示词 } from '../../prompts/runtime/zhiguaiWorld'
 import { 构建时代主题注入, 构建时代文风注入 } from '../../prompts/runtime/eraTheme';
 import { 获取时代现实提示词ByEraId } from '../../prompts/core/eraRealism';
 import { 构建子纪元里模式注入, 子纪元里模式是否已注入 } from '../../prompts/runtime/eraLiMode';
+import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionOptionsRuntime';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -1406,6 +1407,9 @@ export const 构建系统提示词 = ({
         : 按当前设置过滤提示词(渲染提示词文本(
             获取行动选项提示词(effectivePromptPool, normalizedGameConfig.启用行动选项)
         ));
+    const actionOptionsRuntimeDirectives = normalizedGameConfig.启用行动选项
+        ? 构建行动选项运行时指令(normalizedGameConfig)
+        : '';
     const activePerspectivePromptId = selectedPerspectivePrompt?.id || fallbackPerspectivePrompt?.id || '';
     const activePerspectiveContent = 应用写作设置(
         activePerspectivePromptId,
@@ -1421,6 +1425,7 @@ export const 构建系统提示词 = ({
         开局剧情推动协议内容,
         ...开局女主协议提示词.map(item => item.content),
         actionOptionsPromptContent,
+        actionOptionsRuntimeDirectives,
         按当前设置过滤提示词(worldbookInjection.systemRuleText),
         构建时代主题注入(options?.eraId),
         构建时代文风注入(options?.eraId),

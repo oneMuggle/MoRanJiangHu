@@ -1,5 +1,5 @@
 import { 游戏设置结构 } from '../types';
-import { NSFW场景类型 } from '../models/system';
+import { NSFW场景类型, 剧情推进速度 } from '../models/system';
 import { 默认额外系统提示词, 旧版默认额外系统提示词 } from '../prompts/runtime/defaults';
 import { 获取酒馆预设顺序, 规范化酒馆预设 } from './tavernPreset';
 import { resolveEraNode } from '../models/eraTheme';
@@ -93,6 +93,15 @@ const 规范化NSFW场景类型 = (
     NSFW场景类型合法值.includes(value as NSFW场景类型) ? value as NSFW场景类型 : fallback
 );
 
+const 剧情推进速度合法值: 剧情推进速度[] = ['缓慢', '正常', '快速', '跳过至关键节点'];
+
+const 规范化剧情推进速度 = (
+    value: unknown,
+    fallback: 剧情推进速度
+): 剧情推进速度 => (
+    剧情推进速度合法值.includes(value as 剧情推进速度) ? value as 剧情推进速度 : fallback
+);
+
 /** 根据子纪元里模式推导里武侠/里志怪是否应开启 */
 const 推导里模式类型 = (
     eraId: string | null | undefined,
@@ -142,6 +151,8 @@ export const 默认游戏设置: 游戏设置结构 = {
     叙事人称: '第二人称',
     启用行动选项: true,
     行动选项输入模式: '追加',
+    剧情推进速度: '正常',
+    启用NSFW促进选项: false,
     启用COT伪装注入: true,
     启用GPT模式: false,
     启用女主剧情规划: true,
@@ -249,6 +260,8 @@ export const 规范化游戏设置 = (
         叙事人称: 规范化叙事人称(source.叙事人称, fallback.叙事人称),
         启用行动选项: 读取布尔(source.启用行动选项, fallback.启用行动选项 !== false),
         行动选项输入模式: source.行动选项输入模式 === '替换' ? '替换' : '追加',
+        剧情推进速度: 规范化剧情推进速度(source.剧情推进速度, fallback.剧情推进速度),
+        启用NSFW促进选项: 读取布尔(source.启用NSFW促进选项, fallback.启用NSFW促进选项 === true),
         启用COT伪装注入: 读取布尔(source.启用COT伪装注入, fallback.启用COT伪装注入 !== false),
         启用GPT模式: 读取布尔(source.启用GPT模式, fallback.启用GPT模式 === true),
         启用女主剧情规划: 读取布尔(source.启用女主剧情规划, fallback.启用女主剧情规划 !== false),
