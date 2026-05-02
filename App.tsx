@@ -238,14 +238,26 @@ const App: React.FC = () => {
             ? [
                 MobileCharacter,
                 MobileInventoryModal,
+                MobileEquipmentModal,
+                MobileBattleModal,
                 MobileSocial,
-                MobileTask,
-                MobileStory,
-                SettingsPanel,
-                MobileMemory,
                 MobileWorldModal,
                 MobileMapModal,
-                MobileMusicPlayer
+                MobileSect,
+                MobileTask,
+                MobileTeamModal,
+                MobileKungfuModal,
+                MobileStory,
+                MobileHeroinePlanModal,
+                MobileMemory,
+                SettingsPanel,
+                MobileSaveLoadModal,
+                MobileWorldbookManagerModal,
+                MobileNovelDecompositionWorkbenchModal,
+                MobileImageManagerModal,
+                MobileAgreementModal,
+                MobileMusicPlayer,
+                MobileDeviceModal
             ]
             : [
                 CharacterModal,
@@ -914,7 +926,7 @@ const App: React.FC = () => {
                             {meta.notifications.map((toast) => (
                                 <div
                                     key={toast.id}
-                                    className={`pointer-events-auto w-72 sm:w-[280px] rounded-xl border px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-md ${
+                                    className={`pointer-events-auto w-[min(280px,90vw)] rounded-xl border px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-md ${
                                         toast.tone === 'success'
                                             ? 'border-emerald-600/50 bg-emerald-950/85 text-emerald-100'
                                             : toast.tone === 'error'
