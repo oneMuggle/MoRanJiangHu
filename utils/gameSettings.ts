@@ -2,6 +2,7 @@ import { 游戏设置结构 } from '../types';
 import { NSFW场景类型 } from '../models/system';
 import { 默认额外系统提示词, 旧版默认额外系统提示词 } from '../prompts/runtime/defaults';
 import { 获取酒馆预设顺序, 规范化酒馆预设 } from './tavernPreset';
+import { resolveEraNode } from '../models/eraTheme';
 
 const 最低字数要求 = 50;
 
@@ -92,6 +93,22 @@ const 规范化NSFW场景类型 = (
     NSFW场景类型合法值.includes(value as NSFW场景类型) ? value as NSFW场景类型 : fallback
 );
 
+/** 根据子纪元里模式推导里武侠/里志怪是否应开启 */
+const 推导里模式类型 = (
+    eraId: string | null | undefined,
+    启用子纪元里模式: Record<string, boolean> | undefined
+): { 里武侠: boolean; 里志怪: boolean } => {
+    if (!eraId) return { 里武侠: false, 里志怪: false };
+    const perEraEnabled = 启用子纪元里模式?.[eraId];
+    if (perEraEnabled === false) return { 里武侠: false, 里志怪: false };
+    const resolved = resolveEraNode(eraId);
+    const liModeName = resolved?.inherited.liMode?.name || '';
+    return {
+        里武侠: liModeName.includes('武侠'),
+        里志怪: liModeName.includes('志怪')
+    };
+};
+
 export const 默认独立APIGPT模式设置: NonNullable<游戏设置结构['独立APIGPT模式']> = {
     剧情回忆: false,
     记忆总结: false,
@@ -141,7 +158,7 @@ export const 默认游戏设置: 游戏设置结构 = {
     启用修炼体系: true,
     启用里武侠模式: false,
     启用里志怪模式: false,
-    启用子纪元里模式: true,
+    启用子纪元里模式: {}, // Per-era map; empty means all eras default to enabled (checked downstream)
     剧情风格: '一般',
     NTL后宫档位: '无限制',
     启用酒馆预设模式: false,
@@ -219,6 +236,12 @@ export const 规范化游戏设置 = (
         selectedPreset
     );
 
+    const eraId = 读取文本(source.时代配置ID).trim() || 读取文本(fallback.时代配置ID).trim() || null;
+    const 启用子纪元里模式值 = (source.启用子纪元里模式 && typeof source.启用子纪元里模式 === 'object'
+        ? source.启用子纪元里模式
+        : (fallback.启用子纪元里模式 || {})) as Record<string, boolean>;
+    const derivedLiModes = 推导里模式类型(eraId, 启用子纪元里模式值);
+
     return {
         ...fallback,
         ...source,
@@ -240,9 +263,9 @@ export const 规范化游戏设置 = (
         成人内容: 读取布尔(source.成人内容, fallback.成人内容 === true),
         启用饱腹口渴系统: 读取布尔(source.启用饱腹口渴系统, fallback.启用饱腹口渴系统 !== false),
         启用修炼体系: 读取布尔(source.启用修炼体系, fallback.启用修炼体系 !== false),
-        启用里武侠模式: 读取布尔(source.启用里武侠模式, fallback.启用里武侠模式 === true),
-        启用里志怪模式: 读取布尔(source.启用里志怪模式, fallback.启用里志怪模式 === true),
-        启用子纪元里模式: 读取布尔(source.启用子纪元里模式, fallback.启用子纪元里模式 !== false),
+        启用里武侠模式: 读取布尔(source.启用里武侠模式, derivedLiModes.里武侠),
+        启用里志怪模式: 读取布尔(source.启用里志怪模式, derivedLiModes.里志怪),
+        启用子纪元里模式: 启用子纪元里模式值,
         剧情风格: 规范化剧情风格(source.剧情风格, fallback.剧情风格),
         NTL后宫档位: 规范化NTL档位(source.NTL后宫档位, fallback.NTL后宫档位),
         启用酒馆预设模式: 读取布尔(source.启用酒馆预设模式, fallback.启用酒馆预设模式 === true),

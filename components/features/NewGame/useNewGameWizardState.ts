@@ -3,6 +3,7 @@ import * as dbService from '../../../services/dbService';
 import { 读取小说拆分数据集列表 } from '../../../services/novel-decomposition/novelDecompositionStore';
 import { randomQiyun, 气运数据, 气运数据列表 } from '../../../data/qiyun';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
+import { resolveEraNode } from '../../../models/eraTheme';
 import { 开局预设方案结构 } from '../../../data/newGamePresets';
 import { 获取子纪元默认预设, 子纪元默认预设结构 } from '../../../data/subEraDefaultPresets';
 import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度 } from '../../../types';
@@ -140,8 +141,6 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
     const [自定义开局预设列表, 设置自定义开局预设列表] = useState<开局预设方案结构[]>([]);
     const [小说拆分数据集列表, 设置小说拆分数据集列表] = useState<小说拆分数据集结构[]>([]);
     const [成人内容开启, 设置成人内容开启] = useState(false);
-    const [里武侠开启, 设置里武侠开启] = useState(false);
-    const [里志怪开启, 设置里志怪开启] = useState(false);
     const [子纪元里模式开启, 设置子纪元里模式开启] = useState(true);
     const [古代体系选择, 设置古代体系选择] = useState<体系类型>('武侠');
 
@@ -455,8 +454,18 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
             装备: { 头部: '无', 胸部: '无', 盔甲: '无', 内衬: '无', 腿部: '无', 手部: '无', 足部: '无', 主武器: '无', 副武器: '无', 暗器: '无', 背部: '无', 腰部: '无', 坐骑: '无' },
             物品列表: [], 功法列表: [],
             当前经验: 0, 升级经验: 初始升级经验, 玩家BUFF: [], 突破条件: [],
-            ...(里武侠开启 ? { 武根: { 硬度: 10, 尺寸: 10, 精元储量: 50, 等级: '凡品' } } : {}),
-            ...(里志怪开启 ? { 妖根: { 灵脉: 10, 妖力: 10, 精怪亲和力: 10, 等级: '凡骨' }, 业障: 0, 功德: 0, 灵视能力: false, 已知道法: [] } : {})
+            ...(() => {
+                if (!子纪元里模式开启) return {};
+                const resolved = resolveEraNode(currentEra);
+                const liModeName = resolved?.inherited.liMode?.name || '';
+                if (liModeName.includes('武侠')) {
+                    return { 武根: { 硬度: 10, 尺寸: 10, 精元储量: 50, 等级: '凡品' } };
+                }
+                if (liModeName.includes('志怪')) {
+                    return { 妖根: { 灵脉: 10, 妖力: 10, 精怪亲和力: 10, 等级: '凡骨' }, 业障: 0, 功德: 0, 灵视能力: false, 已知道法: [] };
+                }
+                return {};
+            })()
         };
     };
 
@@ -607,8 +616,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
                 设置小说拆分数据集列表(savedNovelDatasets);
                 if (savedGameSettings && typeof savedGameSettings === 'object') {
                     设置成人内容开启(savedGameSettings.成人内容 === true);
-                    设置里武侠开启(savedGameSettings.启用里武侠模式 === true);
-                    设置里志怪开启(savedGameSettings.启用里志怪模式 === true);
+                    // 里武侠/里志怪已不再提供手动开关，统一由子纪元里模式自动推导
                     const loadedEra = currentEra || savedGameSettings.时代配置ID || '';
                     const savedLiModeMap = savedGameSettings.启用子纪元里模式;
                     const loadedLiMode = typeof savedLiModeMap === 'object'
@@ -906,16 +914,16 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
             ? await requestConfirm({ title: '确认创建', message: '开局将直接以流式方式生成并展示开场剧情。是否继续创建？', confirmText: '开始生成' })
             : true;
         if (!ok) return;
-        // Persist 里武侠开关到 IndexedDB，确保后续游戏会话能读取
+        // Persist 子纪元里模式开关到 IndexedDB，里武侠/里志怪由运行时自动推导
         try {
             const savedGameSettings = await dbService.读取设置(设置键.游戏设置) || {};
             const savedEra = currentEra || savedGameSettings.时代配置ID || '';
             const prev = typeof savedGameSettings.启用子纪元里模式 === 'object'
                 ? savedGameSettings.启用子纪元里模式
                 : {};
-            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 启用里武侠模式: 里武侠开启, 启用里志怪模式: 里志怪开启, 启用子纪元里模式: { ...prev, [savedEra]: 子纪元里模式开启 }, 古代体系选择 });
+            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 时代配置ID: savedEra, 启用子纪元里模式: { ...prev, [savedEra]: 子纪元里模式开启 }, 古代体系选择 });
         } catch (error) {
-            console.error('保存里武侠开关失败', error);
+            console.error('保存游戏设置失败', error);
         }
         onComplete(effectiveWorldConfig, charData, effectiveOpeningConfig, 'all', true, effectiveOpeningExtraRequirement.trim());
     };
@@ -939,8 +947,6 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         自定义开局预设列表, 设置自定义开局预设列表,
         小说拆分数据集列表, 设置小说拆分数据集列表,
         成人内容开启, 设置成人内容开启,
-        里武侠开启, 设置里武侠开启,
-        里志怪开启, 设置里志怪开启,
         子纪元里模式开启, 设置子纪元里模式开启,
         古代体系选择, 设置古代体系选择,
         customTalent, setCustomTalent, showCustomTalent, setShowCustomTalent,

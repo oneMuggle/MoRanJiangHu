@@ -53,7 +53,7 @@ import { 构建里志怪世界提示词 } from '../../prompts/runtime/liZhiguaiW
 import { 构建志怪世界提示词 } from '../../prompts/runtime/zhiguaiWorld';
 import { 构建时代主题注入, 构建时代文风注入 } from '../../prompts/runtime/eraTheme';
 import { 获取时代现实提示词ByEraId } from '../../prompts/core/eraRealism';
-import { 构建子纪元里模式注入 } from '../../prompts/runtime/eraLiMode';
+import { 构建子纪元里模式注入, 子纪元里模式是否已注入 } from '../../prompts/runtime/eraLiMode';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -1426,8 +1426,12 @@ export const 构建系统提示词 = ({
         构建时代文风注入(options?.eraId),
         获取时代现实提示词ByEraId(options?.eraId),
         构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true),
-        normalizedGameConfig.启用里武侠模式 === true ? 构建里武侠世界提示词() : null,
-        normalizedGameConfig.启用里志怪模式 === true ? 构建里志怪世界提示词() : null,
+        // 里武侠：子纪元 liMode 已注入则跳过 legacy 版本（内容重复）
+        !子纪元里模式是否已注入(options?.eraId, normalizedGameConfig.启用子纪元里模式)
+        && normalizedGameConfig.启用里武侠模式 === true ? 构建里武侠世界提示词() : null,
+        // 里志怪：子纪元 liMode 已注入则跳过 legacy 版本（内容重复）
+        !子纪元里模式是否已注入(options?.eraId, normalizedGameConfig.启用子纪元里模式)
+        && normalizedGameConfig.启用里志怪模式 === true ? 构建里志怪世界提示词() : null,
         // 表志怪：古代体系选择为志怪/双修时注入，里志怪已开启则跳过（避免重复）
         (normalizedGameConfig.古代体系选择 === '志怪' || normalizedGameConfig.古代体系选择 === '双修')
             && normalizedGameConfig.启用里志怪模式 !== true

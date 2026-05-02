@@ -470,44 +470,6 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
                 </div>
             </div>
 
-            <div className="space-y-3 rounded-md border border-wuxia-red/20 bg-black/30 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <div className="text-sm text-wuxia-red font-bold">里武侠世界</div>
-                        <div className="text-xs text-gray-400 mt-1">开启后，所有角色将具有表里双修人格与行为模式（外表端庄/内在反差），服装描写更暴露，功法包含表里双修描述，新增武根系统。</div>
-                    </div>
-                    <div className="relative">
-                        <ToggleSwitch
-                            checked={(form as any).启用里武侠模式 === true}
-                            onChange={(next) => 实时应用更新({ 启用里武侠模式: next } as any)}
-                            ariaLabel="切换里武侠世界"
-                        />
-                        {(form as any).启用里武侠模式 === true && (
-                            <span className="absolute -inset-2 rounded-lg bg-wuxia-red/15 animate-pulse pointer-events-none" />
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-3 rounded-md border border-green-500/20 bg-black/30 p-4">
-                <div className="flex items-center justify-between gap-4">
-                    <div>
-                        <div className="text-sm text-green-400 font-bold">里志怪世界</div>
-                        <div className="text-xs text-gray-400 mt-1">开启后，注入志怪生物生态、阴阳相克、道法体系、因果系统规则，新增妖根、灵视、业障、功德系统。</div>
-                    </div>
-                    <div className="relative">
-                        <ToggleSwitch
-                            checked={(form as any).启用里志怪模式 === true}
-                            onChange={(next) => 实时应用更新({ 启用里志怪模式: next } as any)}
-                            ariaLabel="切换里志怪世界"
-                        />
-                        {(form as any).启用里志怪模式 === true && (
-                            <span className="absolute -inset-2 rounded-lg bg-green-500/15 animate-pulse pointer-events-none" />
-                        )}
-                    </div>
-                </div>
-            </div>
-
             <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
