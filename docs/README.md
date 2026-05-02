@@ -21,12 +21,17 @@
 |------|------|
 | [架构总览](./technical/architecture.md) | 应用结构、状态管理、数据持久化、AI 供应商抽象 |
 | [状态管理](./technical/state-management.md) | useGame hook、子工作流、数据流 |
-| [提示词系统](./technical/prompt-system.md) | 六层提示词工程体系（~160 文件） |
+| [提示词系统](./technical/prompt-system.md) | 六层提示词工程体系 |
 | [服务层](./technical/services.md) | AI 调用、数据库、云同步、小说分解 |
 | [组件](./technical/components.md) | 22 个功能模块、布局、懒加载 |
 | [技术功能清单](./technical/功能清单.md) | 已完成功能列表（按系统分类） |
 
 ---
+- [Phase 0 基础设施](./technical/phase-0-infrastructure.md) — Vitest + Error Boundary + 时代资源
+- [时代主题树重构](./technical/era-theme-tree.md) — 22 子纪元三层树结构
+- [解析器重构](./technical/refactor-story-response-parser.md) — storyResponseParser 嵌套函数提取
+- [搜索过滤向导](./technical/search-filter-wizard.md) — 开局设置搜索过滤功能
+- [技术参考资料](./technical/reference/) — 已完成的系统分析、设计方案、技术债务等
 
 ## 规划与设计文档
 
