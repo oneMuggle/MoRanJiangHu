@@ -4,6 +4,7 @@ import { 读取小说拆分数据集列表 } from '../../../services/novel-decom
 import { randomQiyun, 气运数据, 气运数据列表 } from '../../../data/qiyun';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
 import { 开局预设方案结构 } from '../../../data/newGamePresets';
+import { 获取子纪元默认预设, 子纪元默认预设结构 } from '../../../data/subEraDefaultPresets';
 import { OpeningConfig, WorldGenConfig, 小说拆分数据集结构, 角色数据结构, 天赋结构, 背景结构, 游戏难度 } from '../../../types';
 import { 合并去重开局预设方案, 标准化开局预设方案, 生成自定义开局预设ID, 自定义开局预设存储键 } from '../../../utils/customNewGamePresets';
 import {
@@ -212,6 +213,21 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         }
         // 回退到时代大类匹配
         return !item.时代适配 || item.时代适配.length === 0 || (当前时代背景 && item.时代适配.includes(当前时代背景));
+    };
+
+    const 当前子纪元默认预设 = useMemo((): 子纪元默认预设结构 | undefined => {
+        return 获取子纪元默认预设(worldConfig.时代配置ID || '');
+    }, [worldConfig.时代配置ID]);
+
+    const 应用子纪元默认预设 = (preset: 子纪元默认预设结构) => {
+        const bg = 根据名称查找背景(preset.背景名称);
+        const talents = 根据名称查找天赋列表(preset.天赋名称列表);
+        const qiyunList = (preset.气运名称列表 || [])
+            .map((名称) => 气运数据列表.find(q => q.名称 === 名称))
+            .filter((q): q is 气运数据 => Boolean(q));
+        setSelectedBackground(bg);
+        setSelectedTalents(talents);
+        setSelectedQiyun(qiyunList);
     };
 
     const 全部背景选项 = useMemo(() => {
@@ -946,6 +962,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         STEPS, monthOptions, dayOptions,
         全部背景选项, 全部天赋选项, 全部气运选项,
         过滤后背景选项, 过滤后天赋选项, 过滤后气运选项,
+        当前子纪元默认预设,
         当前性别模式,
         totalStatBudget, usedPoints, remainingPoints,
         stepProgress, currentStepLabel, selectedTalentNames,
@@ -956,7 +973,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         标准化天赋, 标准化背景, 合并去重天赋, 合并去重背景,
         重置自定义天赋编辑, 重置自定义背景编辑, 重置自定义开局预设编辑,
         根据名称查找背景, 根据名称查找天赋列表,
-        构建角色数据, 应用预设到表单,
+        构建角色数据, 应用预设到表单, 应用子纪元默认预设,
         选择性别, handleStatChange, toggleRelationFocus,
         选择附加小说数据集, 新增附加角色替换规则, 更新附加角色替换规则, 删除附加角色替换规则,
         校验属性点是否合法, handleNextStep,
