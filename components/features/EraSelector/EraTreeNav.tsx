@@ -1,5 +1,4 @@
 import React from 'react';
-import type { EraNode } from '../../../models/eraTheme';
 
 interface EraTreeNode {
     id: string;
@@ -48,7 +47,7 @@ export const EraTreeNav: React.FC<Props> = ({
                                 onEraSelect(null);
                             }
                         }}
-                        className={`w-full text-left px-4 py-3 rounded-lg font-serif tracking-wide transition-all text-sm ${
+                        className={`w-full text-left px-4 py-3 min-h-[44px] rounded-lg font-serif tracking-wide transition-all text-sm ${
                             selectedEpoch === epoch.id
                                 ? 'bg-wuxia-gold/15 text-wuxia-gold border border-wuxia-gold/30'
                                 : 'text-gray-200 hover:bg-white/5 border border-transparent'

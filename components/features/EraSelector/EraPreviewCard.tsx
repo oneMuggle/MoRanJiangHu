@@ -26,22 +26,22 @@ export const EraPreviewCard: React.FC<Props> = ({
     const icon = ERA_ICON_MAP[cfg.icon] || '?';
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
             {/* 时代标题 */}
             <div className="text-center">
-                <div className="inline-block px-4 py-1 bg-wuxia-gold/10 border border-wuxia-gold/30 rounded-full text-xs text-wuxia-gold mb-2">
+                <div className="inline-block px-3 py-1 md:px-4 md:py-1 bg-wuxia-gold/10 border border-wuxia-gold/30 rounded-full text-[10px] md:text-xs text-wuxia-gold mb-2">
                     {epoch.name} · {era.name}
                 </div>
-                <h2 className="text-3xl font-serif font-bold text-white tracking-wider">
+                <h2 className="text-2xl md:text-3xl font-serif font-bold text-white tracking-wider">
                     {subEra.name}
                 </h2>
-                <p className="mt-2 text-gray-400 text-sm">
+                <p className="mt-2 text-gray-400 text-xs md:text-sm">
                     {description}
                 </p>
             </div>
 
             {/* 预览图占位 */}
-            <div className="relative aspect-[16/9] bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700/50 overflow-hidden">
+            <div className="relative aspect-[16/9] bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg md:rounded-xl border border-gray-700/50 overflow-hidden">
                 {/* 动态背景 */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${cfg.bg} flex flex-col items-center justify-center`}>
                     <span className="text-6xl">{icon}</span>
@@ -125,9 +125,9 @@ export const EraPreviewCard: React.FC<Props> = ({
 };
 
 const InfoCard: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-    <div className="bg-black/40 border border-gray-800 rounded-lg p-3">
-        <div className="text-xs text-gray-500 mb-1">{label}</div>
-        <div className="text-sm text-white font-medium">{value}</div>
+    <div className="bg-black/40 border border-gray-800 rounded-lg p-2 md:p-3">
+        <div className="text-[10px] md:text-xs text-gray-500 mb-1">{label}</div>
+        <div className="text-xs md:text-sm text-white font-medium">{value}</div>
     </div>
 );
 
