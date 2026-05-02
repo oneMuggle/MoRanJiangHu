@@ -1,14 +1,16 @@
 import { 提示词结构 } from '../../../types';
 import { 核心_古代现实基本逻辑 } from './ancient';
 import { 核心_近代现实基本逻辑 } from './modern';
+import { 核心_现代现实基本逻辑 } from './contemporary';
 import { 核心_近未来赛博现实基本逻辑 } from './cyberpunk';
 import { 核心_未来科幻现实基本逻辑 } from './scifi';
 
-export { 核心_古代现实基本逻辑, 核心_近代现实基本逻辑, 核心_近未来赛博现实基本逻辑, 核心_未来科幻现实基本逻辑 };
+export { 核心_古代现实基本逻辑, 核心_近代现实基本逻辑, 核心_现代现实基本逻辑, 核心_近未来赛博现实基本逻辑, 核心_未来科幻现实基本逻辑 };
 
 const ERA_REALISM_MAP: Record<string, 提示词结构> = {
     ancient: 核心_古代现实基本逻辑,
     modern: 核心_近代现实基本逻辑,
+    contemporary: 核心_现代现实基本逻辑,
     cyberpunk: 核心_近未来赛博现实基本逻辑,
     scifi: 核心_未来科幻现实基本逻辑
 };
@@ -21,8 +23,9 @@ const 推导时代变体 = (eraId: string): string => {
         case 'ancient':
             return 'ancient';
         case 'modern':
-        case 'contemporary':
             return 'modern';
+        case 'contemporary':
+            return 'contemporary';
         case 'near':
             return 'cyberpunk';
         case 'far':
