@@ -214,5 +214,8 @@ Phase 4（UI 体系）── 可与 Phase 3 并行
   - [x] 2.1 NPC 原型表里人格注入（`构建里模式NPC原型注入` + `systemPromptBuilder` 接入）
   - [x] 2.2 设备工作流强度参数修复（`triggerDeviceMessageWorkflow` → `deviceAiWorkflow` 全链路传递）
   - [x] 2.3 Legacy 里武侠/里志怪清理（已有 fallback 逻辑，增强版注入后自动跳过 legacy）
-- [ ] Phase 3：玩法融合
+- [x] Phase 3：玩法融合
+  - [x] 3.1 NPC 表里切换（`models/social.ts` 字段 + `eraLiMode.ts` 注入函数 + `npcContext.ts` 集成）
+  - [x] 3.2 里模式事件池（`filterByIntensity` 暧昧/露骨级别追加事件引导区块）
+  - [x] 3.3 强度动态调节（`GameSettings.tsx` 三档强度选择器 + `systemPromptBuilder.ts` 已传递强度参数）
 - [ ] Phase 4：UI 体系化

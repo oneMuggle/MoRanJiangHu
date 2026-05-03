@@ -4,6 +4,7 @@ import { 构建NPC记忆展示结果 } from './npcMemorySummary';
 import { normalizeCanonicalGameTime, 结构化时间转标准串 } from './timeUtils';
 import { 解析境界映射值 } from '../../prompts/runtime/fandom';
 import { 计算亲密度等级 } from '../../models/intimacy';
+import { 构建NPC表里切换注入 } from '../../prompts/runtime/eraLiMode';
 
 type 生图基础数据选项 = {
     cultivationSystemEnabled?: boolean;
@@ -135,6 +136,8 @@ export const 构建NPC上下文 = (
         realmPrompt?: string;
         openingConfig?: OpeningConfig | null;
         cultivationSystemEnabled?: boolean;
+        eraId?: string | null;
+        启用子纪元里模式?: Record<string, boolean>;
     }
 ): {
     在场数据块: string;
@@ -564,6 +567,10 @@ export const 构建NPC上下文 = (
         const 队伍战斗附加 = 提取队伍战斗附加(npc, 是否在场, 是否队友);
         const 最后互动 = 提取最后互动(npc);
         const 离场刷新锚点 = 提取离场刷新锚点(npc, 最后互动);
+        const eraId = options?.eraId;
+        const liModePerEra = options?.启用子纪元里模式;
+        const liModeEnabled = eraId ? (liModePerEra?.[eraId] !== false) : false;
+        const 里模式注入 = 构建NPC表里切换注入(npc, eraId, liModeEnabled);
         return {
             索引: 基础数据.索引,
             id: 基础数据.id,
@@ -582,7 +589,8 @@ export const 构建NPC上下文 = (
             最后互动,
             离场刷新锚点,
             总结记忆: 记忆展示.总结记忆,
-            记忆: 记忆展示.记忆
+            记忆: 记忆展示.记忆,
+            ...(里模式注入 ? { 里模式注入 } : {})
         };
     };
 

@@ -9,6 +9,8 @@
 
 import { resolveEraNode } from '../../models/eraTheme';
 import { EraLiModeEnhanced } from '../../models/eraTheme/types';
+import { NPC结构 } from '../../models/social';
+import { 计算亲密度等级 } from '../../models/intimacy';
 
 /** 里模式强度级别 */
 export type LiModeIntensity = '微暗' | '暧昧' | '露骨';
@@ -38,6 +40,8 @@ function filterByIntensity(li: EraLiModeEnhanced, intensity: LiModeIntensity): s
         if (li.desireMotives && li.desireMotives.length > 0) {
             parts.push(`## 欲望动机\n${li.desireMotives.map((m, i) => `${i + 1}. ${m}`).join('\n')}`);
         }
+        // 里模式专属事件引导
+        parts.push(`## 里模式专属事件引导\n当里模式开启时，可生成专属亲密事件。事件应参考上述场景类型和欲望动机，在剧情推进中自然引入。事件不必标注"里模式"字样，但氛围与内容应符合里模式定义。`);
     }
 
     // 露骨级别包含的内容
@@ -143,6 +147,83 @@ export function 构建里模式NPC原型注入(
         '可选人格原型：',
         ...enhanced.dualPersonalities.map((p, i) => `${i + 1}. ${p}`),
     ];
+
+    return parts.join('\n');
+}
+
+/** 判断 NPC 里人格激活条件是否满足 */
+function is里人格激活(
+    npc: NPC结构,
+    _eraId: string | null | undefined
+): boolean {
+    const cond = npc.里人格激活条件;
+    if (!cond) return false;
+
+    const 亲密度等级 = 计算亲密度等级(npc.好感度 ?? 0);
+    if (cond.亲密度阈值 != null && 亲密度等级 < cond.亲密度阈值) return false;
+
+    // 时间条件、地点条件、特定事件条件目前由 AI 自行判断，TS 层不做硬校验
+    // 这些字段作为 prompt 提示告知 AI
+
+    return true;
+}
+
+/** 构建 NPC 表里切换注入提示词 — 当 NPC 里人格激活时，告知 AI 该 NPC 当前的人格状态 */
+export function 构建NPC表里切换注入(
+    npc: NPC结构,
+    eraId: string | null | undefined,
+    liModeEnabled: boolean
+): string | null {
+    if (!liModeEnabled || !eraId) return null;
+
+    const resolved = resolveEraNode(eraId);
+    const liMode = resolved?.inherited.liMode;
+    if (!liMode) return null;
+
+    const enhanced = liMode as EraLiModeEnhanced;
+    const hasStructuredFields = !!(
+        enhanced.corePrinciple ||
+        enhanced.powerSystem ||
+        enhanced.dualPersonalities ||
+        enhanced.sceneTypes ||
+        enhanced.desireMotives ||
+        enhanced.aiDirectives ||
+        enhanced.intensityLevels
+    );
+    if (!hasStructuredFields || !enhanced.dualPersonalities?.length) return null;
+
+    const 激活 = is里人格激活(npc, eraId);
+    const 亲密度等级 = 计算亲密度等级(npc.好感度 ?? 0);
+
+    // 更新当前人格状态
+    npc.当前人格状态 = 激活 ? '里' : '表';
+
+    if (!激活) return null;
+
+    // 从 dualPersonalities 中找到最匹配的人格描述
+    // 取第一个匹配的（dualPersonalities 格式为 "角色名：表——...；里——..."）
+    const match = enhanced.dualPersonalities.find(p =>
+        p.startsWith(npc.核心性格特征?.substring(0, 4) ?? '') ||
+        p.includes(npc.身份?.substring(0, 4) ?? '')
+    );
+
+    const 里人格描述 = match
+        ? match.split('里——')[1]?.split('；')[0] ?? match
+        : `里人格已激活（亲密度等级${亲密度等级}）`;
+
+    const parts = [
+        `【${npc.姓名} — 里人格激活】`,
+        `该角色当前处于里人格状态（亲密度等级 ${亲密度等级}）。`,
+        `里人格表现：${里人格描述}`,
+        `当与该角色互动时，应体现其里人格特质，对话风格和行为方式应与其表人格形成反差。`,
+    ];
+
+    if (npc.里人格激活条件?.时间条件) {
+        parts.push(`时间偏好：${npc.里人格激活条件.时间条件}`);
+    }
+    if (npc.里人格激活条件?.地点条件) {
+        parts.push(`地点偏好：${npc.里人格激活条件.地点条件}`);
+    }
 
     return parts.join('\n');
 }
