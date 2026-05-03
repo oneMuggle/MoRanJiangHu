@@ -167,16 +167,16 @@ const MobileQuickMenu: React.FC<Props> = ({
             </div>
 
             {showAllMenus && (
-                <div className="px-2 pt-2 pb-1">
-                    <div className="rounded-2xl border border-gray-800 bg-black/50 shadow-[0_8px_20px_rgba(0,0,0,0.4)] overflow-hidden">
-                        <div className="px-3 py-2 border-b border-gray-800 flex items-center justify-between">
+                <div className="px-1 pt-1 pb-1">
+                    <div className="rounded-xl border border-gray-800 bg-black/50 shadow-[0_8px_20px_rgba(0,0,0,0.4)] overflow-hidden">
+                        <div className="px-2 py-1 border-b border-gray-800 flex items-center justify-between">
                             <span className="text-[10px] tracking-[0.18em] text-gray-500">{文案.全部功能标题}</span>
                             <span className="text-[10px] text-wuxia-cyan/80">{allMenus.length} {文案.项后缀}</span>
                         </div>
-                        <div className="max-h-44 overflow-y-auto no-scrollbar p-2">
-                            <div className="grid grid-cols-4 gap-2">
+                        <div className="max-h-56 overflow-y-auto no-scrollbar p-1">
+                            <div className="grid grid-cols-4 gap-1">
                                 {allMenus.map((menu) => (
-                                    <div key={menu} className="relative">
+                                    <div key={menu} className="relative min-w-0">
                                         <MenuTile
                                             icon={getIcon(menu)}
                                             label={menu}
@@ -245,18 +245,18 @@ const MenuTile = ({
     <button
         type="button"
         onClick={onClick}
-        className={`h-16 border rounded-xl flex flex-col items-center justify-center gap-1.5 transition-colors ${
+        className={`h-16 w-full border rounded-lg flex flex-col items-center justify-center gap-1 transition-colors ${
             active
                 ? 'border-wuxia-gold/80 bg-wuxia-gold/10 text-wuxia-gold'
                 : 'border-gray-800 bg-black/20 text-gray-300 hover:border-wuxia-cyan/60 hover:text-white'
         }`}
     >
-        <span className={`h-8 w-8 flex items-center justify-center translate-y-0.5 transition-all ${
+        <span className={`h-8 w-8 flex items-center justify-center shrink-0 transition-all ${
             active ? 'scale-110 drop-shadow-[0_0_8px_rgba(230,200,110,0.45)]' : ''
         }`}>
             <IconGlyph name={icon} className="h-5 w-5" />
         </span>
-        <span className="text-[10px] tracking-[0.12em]">{label}</span>
+        <span className="text-[10px] tracking-[0.12em] truncate w-full text-center px-1">{label}</span>
     </button>
 );
 
