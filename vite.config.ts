@@ -4,6 +4,20 @@ import { spawn } from 'child_process';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const R2_CDN_BASE = 'https://mrqk.cc.cd';
+
+/** Injects <script>window.__R2_CDN_BASE__</script> into index.html (idempotent) */
+const r2CdnPlugin = (): Plugin => ({
+  name: 'r2-cdn-inject',
+  transformIndexHtml(html) {
+    if (html.includes('__R2_CDN_BASE__')) return html; // already injected
+    return html.replace(
+      /<\/head>/,
+      `<script>\n  window.__R2_CDN_BASE__ = '${R2_CDN_BASE}';\n</script>\n</head>`
+    );
+  }
+});
+
 const PWSH_PATH = 'C:\\Program Files\\PowerShell\\7\\pwsh.exe';
 const PWSH_EXECUTABLE = fs.existsSync(PWSH_PATH) ? PWSH_PATH : 'pwsh';
 const NOVELAI_PROXY_SCRIPT = path.resolve(__dirname, 'scripts/novelai-proxy.ps1');
@@ -123,7 +137,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       host: '0.0.0.0'
     },
-    plugins: [react(), novelAiDevProxyPlugin()],
+    plugins: [react(), novelAiDevProxyPlugin(), r2CdnPlugin()],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

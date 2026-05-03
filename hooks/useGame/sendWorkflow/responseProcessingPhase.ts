@@ -3,21 +3,21 @@
  * 响应处理阶段 — AI 响应解析后、正文润色、变量生成、规划分析、世界演变的完整处理链路
  */
 
-import { 环境时间转标准串 } from './timeUtils';
-import { 按世界演变分流净化响应 } from './storyResponseGuards';
-import { 获取世界演变接口配置, 接口配置是否可用 } from '../../utils/apiConfig';
-import { 同步剧情小说分解时间校准 } from '../../services/novel-decomposition/novelDecompositionCalibration';
+import { 环境时间转标准串 } from '../timeUtils';
+import { 按世界演变分流净化响应 } from '../storyResponseGuards';
+import { 获取世界演变接口配置, 接口配置是否可用 } from '../../../utils/apiConfig';
+import { 同步剧情小说分解时间校准 } from '../../../services/novel-decomposition/novelDecompositionCalibration';
 import {
     规范化记忆系统,
     构建即时记忆条目,
     构建短期记忆条目,
     写入四段记忆
-} from './memoryUtils';
-import { 规范化记忆配置 } from './memoryUtils';
-import type { GameResponse, 聊天记录结构, 剧情系统结构 } from '../../types';
+} from '../memoryUtils';
+import { 规范化记忆配置 } from '../memoryUtils';
+import type { GameResponse, 聊天记录结构, 剧情系统结构 } from '../../../types';
 import type { 世界演变进度, 规划分析进度, 正文润色进度, 变量生成进度 } from './independentStages';
 import type { 回合快照结构 } from './index';
-import type { 世界演变执行结果 } from './worldEvolutionWorkflow';
+import type { 世界演变执行结果 } from '../worldEvolutionWorkflow';
 
 // ─── 辅助类型（避免循环导入） ────────────────────────────────────────────────
 

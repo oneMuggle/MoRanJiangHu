@@ -36,6 +36,33 @@ function corsHeaders() {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+
+    // 调试接口：列出 R2 bucket 中的文件
+    if (url.searchParams.has('list')) {
+      try {
+        const objects = [];
+        let cursor = undefined;
+        do {
+          const listing = await env.ASSETS.list({ cursor, limit: 100 });
+          objects.push(...listing.objects);
+          cursor = listing.cursor;
+        } while (cursor);
+
+        return new Response(JSON.stringify({
+          count: objects.length,
+          objects: objects.map(o => ({ key: o.key, size: o.size, httpEtag: o.httpEtag }))
+        }, null, 2), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // 只允许 GET 和 HEAD 请求
     if (!ALLOWED_METHODS.includes(request.method)) {
       return new Response('Method Not Allowed', {
@@ -44,7 +71,6 @@ export default {
       });
     }
 
-    const url = new URL(request.url);
     // 去掉前导斜杠
     const key = url.pathname.replace(/^\//, '');
 
