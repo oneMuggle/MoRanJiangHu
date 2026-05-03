@@ -306,11 +306,10 @@ export const 执行NPC生图工作流 = async (
                         } : undefined
                     }
                 )
-                : { 原始描述: '', 生图词组: imageAIService.buildNpcDirectImagePrompt(npcImageBaseData, { 构图, 画风, 额外要求, 后端类型, 启用画师串预设: !词组转化兼容模式 && (启用画师串预设 || 启用PNG画风预设), 兼容模式: 词组转化兼容模式, 风格提示词输入: 兼容模式风格提示词 || undefined }) };
+                : imageAIService.buildNpcDirectImagePrompt(npcImageBaseData, { 构图, 画风, 额外要求, 后端类型, 启用画师串预设: !词组转化兼容模式 && (启用画师串预设 || 启用PNG画风预设), 兼容模式: 词组转化兼容模式, 风格提示词输入: 兼容模式风格提示词 || undefined });
             原始描述 = promptResult.原始描述;
             生图词组 = promptResult.生图词组;
             最终提示词 = imageAIService.构建最终图片提示词(生图词组, imageApiForTask, {
-                构图,
                 尺寸: 尺寸 || undefined,
                 附加正向提示词: 前置正向提示词,
                 附加负面提示词: 合并负向画师串,

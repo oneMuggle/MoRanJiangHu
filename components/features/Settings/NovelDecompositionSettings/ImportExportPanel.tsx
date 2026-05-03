@@ -1,6 +1,6 @@
 import React from 'react';
-import ToggleSwitch from '../../ui/ToggleSwitch';
-import type { 接口设置结构, 功能模型占位配置结构 } from '../../../types';
+import ToggleSwitch from '../../../ui/ToggleSwitch';
+import type { 接口设置结构, 功能模型占位配置结构 } from '../../../../types';
 
 interface ImportExportPanelProps {
     datasetsCount: number;

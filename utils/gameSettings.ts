@@ -247,7 +247,7 @@ export const 规范化游戏设置 = (
         selectedPreset
     );
 
-    const eraId = 读取文本(source.时代配置ID).trim() || 读取文本(fallback.时代配置ID).trim() || null;
+    const eraId = 读取文本((source as any).时代配置ID).trim() || 读取文本((fallback as any).时代配置ID).trim() || null;
     const 启用子纪元里模式值 = (source.启用子纪元里模式 && typeof source.启用子纪元里模式 === 'object'
         ? source.启用子纪元里模式
         : (fallback.启用子纪元里模式 || {})) as Record<string, boolean>;

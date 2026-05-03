@@ -150,7 +150,6 @@ export const 执行场景生图工作流 = async (
         状态: 'running',
         开始时间: Date.now(),
         原始描述: JSON.stringify(params.sceneContext ?? {}, null, 2),
-        构图: '场景',
         画风,
         额外要求: params.额外要求,
         尺寸: params.尺寸,
@@ -202,8 +201,6 @@ export const 执行场景生图工作流 = async (
             .filter(Boolean)
             .join(', ');
         const 最终提示词 = imageAIService.构建最终图片提示词(生图词组, imageApiForTask, {
-            构图: '场景',
-            场景类型,
             附加正向提示词: 前置正向提示词,
             附加负面提示词,
             尺寸: params.尺寸,
@@ -215,8 +212,6 @@ export const 执行场景生图工作流 = async (
             生图词组: 合并生图词组,
             最终正向提示词: 最终提示词.最终正向提示词,
             最终负向提示词: 最终提示词.最终负向提示词,
-            构图: '场景',
-            场景类型,
             场景判定说明,
             进度阶段: 'generating',
             进度文本: 场景类型 === '风景场景'
@@ -236,8 +231,6 @@ export const 执行场景生图工作流 = async (
                 原始描述,
                 使用模型: modelName,
                 生成时间: archive?.最近生图结果?.生成时间 || Date.now(),
-                构图: '场景',
-                场景类型,
                 场景判定说明,
                 画风,
                 画师串: 前置正向提示词,
@@ -250,8 +243,6 @@ export const 执行场景生图工作流 = async (
             }
         }));
         const imageResult = await imageAIService.generateImageByPrompt(生图词组, imageApiForTask, undefined, {
-            构图: '场景',
-            场景类型,
             附加正向提示词: 前置正向提示词,
             附加负面提示词,
             跳过基础负面提示词: Boolean((画师串预设?.负面提示词 || '').trim() || (PNG画风预设?.负面提示词 || '').trim()),
@@ -276,7 +267,6 @@ export const 执行场景生图工作流 = async (
             使用模型: modelName,
             生成时间: Date.now(),
             构图: '场景' as const,
-            场景类型,
             场景判定说明,
             画风,
             画师串: 前置正向提示词,
@@ -312,8 +302,6 @@ export const 执行场景生图工作流 = async (
             生图词组: 合并生图词组,
             最终正向提示词: localizedImageResult.最终正向提示词 || 最终提示词.最终正向提示词,
             最终负向提示词: localizedImageResult.最终负向提示词 || 最终提示词.最终负向提示词,
-            构图: '场景',
-            场景类型,
             场景判定说明,
             图片URL: localizedImageResult.图片URL,
             本地路径: localizedImageResult.本地路径,
@@ -355,7 +343,6 @@ export const 执行场景生图工作流 = async (
             ...currentTask,
             状态: 'failed',
             完成时间: Date.now(),
-            构图: '场景',
             最终正向提示词: currentTask.最终正向提示词,
             最终负向提示词: currentTask.最终负向提示词,
             错误信息: errorMessage,

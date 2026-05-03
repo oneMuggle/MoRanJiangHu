@@ -9,8 +9,9 @@ import {
     队列状态样式, 
     队列状态文案,
     次级按钮样式,
-    统计卡
+
 } from '../utils/imageManagerConstants';
+import { 统计卡 } from '../utils/imageManagerHelpers';
 import { 
     格式化时间,
     空状态

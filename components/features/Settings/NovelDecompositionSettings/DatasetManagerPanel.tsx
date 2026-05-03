@@ -1,5 +1,5 @@
 import React from 'react';
-import InlineSelect from '../../ui/InlineSelect';
+import InlineSelect from '../../../ui/InlineSelect';
 import type { 小说拆分数据集结构, 小说拆分任务结构 } from '../../../../types';
 
 const 来源类型文本映射: Record<string, string> = {

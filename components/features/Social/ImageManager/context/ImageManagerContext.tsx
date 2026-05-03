@@ -4,6 +4,7 @@ import type {
     NPC图片记录,
     场景图片档案,
     场景生图任务记录,
+    场景生图结果,
     NPC生图任务记录,
     图片管理筛选条件,
     接口设置结构
@@ -22,7 +23,7 @@ export interface ImageManagerContextValue {
     filteredQueue: NPC生图任务记录[];
     combinedQueue: 合并队列记录[];
     filteredCombinedQueue: 合并队列记录[];
-    sceneHistory: 场景生图任务记录[];
+    sceneHistory: 场景生图结果[];
     sceneQueueList: 场景生图任务记录[];
     图片统计: { total: number; success: number; failed: number; pending: number };
     队列统计: { total: number; queued: number; running: number; success: number; failed: number };

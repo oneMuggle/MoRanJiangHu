@@ -14,10 +14,10 @@ import {
     写入四段记忆
 } from '../memoryUtils';
 import { 规范化记忆配置 } from '../memoryUtils';
-import type { GameResponse, 聊天记录结构, 剧情系统结构 } from '../../../types';
+import type { GameResponse, 聊天记录结构, 剧情系统结构, 记忆系统结构 } from '../../../types';
 import type { 世界演变进度, 规划分析进度, 正文润色进度, 变量生成进度 } from './independentStages';
 import type { 回合快照结构 } from './index';
-import type { 世界演变执行结果 } from '../worldEvolutionWorkflow';
+import type { 世界演变执行结果, 世界演变触发参数 } from '../worldEvolutionWorkflow';
 
 // ─── 辅助类型（避免循环导入） ────────────────────────────────────────────────
 
@@ -103,13 +103,7 @@ export type 响应处理阶段依赖 = {
         storyPlanCommands?: any[];
         heroinePlanCommands?: any[];
     }>;
-    执行世界演变更新: (params: {
-        来源: string;
-        动态世界线索?: any[];
-        applyCommands?: boolean;
-        currentResponse?: GameResponse;
-        stateBase?: any;
-    }) => Promise<世界演变执行结果>;
+    执行世界演变更新: (params?: 世界演变触发参数) => Promise<世界演变执行结果>;
     执行变量生成并合并响应: (params: {
         snapshot: 回合快照结构;
         parsedResponse: GameResponse;
@@ -133,6 +127,8 @@ export type 响应处理阶段依赖 = {
         } | null;
     } | null>;
     performAutoSave: (snapshot?: any) => Promise<void>;
+    获取原始AI消息: (rawText: string) => string;
+    提取原始报错详情: (error: any) => string;
 };
 
 // ─── 响应处理阶段输入 ────────────────────────────────────────────────────────

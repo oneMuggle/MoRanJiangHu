@@ -26,7 +26,7 @@ interface PresetsTabProps {
     pngStylePresets: PNG画风预设结构[];
     currentPngStylePresetId: string;
     characterAnchors: 角色锚点结构[];
-    characterAnchorNpcOptions: NPC结构[];
+    characterAnchorNpcOptions: { id: string; 姓名: string; 是否失效: boolean }[];
     editorScopedArtistPresets: 画师串预设结构[];
     editorSelectedArtistPreset: 画师串预设结构 | undefined;
     presetFeature?: {

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type {
+    场景生图结果,
     NPC结构,
     NPC图片记录,
     场景图片档案,
@@ -10,7 +11,6 @@ import type {
 } from '../../../../../types';
 import { 规范化接口设置 } from '../../../../../utils/apiConfig';
 import type { 页面标签类型, NPC图库分组, 合并队列记录 } from '../types';
-
 interface UseImageManagerStateOptions {
     socialList: NPC结构[];
     queue: NPC生图任务记录[];
@@ -31,7 +31,7 @@ interface ImageManagerState {
     filteredQueue: NPC生图任务Record[];
     combinedQueue: 合并队列记录[];
     filteredCombinedQueue: 合并队列记录[];
-    sceneHistory: 场景生图任务记录[];
+    sceneHistory: 场景生图结果[];
     sceneQueueList: 场景生图任务记录[];
     图片统计: { total: number; success: number; failed: number; pending: number };
     队列统计: { total: number; queued: number; running: number; success: number; failed: number };

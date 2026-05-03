@@ -1,5 +1,5 @@
 import React from 'react';
-import { DeviceMode } from '../../../../models/mobileDevice';
+import { DeviceMode } from '../../../models/mobileDevice';
 
 interface ModeToggleProps {
     mode: DeviceMode;

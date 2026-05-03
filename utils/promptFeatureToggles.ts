@@ -49,7 +49,7 @@ const 功能附加块是否启用 = (
         case 'lizhiguai':
             return config?.启用里志怪模式 === true;
         case 'limode':
-            return config?.启用子纪元里模式 !== false;
+            return Object.keys(config?.启用子纪元里模式 || {}).length > 0;
         case 'zhiguai':
             return config?.古代体系选择 === '志怪' || config?.古代体系选择 === '双修';
         default:

@@ -3,7 +3,7 @@
  * Extracted from ImageManagerModal.tsx for better maintainability
  */
 
-import React from 'react';
+
 import type {
     图片生成状态类型,
     NPC生图任务记录,
@@ -85,3 +85,4 @@ export const 主按钮样式 = (disabled: boolean): string => `inline-flex items
 export const 卡片样式 = 'rounded border border-wuxia-gold/20 bg-black/40 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.5)]';
 export const 小标题样式 = 'text-[10px] md:text-xs text-wuxia-gold/70 tracking-widest uppercase font-serif drop-shadow-md';
 export const 摘要卡片样式 = 'rounded border border-wuxia-gold/20 bg-gradient-to-br from-black/60 to-black/30 p-3 h-[112px] overflow-hidden relative group hover:border-wuxia-gold/40 transition-colors shadow-inner';
+
