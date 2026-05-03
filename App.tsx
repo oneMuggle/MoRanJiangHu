@@ -1451,6 +1451,9 @@ const App: React.FC = () => {
                                     character={state.角色}
                                     battle={state.战斗}
                                     onClose={() => setters.setShowBattle(false)}
+                                    onAction={(结果) => {
+                                        console.log('玩家战斗行动:', 结果);
+                                    }}
                                 />
                             )}
                         </懒加载边界>

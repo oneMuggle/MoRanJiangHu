@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 角色数据结构, 战斗状态结构 } from '../../../types';
 import { IconSwords, IconYinYang } from '../../ui/Icons';
+import BattleActionPanel from './BattleActionPanel';
+import { 战斗行动结果 } from '../../../hooks/useGame/combatCalculation';
 
 interface Props {
     character: 角色数据结构;
     battle: 战斗状态结构;
     onClose: () => void;
+    onAction?: (结果: 战斗行动结果) => void;
 }
 
 type 扩展敌方 = 战斗状态结构['敌方'][number] & {
@@ -46,7 +49,7 @@ const 资源条: React.FC<{
     );
 };
 
-const BattleModal: React.FC<Props> = ({ character, battle, onClose }) => {
+const BattleModal: React.FC<Props> = ({ character, battle, onClose, onAction }) => {
     const 敌方列表 = (Array.isArray(battle?.敌方) ? battle.敌方 : []) as 扩展敌方[];
     const 存活敌人数 = 敌方列表.filter((enemy) => (enemy?.当前血量 || 0) > 0).length;
 
@@ -123,7 +126,9 @@ const BattleModal: React.FC<Props> = ({ character, battle, onClose }) => {
                                 <span className="text-xl tracking-widest">四海升平，并无强压</span>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
+                            <div className="flex flex-col gap-6">
+                                {/* 敌方信息卡片 */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
                                 {敌方列表.map((enemy, idx) => {
                                     const hpCur = Math.max(0, enemy?.当前血量 || 0);
                                     const hpMax = Math.max(1, enemy?.最大血量 || 1);
@@ -196,6 +201,21 @@ const BattleModal: React.FC<Props> = ({ character, battle, onClose }) => {
                                         </div>
                                     );
                                 })}
+                                </div>
+
+                                {/* 战斗操作面板 */}
+                                {onAction && (
+                                    <div className="border-t border-wuxia-gold/10 pt-4">
+                                        <h4 className="text-sm text-wuxia-gold/80 font-serif tracking-widest mb-2">
+                                            战斗指令
+                                        </h4>
+                                        <BattleActionPanel
+                                            角色={character}
+                                            battle={battle}
+                                            onAction={onAction}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
