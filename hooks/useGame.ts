@@ -35,7 +35,11 @@ import {
     战斗状态结构,
     时代信息结构
 } from '../types';
-import { useEffect, useRef, useState } from 'react';
+import { 地图结构, 建筑结构 } from '../models/game/world';
+import { 游戏物品 } from '../models/domain/item';
+import { 旅行事件, 评估旅行可行性, 执行旅行, 执行探索, 推进游戏时间 } from './useGame/travelWorkflow';
+import { 执行购买, 执行出售, 计算购买价格, 计算出售价格, 出售结果 } from './useGame/tradeWorkflow';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as dbService from '../services/dbService';
 import { 获取时代信息, 获取时代推荐主题, 获取时代主题方案 } from '../models/system';
 import { 应用时代主题到根元素 } from '../styles/themes';
@@ -315,6 +319,53 @@ export const useGame = () => {
 
     // Mobile Device
     const { 设备状态, 设置设备状态, 设备打开, 设备关闭, 设备打开应用, 设备返回主页 } = gameState;
+
+    // 旅行系统
+    const [旅行事件列表, set旅行事件列表] = useState<旅行事件[]>([]);
+
+    const handleTravel = useCallback((目标地图: 地图结构, 目标建筑: 建筑结构 | null) => {
+        const 当前位置 = { 大地点: 环境?.大地点 || '', 中地点: 环境?.中地点 || '', 小地点: 环境?.小地点 || '' };
+        const 可行性 = 评估旅行可行性(角色, 当前位置, 目标地图);
+        if (!可行性.可行) {
+            return;
+        }
+
+        const 结果 = 执行旅行(角色, 环境, 目标地图, 目标建筑);
+        if (结果.成功) {
+            设置环境(结果.新环境);
+            set旅行事件列表(结果.事件);
+        }
+    }, [角色, 环境, 设置环境]);
+
+    const handleExplore = useCallback((目标建筑: 建筑结构) => {
+        const 结果 = 执行探索(环境, 目标建筑);
+        if (结果.成功) {
+            设置环境((prev) => ({ ...prev, 时间: 结果.新时间 || prev.时间, 具体地点: 目标建筑.名称 }));
+        }
+    }, [环境, 设置环境]);
+
+    // 交易系统
+    const handleBuyItem = useCallback((物品: 游戏物品, 卖家NPC: NPC结构 | null) => {
+        const 价格 = 计算购买价格(物品, 卖家NPC);
+        const 结果 = 执行购买(角色.金钱, 角色.物品列表, 物品, 价格);
+        if (结果.成功) {
+            设置角色((prev) => ({ ...prev, 金钱: 结果.新金钱, 物品列表: 结果.新物品列表 as typeof prev.物品列表 }));
+        }
+        return 结果;
+    }, [角色, 设置角色]);
+
+    const handleSellItem = useCallback((物品ID: string) => {
+        const 物品 = 角色.物品列表.find(i => i.ID === 物品ID);
+        if (!物品) {
+            return { 成功: false, 新金钱: 角色.金钱, 新物品列表: 角色.物品列表, 错误: '物品不存在' } as 出售结果;
+        }
+        const 价格 = 计算出售价格(物品, null);
+        const 结果 = 执行出售(角色.金钱, 角色.物品列表, 物品ID, 价格);
+        if (结果.成功) {
+            设置角色((prev) => ({ ...prev, 金钱: 结果.新金钱, 物品列表: 结果.新物品列表 as typeof prev.物品列表 }));
+        }
+        return 结果;
+    }, [角色, 设置角色]);
 
     /** 根据 gameConfig 推导设备模式 */
     const 派生设备模式 = (): 'normal' | 'li' => {
@@ -2158,6 +2209,13 @@ export const useGame = () => {
             clearPersistentWallpaper: 清除常驻壁纸,
             pushNotification: 推送右下角提示,
             handleEraChange: 处理时代变更,
+            // 旅行系统
+            handleTravel,
+            handleExplore,
+            travelEvents: 旅行事件列表,
+            // 交易系统
+            handleBuyItem,
+            handleSellItem,
             // Mobile Device
             openDevice: 打开设备,
             closeDevice: 设备关闭,

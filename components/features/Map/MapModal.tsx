@@ -1,16 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { 世界数据结构 } from '../../../models/world';
+import { 世界数据结构, 地图结构, 建筑结构 } from '../../../models/game/world';
 import { 环境信息结构 } from '../../../models/environment';
+import { 角色数据结构 } from '../../../models/domain/character';
+import { 旅行事件, 评估旅行可行性 } from '../../../hooks/useGame/travelWorkflow';
 
 interface Props {
     world: 世界数据结构;
     env: 环境信息结构;
+    character: 角色数据结构;
+    onTravel: (map: 地图结构, building: 建筑结构 | null) => void;
+    onExplore: (building: 建筑结构) => void;
+    travelEvents: 旅行事件[];
     onClose: () => void;
 }
 
 const 归一化文本 = (value: string | undefined | null) => (value || '').trim().replace(/\s+/g, '').toLowerCase();
 
-const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
+const MapModal: React.FC<Props> = ({ world, env, character, onTravel, onExplore, travelEvents, onClose }) => {
     const maps = Array.isArray(world?.地图) ? world.地图 : [];
     const buildings = Array.isArray(world?.建筑) ? world.建筑 : [];
     const 当前地点归一 = 归一化文本(env?.具体地点 || '');
@@ -67,6 +73,13 @@ const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
                 || 名称归一.includes(当前地点归一);
         });
     }, [buildings, 当前地点归一]);
+
+    // 旅行可行性评估
+    const 旅行信息 = useMemo(() => {
+        if (!当前地图) return null;
+        const 当前位置 = { 大地点: env?.大地点 || '', 中地点: env?.中地点 || '', 小地点: env?.小地点 || '' };
+        return 评估旅行可行性(character, 当前位置, 当前地图);
+    }, [当前地图, env, character]);
 
     return (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-[220] flex items-center justify-center p-4 animate-fadeIn">
@@ -191,6 +204,36 @@ const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
                                         </div>
                                     </div>
 
+                                    {/* 旅行操作区 */}
+                                    {旅行信息 && (
+                                        <div>
+                                            <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                <span className="w-1 h-1 rounded-full bg-wuxia-gold/50"></span> 出行
+                                            </div>
+                                            <div className="bg-black/30 border border-gray-800/50 p-4 rounded-lg">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="text-sm text-gray-300 font-serif">
+                                                        距离：<span className="text-wuxia-gold font-bold">{旅行信息.距离等级}</span>
+                                                    </div>
+                                                    <div className="text-sm text-gray-300 font-serif">
+                                                        预计耗时：<span className="text-wuxia-cyan font-bold">{旅行信息.预计耗时}</span> 分钟
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => onTravel(当前地图, null)}
+                                                    disabled={!旅行信息.可行}
+                                                    className={`w-full py-2.5 rounded-lg font-serif tracking-widest transition-all ${
+                                                        旅行信息.可行
+                                                            ? 'bg-gradient-to-r from-wuxia-gold/20 to-wuxia-gold/5 border border-wuxia-gold/40 text-wuxia-gold hover:from-wuxia-gold/30 hover:to-wuxia-gold/10 active:scale-[0.98]'
+                                                            : 'bg-gray-900/50 border border-gray-800 text-gray-600 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    {旅行信息.可行 ? '启程前往' : 旅行信息.原因 || '无法旅行'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2 flex items-center gap-2">
                                             <span className="w-1 h-1 rounded-full bg-cyan-600"></span> 图内蕴藏 (内部建筑声明)
@@ -258,6 +301,36 @@ const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
                         </div>
 
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-5 relative z-10">
+                            {/* 旅行事件回放 */}
+                            {travelEvents.length > 0 && (
+                                <div className="mb-5 space-y-3">
+                                    <div className="text-[10px] text-wuxia-cyan/70 text-center tracking-widest font-serif flex items-center gap-3">
+                                        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-wuxia-cyan/20"></div>
+                                        旅途见闻
+                                        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-wuxia-cyan/20"></div>
+                                    </div>
+                                    {travelEvents.map((event, idx) => (
+                                        <div key={`travel-event-${idx}`} className="p-3 rounded-lg border border-cyan-800/20 bg-cyan-950/10">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded border font-mono ${
+                                                    event.类型 === '抵达' ? 'border-green-600/40 text-green-400 bg-green-950/20' :
+                                                    event.类型 === '遭遇' ? 'border-red-600/40 text-red-400 bg-red-950/20' :
+                                                    event.类型 === '发现' ? 'border-yellow-600/40 text-yellow-400 bg-yellow-950/20' :
+                                                    event.类型 === '天气' ? 'border-blue-600/40 text-blue-400 bg-blue-950/20' :
+                                                    'border-gray-600/40 text-gray-400 bg-gray-950/20'
+                                                }`}>
+                                                    {event.类型}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs text-gray-300 font-serif leading-relaxed">{event.描述}</div>
+                                            {event.影响 && (
+                                                <div className="text-[10px] text-gray-500 mt-1 font-mono">{event.影响.说明}</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             {命中建筑列表.length > 0 ? (
                                 <div className="space-y-4">
                                     <div className="text-[10px] text-wuxia-gold/70 text-center mb-4 tracking-widest font-serif flex items-center gap-3">
@@ -269,16 +342,16 @@ const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
                                     {命中建筑列表.map((building: any, idx: number) => (
                                         <div key={`hit-building-${building?.名称 || idx}`} className="p-4 rounded-xl border border-wuxia-gold/30 bg-gradient-to-br from-wuxia-gold/5 relative overflow-hidden group hover:border-wuxia-gold/60 transition-colors shadow-sm">
                                             <div className="absolute -right-4 -top-4 text-6xl text-wuxia-gold opacity-[0.03] group-hover:scale-110 transition-transform font-serif pointer-events-none">建</div>
-                                            
+
                                             <div className="flex items-center justify-between mb-3 relative z-10">
                                                 <div className="text-base font-bold text-gray-100 font-serif drop-shadow-sm">{building?.名称 || '未命名建筑'}</div>
                                                 <div className="w-2 h-2 rounded-full bg-wuxia-gold animate-pulse shadow-[0_0_5px_rgba(212,175,55,0.8)]"></div>
                                             </div>
-                                            
+
                                             <div className="text-xs text-gray-400 mb-3 leading-relaxed text-justify font-serif italic border-l-2 border-gray-700/50 pl-2 relative z-10">
                                                 {building?.描述 || '此地平平无奇，未有传闻留下。'}
                                             </div>
-                                            
+
                                             <div className="text-[10px] text-gray-500 flex flex-wrap gap-1.5 relative z-10">
                                                 <span className="px-1.5 py-0.5 rounded bg-black/50 border border-gray-800">{(building?.归属?.大地点 || '?')}</span>
                                                 <span className="text-gray-700 mt-0.5">/</span>
@@ -286,6 +359,13 @@ const MapModal: React.FC<Props> = ({ world, env, onClose }) => {
                                                 <span className="text-gray-700 mt-0.5">/</span>
                                                 <span className="px-1.5 py-0.5 rounded bg-black/50 border border-gray-800">{(building?.归属?.小地点 || '?')}</span>
                                             </div>
+
+                                            <button
+                                                onClick={() => onExplore(building as 建筑结构)}
+                                                className="mt-3 w-full py-1.5 rounded text-xs font-serif tracking-widest border border-wuxia-cyan/30 text-wuxia-cyan/80 bg-cyan-950/20 hover:bg-cyan-950/40 hover:text-wuxia-cyan hover:border-wuxia-cyan/50 transition-all"
+                                            >
+                                                探索此地
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
