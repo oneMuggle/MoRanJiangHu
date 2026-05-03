@@ -25,6 +25,7 @@ interface Props {
     onOpenImageManager?: () => void;
     onOpenNovelDecomposition?: () => void;
     onOpenDevice?: () => void;
+    deviceUnreadCount?: number;
     worldEvolutionEnabled?: boolean;
     worldEvolutionUpdating?: boolean;
     enableHeroinePlan?: boolean;
@@ -38,7 +39,7 @@ const RightPanel: React.FC<Props> = ({
     onOpenSettings, onOpenInventory, onOpenEquipment, onOpenBattle, onOpenTeam,
     onOpenSocial, onOpenKungfu, onOpenWorld, onOpenMap, onOpenSect,
     onOpenTask, onOpenAgreement, onOpenStory, onOpenHeroinePlan, onOpenMemory, onOpenImageManager,
-    onOpenNovelDecomposition, onOpenDevice,
+    onOpenNovelDecomposition, onOpenDevice, deviceUnreadCount = 0,
     worldEvolutionEnabled = false,
     worldEvolutionUpdating = false,
     enableHeroinePlan = false,
@@ -74,7 +75,7 @@ const RightPanel: React.FC<Props> = ({
         { label: '记忆', action: onOpenMemory, color: 'primary' },
         ...(onOpenImageManager ? [{ label: '图册', action: onOpenImageManager, color: 'secondary' }] : []),
         ...(onOpenNovelDecomposition ? [{ label: '小说分解', action: onOpenNovelDecomposition, color: 'secondary' }] : []),
-        ...(onOpenDevice ? [{ label: '通讯', action: onOpenDevice, color: 'secondary' }] : []),
+        ...(onOpenDevice ? [{ label: '通讯', action: onOpenDevice, color: 'secondary' as const, badge: deviceUnreadCount }] : []),
     ];
 
     const SYSTEM_ITEMS = [
@@ -116,15 +117,21 @@ const RightPanel: React.FC<Props> = ({
                 </div>
                 <div className="p-4 space-y-3 h-full overflow-y-auto no-scrollbar relative z-10">
                     {MENU_ITEMS.map((item) => (
-                        <GameButton
-                            key={item.label}
-                            onClick={item.action}
-                            variant={item.color as any}
-                            className={`w-full text-center py-2 text-sm tracking-widest hover:scale-[1.02] transition-transform !skew-x-0 border-opacity-60 ${item.className || ''}`}
-                            contentClassName="!skew-x-0"
-                        >
-                            <span style={{ fontFamily: areaStyle.fontFamily, fontStyle: areaStyle.fontStyle, fontSize: 字号缩放(1, 12), lineHeight: areaStyle.lineHeight }}>{item.label}</span>
-                        </GameButton>
+                        <div key={item.label} className="relative">
+                            <GameButton
+                                onClick={item.action}
+                                variant={item.color as any}
+                                className={`w-full text-center py-2 text-sm tracking-widest hover:scale-[1.02] transition-transform !skew-x-0 border-opacity-60 ${item.className || ''}`}
+                                contentClassName="!skew-x-0"
+                            >
+                                <span style={{ fontFamily: areaStyle.fontFamily, fontStyle: areaStyle.fontStyle, fontSize: 字号缩放(1, 12), lineHeight: areaStyle.lineHeight }}>{item.label}</span>
+                            </GameButton>
+                            {'badge' in item && (item as any).badge > 0 && (
+                                <span className="absolute top-0 right-2 z-10 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 shadow-md">
+                                    {(item as any).badge > 99 ? '99+' : (item as any).badge}
+                                </span>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>

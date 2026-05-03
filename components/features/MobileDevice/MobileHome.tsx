@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDeviceConfig, getAppName, getLiModeThemeColor } from '../../../models/eraDevice';
-import { DeviceState, MobileApp, DeviceMode, DeviceConfig, DeviceGameContext } from '../../../models/mobileDevice';
+import { DeviceState, MobileApp, DeviceConfig, DeviceGameContext } from '../../../models/mobileDevice';
 import { resolveEraNode } from '../../../models/eraTheme';
-import ModeToggle from './ModeToggle';
 import ChatApp from './apps/ChatApp';
 import MapApp from './apps/MapApp';
 import ContactsApp from './apps/ContactsApp';
@@ -13,7 +12,7 @@ import ToolsApp from './apps/ToolsApp';
 
 interface AppProps {
     eraId: string;
-    mode: DeviceMode;
+    mode: DeviceState['mode'];
     appId: MobileApp;
     onBack: () => void;
     gameContext?: DeviceGameContext;
@@ -24,8 +23,6 @@ interface MobileHomeProps {
     deviceState: DeviceState;
     onAppClick: (app: MobileApp) => void;
     onReturnHome: () => void;
-    onModeToggle: (mode: DeviceMode) => void;
-    liModeGlobalEnabled: boolean;
     onClose: () => void;
     gameContext?: DeviceGameContext;
 }
@@ -45,8 +42,6 @@ const MobileHome: React.FC<MobileHomeProps> = ({
     deviceState,
     onAppClick,
     onReturnHome,
-    onModeToggle,
-    liModeGlobalEnabled,
     onClose,
     gameContext,
 }) => {
@@ -72,7 +67,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
 
     const isLiMode = deviceState.mode === 'li';
     const themeColor = isLiMode ? getLiModeThemeColor(config, '#6B2D8B') : undefined;
-    const liModeEnabled = liModeGlobalEnabled && !!liModeName;
+    const liModeEnabled = !!liModeName;
 
     const renderActiveApp = () => {
         const appProps: AppProps = {
@@ -115,7 +110,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
                     >
                         {config.deviceName}
                     </h2>
-                    {isLiMode && liModeName && (
+                    {liModeEnabled && liModeName && (
                         <span
                             className="text-xs px-2 py-0.5 rounded-full"
                             style={{
@@ -128,22 +123,13 @@ const MobileHome: React.FC<MobileHomeProps> = ({
                         </span>
                     )}
                 </div>
-                <div className="flex items-center gap-3">
-                    <ModeToggle
-                        mode={deviceState.mode}
-                        onToggle={onModeToggle}
-                        liModeEnabled={liModeEnabled}
-                        liModeName={liModeName}
-                        themeColor={themeColor}
-                    />
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-white transition-colors"
-                        aria-label="关闭设备"
-                    >
-                        ✕
-                    </button>
-                </div>
+                <button
+                    onClick={onClose}
+                    className="text-gray-400 hover:text-white transition-colors"
+                    aria-label="关闭设备"
+                >
+                    ✕
+                </button>
             </div>
 
             {/* Active App or Home Grid */}

@@ -912,6 +912,7 @@ const App: React.FC = () => {
                                 onOpenImageManager={openImageManagerWithCheck}
                                 onOpenNovelDecomposition={() => { void openNovelDecompositionWorkbench(); }}
                                 onOpenDevice={actions.openDevice}
+                                deviceUnreadCount={state.设备状态.notifications.filter(n => !n.read).length}
                                 worldEvolutionEnabled={meta.worldEvolutionEnabled}
                                 worldEvolutionUpdating={meta.worldEvolutionUpdating}
                                 enableHeroinePlan={state.gameConfig.启用女主剧情规划 === true}
@@ -962,6 +963,7 @@ const App: React.FC = () => {
                         enableKungfu={启用修炼体系}
                         enableImageManager={true}
                         enableNovelDecomposition={true}
+                        deviceUnreadCount={state.设备状态.notifications.filter(n => !n.read).length}
                     />
 
                     {!hideBottomTicker && (
@@ -1693,8 +1695,6 @@ const App: React.FC = () => {
                                 deviceState={meta.deviceState}
                                 onAppClick={actions.openDeviceApp}
                                 onReturnHome={actions.returnDeviceHome}
-                                onModeToggle={actions.toggleDeviceMode}
-                                liModeGlobalEnabled={state.gameConfig?.启用子纪元里模式?.[state.currentEra] ?? true}
                                 onClose={actions.closeDevice}
                                 gameContext={{
                                     角色: state.角色 || null,

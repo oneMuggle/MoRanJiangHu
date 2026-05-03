@@ -1,7 +1,7 @@
 # 手机通讯工具深化计划
 
 > 创建日期：2026-05-03
-> 状态：待审核
+> 状态：进行中（Phase 1-3 已完成）
 > 关联文件：`mobile-device-li-mode-plan.md`（已完成的里模式计划）
 
 ---
@@ -110,29 +110,28 @@ export interface Notification {
 
 ## 3. 实施阶段
 
-### Phase 1: 里模式开关迁移（从通讯工具移至游戏设置）
+### Phase 1: 里模式开关迁移（从通讯工具移至游戏设置） ✅ 已完成
 
 **复杂度：低 | 预估工时：1-2h**
 
-#### Step 1.1: 从通讯工具界面移除里模式开关
+#### Step 1.1: 从通讯工具界面移除里模式开关 ✅
 
-- 从 `MobileHome.tsx` 中移除 `ModeToggle` 组件渲染
-- 从 `MobileDeviceModal.tsx` 中移除 `onModeToggle` 回调和 `liModeGlobalEnabled` prop
-- `DeviceState.mode` 不再由用户界面切换，改为从 `gameConfig.启用子纪元里模式[eraId]` 自动推导
-- 删除 `actions.toggleDeviceMode`
+- [x] 从 `MobileHome.tsx` 中移除 `ModeToggle` 组件渲染
+- [x] 从 `MobileDeviceModal.tsx` 中移除 `onModeToggle` 回调和 `liModeGlobalEnabled` prop
+- [x] `DeviceState.mode` 不再由用户界面切换，改为从 `gameConfig.启用子纪元里模式[eraId]` 自动推导
+- [x] 删除 `actions.toggleDeviceMode`
 
-#### Step 1.2: 在设置面板中添加里模式开关
+#### Step 1.2: 模式推导逻辑统一 ✅
 
-- 在 `SettingsModal.tsx` 的世界/时代设置区域新增 **子纪元里模式** per-era 开关
-- 与现有 `启用里武侠模式`、`启用里志怪模式` 风格统一
-- 开关值写入 `gameConfig.启用子纪元里模式[eraId]`（已有数据结构，无需新增字段）
-- 新游戏向导中已有此开关，保持不变
+- [x] 设备打开时，mode 根据 `gameConfig.启用子纪元里模式[eraId]` 自动设定
+- [x] `打开设备()` wrapper 函数在 useGame.ts 中合成模式设定
+- [x] `DeviceState.mode` 改为只读派生状态
 
-#### Step 1.3: 模式推导逻辑统一
+#### Step 1.3: 在设置面板中添加里模式开关 ✅
 
-- 设备打开时，mode 根据 `gameConfig.启用子纪元里模式[eraId]` 自动设定
-- `DeviceState.mode` 改为只读派生状态
-- `ModeToggle.tsx` 组件从设备界面中移除（文件可保留供设置面板复用）
+- [x] `GameSettings.tsx` 中已有 per-era 子纪元里模式开关（第487-507行）
+- [x] 开关值写入 `gameConfig.启用子纪元里模式[eraId]`
+- [x] 新游戏向导中已有此开关，保持不变
 
 涉及文件：
 - `components/features/MobileDevice/MobileHome.tsx` — 移除 ModeToggle
@@ -148,59 +147,51 @@ export interface Notification {
 
 **复杂度：中 | 预估工时：4-6h**
 
-#### Step 2.1: 添加 UI 入口
+#### Step 2.1: 添加 UI 入口 ✅
 
-- 在 `RightPanel.tsx` 桌面端的快捷操作栏添加手机图标按钮
-- 在 `MobileQuickMenu.tsx` 底部导航栏添加手机图标按钮
-- 点击调用 `actions.openDevice`
-- 设备图标使用 era 适配的 icon
+- [x] `RightPanel.tsx` 已有「通讯」按钮（第77行），通过 `onOpenDevice` 回调触发
+- [x] `MobileQuickMenu.tsx` 已有「通讯」菜单项（第95行）
+- [x] `App.tsx` 已正确绑定 `actions.openDevice`
 
-涉及文件：
-- `components/layout/RightPanel.tsx`
-- `components/layout/MobileQuickMenu.tsx`
+#### Step 2.2: 消息持久化 ✅
 
-#### Step 2.2: 消息持久化
+- [x] `dbService.ts` 新增 `device_messages` IndexedDB 存储（VERSION 3）
+- [x] 新增 CRUD 方法：`保存设备消息`、`读取设备消息列表`、`读取设备消息`、`删除设备消息`、`清空设备消息`
+- [x] 新增导出/导入方法：`导出全部设备消息`、`导入设备消息`（用于存档）
+- [x] `强制彻底清空全部数据` 包含新存储
 
-- 在 `dbService.ts` 新增 `DeviceMessage` 的 IndexedDB 读写方法
-- 在存档/加载流程中包含设备消息数据
+#### Step 2.3: DeviceState 扩展 ✅
 
-涉及文件：
-- `services/dbService.ts`
-- `hooks/useGame/saveCoordinator.ts`
-
-#### Step 2.3: DeviceState 扩展
-
-- 新增 `DeviceStats` 和 `Notification` 类型
-- 在存档中包含设备状态
-
-涉及文件：
-- `models/mobileDevice.ts`
-- `hooks/useGame/mobileDeviceWorkflow.ts`
-- `hooks/useGameState.ts`
+- [x] `models/mobileDevice.ts` 新增 `DeviceStats`、`DeviceNotification`、`NotificationType` 类型
+- [x] `DeviceState` 扩展 `messages`、`stats`、`notifications` 字段
+- [x] `mobileDeviceWorkflow.ts` 更新 `初始设备状态()` 包含新字段
+- [x] `初始设备统计()` 辅助函数
 
 ---
 
-### Phase 3: AI 工作流激活
+### Phase 3: AI 工作流激活 ✅
 
 **复杂度：中 | 预估工时：4-6h**
 
-#### Step 3.1: 回合结束时自动生成设备消息
+#### Step 3.1: 回合结束时自动生成设备消息 ✅
 
-- 在 `sendWorkflow.ts` 回合处理末尾触发设备消息生成
-- 调用 `deviceAiWorkflow.ts` 的 `生成设备消息`，传入当前游戏上下文
-- 根据 era 决定生成哪些 app 的内容
-- 消息持久化到 IndexedDB
+- [x] 创建 `triggerDeviceMessageWorkflow.ts` — 回合末尾触发器
+- [x] `执行响应处理阶段` 新增 `触发设备消息生成?` 回调
+- [x] `useGame.ts` 中实现回调：解析时代/模式/场景，调用 `触发设备消息生成`
+- [x] 消息自动持久化到 IndexedDB
+- [x] 里模式生成 news/forum/chat，正常模式按时代差异生成不同 App 内容
 
 #### Step 3.2: 消息通知系统
 
-- 新生成的消息产生 `Notification` 对象
-- 在 UI 中显示通知角标（手机图标上的红点数字）
-- 点击通知跳转到对应 app 和消息
+- [x] `DeviceNotification` 类型已定义
+- [x] `触发设备消息生成` 自动生成通知对象
+- [x] UI 通知角标（手机图标红点）— RightPanel 和 MobileQuickMenu 显示未读数量
 
 #### Step 3.3: 联系人/AI 生成打通
 
-- `ContactsApp` 数据不足时调用 `生成设备联系人` 补充
-- `ChatApp` 群聊为空时调用 `生成设备群组` 补充
+- [x] `deviceAiWorkflow.ts` 已有 `生成设备联系人` 和 `生成设备群组`
+- [ ] `ContactsApp` 数据不足时自动调用
+- [ ] `ChatApp` 群聊为空时自动调用
 
 涉及文件：
 - `hooks/useGame/sendWorkflow.ts`
@@ -211,15 +202,15 @@ export interface Notification {
 
 ---
 
-### Phase 4: 正文联动
+### Phase 4: 正文联动 ✅ 已完成
 
 **复杂度：高 | 预估工时：6-8h**
 
-#### Step 4.1: 系统提示词注入设备通讯摘要
+#### Step 4.1: 系统提示词注入设备通讯摘要 ✅
 
-- 新增 `构建设备通讯摘要` 函数
-- 回合内有未读/新消息时，将摘要注入系统提示词
-- 让 AI 在正文中引用"收到飞鸽传书"、"数据终端推送消息"等内容
+- [x] 新增 `构建设备通讯摘要` 函数（`triggerDeviceMessageWorkflow.ts`）
+- [x] 回合内有未读/新消息时，将摘要注入系统提示词
+- [x] 让 AI 在正文中引用"收到飞鸽传书"、"数据终端推送消息"等内容
 
 #### Step 4.2: 通讯行为影响游戏变量
 

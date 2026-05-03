@@ -27,6 +27,40 @@ export type MobileApp =
 // 设备运行模式
 export type DeviceMode = 'normal' | 'li';
 
+// 通知类型
+export type NotificationType = 'incoming_message' | 'missed_call' | 'news_push' | 'forum_reply' | 'system_alert';
+
+// 设备通讯统计
+export interface DeviceStats {
+    totalMessagesSent: number;
+    totalMessagesReceived: number;
+    lastUsedTimestamp: number;
+    activeContacts: string[];
+    missedNotifications: number;
+}
+
+// 通知
+export interface DeviceNotification {
+    id: string;
+    type: NotificationType;
+    title: string;
+    body: string;
+    timestamp: number;
+    read: boolean;
+    relatedMessageId?: string;
+    relatedApp?: MobileApp;
+}
+
+// 设备状态
+export interface DeviceState {
+    isOpen: boolean;
+    activeApp: MobileApp | null;
+    mode: DeviceMode;
+    messages: DeviceMessage[];
+    stats: DeviceStats;
+    notifications: DeviceNotification[];
+}
+
 // 设备能力
 export interface DeviceCapabilities {
     hasGPS: boolean;

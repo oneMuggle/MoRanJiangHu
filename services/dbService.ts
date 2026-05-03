@@ -8,7 +8,8 @@ const DB_NAME = 'WuxiaGameDB';
 const STORE_NAME = 'saves';
 const SETTINGS_STORE = 'settings';
 const IMAGE_ASSETS_STORE = 'image_assets';
-const VERSION = 2;
+const DEVICE_MESSAGES_STORE = 'device_messages';
+const VERSION = 3;
 const 自动存档最大保留数 = 5;
 const 存档导出版本 = 1;
 const 存档保护设置键 = 设置键.存档保护;
@@ -199,6 +200,11 @@ export const 初始化数据库 = (): Promise<IDBDatabase> => {
             }
             if (!db.objectStoreNames.contains(IMAGE_ASSETS_STORE)) {
                 db.createObjectStore(IMAGE_ASSETS_STORE, { keyPath: 'id' });
+            }
+            if (!db.objectStoreNames.contains(DEVICE_MESSAGES_STORE)) {
+                const msgStore = db.createObjectStore(DEVICE_MESSAGES_STORE, { keyPath: 'id' });
+                msgStore.createIndex('by_type', 'type', { unique: false });
+                msgStore.createIndex('by_timestamp', 'timestamp', { unique: false });
             }
         };
     });
@@ -1268,10 +1274,11 @@ export const 清空全部数据 = async (options?: { 保留APIKey?: boolean; 保
 
 export const 强制彻底清空全部数据 = async (): Promise<void> => {
     const db = await 初始化数据库();
-    const transaction = db.transaction([STORE_NAME, SETTINGS_STORE, IMAGE_ASSETS_STORE], 'readwrite');
+    const transaction = db.transaction([STORE_NAME, SETTINGS_STORE, IMAGE_ASSETS_STORE, DEVICE_MESSAGES_STORE], 'readwrite');
     transaction.objectStore(STORE_NAME).clear();
     transaction.objectStore(SETTINGS_STORE).clear();
     transaction.objectStore(IMAGE_ASSETS_STORE).clear();
+    transaction.objectStore(DEVICE_MESSAGES_STORE).clear();
 
     await new Promise<void>((resolve, reject) => {
         transaction.oncomplete = () => resolve();
@@ -1284,4 +1291,100 @@ export const 强制彻底清空全部数据 = async (): Promise<void> => {
 
 export const 清空数据库 = async (保留APIKey: boolean): Promise<void> => {
     await 清空全部数据({ 保留APIKey });
+};
+
+// ============================================================
+// 设备消息持久化
+// ============================================================
+
+export const 保存设备消息 = async (message: { id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] }): Promise<void> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readwrite');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    store.put(message);
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+};
+
+export const 读取设备消息列表 = async (limit = 100, type?: string): Promise<Array<{ id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] }>> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readonly');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    const index = store.index('by_timestamp');
+    const request = index.openCursor(null, 'prev');
+    const results: Array<{ id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] }> = [];
+    return new Promise((resolve, reject) => {
+        request.onsuccess = (event) => {
+            const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result;
+            if (!cursor || results.length >= limit) {
+                resolve(results);
+                return;
+            }
+            const msg = cursor.value;
+            if (!type || msg.type === type) {
+                results.push(msg);
+            }
+            cursor.continue();
+        };
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const 读取设备消息 = async (id: string): Promise<{ id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] } | null> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readonly');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    const request = store.get(id);
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const 删除设备消息 = async (id: string): Promise<void> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readwrite');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    store.delete(id);
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+};
+
+export const 清空设备消息 = async (): Promise<void> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readwrite');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    store.clear();
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+};
+
+export const 导出全部设备消息 = async (): Promise<Array<{ id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] }>> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readonly');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    const request = store.getAll();
+    return new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const 导入设备消息 = async (messages: Array<{ id: string; type: string; title: string; content: string; sender?: string; timestamp: number; location?: { x: number; y: number }; tags?: string[] }>): Promise<void> => {
+    const db = await 初始化数据库();
+    const transaction = db.transaction([DEVICE_MESSAGES_STORE], 'readwrite');
+    const store = transaction.objectStore(DEVICE_MESSAGES_STORE);
+    for (const msg of messages) {
+        store.put(msg);
+    }
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
 };
