@@ -82,14 +82,14 @@ export async function getEraBgm(eraId: string): Promise<string | null> {
     const manifest = await loadEraManifest(eraId);
     if (manifest?.bgm) {
         const base = R2_CDN_BASE || '';
-        return base ? `${base}/${eraId}/${manifest.bgm}` : `/data/era_assets/${eraId}/${manifest.bgm}`;
+        return base ? `${base}/data/era_assets/${eraId}/${manifest.bgm}` : `/data/era_assets/${eraId}/${manifest.bgm}`;
     }
 
     // fallback: 通过 bgmTags 标签组合路径（仅作为备用）
     const bgmTags = node.bgmTags || [];
     if (bgmTags.length > 0) {
         const base = R2_CDN_BASE || '';
-        return base ? `${base}/${eraId}/${eraId}_bgm.mp3` : `/data/era_assets/${eraId}/${eraId}_bgm.mp3`;
+        return base ? `${base}/data/era_assets/${eraId}/${eraId}_bgm.mp3` : `/data/era_assets/${eraId}/${eraId}_bgm.mp3`;
     }
 
     return null;
@@ -104,7 +104,7 @@ export async function loadEraAssets(eraId: string): Promise<EraAssets> {
 
     const base = R2_CDN_BASE || '';
     const images = manifest?.images?.map(
-        (img) => base ? `${base}/${eraId}/${img}` : `/data/era_assets/${eraId}/${img}`
+        (img) => base ? `${base}/data/era_assets/${eraId}/${img}` : `/data/era_assets/${eraId}/${img}`
     ) || [];
 
     return {
