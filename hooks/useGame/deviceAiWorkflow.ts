@@ -3,7 +3,7 @@ import type { 接口设置结构 } from '../../models/system';
 import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../models/eraDevice';
 import { getEraCategory } from '../../components/features/MobileDevice/eraStyles/EraStyleSelector';
-import { 构建子纪元里模式注入 } from '../../prompts/runtime/eraLiMode';
+import { 构建子纪元里模式注入, LiModeIntensity } from '../../prompts/runtime/eraLiMode';
 import {
     type 通用消息,
     规范化文本补全消息链,
@@ -40,7 +40,8 @@ export interface DeviceMessageOptions {
 export function 构建设备消息系统提示词(
     eraId: string,
     mode: DeviceMode,
-    appType: MobileApp
+    appType: MobileApp,
+    liIntensity?: LiModeIntensity
 ): string {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appType, mode) : appType;
@@ -99,7 +100,7 @@ export function 构建设备消息系统提示词(
     ];
 
     if (isLiMode) {
-        const liInjection = 构建子纪元里模式注入(eraId, true);
+        const liInjection = 构建子纪元里模式注入(eraId, true, liIntensity);
         if (liInjection) {
             parts.push(`\n【里模式设备内容规则】${liInjection}`);
         }

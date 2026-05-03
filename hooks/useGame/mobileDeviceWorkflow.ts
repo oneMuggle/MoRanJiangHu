@@ -4,7 +4,7 @@
 export type { DeviceState, DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup, DeviceStats, DeviceNotification, NotificationType } from '../../models/mobileDevice';
 import { DeviceState, DeviceMode, MobileApp } from '../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../models/eraDevice';
-import { 构建子纪元里模式注入 } from '../../prompts/runtime/eraLiMode';
+import { 构建子纪元里模式注入, LiModeIntensity } from '../../prompts/runtime/eraLiMode';
 
 /** 初始设备统计 */
 export function 初始设备统计(): import('../../models/mobileDevice').DeviceStats {
@@ -38,7 +38,8 @@ export function 构建设备消息提示词(
         当前场景?: string;
         角色名?: string;
         额外上下文?: string;
-    } = {}
+    } = {},
+    liIntensity?: LiModeIntensity
 ): string {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appType, deviceMode) : appType;
@@ -62,7 +63,7 @@ export function 构建设备消息提示词(
 
     // 里模式注入
     if (deviceMode === 'li') {
-        const liInjection = 构建子纪元里模式注入(eraId, true);
+        const liInjection = 构建子纪元里模式注入(eraId, true, liIntensity);
         if (liInjection) {
             parts.push(`\n【里模式设备内容规则】${liInjection}`);
         }

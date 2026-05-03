@@ -1,45 +1,101 @@
 # 时代系统与开局设置适配优化
 
 > 日期: 2026-05-03
-> 状态: 已完成
+> 状态: 已完成（第一轮）→ 已完成（第二轮：武侠元素泄漏修复）→ 已完成（第三轮：全量去武侠化）
 
 ## 背景与目标
 
 当前各纪元（尤其是校园子纪元）与开局设置之间存在多处不协调：背景名称无法匹配、气运引用失效、promptVars 继承不准确、首页 UI 未展示时代特色等。本计划旨在修复这些问题，使开局设置与时代系统保持一致。
+
+## 第二轮：武侠元素泄漏修复（已完成）
+
+### 问题根因
+
+`data/presets.ts` 中的天赋/背景有三种可见性策略：
+1. 有 `时代适配` — 只在特定时代可见
+2. 有 `子纪元适配` — 只在特定子纪元可见
+3. **无任何标记 — 全时代可见** ← 问题根源
+
+大量古代专属条目遗漏了 `时代适配` 标记，导致泄漏到所有时代。
+
+### P0: 数据泄漏修复（已完成）
+- [x] 百花医宗（644行）补 `时代适配: ['古代']`
+- [x] 合欢心法（58行）补 `时代适配: ['古代']`
+- [x] NSFW 古代专属天赋（34-57行）补 `时代适配: ['古代']`
+- [x] 寒门子弟、山野孤儿、商贾之家 补 `时代适配: ['古代']`
+
+### P1: 境界体系与开局提示词去武侠化（已完成）
+- [x] 境界体系按时代差异化（`realmDefaults.ts`）— 创建校园/都市/废土/通用版本
+- [x] 开局COT去武侠化（`cotOpening.ts`）— "武力梯度"→"能力体系"、"练功收势"→"日常起居"、境界速查改用通用版
+- [x] 开局初始化提示词去武侠化（`opening.ts`）— 改用 `获取境界速查提示词(eraId)` 动态选择
+- [x] 变量校准参考去武侠化（`variableCalibrationReference.ts`）— 境界提示改用通用版
+- [x] 角色属性总纲去武侠化（`character.ts`）— 境界文案描述中性化
+- [x] 部位生命去武侠化（`body.ts`）— 校准目标改用境界层级数字，不写武侠境界名
+
+### P2: 数据校验机制（待实现）
+- [ ] 建立无标记条目审查机制
+
+## 第三轮：全面去武侠化（已完成）
+
+### 补充修复
+- [x] `cotOpening.ts` Step2 "凡人/普通人/未入境" → "未入门/初学者"
+- [x] `variableCalibrationReference.ts` "凡人/普通人/未入境" → "未入门/初学者"
+- [x] `character.ts` 命令示例 "归元境中期" → "当前时代对应的境界名"
+- [x] `body.ts` 血量校准目标中武侠境界名 → 境界层级数字范围
+
+### 待深入修复
+- [ ] `fandom.ts` 默认境界映射体系（开脉/聚息/归元等）— 这是同人模式 fallback，需设计 eraId 注入机制
+- [ ] 时代主题境界配置（在 `eraTheme/types.ts` 中添加 realm 配置项，让每个时代有自己的境界名称映射）
 
 ## 涉及文件
 
 | 文件 | 修改内容 |
 |------|----------|
 | `data/newGamePresets.ts` | 修复背景名称引用 |
-| `data/presets.ts` | 确认/补充校园背景数据 |
-| `data/qiyun/index.ts` | 添加校园专属气运 |
-| `models/eraTheme/epoch-contemporary.ts` | 添加校园专属 promptVars，补全其他子纪元缺失定义 |
-| `utils/eraUIText.ts` | 检查时代切换可靠性 |
-| `components/layout/LandingPage.tsx` | 首页时代感知优化 |
-| `prompts/runtime/eraTheme.ts` | 检查提示词注入逻辑 |
+| `data/presets.ts` | 为5个古代专属条目补 `时代适配` |
+| `data/qiyun/index.ts` | 校园专属气运已存在（第1024-1026行） |
+| `models/eraTheme/epoch-contemporary.ts` | 添加校园/末日/嬉皮士专属 promptVars |
+| `data/subEraDefaultPresets.ts` | 新增3个校园子纪元默认预设 |
+| `prompts/shared/realmDefaults.ts` | 重写为按时代区分的境界速查 |
+| `prompts/runtime/opening.ts` | 改用时代感知的境界函数 |
+| `prompts/core/cotOpening.ts` | 去武侠化用语 |
+| `prompts/runtime/variableCalibrationReference.ts` | 境界提示改用通用版 |
+| `prompts/stats/character.ts` | 境界描述中性化 |
+| `prompts/stats/body.ts` | 校准目标改用数字范围 |
 
 ## 实施步骤
 
-### Phase 1: 修复数据引用（HIGH）
+### Phase 1: 修复数据引用（已完成）
 
-- [x] 步骤 1.1：修复 `newGamePresets.ts` 中的背景名称，改为 `presets.ts` 中实际存在的校园背景
-- [x] 步骤 1.2（已跳过）：`qiyun/index.ts` 中校园专属气运已存在（第1024-1026行）
+- [x] 步骤 1.1：修复 `newGamePresets.ts` 中的背景名称
+- [x] 步骤 1.2（已跳过）：`qiyun/index.ts` 中校园专属气运已存在
 
-### Phase 2: 补全时代定义（MEDIUM）
+### Phase 2: 补全时代定义（已完成）
 
 - [x] 步骤 2.1：为校园子纪元添加专属 promptVars
 - [x] 步骤 2.2：为末日废土子纪元添加 promptVars + conflictTypes
 - [x] 步骤 2.3：为嬉皮士文化子纪元添加 promptVars + conflictTypes
-- [x] 步骤 2.4：为校园子纪元添加 `subEraDefaultPresets.ts` 默认预设（3个方案）
+- [x] 步骤 2.4：为校园子纪元添加 `subEraDefaultPresets.ts` 默认预设
 
-### Phase 3: UI 与提示词适配（LOW）
+### Phase 3: UI 与提示词适配（已完成）
 
-- [x] 步骤 3.1：检查 eraUIText.ts 时代切换可靠性（机制正常，无需修改）
-- [x] 步骤 3.2：检查 LandingPage 时代感知（已使用 useUIText() hook 订阅，无需修改）
+- [x] 步骤 3.1：检查 eraUIText.ts 时代切换可靠性
+- [x] 步骤 3.2：检查 LandingPage 时代感知
+- [x] 步骤 3.3：境界体系按时代差异化
+- [x] 步骤 3.4：开局COT去武侠化
+- [x] 步骤 3.5：开局初始化提示词去武侠化
+- [x] 步骤 3.6：变量校准参考去武侠化
+- [x] 步骤 3.7：角色属性总纲去武侠化
+- [x] 步骤 3.8：部位生命去武侠化
+
+### Phase 4: 数据校验（待实现）
+
+- [ ] 编写审查脚本：扫描 presets.ts 中缺少 `时代适配` 和 `子纪元适配` 的天赋/背景条目
+- [ ] 在 CI 中加入校验步骤，防止未来再次泄漏
 
 ## 风险评估
 
 - 气运数据格式需与现有结构保持一致，否则运行时解析失败
 - promptVars 的修改会影响 AI 生成的叙事风格，需要谨慎调整
 - UI 改动需确保不影响已有时代（武侠、都市等）的正常显示
+- `fandom.ts` 的默认境界映射在同人模式下仍可正常工作（同人模式有自己的境界注入机制）

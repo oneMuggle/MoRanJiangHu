@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import GameButton from '../../ui/GameButton';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
 import { SectionCollapse } from '../../ui/SectionCollapse';
@@ -232,6 +232,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         manualWorldPromptInputRef, manualRealmPromptInputRef,
         setShowCustomBackground, setShowCustomTalent, setShowCustomPresetEditor,
         子纪元里模式开启, 设置子纪元里模式开启,
+        子纪元里模式强度, 设置子纪元里模式强度,
         古代体系选择, 设置古代体系选择,
     } = wizard;
 
@@ -258,6 +259,14 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
     const 组织密度标签 = 当前时代?.组织密度标签 || '宗门密度';
     const 支持体系 = 当前时代?.支持体系;
     const 是否展示体系选择 = Array.isArray(支持体系) && 支持体系.length > 0;
+
+    // 检查当前子纪元是否有里模式定义
+    const 有里模式数据 = useMemo(() => {
+        const eraId = worldConfig.时代配置ID || '';
+        if (!eraId) return false;
+        const node = allEraNodes.find(n => n.id === eraId);
+        return !!node?.liMode;
+    }, [worldConfig.时代配置ID]);
 
     // 根据体系选择过滤预设卡片
     const 时代预设卡片 = (() => {
@@ -382,7 +391,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                             </div>
                         )}
 
-                        {/* 子纪元里模式开关 — 所有时代展示 */}
+                        {/* 子纪元里模式开关 + 强度选择器 */}
                         <div className="mt-6">
                             <div className="relative flex items-center justify-between gap-4 rounded-md border border-yellow-500/20 bg-black/30 px-4 py-3">
                                 <div>
@@ -402,6 +411,30 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                     <span className="absolute -inset-1 rounded-lg bg-yellow-500/15 animate-pulse pointer-events-none" />
                                 )}
                             </div>
+
+                            {/* 强度选择器 — 开启时展示 */}
+                            {子纪元里模式开启 && 有里模式数据 && (
+                                <div className="mt-3 flex gap-2">
+                                    {(['微暗', '暧昧', '露骨'] as const).map((level) => {
+                                        const isActive = 子纪元里模式强度 === level;
+                                        const colors = {
+                                            '微暗': isActive ? 'border-blue-500/60 bg-blue-500/15 text-blue-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                            '暧昧': isActive ? 'border-pink-500/60 bg-pink-500/15 text-pink-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                            '露骨': isActive ? 'border-red-500/60 bg-red-500/15 text-red-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                        };
+                                        return (
+                                            <button
+                                                key={level}
+                                                type="button"
+                                                onClick={() => 设置子纪元里模式强度(level)}
+                                                className={`flex-1 rounded-md border px-3 py-2 text-xs font-bold transition-all ${colors[level]}`}
+                                            >
+                                                {level}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         {/* 世界观预设 - moved up for quick-start */}

@@ -1436,7 +1436,7 @@ export const 构建系统提示词 = ({
         构建时代主题注入(options?.eraId),
         构建时代文风注入(options?.eraId),
         获取时代现实提示词ByEraId(options?.eraId),
-        构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true),
+        构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true, normalizedGameConfig.子纪元里模式强度?.[options?.eraId ?? '']),
         // 里武侠：子纪元 liMode 已注入则跳过 legacy 版本（内容重复）
         !子纪元里模式是否已注入(options?.eraId, normalizedGameConfig.启用子纪元里模式)
         && normalizedGameConfig.启用里武侠模式 === true ? 构建里武侠世界提示词() : null,
