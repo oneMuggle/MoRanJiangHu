@@ -3,12 +3,13 @@
  * Extracted from ImageManagerModal.tsx for better maintainability
  */
 
-import type { 
-    图片生成状态类型, 
-    NPC生图任务记录, 
+import React from 'react';
+import type {
+    图片生成状态类型,
+    NPC生图任务记录,
     场景生图任务记录,
-    香闺秘档部位类型 
-} from '../../../../types';
+    香闺秘档部位类型
+} from '../../../../../types';
 
 // ============ 状态样式 ============
 

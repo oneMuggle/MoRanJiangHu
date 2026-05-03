@@ -2,7 +2,7 @@ import React from 'react';
 import type { 
     NPC结构,
     NPC图片记录
-} from '../../../../types';
+} from '../../../../../types';
 import { 
     状态样式, 
     状态文案,

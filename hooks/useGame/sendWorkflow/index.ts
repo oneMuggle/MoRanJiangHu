@@ -23,12 +23,12 @@ import { 获取主剧情接口配置, 接口配置是否可用 } from '../../../
 import { 规范化游戏设置 } from '../../../utils/gameSettings';
 import { 规范化记忆配置, 规范化记忆系统 } from '../memoryUtils';
 
-import { 构建主剧情请求参数, type 主剧情系统上下文 } from '../mainStoryRequest';
-import { 环境时间转标准串 } from '../timeUtils';
-import { 获取激活小说拆分注入文本 } from '../../../services/novel-decomposition/novelDecompositionInjection';
-import type { 响应命令处理状态 } from '../responseCommandProcessor';
-import type { 自动存档快照结构 } from '../saveCoordinator';
-import type { 世界演变触发参数, 世界演变执行结果 } from './worldEvolutionWorkflow';
+import { 构建主剧情请求参数, type 主剧情系统上下文 } from '.../mainStoryRequest';
+import { 环境时间转标准串 } from '.../timeUtils';
+import { 获取激活小说拆分注入文本 } from '../../../../services/novel-decomposition/novelDecompositionInjection';
+import type { 响应命令处理状态 } from '.../responseCommandProcessor';
+import type { 自动存档快照结构 } from '.../saveCoordinator';
+import type { 世界演变触发参数, 世界演变执行结果 } from '../worldEvolutionWorkflow';
 
 // ─── 从子模块重新导出类型 ────────────────────────────────────────────────────
 

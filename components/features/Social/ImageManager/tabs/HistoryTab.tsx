@@ -2,7 +2,7 @@ import React from 'react';
 import type { 
     NPC图片记录,
     场景图片档案
-} from '../../../../types';
+} from '../../../../../types';
 import { IconScroll } from '../../../../ui/Icons';
 import { 
     状态样式, 

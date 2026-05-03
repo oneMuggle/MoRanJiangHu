@@ -7,8 +7,8 @@ import type {
     NPC生图任务记录,
     图片管理筛选条件,
     接口设置结构
-} from '../../../../types';
-import { 规范化接口设置 } from '../../../../utils/apiConfig';
+} from '../../../../../types';
+import { 规范化接口设置 } from '../../../../../utils/apiConfig';
 import type { 页面标签类型, NPC图库分组, 合并队列记录 } from '../types';
 
 interface UseImageManagerStateOptions {

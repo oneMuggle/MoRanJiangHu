@@ -19,7 +19,7 @@ import type {
     模型词组转化器预设结构,
     词组转化器提示词预设结构,
     PNG画风预设结构
-} from '../../../../types';
+} from '../../../../../types';
 
 // ============ Props Interface (from ImageManagerModal.tsx) ============
 

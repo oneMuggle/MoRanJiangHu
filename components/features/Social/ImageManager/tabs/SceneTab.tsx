@@ -2,7 +2,7 @@ import React from 'react';
 import type { 
     场景图片档案,
     场景生图任务记录
-} from '../../../../types';
+} from '../../../../../types';
 import { 
     状态样式, 
     状态文案,

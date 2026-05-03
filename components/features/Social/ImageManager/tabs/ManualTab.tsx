@@ -4,7 +4,7 @@ import type {
     NPC生图任务记录,
     画师串预设结构,
     PNG画风预设结构
-} from '../../../../types';
+} from '../../../../../types';
 import { 
     次级按钮样式,
     主按钮样式

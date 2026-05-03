@@ -10,7 +10,7 @@ import type {
     香闺秘档部位类型,
     角色锚点结构,
     PNG画风预设结构
-} from '../../../../types';
+} from '../../../../../types';
 
 export const 获取生图阶段中文 = (stage?: NPC生图任务记录['进度阶段']): string => {
     if (!stage) return '未记录';
