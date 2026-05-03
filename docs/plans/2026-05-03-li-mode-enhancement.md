@@ -218,4 +218,7 @@ Phase 4（UI 体系）── 可与 Phase 3 并行
   - [x] 3.1 NPC 表里切换（`models/social.ts` 字段 + `eraLiMode.ts` 注入函数 + `npcContext.ts` 集成）
   - [x] 3.2 里模式事件池（`filterByIntensity` 暧昧/露骨级别追加事件引导区块）
   - [x] 3.3 强度动态调节（`GameSettings.tsx` 三档强度选择器 + `systemPromptBuilder.ts` 已传递强度参数）
-- [ ] Phase 4：UI 体系化
+- [x] Phase 4：UI 体系化
+  - [x] 4.1 全时代强度选择器（Phase 1 完成后所有 SubEra 都有 liMode，选择器自动生效）
+  - [x] 4.2 设置面板同步（`GameSettings.tsx` 里模式强度三档选择器）
+  - [ ] 4.3 游戏内状态提示（可选，TopBar 已较密集，暂不添加）

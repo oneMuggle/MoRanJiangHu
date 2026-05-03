@@ -10,6 +10,10 @@ interface Props {
     timeFormat: '传统' | '数字';
     festivals?: 节日结构[];
     visualConfig?: 视觉设置结构;
+    eraId?: string | null;
+    启用子纪元里模式?: Record<string, boolean>;
+    子纪元里模式强度?: Record<string, string>;
+    onLiModeIntensityChange?: (eraId: string, intensity: '微暗' | '暧昧' | '露骨') => void;
 }
 
 const 颜色转透明度 = (color: string | undefined, alpha: number, fallback: string): string => {
@@ -178,11 +182,12 @@ const toGameMinuteValue = (time: { year: number; month: number; day: number; hou
     return (((time.year * 12 + time.month) * 31 + time.day) * 24 + time.hour) * 60 + time.minute;
 };
 
-const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festivals = [], visualConfig }) => {
+const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festivals = [], visualConfig, eraId, 启用子纪元里模式, 子纪元里模式强度, onLiModeIntensityChange }) => {
     const 文案 = useUIText();
     const [mobileLeftMode, setMobileLeftMode] = useState<'weather' | 'environment'>('weather');
     const [mobileRightMode, setMobileRightMode] = useState<'journey' | 'festival'>('journey');
     const [expandedType, setExpandedType] = useState<'weather' | 'environment' | 'festival' | null>(null);
+    const [liIntensityOpen, setLiIntensityOpen] = useState(false);
 
     const parsedTime = parseEnvTime(环境);
     const derivedDayCount = useMemo(() => {
@@ -283,6 +288,15 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
         const uniqueSegments = segments.filter((part, idx) => segments.indexOf(part) === idx);
         return uniqueSegments.length > 0 ? uniqueSegments.join(' - ') : 文案.未知地点;
     }, [环境?.中地点, 环境?.小地点, 环境?.具体地点]);
+
+    const 里模式状态 = useMemo(() => {
+        if (!eraId) return null;
+        const perEraEnabled = 启用子纪元里模式?.[eraId];
+        if (perEraEnabled === false) return null;
+        const intensity = 子纪元里模式强度?.[eraId] as '微暗' | '暧昧' | '露骨' | undefined;
+        const displayIntensity = intensity || '露骨';
+        return { eraId, intensity: displayIntensity };
+    }, [eraId, 启用子纪元里模式, 子纪元里模式强度]);
 
     const toggleFullScreen = () => {
         if (!document.fullscreenElement) {
@@ -457,9 +471,28 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                 </div>
 
                 <div className="flex items-center">
+                    {里模式状态 && (
+                        <div className="relative">
+                            <TopItem
+                                label="里"
+                                value={里模式状态.intensity}
+                                visualConfig={visualConfig}
+                                isExpanded={liIntensityOpen}
+                                onClick={() => {
+                                    if (!onLiModeIntensityChange) return;
+                                    const order: Array<'微暗' | '暧昧' | '露骨'> = ['微暗', '暧昧', '露骨'];
+                                    const nextIdx = (order.indexOf(里模式状态.intensity) + 1) % order.length;
+                                    onLiModeIntensityChange(里模式状态.eraId, order[nextIdx]);
+                                }}
+                                onMouseEnter={() => setLiIntensityOpen(true)}
+                                onMouseLeave={() => setLiIntensityOpen(false)}
+                            />
+                            <div className="absolute -inset-0.5 rounded-full bg-yellow-500/20 animate-pulse pointer-events-none" />
+                        </div>
+                    )}
                     <div className="md:hidden relative">
-                        <TopItem 
-                            label={mobileRightLabel} 
+                        <TopItem
+                            label={mobileRightLabel}
                             value={mobileRightValue} 
                             highlight={mobileRightMode === 'festival' && !!currentFestival} 
                             visualConfig={visualConfig} 
