@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 执行主剧情发送工作流 } from './sendWorkflow';
+import { 执行主剧情发送工作流 } from './sendWorkflow/index';
 import * as textAIService from '../../services/ai/text';
 import * as apiConfig from '../../utils/apiConfig';
 import * as gameSettings from '../../utils/gameSettings';

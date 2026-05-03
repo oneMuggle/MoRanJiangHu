@@ -38,6 +38,8 @@ export type 响应命令基础状态 = {
 
 export type 响应处理阶段依赖 = {
     深拷贝: <T>(value: T) => T;
+    获取原始AI消息: (rawText: string) => string;
+    提取原始报错详情: (error: any) => string;
     processResponseCommands: (
         response: GameResponse,
         baseState?: Partial<{
