@@ -1,4 +1,4 @@
-import { EraNode, EraTree, EraColors, EraTypography, EraUIStyle, EraPromptVars, EraOpeningScene, EraCharacterArchetype, EraWritingSample, EraLiMode } from './types';
+import { EraNode, EraTree, EraColors, EraTypography, EraUIStyle, EraPromptVars, EraOpeningScene, EraCharacterArchetype, EraWritingSample, EraLiMode, EraLiModeEnhanced } from './types';
 import { primordialEpoch } from './epoch-primordial';
 import { ancientEpoch } from './epoch-ancient';
 import { modernEpoch } from './epoch-modern';
@@ -97,7 +97,7 @@ export function resolveEraNode(id: string): {
         characterArchetypes: EraCharacterArchetype[] | undefined;
         writingSamples: EraWritingSample[] | undefined;
         conflictTypes: string[] | undefined;
-        liMode: EraLiMode | undefined;
+        liMode: EraLiMode | EraLiModeEnhanced | undefined;
     };
     sources: string[];
 } | null {

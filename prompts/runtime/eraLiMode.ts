@@ -107,3 +107,42 @@ export function 子纪元里模式是否已注入(
     const enabled = perEraEnabled !== false;
     return 构建子纪元里模式注入(eraId, enabled) !== null;
 }
+
+/** 构建里模式 NPC 原型注入提示词 — 从 SubEra liMode 的 dualPersonalities 提取表里人格模板 */
+export function 构建里模式NPC原型注入(
+    eraId: string | null | undefined,
+    enabled: boolean = true
+): string | null {
+    if (!eraId || !enabled) return null;
+
+    const resolved = resolveEraNode(eraId);
+    const liMode = resolved?.inherited.liMode;
+    if (!liMode) return null;
+
+    const enhanced = liMode as EraLiModeEnhanced;
+    const hasStructuredFields = !!(
+        enhanced.corePrinciple ||
+        enhanced.powerSystem ||
+        enhanced.dualPersonalities ||
+        enhanced.sceneTypes ||
+        enhanced.desireMotives ||
+        enhanced.aiDirectives ||
+        enhanced.intensityLevels
+    );
+
+    // 仅增强版 liMode 才有结构化 dualPersonalities
+    if (!hasStructuredFields) return null;
+
+    if (!enhanced.dualPersonalities || enhanced.dualPersonalities.length === 0) return null;
+
+    const parts = [
+        '【里模式 NPC 表里人格模板】',
+        '当里模式开启时，新登场的 NPC 应参考以下表里人格模板进行塑造。',
+        'NPC 不必完全匹配某个模板，但应在性格、行为、外表与内在的反差上体现类似模式。',
+        '',
+        '可选人格原型：',
+        ...enhanced.dualPersonalities.map((p, i) => `${i + 1}. ${p}`),
+    ];
+
+    return parts.join('\n');
+}

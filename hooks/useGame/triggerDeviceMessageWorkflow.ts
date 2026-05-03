@@ -6,6 +6,7 @@
 import type { DeviceMessage, DeviceMode, MobileApp, DeviceNotification, DeviceStats } from '../../models/mobileDevice';
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
 import type { 接口设置结构 } from '../../models/system';
+import type { LiModeIntensity } from '../../prompts/runtime/eraLiMode';
 import { 生成设备消息 } from './deviceAiWorkflow';
 import * as dbService from '../../services/dbService';
 
@@ -26,6 +27,8 @@ export interface 设备消息触发参数 {
     messagesPerApp?: number;
     /** 是否持久化到 IndexedDB */
     persistToDb?: boolean;
+    /** 里模式强度级别（仅在 mode='li' 时生效） */
+    liIntensity?: LiModeIntensity;
 }
 
 export interface 设备消息触发结果 {
@@ -102,7 +105,7 @@ export function 构建设备通讯摘要(params: {
 export async function 触发设备消息生成(
     params: 设备消息触发参数
 ): Promise<设备消息触发结果> {
-    const { eraId, mode, apiConfig, apiSettings, context, targetApps, messagesPerApp = 3, persistToDb = true } = params;
+    const { eraId, mode, apiConfig, apiSettings, context, targetApps, messagesPerApp = 3, persistToDb = true, liIntensity } = params;
     const result: 设备消息触发结果 = {
         generatedMessages: {},
         newNotifications: [],
@@ -135,6 +138,7 @@ export async function 触发设备消息生成(
                 appType: app,
                 context: appContext,
                 count: messagesPerApp,
+                liIntensity,
             }, apiConfig, apiSettings, messagesPerApp);
 
             if (genResult.messages.length > 0) {
