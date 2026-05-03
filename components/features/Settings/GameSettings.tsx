@@ -504,6 +504,43 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
                         )}
                     </div>
                 </div>
+                {((form as any).启用子纪元里模式?.[currentEra ?? ''] ?? true) && (() => {
+                    const era = allEraNodes.find(n => n.id === currentEra);
+                    const hasLiMode = !!era?.liMode;
+                    if (!hasLiMode) return null;
+                    const intensityKey = currentEra ?? '';
+                    const currentIntensity = (form as any).子纪元里模式强度?.[intensityKey] ?? '露骨';
+                    const 强度选项: Array<{ value: '微暗' | '暧昧' | '露骨'; label: string; desc: string }> = [
+                        { value: '微暗', label: '微暗', desc: '暗示为主，含蓄内敛' },
+                        { value: '暧昧', label: '暧昧', desc: '氛围浓郁，张力十足' },
+                        { value: '露骨', label: '露骨', desc: '直白描写，毫无保留' }
+                    ];
+                    return (
+                        <div className="pt-3 border-t border-yellow-500/10">
+                            <div className="text-xs text-gray-400 mb-2">里模式强度 — 控制暗面规则的暴露程度</div>
+                            <div className="flex gap-2">
+                                {强度选项.map(({ value, label, desc }) => (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        onClick={() => {
+                                            const prev = (form as any).子纪元里模式强度 || {};
+                                            实时应用更新({ 子纪元里模式强度: { ...prev, [intensityKey]: value } } as any);
+                                        }}
+                                        className={`flex-1 rounded-lg border px-3 py-2 text-center text-sm transition-all ${
+                                            currentIntensity === value
+                                                ? 'border-yellow-500/50 bg-yellow-500/10 text-yellow-400 font-bold'
+                                                : 'border-gray-800 bg-black/25 text-gray-500 hover:border-gray-600'
+                                        }`}
+                                        title={desc}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
 
             <div className="space-y-3 rounded-md border border-wuxia-gold/20 bg-black/30 p-4">
