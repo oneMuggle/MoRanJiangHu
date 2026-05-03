@@ -1559,12 +1559,20 @@ const App: React.FC = () => {
                                 <MobileMapModal
                                     world={state.世界}
                                     env={state.环境}
+                                    character={state.角色}
+                                    onTravel={actions.handleTravel}
+                                    onExplore={actions.handleExplore}
+                                    travelEvents={actions.travelEvents}
                                     onClose={() => setters.setShowMap(false)}
                                 />
                             ) : (
                                 <MapModal
                                     world={state.世界}
                                     env={state.环境}
+                                    character={state.角色}
+                                    onTravel={actions.handleTravel}
+                                    onExplore={actions.handleExplore}
+                                    travelEvents={actions.travelEvents}
                                     onClose={() => setters.setShowMap(false)}
                                 />
                             )}

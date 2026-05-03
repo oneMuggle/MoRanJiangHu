@@ -1,16 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { 世界数据结构 } from '../../../models/world';
+import { 世界数据结构, 地图结构, 建筑结构 } from '../../../models/game/world';
 import { 环境信息结构 } from '../../../models/environment';
+import { 角色数据结构 } from '../../../models/domain/character';
+import { 旅行事件, 评估旅行可行性 } from '../../../hooks/useGame/travelWorkflow';
 
 interface Props {
     world: 世界数据结构;
     env: 环境信息结构;
+    character: 角色数据结构;
+    onTravel: (map: 地图结构, building: 建筑结构 | null) => void;
+    onExplore: (building: 建筑结构) => void;
+    travelEvents: 旅行事件[];
     onClose: () => void;
 }
 
 const 归一化文本 = (value: string | undefined | null) => (value || '').trim().replace(/\s+/g, '').toLowerCase();
 
-const MobileMapModal: React.FC<Props> = ({ world, env, onClose }) => {
+const MobileMapModal: React.FC<Props> = ({ world, env, character, onTravel, onExplore, travelEvents, onClose }) => {
     const maps = Array.isArray(world?.地图) ? world.地图 : [];
     const buildings = Array.isArray(world?.建筑) ? world.建筑 : [];
     const 当前地点归一 = 归一化文本(env?.具体地点 || '');
@@ -69,6 +75,12 @@ const MobileMapModal: React.FC<Props> = ({ world, env, onClose }) => {
                 || 名称归一.includes(当前地点归一);
         });
     }, [buildings, 当前地点归一]);
+
+    const 旅行信息 = useMemo(() => {
+        if (!当前地图) return null;
+        const 当前位置 = { 大地点: env?.大地点 || '', 中地点: env?.中地点 || '', 小地点: env?.小地点 || '' };
+        return 评估旅行可行性(character, 当前位置, 当前地图);
+    }, [当前地图, env, character]);
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-3 md:hidden animate-fadeIn">
@@ -150,6 +162,48 @@ const MobileMapModal: React.FC<Props> = ({ world, env, onClose }) => {
                                         <div className="text-[10px] text-wuxia-gold/70 tracking-[0.25em] mb-2">风物志</div>
                                         <div className="text-[11px] text-gray-200 leading-relaxed font-serif">{当前地图.描述 || '这片区域尚无风物记载。'}</div>
                                     </div>
+
+                                    {/* 旅行操作 */}
+                                    {旅行信息 && (
+                                        <div className="rounded-xl border border-gray-800 bg-black/30 p-3">
+                                            <div className="text-[10px] text-gray-500 tracking-[0.25em] mb-2">出行</div>
+                                            <div className="flex gap-2 text-[11px] mb-2">
+                                                <span className="text-gray-400">距离: <span className="text-wuxia-gold">{旅行信息.距离等级}</span></span>
+                                                <span className="text-gray-400">耗时: <span className="text-wuxia-cyan">{旅行信息.预计耗时}分钟</span></span>
+                                            </div>
+                                            <button
+                                                onClick={() => onTravel(当前地图, null)}
+                                                disabled={!旅行信息.可行}
+                                                className={`w-full py-2 rounded-lg font-serif tracking-widest text-sm transition-all ${
+                                                    旅行信息.可行
+                                                        ? 'bg-wuxia-gold/20 border border-wuxia-gold/40 text-wuxia-gold active:scale-[0.98]'
+                                                        : 'bg-gray-900/50 border border-gray-800 text-gray-600 cursor-not-allowed'
+                                                }`}
+                                            >
+                                                {旅行信息.可行 ? '启程前往' : 旅行信息.原因 || '无法旅行'}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* 旅行事件 */}
+                                    {travelEvents.length > 0 && (
+                                        <div className="rounded-xl border border-cyan-900/30 bg-cyan-950/15 p-3">
+                                            <div className="text-[10px] text-cyan-300/80 tracking-[0.25em] mb-2">旅途见闻</div>
+                                            <div className="space-y-2">
+                                                {travelEvents.map((event, idx) => (
+                                                    <div key={`mobile-travel-${idx}`} className="text-[11px] text-gray-300 font-serif">
+                                                        <span className={`text-[9px] px-1 py-0.5 rounded mr-1 ${
+                                                            event.类型 === '抵达' ? 'bg-green-900/30 text-green-400' :
+                                                            event.类型 === '遭遇' ? 'bg-red-900/30 text-red-400' :
+                                                            event.类型 === '发现' ? 'bg-yellow-900/30 text-yellow-400' :
+                                                            'bg-gray-800 text-gray-400'
+                                                        }`}>{event.类型}</span>
+                                                        {event.描述}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="rounded-xl border border-cyan-900/30 bg-cyan-950/15 p-3">
                                         <div className="text-[10px] text-cyan-300/80 tracking-[0.25em] mb-2">图内声明建筑</div>
@@ -242,6 +296,12 @@ const MobileMapModal: React.FC<Props> = ({ world, env, onClose }) => {
                                             <span className="px-2 py-1 rounded border border-gray-800 bg-black/20">{building?.归属?.中地点 || '?'}</span>
                                             <span className="px-2 py-1 rounded border border-gray-800 bg-black/20">{building?.归属?.小地点 || '?'}</span>
                                         </div>
+                                        <button
+                                            onClick={() => onExplore(building as 建筑结构)}
+                                            className="mt-3 w-full py-1.5 rounded text-xs font-serif tracking-widest border border-wuxia-cyan/30 text-wuxia-cyan/80 bg-cyan-950/20 active:bg-cyan-950/40"
+                                        >
+                                            探索此地
+                                        </button>
                                     </div>
                                 ))
                             ) : (
