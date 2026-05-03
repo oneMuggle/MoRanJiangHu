@@ -1648,6 +1648,7 @@ export const useGame = () => {
                         const mode = 派生设备模式();
                         const 主接口 = 获取主剧情接口配置(apiConfig);
                         if (!主接口?.baseUrl || !主接口?.apiKey) return;
+                        const liIntensity = gameConfig?.子纪元里模式强度?.[当前时代];
                         await 触发设备消息生成({
                             eraId: 当前时代,
                             mode,
@@ -1659,6 +1660,7 @@ export const useGame = () => {
                                 当前位置: `${finalState.环境?.大地点 || ''}${finalState.环境?.中地点 || ''}`,
                                 世界状态: '',
                             },
+                            liIntensity,
                         });
                     } catch (err) {
                         console.warn('[设备消息生成] 失败:', err);

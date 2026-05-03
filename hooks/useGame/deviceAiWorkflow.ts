@@ -31,6 +31,8 @@ export interface DeviceMessageOptions {
         额外要求?: string;
     };
     count?: number;
+    /** 里模式强度级别 */
+    liIntensity?: LiModeIntensity;
 }
 
 // ============================================================
@@ -154,7 +156,7 @@ export async function 生成设备消息(
 ): Promise<DeviceMessageGenerationResult> {
     const messageCount = count ?? options.count ?? 5;
 
-    const systemPrompt = 构建设备消息系统提示词(options.eraId, options.mode, options.appType);
+    const systemPrompt = 构建设备消息系统提示词(options.eraId, options.mode, options.appType, options.liIntensity);
     const userPrompt = 构建设备消息用户提示词(options, messageCount);
 
     const messages: 通用消息[] = [
