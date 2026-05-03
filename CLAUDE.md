@@ -171,3 +171,14 @@ The project supports NSFW content with multiple levels. Check `state.gameConfig.
 - **Vite chunk warnings are expected** - Large chunk size warnings during build do not block the build
 - **NovelAI dev proxy** - Development server includes a NovelAI image proxy (Windows PowerShell-based)
 - **GitHub Pages support** - Build base path adjusts via `GITHUB_PAGES=true` env var
+
+## Development Workflow
+
+### New Feature Development Process
+
+1. **Plan first**: Create a plan document in `docs/plans/` before writing any code
+2. **Implement per plan**: Follow the plan document step by step
+3. **Mark progress**: Annotate completed sections in the plan document during implementation
+4. **Archive on completion**: When the feature is complete, archive the plan to:
+   - `docs/technical/` — Technical documentation (for developers)
+   - `docs/user-manual/` — User manual (for end users)
