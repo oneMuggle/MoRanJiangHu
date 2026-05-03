@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import GameButton from '../../ui/GameButton';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
 import { SectionCollapse } from '../../ui/SectionCollapse';
@@ -209,6 +209,10 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         气运搜索词, set气运搜索词,
         气运类别过滤, 选择气运类别,
         气运稀有度过滤, 选择气运稀有度,
+        背景分类过滤, set背景分类过滤,
+        天赋分类过滤, set天赋分类过滤,
+        自动填充开启, set自动填充开启, 自动填充天赋气运,
+        背景分类列表, 天赋分类列表,
         当前性别模式,
         背景长期说明, 天赋说明,
         当前附加小说数据集, 当前角色替换规则列表,
@@ -230,6 +234,13 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         子纪元里模式开启, 设置子纪元里模式开启,
         古代体系选择, 设置古代体系选择,
     } = wizard;
+
+    // 选择背景时自动填充天赋气运（仅填充空位）
+    useEffect(() => {
+        if (selectedBackground.名称) {
+            自动填充天赋气运(selectedBackground);
+        }
+    }, [selectedBackground.名称]);
 
     const 处理能力类型变更 = (新能力类型: typeof worldConfig.能力类型) => {
         let 新武力等级 = worldConfig.武力等级;
@@ -825,6 +836,18 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <p className="text-xs text-gray-400 mt-2 leading-6">{背景长期说明}</p>
                             </div>
                             <div className="flex flex-col items-start md:items-end gap-3">
+                                <div className="flex items-center gap-3">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={自动填充开启}
+                                            onChange={(e) => set自动填充开启(e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-wuxia-gold"></div>
+                                    </label>
+                                    <span className="text-xs text-gray-400">选背景自动填充天赋气运</span>
+                                </div>
                                 <div className="text-xs text-gray-500">当前: <span className="text-wuxia-gold">{selectedBackground.名称}</span></div>
                                 <button
                                     onClick={() => {
@@ -874,9 +897,16 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         )}
 
                         <SectionCollapse title="身份选项" subtitle="点击展开查看所有身份" count={过滤后背景选项.length} defaultOpen={false}>
-                            <SearchInput value={背景搜索词} onChange={set背景搜索词} placeholder="搜索背景名称、描述或效果..." />
+                            <div className="space-y-3 mb-4">
+                                <SearchInput value={背景搜索词} onChange={set背景搜索词} placeholder="搜索背景名称、描述或效果..." />
+                                <ChipGroup
+                                    chips={背景分类列表.map(c => ({ label: c, value: c }))}
+                                    selected={背景分类过滤}
+                                    onChange={set背景分类过滤}
+                                />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {过滤后背景选项.length === 0 && 背景搜索词 ? (
+                            {过滤后背景选项.length === 0 && (背景搜索词 || 背景分类过滤) ? (
                                 <div className="col-span-full text-center py-8 text-gray-500 text-sm">无匹配结果，请尝试其他关键词</div>
                             ) : null}
                             {过滤后背景选项.map((bg, idx) => {
@@ -923,15 +953,24 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                 <p className="text-xs text-gray-400 mt-2 leading-6">{天赋说明}</p>
                             </div>
                             <div className="flex flex-col items-start md:items-end gap-3">
-                                <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                                    {selectedTalentNames.length > 0 ? selectedTalentNames.map(name => (
-                                        <span key={name} className="rounded-full border border-wuxia-red/35 bg-wuxia-red/10 px-3 py-1 text-xs text-wuxia-red">
-                                            {name}
-                                        </span>
-                                    )) : (
-                                        <span className="text-xs text-gray-500">尚未选择天赋</span>
-                                    )}
-                                </div>
+                                {selectedTalents.length === 0 ? (
+                                    <span className="text-xs text-gray-500">尚未选择天赋</span>
+                                ) : (
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedTalents.map((t, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-wuxia-red/15 border border-wuxia-red/40">
+                                                <span className="text-sm text-wuxia-red">{t.名称}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleTalent(t)}
+                                                    className="text-gray-400 hover:text-red-400"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 <div className="text-[11px] text-gray-500">已选 {selectedTalents.length}/3 个，天赋更偏向长期成长路线，不只决定开局强度。</div>
                                 <button
                                     onClick={() => {
@@ -993,9 +1032,16 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                         </div>
 
                         <SectionCollapse title="天赋列表" subtitle="点击展开查看所有天赋" count={过滤后天赋选项.length} defaultOpen={false}>
-                            <SearchInput value={天赋搜索词} onChange={set天赋搜索词} placeholder="搜索天赋名称、描述或效果..." />
+                            <div className="space-y-3 mb-4">
+                                <SearchInput value={天赋搜索词} onChange={set天赋搜索词} placeholder="搜索天赋名称、描述或效果..." />
+                                <ChipGroup
+                                    chips={天赋分类列表.map(c => ({ label: c, value: c }))}
+                                    selected={天赋分类过滤}
+                                    onChange={set天赋分类过滤}
+                                />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {过滤后天赋选项.length === 0 && 天赋搜索词 ? (
+                            {过滤后天赋选项.length === 0 && (天赋搜索词 || 天赋分类过滤) ? (
                                 <div className="col-span-full text-center py-8 text-gray-500 text-sm">无匹配结果，请尝试其他关键词</div>
                             ) : null}
                             {过滤后天赋选项.map((t, idx) => {
