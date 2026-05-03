@@ -193,7 +193,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         birthMonth, setBirthMonth, birthDay, setBirthDay, monthOpen, setMonthOpen, dayOpen, setDayOpen, monthRef, dayRef,
         stats, remainingPoints, totalStatBudget,
         selectedBackground, setSelectedBackground,
-        selectedTalents, selectedTalentNames,
+        selectedTalents,
         selectedQiyun,
         openingConfig, setOpeningConfig, openingConfigEnabled, setOpeningConfigEnabled,
         openingExtraRequirement, setOpeningExtraRequirement,
