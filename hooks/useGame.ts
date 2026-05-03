@@ -42,7 +42,7 @@ import { 应用时代主题到根元素 } from '../styles/themes';
 import { 设置时代UI文案 } from '../utils/eraUIText';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
-import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
+import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 获取主剧情接口配置, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
 import type { 当前可用接口结构 } from '../utils/apiConfig';
 import {
     规范化记忆系统,
@@ -149,6 +149,7 @@ import { 创建通知系统, type 右下角提示结构 } from './useGame/notifi
 import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记忆总结阶段类型 } from './useGame/memorySummaryHandlers';
 import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/variableGenerationProgress';
 import { 创建后台生图监控 } from './useGame/backgroundImageMonitor';
+import { 触发设备消息生成 } from './useGame/triggerDeviceMessageWorkflow';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -313,7 +314,23 @@ export const useGame = () => {
     } = gameState;
 
     // Mobile Device
-    const { 设备状态, 设置设备状态, 设备打开, 设备关闭, 设备打开应用, 设备切换模式, 设备返回主页 } = gameState;
+    const { 设备状态, 设置设备状态, 设备打开, 设备关闭, 设备打开应用, 设备返回主页 } = gameState;
+
+    /** 根据 gameConfig 推导设备模式 */
+    const 派生设备模式 = (): 'normal' | 'li' => {
+        const perEra = gameConfig?.启用子纪元里模式;
+        if (perEra && currentEra in perEra) {
+            return perEra[currentEra] ? 'li' : 'normal';
+        }
+        return 'normal'; // 未设置时默认正常模式
+    };
+
+    // 覆盖 设备打开：打开时同步设置当前时代的里模式状态
+    const 打开设备 = () => {
+        设备打开();
+        const mode = 派生设备模式();
+        设置设备状态((prev) => ({ ...prev, mode }));
+    };
     const 回合快照栈Ref = useRef<回合快照结构[]>([]);
     const 最近自动存档时间戳Ref = useRef<number>(0);
     const 最近自动存档签名Ref = useRef<string>('');
@@ -1089,7 +1106,8 @@ export const useGame = () => {
             世界书附加文本?: string[];
             openingConfig?: OpeningConfig;
             eraId?: string | null;
-        }
+        },
+        deviceMessages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }>
     ) => 构建系统提示词工作流({
         promptPool,
         memoryData,
@@ -1101,6 +1119,7 @@ export const useGame = () => {
         builtinPromptEntries: 内置提示词列表,
         worldbooks: 世界书列表,
         worldEvolutionEnabled: 世界演变功能已开启(),
+        deviceMessages,
         options: { ...options, eraId: options?.eraId ?? currentEra }
     });
 
@@ -1522,7 +1541,13 @@ export const useGame = () => {
                 sceneImageArchive: 场景图片档案,
                 prompts: promptPool,
                 内置提示词列表,
-                世界书列表
+                世界书列表,
+                设备状态: {
+                    messages: 设备状态.messages.map(m => {
+                        const notif = 设备状态.notifications.find(n => n.relatedMessageId === m.id);
+                        return { app: m.type, title: m.title, content: m.content, timestamp: m.timestamp, read: notif ? notif.read : true };
+                    })
+                }
             },
             {
                 abortControllerRef,
@@ -1565,6 +1590,29 @@ export const useGame = () => {
                 文章优化功能已开启,
                 后台执行统一规划分析,
                 执行变量生成并合并响应: 执行变量生成并合并响应,
+                触发设备消息生成: async ({ finalState }) => {
+                    try {
+                        const 当前时代 = currentEra;
+                        if (!当前时代) return;
+                        const mode = 派生设备模式();
+                        const 主接口 = 获取主剧情接口配置(apiConfig);
+                        if (!主接口?.baseUrl || !主接口?.apiKey) return;
+                        await 触发设备消息生成({
+                            eraId: 当前时代,
+                            mode,
+                            apiConfig: 主接口,
+                            apiSettings: apiConfig,
+                            context: {
+                                角色名: 角色.姓名 || '无名',
+                                当前场景: finalState.环境?.具体地点 || finalState.环境?.小地点 || '未知场景',
+                                当前位置: `${finalState.环境?.大地点 || ''}${finalState.环境?.中地点 || ''}`,
+                                世界状态: '',
+                            },
+                        });
+                    } catch (err) {
+                        console.warn('[设备消息生成] 失败:', err);
+                    }
+                },
             },
             options
         );
@@ -2111,10 +2159,9 @@ export const useGame = () => {
             pushNotification: 推送右下角提示,
             handleEraChange: 处理时代变更,
             // Mobile Device
-            openDevice: 设备打开,
+            openDevice: 打开设备,
             closeDevice: 设备关闭,
             openDeviceApp: 设备打开应用,
-            toggleDeviceMode: 设备切换模式,
             returnDeviceHome: 设备返回主页,
             setDeviceState: 设置设备状态
         }

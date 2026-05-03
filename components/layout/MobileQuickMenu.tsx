@@ -9,6 +9,7 @@ interface Props {
     enableKungfu?: boolean;
     enableImageManager?: boolean;
     enableNovelDecomposition?: boolean;
+    deviceUnreadCount?: number;
 }
 
 type IconName =
@@ -69,7 +70,8 @@ const MobileQuickMenu: React.FC<Props> = ({
     enableHeroinePlan = false,
     enableKungfu = true,
     enableImageManager = false,
-    enableNovelDecomposition = false
+    enableNovelDecomposition = false,
+    deviceUnreadCount = 0
 }) => {
     const [showAllMenus, setShowAllMenus] = useState(false);
     const 文案 = useUIText();
@@ -174,13 +176,19 @@ const MobileQuickMenu: React.FC<Props> = ({
                         <div className="max-h-44 overflow-y-auto no-scrollbar p-2">
                             <div className="grid grid-cols-4 gap-2">
                                 {allMenus.map((menu) => (
-                                    <MenuTile
-                                        key={menu}
-                                        icon={getIcon(menu)}
-                                        label={menu}
-                                        active={activeWindow === menu}
-                                        onClick={() => handleMenuClick(menu)}
-                                    />
+                                    <div key={menu} className="relative">
+                                        <MenuTile
+                                            icon={getIcon(menu)}
+                                            label={menu}
+                                            active={activeWindow === menu}
+                                            onClick={() => handleMenuClick(menu)}
+                                        />
+                                        {menu === '通讯' && deviceUnreadCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 z-10 min-w-[16px] h-4 flex items-center justify-center bg-red-500 text-white text-[9px] font-bold rounded-full px-0.5 shadow-md">
+                                                {deviceUnreadCount > 99 ? '99+' : deviceUnreadCount}
+                                            </span>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         </div>

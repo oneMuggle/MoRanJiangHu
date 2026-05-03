@@ -136,6 +136,7 @@ type 主剧情发送当前状态 = {
     prompts: any[];
     内置提示词列表: 内置提示词条目结构[];
     世界书列表: 世界书结构[];
+    设备状态?: { messages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }> };
 };
 
 // ─── 主剧情发送依赖 ─────────────────────────────────────────────────────────
@@ -147,7 +148,7 @@ type 主剧情发送依赖 = {
     设置剧情: (value: 剧情系统结构) => void;
     设置历史记录: (value: 聊天记录结构[] | ((prev: 聊天记录结构[]) => 聊天记录结构[])) => void;
     应用并同步记忆系统: (memory: 记忆系统结构, options?: { 静默总结提示?: boolean }) => void;
-    构建系统提示词: (promptPool: any[], memoryData: 记忆系统结构, socialData: any[], statePayload: any, options?: any) => 主剧情系统上下文 & {
+    构建系统提示词: (promptPool: any[], memoryData: 记忆系统结构, socialData: any[], statePayload: any, options?: any, deviceMessages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }>) => 主剧情系统上下文 & {
         runtimePromptStates: Record<string, any>;
     };
     processResponseCommands: (
@@ -245,6 +246,11 @@ type 主剧情发送依赖 = {
             model: string;
         } | null;
     } | null>;
+    触发设备消息生成?: (params: {
+        finalState: any;
+        rawAiText: string;
+        sendInput: string;
+    }) => Promise<void>;
 };
 
 // ─── 主工作流 ───────────────────────────────────────────────────────────────
@@ -436,7 +442,16 @@ export const 执行主剧情发送工作流 = async (
                     ? ['main', 'tavern']
                     : ['main'],
                 世界书附加文本: [sendInput, recallTag || '']
-            }
+            },
+            currentState.设备状态?.messages?.length > 0
+                ? currentState.设备状态.messages.map(m => ({
+                    app: m.app,
+                    title: m.title,
+                    content: m.content,
+                    timestamp: m.timestamp,
+                    read: m.read,
+                }))
+                : undefined
         );
 
         // ─── 流式标记 ──────────────────────────────────────────────────
@@ -616,7 +631,8 @@ export const 执行主剧情发送工作流 = async (
                 执行变量生成并合并响应: deps.执行变量生成并合并响应,
                 performAutoSave: deps.performAutoSave,
                 获取原始AI消息: deps.获取原始AI消息,
-                提取原始报错详情: deps.提取原始报错详情
+                提取原始报错详情: deps.提取原始报错详情,
+                触发设备消息生成: deps.触发设备消息生成
             },
             执行可重试独立阶段,
             deps.文章优化功能已开启,

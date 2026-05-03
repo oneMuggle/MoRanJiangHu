@@ -129,6 +129,11 @@ export type 响应处理阶段依赖 = {
     performAutoSave: (snapshot?: any) => Promise<void>;
     获取原始AI消息: (rawText: string) => string;
     提取原始报错详情: (error: any) => string;
+    触发设备消息生成?: (params: {
+        finalState: any;
+        rawAiText: string;
+        sendInput: string;
+    }) => Promise<void>;
 };
 
 // ─── 响应处理阶段输入 ────────────────────────────────────────────────────────
@@ -659,6 +664,15 @@ export const 执行响应处理阶段 = async (
             playerInput: sendInput,
             source: 'auto',
             autoApply: true
+        });
+    }
+
+    // ─── 设备消息生成（回合末尾） ────────────────────────────────────────────
+    if (deps.触发设备消息生成) {
+        await deps.触发设备消息生成({
+            finalState,
+            rawAiText,
+            sendInput,
         });
     }
 

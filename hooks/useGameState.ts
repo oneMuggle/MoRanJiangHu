@@ -28,7 +28,7 @@ import {
 } from '../types';
 import { 默认中期转长期提示词, 默认短期转中期提示词, 默认NPC记忆总结提示词 } from '../prompts/runtime/defaults';
 import { 节日列表 } from '../data/world';
-import { 初始设备状态, type DeviceState, type MobileApp, type DeviceMode } from './useGame/mobileDeviceWorkflow'; 
+import { 初始设备状态, type DeviceState, type MobileApp } from './useGame/mobileDeviceWorkflow'; 
 import * as dbService from '../services/dbService';
 import { THEMES, 应用主题到根元素, 应用时代主题到根元素 } from '../styles/themes';
 import { 获取时代主题方案 } from '../models/system';
@@ -187,7 +187,6 @@ export const useGameState = () => {
     const 设备打开 = () => 设置设备状态((prev) => ({ ...prev, isOpen: true }));
     const 设备关闭 = () => 设置设备状态((prev) => ({ ...prev, isOpen: false, activeApp: null }));
     const 设备打开应用 = (app: MobileApp) => 设置设备状态((prev) => ({ ...prev, activeApp: app }));
-    const 设备切换模式 = (mode: DeviceMode) => 设置设备状态((prev) => ({ ...prev, mode }));
     const 设备返回主页 = () => 设置设备状态((prev) => ({ ...prev, activeApp: null }));
 
     const [activeTab, setActiveTab] = useState<'api' | 'image_generation' | 'integrated_models' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager'>('api');
@@ -417,7 +416,7 @@ export const useGameState = () => {
         // Mobile Device
         设备状态, 设置设备状态,
         设备打开, 设备关闭,
-        设备打开应用, 设备切换模式, 设备返回主页,
+        设备打开应用, 设备返回主页,
         
         // Configs
         apiConfig, setApiConfig,

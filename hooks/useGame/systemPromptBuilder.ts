@@ -55,6 +55,7 @@ import { 构建时代主题注入, 构建时代文风注入 } from '../../prompt
 import { 获取时代现实提示词ByEraId } from '../../prompts/core/eraRealism';
 import { 构建子纪元里模式注入, 子纪元里模式是否已注入 } from '../../prompts/runtime/eraLiMode';
 import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionOptionsRuntime';
+import { 构建设备通讯摘要 } from './triggerDeviceMessageWorkflow';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -112,6 +113,7 @@ type 系统提示词构建参数 = {
     builtinPromptEntries?: 内置提示词条目结构[];
     worldbooks?: 世界书结构[];
     worldEvolutionEnabled: boolean;
+    deviceMessages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }>;
     options?: {
         禁用中期长期记忆?: boolean;
         禁用短期记忆?: boolean;
@@ -1420,6 +1422,9 @@ export const 构建系统提示词 = ({
     const realmTemplatePrompt = 启用修炼体系
         ? 按当前设置过滤提示词(渲染提示词文本(核心_境界体系.内容))
         : '';
+    const 设备通讯摘要 = deviceMessages && deviceMessages.length > 0
+        ? 构建设备通讯摘要({ messages: deviceMessages })
+        : '';
     const otherPrompts = [
         ...otherPromptEntries.map(item => item.content),
         开局剧情推动协议内容,
@@ -1440,7 +1445,8 @@ export const 构建系统提示词 = ({
         // 表志怪：古代体系选择为志怪/双修时注入，里志怪已开启则跳过（避免重复）
         (normalizedGameConfig.古代体系选择 === '志怪' || normalizedGameConfig.古代体系选择 === '双修')
             && normalizedGameConfig.启用里志怪模式 !== true
-            ? 构建志怪世界提示词() : null
+            ? 构建志怪世界提示词() : null,
+        设备通讯摘要 || null
     ]
         .filter(Boolean)
         .join('\n\n');
