@@ -40,6 +40,14 @@ function flatMapNodes(node: EraNode): EraNode[] {
 
 export const allEraNodes: EraNode[] = eraTree.children.flatMap(flatMapNodes);
 
+/** 现代/当代时代 ID 列表（用于 NSFW 叙事约束等场景选择现代情感框架） */
+export const MODERN_ERA_IDS = [
+    'contemporary_campus', 'contemporary_urban', 'contemporary_rural',
+    'contemporary_noir', 'contemporary_hippie',
+    'contemporary_zombie', 'contemporary_extreme_cold', 'contemporary_biohazard', 'contemporary_nuclear_winter',
+    'contemporary_post_apocalyptic',
+] as const;
+
 // ============================================================
 // 核心查找函数
 // ============================================================

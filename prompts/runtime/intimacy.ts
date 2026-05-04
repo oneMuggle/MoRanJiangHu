@@ -5,16 +5,13 @@
  */
 
 import { NSFW场景类型 } from '../../models/system';
+import { MODERN_ERA_IDS } from '../../models/eraTheme/assembly';
 import { 适度展开描写规则, 委婉成语列表, getRandomEuphemism } from '../core/euphemisms';
 
 /** 判断是否为现代时代（使用情感叙事而非武侠双修叙事） */
 const 是现代时代 = (时代配置ID?: string): boolean => {
   if (!时代配置ID) return false;
-  const modernEras = ['contemporary_campus', 'contemporary_urban', 'contemporary_rural',
-    'contemporary_noir', 'contemporary_hippie',
-    'contemporary_zombie', 'contemporary_extreme_cold', 'contemporary_biohazard', 'contemporary_nuclear_winter',
-    'contemporary_post_apocalyptic'];
-  return modernEras.includes(时代配置ID);
+  return MODERN_ERA_IDS.includes(时代配置ID as typeof MODERN_ERA_IDS[number]);
 };
 
 /**
