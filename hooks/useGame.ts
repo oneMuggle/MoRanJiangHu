@@ -68,6 +68,7 @@ import {
     构建系统提示词 as 构建系统提示词工作流,
     type 运行时提示词状态
 } from './useGame/systemPromptBuilder';
+import { 创建默认欲望档案 } from './useGame/campusNSFWEngine';
 import {
     创建开场基础状态,
     创建开场命令基态,
@@ -775,6 +776,67 @@ export const useGame = () => {
     useEffect(() => {
         void 加载场景图片档案();
     }, []);
+
+    // 校园 NSFW 欲望系统初始化：当主开关打开且尚未初始化时，为所有主要角色 NPC 创建默认欲望档案
+    useEffect(() => {
+        const nsfwEnabled = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统;
+        const 欲望系统已存在 = 校园系统?.欲望系统;
+        const 游戏已开始 = 角色?.姓名;
+        const 有主要角色 = 社交?.some((n: NPC结构) => n.是否主要角色);
+
+        if (nsfwEnabled && !欲望系统已存在 && 游戏已开始 && 有主要角色) {
+            const 默认档案 = 创建默认欲望档案();
+            const NPC欲望档案: Record<string, any> = {};
+            社交.forEach((npc: NPC结构) => {
+                if (npc.是否主要角色) {
+                    NPC欲望档案[npc.id] = { ...默认档案 };
+                }
+            });
+
+            if (Object.keys(NPC欲望档案).length > 0) {
+                设置校园系统(prev => ({
+                    ...prev,
+                    欲望系统: {
+                        NPC欲望档案,
+                        里程碑列表: [],
+                        后果列表: [],
+                        已解锁地点: [],
+                        露出场景解锁: [],
+                        旁观者记录: [],
+                        活动专属回忆: [],
+                        SM场景池: [],
+                        契约列表: [],
+                        指令队列: [],
+                    }
+                }));
+            }
+        }
+    }, [gameConfig?.校园NSFW设置?.启用校园NSFW深化系统, 校园系统?.欲望系统, 角色?.姓名, 社交, 设置校园系统]);
+
+    // 新增主要角色 NPC 时自动补全欲望档案
+    useEffect(() => {
+        const nsfwEnabled = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统;
+        const 欲望系统 = 校园系统?.欲望系统;
+        if (!nsfwEnabled || !欲望系统) return;
+
+        const 缺失档案的主要角色 = 社交.filter((npc: NPC结构) =>
+            npc.是否主要角色 && !欲望系统.NPC欲望档案?.[npc.id]
+        );
+        if (缺失档案的主要角色.length === 0) return;
+
+        const 新档案: Record<string, any> = {};
+        缺失档案的主要角色.forEach(npc => {
+            新档案[npc.id] = 创建默认欲望档案();
+        });
+
+        设置校园系统(prev => ({
+            ...prev,
+            欲望系统: {
+                ...欲望系统,
+                NPC欲望档案: { ...欲望系统.NPC欲望档案, ...新档案 }
+            }
+        }));
+    }, [社交, gameConfig?.校园NSFW设置?.启用校园NSFW深化系统, 校园系统?.欲望系统?.NPC欲望档案, 设置校园系统]);
 
     useEffect(() => {
         void loadBuiltinPromptEntries();
