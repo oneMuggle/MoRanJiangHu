@@ -1590,6 +1590,8 @@ export const useGame = () => {
                 同人剧情规划,
                 同人女主剧情规划,
                 开局配置,
+                校规系统,
+                催眠系统,
                 loading,
                 gameConfig,
                 apiConfig,

@@ -137,6 +137,8 @@ type 主剧情发送当前状态 = {
     内置提示词列表: 内置提示词条目结构[];
     世界书列表: 世界书结构[];
     设备状态?: { messages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }> };
+    校规系统?: { 校规列表: any[]; 影响日志: any[] };
+    催眠系统?: { 催眠记录列表: any[]; app等级: any; 累计使用次数: number };
 };
 
 // ─── 主剧情发送依赖 ─────────────────────────────────────────────────────────
@@ -432,7 +434,9 @@ export const 执行主剧情发送工作流 = async (
                 女主剧情规划: deps.规范化女主剧情规划状态(currentState.女主剧情规划),
                 同人剧情规划: deps.规范化同人剧情规划状态(currentState.同人剧情规划),
                 同人女主剧情规划: deps.规范化同人女主剧情规划状态(currentState.同人女主剧情规划),
-                开局配置: currentState.开局配置
+                开局配置: currentState.开局配置,
+                校规系统: currentState.校规系统,
+                催眠系统: currentState.催眠系统
             },
             {
                 ...(recallFeatureEnabled && recallTag
