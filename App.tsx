@@ -759,12 +759,19 @@ const App: React.FC = () => {
 
                     {/* 顶部导航栏 */}
                     <div className={`shrink-0 z-40 bg-ink-black/90 border-b border-wuxia-gold/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)] relative rounded-t-xl overflow-visible mx-1 mt-1 lixia-topbar ${state.gameConfig?.启用里志怪模式 ? 'lizhiguai-topbar' : ''}`}>
-                        <TopBar 
-                            环境={state.环境} 
+                        <TopBar
+                            环境={state.环境}
                             游戏初始时间={state.游戏初始时间}
                             timeFormat={state.visualConfig.时间显示格式}
                             festivals={state.festivals}
                             visualConfig={state.visualConfig}
+                            eraId={state.currentEra}
+                            启用子纪元里模式={state.gameConfig?.启用子纪元里模式}
+                            子纪元里模式强度={state.gameConfig?.子纪元里模式强度}
+                            onLiModeIntensityChange={(eraId, intensity) => {
+                                const prev = state.gameConfig?.子纪元里模式强度 || {};
+                                actions.saveGameSettings({ ...state.gameConfig, 子纪元里模式强度: { ...prev, [eraId]: intensity } } as any);
+                            }}
                         />
                     </div>
 
