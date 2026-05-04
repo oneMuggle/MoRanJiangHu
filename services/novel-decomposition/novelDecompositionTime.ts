@@ -28,7 +28,7 @@ const 补位 = (value: number, length: number): string => Math.max(0, Math.floor
 
 const 限制范围 = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, Math.floor(value)));
 
-const 规范化文本 = (value: unknown): string => (typeof value === 'string' ? value : '').trim();
+import { 规范化文本 } from '../../utils/stringNormalizers';
 
 const 是否闰年 = (year: number): boolean => (
     year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0)

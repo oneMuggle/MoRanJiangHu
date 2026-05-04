@@ -1,6 +1,7 @@
 import { 角色数据结构, 环境信息结构, 装备槽位 } from '../../types';
 import { normalizeCanonicalGameTime, 结构化时间转标准串 } from './timeUtils';
 import { 压缩图片资源字段 } from '../../utils/imageAssets';
+import { 规范化文本 } from '../../utils/stringNormalizers';
 
 const 深拷贝 = <T,>(data: T): T => JSON.parse(JSON.stringify(data)) as T;
 const 默认装备模板 = {
@@ -42,9 +43,6 @@ const 规范化整数 = (value: unknown, fallback = 0): number => {
     const n = Number(value);
     return Number.isFinite(n) ? Math.trunc(n) : fallback;
 };
-const 规范化文本 = (value: unknown, fallback = ''): string => (
-    typeof value === 'string' ? value.trim() : fallback
-);
 const 规范化角色身体部位字段 = (role: any) => {
     角色身体部位列表.forEach((part) => {
         const rawPart = role?.[part];

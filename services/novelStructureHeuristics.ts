@@ -6,6 +6,8 @@ export type TXT章节标题识别结果 = {
     层级: TXT章节标题层级;
 };
 
+import { 规范化文本, 规范化标题候选行 } from '../utils/stringNormalizers';
+
 const 中文数字片段 = '[0-9０-９零一二三四五六七八九十百千万两〇○壹贰叁肆伍陆柒捌玖拾佰仟]+';
 const 英文章节序号片段 = '(?:\\d+|[ivxlcdm]+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)';
 const 卷级单位片段 = '[卷部篇册季集辑]';
@@ -35,16 +37,6 @@ const 标题前缀规则列表 = [
     new RegExp(`^(?:chapter|chap|volume|vol(?:ume)?|book|part)\\s*(?:${英文章节序号片段})\\b\\s*`, 'iu'),
     /^(?:prologue|epilogue|afterword|preface|foreword|appendix)\s*/iu
 ];
-
-const 规范化文本 = (value: string): string => value
-    .replace(/\r\n/g, '\n')
-    .replace(/\uFEFF/g, '')
-    .trim();
-
-const 规范化标题候选行 = (value: string): string => 规范化文本(value)
-    .replace(/[\t\u3000 ]+/g, ' ')
-    .replace(/[|｜]+/g, '｜')
-    .trim();
 
 const 标题外层包裹对列表: Array<readonly [string, string]> = [
     ['【', '】'],
