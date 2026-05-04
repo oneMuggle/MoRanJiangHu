@@ -87,14 +87,17 @@ export interface 聊天记录结构 {
     autoScrollToTurnIcon?: boolean;
 }
 
+/** NSFW 分级：0=无, 1=轻度(暧昧暗示), 2=中度(委婉描写), 3=重度(明确描写) */
+export type NSFW等级 = 0 | 1 | 2 | 3;
+
 export interface 天赋结构 {
     名称: string;
     描述: string;
     效果: string; // 具体数值或逻辑描述
     /** 适用性别限制：'男' / '女' / undefined（男女皆可） */
     适用性别?: '男' | '女';
-    /** 是否为 NSFW 内容，默认 false */
-    nsfw?: boolean;
+    /** NSFW 分级等级，0 或 undefined 表示无 NSFW 内容 */
+    nsfw等级?: NSFW等级;
     /** 适配的时代背景大类，不填则全时代可见 */
     时代适配?: string[];
     /** 适配的具体子纪元 ID，优先级高于时代适配，不填则回退到大类匹配 */
@@ -109,8 +112,8 @@ export interface 背景结构 {
     效果: string;
     /** 适用性别限制：'男' / '女' / undefined（男女皆可） */
     适用性别?: '男' | '女';
-    /** 是否为 NSFW 内容，默认 false */
-    nsfw?: boolean;
+    /** NSFW 分级等级，0 或 undefined 表示无 NSFW 内容 */
+    nsfw等级?: NSFW等级;
     /** 适配的时代背景大类，不填则全时代可见 */
     时代适配?: string[];
     /** 适配的具体子纪元 ID，优先级高于时代适配，不填则回退到大类匹配 */
