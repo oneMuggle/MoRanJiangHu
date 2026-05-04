@@ -57,7 +57,7 @@ type 世界演变依赖 = {
     processResponseCommands: (
         response: any,
         baseState?: Partial<响应命令处理状态>,
-        options?: { applyState?: boolean }
+        options?: { applyState?: boolean; rawContent?: string }
     ) => 响应命令处理状态;
     setWorldEvents: (value: string[] | ((prev: string[]) => string[])) => void;
     set世界演变更新中: (value: boolean) => void;
@@ -272,7 +272,7 @@ export const 执行世界演变更新工作流 = async (
                     tavern_commands: normalizedCommands
                 },
                 params?.stateBase,
-                { applyState: params?.applyCommands !== false }
+                { applyState: params?.applyCommands !== false, rawContent: rawText }
             );
         }
 

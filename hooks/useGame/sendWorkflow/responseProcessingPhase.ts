@@ -54,7 +54,7 @@ export type 响应处理阶段依赖 = {
             剧情: 剧情系统结构;
             女主剧情规划?: any;
         }>,
-        options?: { applyState?: boolean }
+        options?: { applyState?: boolean; rawContent?: string }
     ) => any;
     提取新增NPC列表: (beforeList: any[], afterList: any[]) => any[];
     触发新增NPC自动生图: (npcs: any[]) => void;
@@ -307,7 +307,7 @@ export const 执行响应处理阶段 = async (
         ...aiData,
         tavern_commands: Array.isArray(aiData.tavern_commands) ? [...aiData.tavern_commands] : []
     };
-    let simulatedState = deps.processResponseCommands(responseForExecution, mainCommandBaseState, { applyState: false });
+    let simulatedState = deps.processResponseCommands(responseForExecution, mainCommandBaseState, { applyState: false, rawContent: rawAiText });
 
     let finalParsedResponse: GameResponse = responseForExecution;
     let finalDisplayResponse: GameResponse = {
@@ -321,7 +321,7 @@ export const 执行响应处理阶段 = async (
         tavern_commands: Array.isArray(aiData?.tavern_commands) ? [...aiData.tavern_commands] : []
     };
     const 立即并入变量生成状态 = (nextResponse: GameResponse) => {
-        simulatedState = deps.processResponseCommands(nextResponse, mainCommandBaseState);
+        simulatedState = deps.processResponseCommands(nextResponse, mainCommandBaseState, { rawContent: rawAiText });
         return simulatedState;
     };
 
@@ -579,7 +579,7 @@ export const 执行响应处理阶段 = async (
     };
 
     // ─── 命令执行 ────────────────────────────────────────────────────────
-    let finalState = deps.processResponseCommands(finalParsedResponse, mainCommandBaseState);
+    let finalState = deps.processResponseCommands(finalParsedResponse, mainCommandBaseState, { rawContent: rawAiText });
     const calibratedFinalStory = await 同步剧情小说分解时间校准({
         previousStory: currentState.剧情,
         nextStory: finalState.剧情,

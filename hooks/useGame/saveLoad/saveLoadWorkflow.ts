@@ -20,6 +20,8 @@ import type {
     时代信息结构
 } from '../../../types';
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级, 校园系统数据 } from '../../../models/campusPhone';
+import type { NPC结构 } from '../../../types';
+import { 从NPC创建欲望档案, 创建默认欲望档案 } from '../campusNSFWEngine';
 import { 执行手动存档, 执行自动存档, 执行读取存档 } from '../saveCoordinator';
 import type { 自动存档快照结构 } from '../saveCoordinator';
 
@@ -234,6 +236,39 @@ export const 创建存读档工作流 = (deps: 存档编排工作流依赖) => {
             save,
             构建协调依赖()
         );
+        // 旧存档兼容：若欲望系统缺失，基于当前社交列表重新初始化
+        const 当前校园系统 = save.校园系统 && typeof save.校园系统 === 'object'
+            ? deps.深拷贝(save.校园系统)
+            : { ...(deps.校园系统 || {} as any) };
+        const 欲望系统 = 当前校园系统?.欲望系统;
+        if (!欲望系统 || !欲望系统.NPC欲望档案 || Object.keys(欲望系统.NPC欲望档案 || {}).length === 0) {
+            const 社交列表 = Array.isArray(save.社交) ? save.社交 : [];
+            const 欲望档案: Record<string, any> = {};
+            for (const npc of 社交列表) {
+                if (npc?.id) {
+                    欲望档案[npc.id] = npc && typeof npc === 'object' && npc.核心性格特征
+                        ? 从NPC创建欲望档案(npc as NPC结构)
+                        : 创建默认欲望档案();
+                }
+            }
+            const 更新后校园系统 = {
+                ...当前校园系统,
+                欲望系统: {
+                    ...(欲望系统 || {}),
+                    NPC欲望档案: 欲望档案,
+                    里程碑列表: 欲望系统?.里程碑列表 || [],
+                    后果列表: 欲望系统?.后果列表 || [],
+                    已解锁地点: 欲望系统?.已解锁地点 || [],
+                    露出场景解锁: 欲望系统?.露出场景解锁 || [],
+                    旁观者记录: 欲望系统?.旁观者记录 || [],
+                    活动专属回忆: 欲望系统?.活动专属回忆 || [],
+                    SM场景池: 欲望系统?.SM场景池 || [],
+                    契约列表: 欲望系统?.契约列表 || [],
+                    指令队列: 欲望系统?.指令队列 || [],
+                }
+            };
+            deps.设置校园系统(更新后校园系统 as 校园系统数据);
+        }
         deps.读档后重置上下文();
         deps.读档后定位到最新回合();
     };

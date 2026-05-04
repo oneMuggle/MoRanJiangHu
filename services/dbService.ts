@@ -177,7 +177,10 @@ const 清洗导入存档 = (raw: any): Omit<存档结构, 'id'> | null => {
         场景图片档案: raw.场景图片档案 && typeof raw.场景图片档案 === 'object' ? 深拷贝(raw.场景图片档案) : undefined,
         核心提示词快照: raw.核心提示词快照 && typeof raw.核心提示词快照 === 'object' ? 深拷贝(raw.核心提示词快照) : undefined,
         角色锚点列表: Array.isArray(raw.角色锚点列表) ? 深拷贝(raw.角色锚点列表) : undefined,
-        当前角色锚点ID: typeof raw.当前角色锚点ID === 'string' ? raw.当前角色锚点ID : undefined
+        当前角色锚点ID: typeof raw.当前角色锚点ID === 'string' ? raw.当前角色锚点ID : undefined,
+        校园系统: raw.校园系统 && typeof raw.校园系统 === 'object' ? 深拷贝(raw.校园系统) : undefined,
+        校规系统: raw.校规系统 && typeof raw.校规系统 === 'object' ? 深拷贝(raw.校规系统) : undefined,
+        催眠系统: raw.催眠系统 && typeof raw.催眠系统 === 'object' ? 深拷贝(raw.催眠系统) : undefined
     };
 
     return normalized;

@@ -157,7 +157,7 @@ type 开场剧情生成依赖 = {
             免责声明输出提示词?: string;
         };
     };
-    processResponseCommands: (response: GameResponse, baseState?: 开场命令基态, options?: { applyState?: boolean }) => 开场命令基态;
+    processResponseCommands: (response: GameResponse, baseState?: 开场命令基态, options?: { applyState?: boolean; rawContent?: string }) => 开场命令基态;
     规范化环境信息: (envLike?: any) => 环境信息结构;
     规范化剧情状态: (raw?: any, envLike?: any) => 剧情系统结构;
     规范化剧情规划状态: (raw?: any) => 剧情规划结构;
@@ -822,9 +822,9 @@ export const 执行开场剧情生成工作流 = async (
             ...aiData,
             tavern_commands: Array.isArray(aiData?.tavern_commands) ? [...aiData.tavern_commands] : []
         };
-        let simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false });
+        let simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false, rawContent: deps.获取原始AI消息(aiResult.rawText) });
         const 立即并入开局变量状态 = (nextResponse: GameResponse) => {
-            simulatedOpeningState = deps.processResponseCommands(nextResponse, commandBaseState);
+            simulatedOpeningState = deps.processResponseCommands(nextResponse, commandBaseState, { rawContent: deps.获取原始AI消息(aiResult.rawText) });
             const appliedTime = 环境时间转标准串(simulatedOpeningState.环境);
             if (appliedTime) {
                 deps.设置游戏初始时间(appliedTime);
@@ -940,7 +940,7 @@ export const 执行开场剧情生成工作流 = async (
                         variable_calibration_commands: responseForExecution.variable_calibration_commands,
                         variable_calibration_model: responseForExecution.variable_calibration_model
                     };
-                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false });
+                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false, rawContent: deps.获取原始AI消息(aiResult.rawText) });
                     立即并入开局变量状态(responseForExecution);
                     deps.设置开局变量生成进度({
                         phase: 'done',
@@ -1075,7 +1075,7 @@ export const 执行开场剧情生成工作流 = async (
                             ...worldResult.commands
                         ]
                     };
-                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false });
+                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false, rawContent: deps.获取原始AI消息(aiResult.rawText) });
                 }
             }
         } else {
@@ -1225,7 +1225,7 @@ export const 执行开场剧情生成工作流 = async (
                             ...planningCommands
                         ]
                     };
-                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false });
+                    simulatedOpeningState = deps.processResponseCommands(responseForExecution, commandBaseState, { applyState: false, rawContent: deps.获取原始AI消息(aiResult.rawText) });
                 }
             }
         } else {
@@ -1239,7 +1239,7 @@ export const 执行开场剧情生成工作流 = async (
             ...aiData,
             tavern_commands: Array.isArray(responseForExecution.tavern_commands) ? [...responseForExecution.tavern_commands] : []
         };
-        const openingStateAfterCommands = deps.processResponseCommands(responseForExecution, commandBaseState);
+        const openingStateAfterCommands = deps.processResponseCommands(responseForExecution, commandBaseState, { rawContent: deps.获取原始AI消息(aiResult.rawText) });
         const openingNewNpcList = deps.提取新增NPC列表(commandBaseState.社交, openingStateAfterCommands.社交);
         const hasOpeningCommands = Array.isArray(responseForExecution?.tavern_commands) && responseForExecution.tavern_commands.length > 0;
         if (!hasOpeningCommands) {

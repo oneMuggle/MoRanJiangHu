@@ -13,6 +13,7 @@ import {
     任务结构,
     约定结构
 } from '../types';
+import type { 校园系统数据 } from '../models/campusPhone';
 
 type 状态命令动作 = 'set' | 'add' | 'push' | 'delete' | 'sub';
 
@@ -25,6 +26,7 @@ const 根路径列表 = [
     '任务列表',
     '约定列表',
     '记忆系统',
+    '校园系统',
     '角色',
     '环境',
     '社交',
@@ -49,6 +51,7 @@ type 命令结果结构 = {
     sect: 详细门派结构;
     tasks: 任务结构[];
     agreements: 约定结构[];
+    campus: 校园系统数据;
 };
 
 const 深拷贝 = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -279,6 +282,7 @@ export const applyStateCommand = (
     rootSect: 详细门派结构,
     rootTasks: 任务结构[],
     rootAgreements: 约定结构[],
+    rootCampus: 校园系统数据,
     key: string,
     value: any,
     action: 状态命令动作
@@ -299,7 +303,8 @@ export const applyStateCommand = (
         fandomHeroinePlan: rootFandomHeroinePlan === undefined ? undefined : 深拷贝(rootFandomHeroinePlan),
         sect: 深拷贝(rootSect),
         tasks: 深拷贝(rootTasks),
-        agreements: 深拷贝(rootAgreements)
+        agreements: 深拷贝(rootAgreements),
+        campus: 深拷贝(rootCampus)
     };
 
     if (!parsed) {
@@ -347,6 +352,9 @@ export const applyStateCommand = (
             case '约定列表':
                 result.agreements = Array.isArray(next) ? next as 约定结构[] : [];
                 break;
+            case '校园系统':
+                result.campus = next as 校园系统数据;
+                break;
             default:
                 break;
         }
@@ -380,6 +388,8 @@ export const applyStateCommand = (
                 return result.tasks;
             case '约定列表':
                 return result.agreements;
+            case '校园系统':
+                return result.campus;
             default:
                 return undefined;
         }

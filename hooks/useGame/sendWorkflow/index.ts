@@ -163,6 +163,15 @@ function 构建校园NSFW参数(state: 主剧情发送当前状态) {
     const 焦点档案 = 欲望系统.NPC欲望档案?.[焦点NpcId];
     if (!焦点档案) return undefined;
 
+    // 构建所有NPC的欲望状态摘要（非焦点NPC的简要信息）
+    const 其他Npc摘要: string[] = [];
+    for (const id of npcIds) {
+        if (id === 焦点NpcId) continue;
+        const 档案 = 欲望系统.NPC欲望档案![id];
+        if (!档案) continue;
+        其他Npc摘要.push(`${id}: ${档案.当前阶段}/${档案.关系轨道}(进度${档案.阶段进度}/${档案.轨道进度}) 暴露${档案.暴露风险值}`);
+    }
+
     const 校园祭状态 = 欲望系统.校园祭状态;
     const 桌游状态 = 欲望系统.桌游状态;
 
@@ -183,6 +192,7 @@ function 构建校园NSFW参数(state: 主剧情发送当前状态) {
         桌游类型: 桌游状态?.桌游类型,
         密室主题: (桌游状态?.当前桌游 as any)?.当前主题,
         内容强度: state.gameConfig?.校园NSFW设置?.NSFW内容强度,
+        其他Npc欲望摘要: 其他Npc摘要.length > 0 ? 其他Npc摘要.join('；') : undefined,
     };
 }
 

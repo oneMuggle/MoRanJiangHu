@@ -68,7 +68,7 @@ import {
     构建系统提示词 as 构建系统提示词工作流,
     type 运行时提示词状态
 } from './useGame/systemPromptBuilder';
-import { 创建默认欲望档案 } from './useGame/campusNSFWEngine';
+import { 从NPC创建欲望档案, 创建默认欲望档案 } from './useGame/campusNSFWEngine';
 import {
     创建开场基础状态,
     创建开场命令基态,
@@ -785,11 +785,10 @@ export const useGame = () => {
         const 有主要角色 = 社交?.some((n: NPC结构) => n.是否主要角色);
 
         if (nsfwEnabled && !欲望系统已存在 && 游戏已开始 && 有主要角色) {
-            const 默认档案 = 创建默认欲望档案();
             const NPC欲望档案: Record<string, any> = {};
             社交.forEach((npc: NPC结构) => {
                 if (npc.是否主要角色) {
-                    NPC欲望档案[npc.id] = { ...默认档案 };
+                    NPC欲望档案[npc.id] = 从NPC创建欲望档案(npc);
                 }
             });
 
@@ -826,7 +825,7 @@ export const useGame = () => {
 
         const 新档案: Record<string, any> = {};
         缺失档案的主要角色.forEach(npc => {
-            新档案[npc.id] = 创建默认欲望档案();
+            新档案[npc.id] = 从NPC创建欲望档案(npc);
         });
 
         设置校园系统(prev => ({
@@ -1262,6 +1261,7 @@ export const useGame = () => {
         },
         options?: {
             applyState?: boolean;
+            rawContent?: string;
         }
     ) => 执行响应命令处理(
         response,
@@ -1278,7 +1278,8 @@ export const useGame = () => {
             剧情规划,
             女主剧情规划,
             同人剧情规划,
-            同人女主剧情规划
+            同人女主剧情规划,
+            校园系统
         },
         {
             规范化环境信息,
@@ -1292,6 +1293,7 @@ export const useGame = () => {
             规范化同人剧情规划状态,
             规范化同人女主剧情规划状态,
             规范化角色物品容器映射,
+            规范化校园系统: (raw?: any) => 深拷贝(raw || {}),
             战斗结束自动清空,
             设置角色,
             设置环境,
@@ -1306,6 +1308,7 @@ export const useGame = () => {
             设置女主剧情规划,
             设置同人剧情规划,
             设置同人女主剧情规划,
+            设置校园系统: 设置校园系统,
             命令后校准: (nextState) => {
                 if (!变量生成功能已启用(apiConfig)) {
                     return nextState;

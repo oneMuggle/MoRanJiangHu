@@ -3,6 +3,8 @@ import { NSFW场景类型, 剧情推进速度 } from '../models/system';
 import { 默认额外系统提示词, 旧版默认额外系统提示词 } from '../prompts/runtime/defaults';
 import { 获取酒馆预设顺序, 规范化酒馆预设 } from './tavernPreset';
 import { resolveEraNode } from '../models/eraTheme';
+import type { 校园NSFW设置 } from '../models/campusNSFW';
+import { 默认校园NSFW设置 } from '../models/campusNSFW';
 
 const 最低字数要求 = 50;
 
@@ -181,7 +183,8 @@ export const 默认游戏设置: 游戏设置结构 = {
     酒馆预设角色ID: null,
     酒馆预设名称: '',
     独立APIGPT模式: 默认独立APIGPT模式设置,
-    额外提示词: 默认额外系统提示词
+    额外提示词: 默认额外系统提示词,
+    校园NSFW设置: 默认校园NSFW设置
 };
 
 export const 解析酒馆预设角色ID = (
@@ -295,6 +298,9 @@ export const 规范化游戏设置 = (
             source.独立APIGPT模式,
             fallback.独立APIGPT模式 || 默认独立APIGPT模式设置
         ),
-        额外提示词: 规范化额外提示词(source.额外提示词, fallback.额外提示词)
+        额外提示词: 规范化额外提示词(source.额外提示词, fallback.额外提示词),
+        校园NSFW设置: (source.校园NSFW设置 && typeof source.校园NSFW设置 === 'object')
+            ? source.校园NSFW设置 as 校园NSFW设置
+            : fallback.校园NSFW设置
     };
 };
