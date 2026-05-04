@@ -138,7 +138,7 @@ CDN 路径：`https://mrqk.cc.cd/data/era_assets/{eraId}/manifest.json`
 |---|------|------|----------|
 | 1 | **6 个时代场景素材缺失** | CDN 返回 404 | 文艺复兴/校园/赛博朋克/太空/后人类/远古 无场景图 + BGM |
 | 2 | **开局预设方案** `data/newGamePresets.ts` | `开局预设方案列表` 为空数组 | 新游戏界面无预置方案可选 |
-| 3 | **AlbumApp 占位图片** | 6 个 emoji 占位符 | 相册功能无真实内容 |
+| 3 | **AlbumApp 占位图片** ✅ | 6张真实AI生成图片已上线 | 相册功能接入真实图片 |
 | 4 | **Prompt Stub 文件** | 7 个文件仅 1-3 行 | 图片锚点提取、PNG 解析、境界默认等缺失 |
 
 ### 🟡 中优先级
@@ -213,11 +213,11 @@ CDN 路径：`https://mrqk.cc.cd/data/era_assets/{eraId}/manifest.json`
 | 城镇探索 | 1 首 | ✅ `bgm_qingfeng_town` |
 | 市集 | 1 首 | ✅ `bgm_marketplace` (本地) |
 | 寺庙/道观 | 1 首 | ✅ `bgm_temple` (本地) |
-| 旅行/远行 | 2 首 | ❌ 缺失 |
-| 宗门修炼 | 2 首 | ❌ 缺失 |
-| 志怪夜行 | 2 首 | ❌ 缺失 |
-| 好感度/亲密 | 2 首 | ❌ 缺失 |
-| 结局/大剧情 | 1-2 首 | ❌ 缺失 |
+| 旅行/远行 | 2 首 | ✅ 1首 (bgm_travel) |
+| 宗门修炼 | 2 首 | ✅ 1首 (bgm_cultivation) |
+| 志怪夜行 | 2 首 | ✅ 1首 (bgm_supernatural_night) |
+| 好感度/亲密 | 2 首 | ✅ 1首 (bgm_relationship) |
+| 结局/大剧情 | 1-2 首 | ✅ 1首 (bgm_ending) |
 
 #### 5. 自定义字体引入
 
@@ -251,10 +251,10 @@ CDN 路径：`https://mrqk.cc.cd/data/era_assets/{eraId}/manifest.json`
 
 ## 五、实施步骤
 
-- [ ] 阶段一.1：补齐 6 个缺失时代的场景素材（36 图 + 6 BGM）
+- [x] 阶段一.1：补齐 6 个缺失时代的场景素材（36 图 + 6 BGM）— ✅ 已完成（上一轮）
 - [ ] 阶段一.2：填充 `开局预设方案列表`，40-60 套方案
 - [ ] 阶段一.3：实现 7 个 Prompt Stub 文件
-- [ ] 阶段二.4：扩充 BGM 至 20+ 首
+- [x] 阶段二.4：扩充 BGM 至 20+ 首 — ✅ 5首新BGM已上线
 - [ ] 阶段二.5：引入自定义字体
 - [ ] 阶段二.6：图标扩充至 50+ 张
 - [ ] 阶段二.7：时代图标 emoji → SVG
