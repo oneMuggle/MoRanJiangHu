@@ -53,7 +53,8 @@ import { 构建里志怪世界提示词 } from '../../prompts/runtime/liZhiguaiW
 import { 构建志怪世界提示词 } from '../../prompts/runtime/zhiguaiWorld';
 import { 构建时代主题注入, 构建时代文风注入 } from '../../prompts/runtime/eraTheme';
 import { 获取时代现实提示词ByEraId } from '../../prompts/core/eraRealism';
-import { 构建子纪元里模式注入, 子纪元里模式是否已注入, 构建里模式NPC原型注入 } from '../../prompts/runtime/eraLiMode';
+import { 构建子纪元里模式注入, 子纪元里模式是否已注入, 构建里模式NPC原型注入, 构建里模式阶段注入 } from '../../prompts/runtime/eraLiMode';
+import type { LiModeStage } from '../../models/eraTheme/types';
 import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionOptionsRuntime';
 import { 构建设备通讯摘要 } from './triggerDeviceMessageWorkflow';
 
@@ -1437,6 +1438,11 @@ export const 构建系统提示词 = ({
         构建时代文风注入(options?.eraId),
         获取时代现实提示词ByEraId(options?.eraId),
         构建子纪元里模式注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true, normalizedGameConfig.子纪元里模式强度?.[options?.eraId ?? '']),
+        (() => {
+            const liModeEnabled = normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] !== false;
+            const stage = normalizedGameConfig.子纪元里模式阶段?.[options?.eraId ?? ''] ?? '羞耻' as LiModeStage;
+            return 构建里模式阶段注入(options?.eraId, stage, liModeEnabled);
+        })(),
         构建里模式NPC原型注入(options?.eraId, normalizedGameConfig.启用子纪元里模式?.[options?.eraId ?? ''] ?? true),
         // 里武侠：子纪元 liMode 已注入则跳过 legacy 版本（内容重复）
         !子纪元里模式是否已注入(options?.eraId, normalizedGameConfig.启用子纪元里模式)
@@ -1539,7 +1545,8 @@ export const 构建系统提示词 = ({
         openingConfig,
         cultivationSystemEnabled: 启用修炼体系,
         eraId: options?.eraId,
-        启用子纪元里模式: normalizedGameConfig.启用子纪元里模式
+        启用子纪元里模式: normalizedGameConfig.启用子纪元里模式,
+        子纪元里模式阶段: normalizedGameConfig.子纪元里模式阶段
     });
     const contextMapAndBuilding = 构建地图建筑状态文本(statePayload);
     const promptHeader = [

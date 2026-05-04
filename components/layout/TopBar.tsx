@@ -13,6 +13,7 @@ interface Props {
     eraId?: string | null;
     启用子纪元里模式?: Record<string, boolean>;
     子纪元里模式强度?: Record<string, string>;
+    子纪元里模式阶段?: Record<string, string>;
     onLiModeIntensityChange?: (eraId: string, intensity: '微暗' | '暧昧' | '露骨') => void;
 }
 
@@ -182,7 +183,7 @@ const toGameMinuteValue = (time: { year: number; month: number; day: number; hou
     return (((time.year * 12 + time.month) * 31 + time.day) * 24 + time.hour) * 60 + time.minute;
 };
 
-const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festivals = [], visualConfig, eraId, 启用子纪元里模式, 子纪元里模式强度, onLiModeIntensityChange }) => {
+const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festivals = [], visualConfig, eraId, 启用子纪元里模式, 子纪元里模式强度, 子纪元里模式阶段, onLiModeIntensityChange }) => {
     const 文案 = useUIText();
     const [mobileLeftMode, setMobileLeftMode] = useState<'weather' | 'environment'>('weather');
     const [mobileRightMode, setMobileRightMode] = useState<'journey' | 'festival'>('journey');
@@ -294,9 +295,9 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
         const perEraEnabled = 启用子纪元里模式?.[eraId];
         if (perEraEnabled === false) return null;
         const intensity = 子纪元里模式强度?.[eraId] as '微暗' | '暧昧' | '露骨' | undefined;
-        const displayIntensity = intensity || '露骨';
-        return { eraId, intensity: displayIntensity };
-    }, [eraId, 启用子纪元里模式, 子纪元里模式强度]);
+        const stage = 子纪元里模式阶段?.[eraId] as '平然' | '羞耻' | '欲望' | undefined;
+        return { eraId, intensity: intensity || '露骨', stage: stage || '羞耻' };
+    }, [eraId, 启用子纪元里模式, 子纪元里模式强度, 子纪元里模式阶段]);
 
     const toggleFullScreen = () => {
         if (!document.fullscreenElement) {
@@ -475,7 +476,7 @@ const TopBar: React.FC<Props> = ({ 环境, 游戏初始时间, timeFormat, festi
                         <div className="relative">
                             <TopItem
                                 label="里"
-                                value={里模式状态.intensity}
+                                value={`${里模式状态.stage}·${里模式状态.intensity}`}
                                 visualConfig={visualConfig}
                                 isExpanded={liIntensityOpen}
                                 onClick={() => {

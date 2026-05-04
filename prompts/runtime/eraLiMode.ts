@@ -8,12 +8,19 @@
  */
 
 import { resolveEraNode } from '../../models/eraTheme';
-import { EraLiModeEnhanced } from '../../models/eraTheme/types';
+import { EraLiModeEnhanced, LiModeStage } from '../../models/eraTheme/types';
 import { NPC结构 } from '../../models/social';
 import { 计算亲密度等级 } from '../../models/intimacy';
 
 /** 里模式强度级别 */
 export type LiModeIntensity = '微暗' | '暧昧' | '露骨';
+
+/** 默认阶段规则 — 通用模板，SubEra 可通过 stageRules 覆盖 */
+const DEFAULT_STAGE_RULES: Record<LiModeStage, string> = {
+    平然: '【平然阶段】NPC 对亲密行为具有极高的心理接受度，将其视为日常互动的一部分。不会产生道德负担或心理冲突。生理反应（心跳加速、脸红、紧张等）保持正常人的自然水平。在私密环境中不会抗拒或制止亲密行为，心理上觉得理所当然。公共场合仍维持正常社交表现，不会主动暴露或引人注意。',
+    羞耻: '【羞耻阶段】NPC 对亲密行为感到明显的羞耻、尴尬和不好意思，但不会产生反感、抗拒或制止行为。可能会有言语上的推脱（如"不要这样"），但行为上会配合。典型表现：面红耳赤、躲避眼神接触、小声说话、欲拒还迎。在私密环境中虽害羞但不会逃跑或呼救，公共场合严格维持正常社交形象。',
+    欲望: '【欲望阶段】NPC 主动渴望并引导亲密行为。会通过暗示、挑逗、肢体接触等方式主动出击，制造独处机会、言语撩拨、故意靠近。行为可参考"痴女"元素：主动引导、大胆暗示、迫不及待但保持优雅。仅限于私密环境或不会被发现的场合，公共场合严格维持正常社交表现，不会大张旗鼓引起注意。',
+};
 
 /** 根据强度级别过滤结构化字段 */
 function filterByIntensity(li: EraLiModeEnhanced, intensity: LiModeIntensity): string {
@@ -226,4 +233,35 @@ export function 构建NPC表里切换注入(
     }
 
     return parts.join('\n');
+}
+
+/** 构建里模式阶段注入提示词 — 根据当前阶段返回 NPC 心理与行为引导规则 */
+export function 构建里模式阶段注入(
+    eraId: string | null | undefined,
+    stage: LiModeStage,
+    enabled: boolean
+): string | null {
+    if (!eraId || !enabled) return null;
+
+    const resolved = resolveEraNode(eraId);
+    const liMode = resolved?.inherited.liMode;
+    if (!liMode) return null;
+
+    const enhanced = liMode as EraLiModeEnhanced;
+    const hasStructuredFields = !!(
+        enhanced.corePrinciple ||
+        enhanced.powerSystem ||
+        enhanced.dualPersonalities ||
+        enhanced.sceneTypes ||
+        enhanced.desireMotives ||
+        enhanced.aiDirectives ||
+        enhanced.intensityLevels
+    );
+    if (!hasStructuredFields) return null;
+
+    // 优先使用 SubEra 自定义 stageRules，否则使用通用模板
+    const rule = enhanced.stageRules?.[stage] ?? DEFAULT_STAGE_RULES[stage];
+    if (!rule) return null;
+
+    return `## 里模式阶段：${stage}\n${rule}`;
 }

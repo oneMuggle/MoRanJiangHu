@@ -233,6 +233,7 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
         setShowCustomBackground, setShowCustomTalent, setShowCustomPresetEditor,
         子纪元里模式开启, 设置子纪元里模式开启,
         子纪元里模式强度, 设置子纪元里模式强度,
+        子纪元里模式阶段, 设置子纪元里模式阶段,
         古代体系选择, 设置古代体系选择,
     } = wizard;
 
@@ -430,6 +431,37 @@ export const NewGameWizardContent: React.FC<NewGameWizardContentProps> = ({ wiza
                                                 className={`flex-1 rounded-md border px-3 py-2 text-xs font-bold transition-all ${colors[level]}`}
                                             >
                                                 {level}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* 阶段选择器 — 开启时展示 */}
+                            {子纪元里模式开启 && 有里模式数据 && (
+                                <div className="mt-2 flex gap-2">
+                                    <div className="text-[11px] text-gray-500 self-center mr-1">阶段:</div>
+                                    {(['平然', '羞耻', '欲望'] as const).map((s) => {
+                                        const isActive = 子纪元里模式阶段 === s;
+                                        const colors = {
+                                            '平然': isActive ? 'border-green-500/60 bg-green-500/15 text-green-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                            '羞耻': isActive ? 'border-yellow-500/60 bg-yellow-500/15 text-yellow-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                            '欲望': isActive ? 'border-purple-500/60 bg-purple-500/15 text-purple-400' : 'border-gray-700 bg-black/25 text-gray-500 hover:border-gray-500',
+                                        };
+                                        const descs = {
+                                            '平然': '视作日常，自然接受',
+                                            '羞耻': '害羞但不抗拒',
+                                            '欲望': '主动引导，渴望亲密',
+                                        };
+                                        return (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                title={descs[s]}
+                                                onClick={() => 设置子纪元里模式阶段(s)}
+                                                className={`flex-1 rounded-md border px-3 py-2 text-xs font-bold transition-all ${colors[s]}`}
+                                            >
+                                                {s}
                                             </button>
                                         );
                                     })}

@@ -15,6 +15,8 @@ import { 同人剧情规划结构 } from './fandomPlanning/story';
 import { 同人女主剧情规划结构 } from './fandomPlanning/heroinePlan';
 import { 战斗状态结构 } from './battle';
 
+import type { LiModeStage } from './eraTheme/types';
+
 import { 获取时代主题方案, 时代主题方案列表, allEraNodes } from './eraTheme';
 export { 获取时代主题方案, 时代主题方案列表 } from './eraTheme';
 export type { 时代主题方案 } from './eraTheme';
@@ -1553,6 +1555,7 @@ export interface 游戏设置结构 {
     启用里志怪模式: boolean; // Toggle inner zhiguai (里志怪) world: supernatural folklore, yin-yang mechanics, talisman/法器 systems
     启用子纪元里模式?: Record<string, boolean>; // Per-sub-era liMode toggle (时代暗面规则开关, keyed by era ID, defaults to true)
     子纪元里模式强度?: Record<string, '微暗' | '暧昧' | '露骨'>; // Per-sub-era liMode intensity (三级强度, keyed by era ID, defaults to '露骨')
+    子纪元里模式阶段?: Record<string, LiModeStage>; // Per-sub-era liMode stage (NPC心理/行为阶段, keyed by era ID, defaults to '羞耻')
     古代体系选择?: '武侠' | '志怪' | '双修'; // Selected system type for ancient era: martial arts, zhiguai, or both
     剧情风格: 剧情风格类型; // Story style injected as assistant context before COT
     NTL后宫档位: NTL后宫档位; // NTL-only tier selector

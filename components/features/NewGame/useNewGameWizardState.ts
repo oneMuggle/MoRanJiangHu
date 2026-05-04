@@ -26,6 +26,7 @@ import {
 } from '../../../utils/openingConfig';
 import { 默认境界母板提示词 } from '../../../prompts/runtime/fandom';
 import { LiModeIntensity } from '../../../prompts/runtime/eraLiMode';
+import type { LiModeStage } from '../../../models/eraTheme/types';
 import { 设置键 } from '../../../utils/settingsSchema';
 import { 内置时代配置, 获取时代背景 } from '../../../models/system';
 import { 时代主题方案列表, 获取时代主题方案 } from '../../../models/eraTheme';
@@ -324,6 +325,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
     const [成人内容开启, 设置成人内容开启] = useState(false);
     const [子纪元里模式开启, 设置子纪元里模式开启] = useState(true);
     const [子纪元里模式强度, 设置子纪元里模式强度] = useState<LiModeIntensity>('暧昧');
+    const [子纪元里模式阶段, 设置子纪元里模式阶段] = useState<LiModeStage>('羞耻');
     const [古代体系选择, 设置古代体系选择] = useState<体系类型>('武侠');
 
     // Search & filter
@@ -1168,7 +1170,10 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
             const prevIntensity = typeof savedGameSettings.子纪元里模式强度 === 'object'
                 ? savedGameSettings.子纪元里模式强度
                 : {};
-            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 时代配置ID: savedEra, 启用子纪元里模式: { ...prev, [savedEra]: 子纪元里模式开启 }, 子纪元里模式强度: { ...prevIntensity, [savedEra]: 子纪元里模式强度 }, 古代体系选择 });
+            const prevStage = typeof savedGameSettings.子纪元里模式阶段 === 'object'
+                ? savedGameSettings.子纪元里模式阶段
+                : {};
+            await dbService.保存设置(设置键.游戏设置, { ...savedGameSettings, 时代配置ID: savedEra, 启用子纪元里模式: { ...prev, [savedEra]: 子纪元里模式开启 }, 子纪元里模式强度: { ...prevIntensity, [savedEra]: 子纪元里模式强度 }, 子纪元里模式阶段: { ...prevStage, [savedEra]: 子纪元里模式阶段 }, 古代体系选择 });
         } catch (error) {
             console.error('保存游戏设置失败', error);
         }
@@ -1196,6 +1201,7 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         成人内容开启, 设置成人内容开启,
         子纪元里模式开启, 设置子纪元里模式开启,
         子纪元里模式强度, 设置子纪元里模式强度,
+        子纪元里模式阶段, 设置子纪元里模式阶段,
         古代体系选择, 设置古代体系选择,
         customTalent, setCustomTalent, showCustomTalent, setShowCustomTalent,
         正在编辑天赋名, set正在编辑天赋名,

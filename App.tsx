@@ -768,6 +768,7 @@ const App: React.FC = () => {
                             eraId={state.currentEra}
                             启用子纪元里模式={state.gameConfig?.启用子纪元里模式}
                             子纪元里模式强度={state.gameConfig?.子纪元里模式强度}
+                            子纪元里模式阶段={state.gameConfig?.子纪元里模式阶段}
                             onLiModeIntensityChange={(eraId, intensity) => {
                                 const prev = state.gameConfig?.子纪元里模式强度 || {};
                                 actions.saveGameSettings({ ...state.gameConfig, 子纪元里模式强度: { ...prev, [eraId]: intensity } } as any);

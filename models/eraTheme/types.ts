@@ -73,6 +73,9 @@ export interface EraLiMode {
     themeColor?: string;
 }
 
+/** 里模式阶段类型 — 控制 NPC 对 NSFW 行为的心理态度与行为倾向 */
+export type LiModeStage = '平然' | '羞耻' | '欲望';
+
 /** 强化版里模式定义 — 结构化字段，与 rules 向后兼容 */
 export interface EraLiModeEnhanced {
     name: string;
@@ -98,6 +101,12 @@ export interface EraLiModeEnhanced {
         微暗: string;
         暧昧: string;
         露骨: string;
+    };
+    /** 阶段行为规则 — 引导 AI 在不同阶段下 NPC 的心理与行为模式 */
+    stageRules?: {
+        平然: string;
+        羞耻: string;
+        欲望: string;
     };
     configKey?: string;
     themeColor?: string;

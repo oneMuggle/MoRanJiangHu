@@ -1,4 +1,6 @@
 
+import type { LiModeStage } from './eraTheme/types';
+
 import type { NPC图片档案 } from './imageGeneration';
 
 export type NPC性别 = '男' | '女';
@@ -116,6 +118,7 @@ export interface NPC结构 {
         地点条件?: string;         // 如"密室"
     };
     当前人格状态?: '表' | '里' | '半觉醒';
+    里模式阶段?: LiModeStage; // NPC 个体阶段设置，默认跟随全局
 
     // --- 队伍战斗属性 (仅队友强制需要；非队友可省略) ---
     攻击力?: number; 

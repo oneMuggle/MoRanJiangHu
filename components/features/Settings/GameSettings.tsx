@@ -538,6 +538,39 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
                                     </button>
                                 ))}
                             </div>
+
+                            {/* 阶段选择器 */}
+                            <div className="text-xs text-gray-400 mb-2 mt-3">里模式阶段 — 控制 NPC 对亲密行为的心理态度</div>
+                            <div className="flex gap-2">
+                                {(['平然', '羞耻', '欲望'] as const).map((stage) => {
+                                    const currentStage = (form as any).子纪元里模式阶段?.[intensityKey] ?? '羞耻';
+                                    const isActive = currentStage === stage;
+                                    const colors = {
+                                        '平然': isActive ? 'border-green-500/50 bg-green-500/10 text-green-400 font-bold' : 'border-gray-800 bg-black/25 text-gray-500 hover:border-gray-600',
+                                        '羞耻': isActive ? 'border-yellow-500/50 bg-yellow-500/10 text-yellow-400 font-bold' : 'border-gray-800 bg-black/25 text-gray-500 hover:border-gray-600',
+                                        '欲望': isActive ? 'border-purple-500/50 bg-purple-500/10 text-purple-400 font-bold' : 'border-gray-800 bg-black/25 text-gray-500 hover:border-gray-600',
+                                    };
+                                    const descs = {
+                                        '平然': '视作日常，自然接受',
+                                        '羞耻': '害羞但不抗拒',
+                                        '欲望': '主动引导，渴望亲密',
+                                    };
+                                    return (
+                                        <button
+                                            key={stage}
+                                            type="button"
+                                            onClick={() => {
+                                                const prev = (form as any).子纪元里模式阶段 || {};
+                                                实时应用更新({ 子纪元里模式阶段: { ...prev, [intensityKey]: stage } } as any);
+                                            }}
+                                            className={`flex-1 rounded-lg border px-3 py-2 text-center text-sm transition-all ${colors[stage]}`}
+                                            title={descs[stage]}
+                                        >
+                                            {stage}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     );
                 })()}
