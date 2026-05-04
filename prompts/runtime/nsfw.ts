@@ -109,7 +109,7 @@ Activate the following requirements ONLY when the scene already justifies adult 
 - Do not fade to black or automatically sanitize already-established adult context, but also do not force explicit sexual-act close-ups or graphic anatomical focus when the source scene does not require them.)`;
 
 /** 根据时代 ID 自动选择 NSFW 叙事约束 */
-const 自动选择叙事约束 = (eraId: string | undefined, nsfw场景类型: NSFW场景类型): string => {
+export const 自动选择叙事约束 = (eraId: string | undefined, nsfw场景类型: NSFW场景类型): string => {
   // 校园和都市等现代时代使用现代情感框架
   const modernEras = ['contemporary_campus', 'contemporary_urban', 'contemporary_rural',
     'contemporary_noir', 'contemporary_hippie',

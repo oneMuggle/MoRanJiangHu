@@ -6,13 +6,22 @@
 
 import { NSFW场景类型 } from '../../models/system';
 
+/** 武侠/修仙/志怪时代列表（使用双修门派设定的时代） */
+const WUXIA_ERA_IDS = ['ancient_martial', 'ancient_xianxia', 'ancient_zhiguai'];
+
 /**
  * 构建双修门派世界书
  * @param nsfw场景类型 - NSFW场景档位
- * @returns 门派世界书文本（非'无'档位返回门派设定，'无'档位返回空字符串）
+ * @param options - 可选参数，包含时代配置ID用于检查是否适用
+ * @returns 门派世界书文本（非'无'档位且武侠时代返回门派设定，否则返回空字符串）
  */
-export const 构建双修门派世界书 = (nsfw场景类型: NSFW场景类型): string => {
+export const 构建双修门派世界书 = (nsfw场景类型: NSFW场景类型, options?: { 时代配置ID?: string }): string => {
   if (nsfw场景类型 === '无') {
+    return '';
+  }
+
+  // 仅对武侠/修仙/志怪时代注入双修门派内容
+  if (options?.时代配置ID && !WUXIA_ERA_IDS.includes(options.时代配置ID)) {
     return '';
   }
 
