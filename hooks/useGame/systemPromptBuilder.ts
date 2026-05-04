@@ -56,6 +56,7 @@ import { 获取时代现实提示词ByEraId } from '../../prompts/core/eraRealis
 import { 构建子纪元里模式注入, 子纪元里模式是否已注入, 构建里模式NPC原型注入, 构建里模式阶段注入 } from '../../prompts/runtime/eraLiMode';
 import type { LiModeStage } from '../../models/eraTheme/types';
 import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionOptionsRuntime';
+import { 构建校规注入提示词, 构建催眠注入提示词 } from './campusPromptInjector';
 import { 构建设备通讯摘要 } from './triggerDeviceMessageWorkflow';
 
 export type 运行时提示词状态 = {
@@ -1454,6 +1455,17 @@ export const 构建系统提示词 = ({
         (normalizedGameConfig.古代体系选择 === '志怪' || normalizedGameConfig.古代体系选择 === '双修')
             && normalizedGameConfig.启用里志怪模式 !== true
             ? 构建志怪世界提示词() : null,
+        // 校园系统：校规与催眠注入
+        (() => {
+            const 校规系统 = statePayload?.校规系统;
+            if (!校规系统?.校规列表?.length) return null;
+            return 构建校规注入提示词({ 校规列表: 校规系统.校规列表 });
+        })(),
+        (() => {
+            const 催眠系统 = statePayload?.催眠系统;
+            if (!催眠系统?.催眠记录列表?.length) return null;
+            return 构建催眠注入提示词({ 催眠记录列表: 催眠系统.催眠记录列表 });
+        })(),
         设备通讯摘要 || null
     ]
         .filter(Boolean)

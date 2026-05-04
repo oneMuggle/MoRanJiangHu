@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { 
+import {
     角色数据结构,
-    环境信息结构, 
-    聊天记录结构, 
+    环境信息结构,
+    聊天记录结构,
     接口设置结构,
     提示词结构,
     ThemePreset,
@@ -24,7 +24,11 @@ import {
     同人女主剧情规划结构,
     图片管理设置结构,
     OpeningConfig,
-    时代信息结构
+    时代信息结构,
+    校规条目,
+    校规影响日志,
+    催眠记录,
+    催眠App等级
 } from '../types';
 import { 默认中期转长期提示词, 默认短期转中期提示词, 默认NPC记忆总结提示词 } from '../prompts/runtime/defaults';
 import { 节日列表 } from '../data/world';
@@ -188,6 +192,17 @@ export const useGameState = () => {
     const 设备关闭 = () => 设置设备状态((prev) => ({ ...prev, isOpen: false, activeApp: null }));
     const 设备打开应用 = (app: MobileApp) => 设置设备状态((prev) => ({ ...prev, activeApp: app }));
     const 设备返回主页 = () => 设置设备状态((prev) => ({ ...prev, activeApp: null }));
+
+    // Campus Systems (校规编辑器 + 催眠App)
+    const [校规系统, 设置校规系统] = useState<{ 校规列表: 校规条目[], 影响日志: 校规影响日志[] }>({
+        校规列表: [],
+        影响日志: []
+    });
+    const [催眠系统, 设置催眠系统] = useState<{ 催眠记录列表: 催眠记录[], app等级: 催眠App等级, 累计使用次数: number }>({
+        催眠记录列表: [],
+        app等级: { 当前等级: 1, 已使用次数: 0, 升级阈值: 5, 解锁能力: [] },
+        累计使用次数: 0
+    });
 
     const [activeTab, setActiveTab] = useState<'api' | 'image_generation' | 'integrated_models' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager'>('api');
     
@@ -417,6 +432,10 @@ export const useGameState = () => {
         设备状态, 设置设备状态,
         设备打开, 设备关闭,
         设备打开应用, 设备返回主页,
+
+        // Campus Systems
+        校规系统, 设置校规系统,
+        催眠系统, 设置催眠系统,
         
         // Configs
         apiConfig, setApiConfig,

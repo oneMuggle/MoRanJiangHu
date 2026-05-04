@@ -22,6 +22,7 @@ import type {
     OpeningConfig,
     时代信息结构
 } from '../../types';
+import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../models/campusPhone';
 import { 核心_世界观 } from '../../prompts/core/world';
 import { 核心_境界体系 } from '../../prompts/core/realm';
 import { 设置键 } from '../../utils/settingsSchema';
@@ -75,6 +76,8 @@ type 存档协调当前状态 = {
     角色锚点列表: 角色锚点结构[];
     当前角色锚点ID: string;
     时代信息?: 时代信息结构;
+    校规系统?: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] };
+    催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
 };
 
 type 存档协调依赖 = {
@@ -115,6 +118,8 @@ type 存档协调依赖 = {
     设置角色锚点列表: (value: 角色锚点结构[]) => void;
     设置当前角色锚点ID: (value: string) => void;
     设置时代信息: (value: 时代信息结构 | undefined) => void;
+    设置校规系统: (value: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
+    设置催眠系统: (value: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     setView: (value: 'home' | 'game' | 'new_game') => void;
     setShowSaveLoad: (value: { show: boolean; mode: 'save' | 'load' }) => void;
     设置最近开局配置: (value: any) => void;
@@ -282,7 +287,9 @@ export const 创建存档数据 = (
         核心提示词快照,
         角色锚点列表: deps.深拷贝(currentState.角色锚点列表),
         当前角色锚点ID: currentState.当前角色锚点ID,
-        时代信息: currentState.时代信息 ? deps.深拷贝(currentState.时代信息) : undefined
+        时代信息: currentState.时代信息 ? deps.深拷贝(currentState.时代信息) : undefined,
+        校规系统: currentState.校规系统 ? deps.深拷贝(currentState.校规系统) : undefined,
+        催眠系统: currentState.催眠系统 ? deps.深拷贝(currentState.催眠系统) : undefined
     };
 };
 
@@ -407,6 +414,12 @@ export const 执行读取存档 = async (
     deps.设置当前角色锚点ID(typeof save.当前角色锚点ID === 'string' ? save.当前角色锚点ID : '');
     if (save.时代信息 && typeof save.时代信息 === 'object') {
         deps.设置时代信息(save.时代信息);
+    }
+    if (save.校规系统 && typeof save.校规系统 === 'object') {
+        deps.设置校规系统(deps.深拷贝(save.校规系统));
+    }
+    if (save.催眠系统 && typeof save.催眠系统 === 'object') {
+        deps.设置催眠系统(deps.深拷贝(save.催眠系统));
     }
 
     deps.setHasSave(true);

@@ -22,7 +22,13 @@ export type MobileApp =
     | 'forum'                 // 论坛
     | 'news'                  // 资讯
     | 'album'                 // 相册
-    | 'tools';                // 工具
+    | 'tools'                 // 工具
+    | 'schedule'              // 课程表（校园特有）
+    | 'campus_card'           // 校园卡（校园特有）
+    | 'club'                  // 社团（校园特有）
+    | 'confession'            // 表白墙（校园特有）
+    | 'rules'                 // 校规编辑器（校园特有）
+    | 'hypnosis';             // 催眠App（校园特有）
 
 // 设备运行模式
 export type DeviceMode = 'normal' | 'li';
@@ -110,7 +116,7 @@ export interface AppDefinition {
 // 消息结构
 export interface DeviceMessage {
     id: string;
-    type: 'map' | 'chat' | 'forum' | 'news';
+    type: 'map' | 'chat' | 'forum' | 'news' | 'schedule' | 'campus_card' | 'club' | 'confession' | 'rules' | 'hypnosis';
     title: string;
     content: string;
     sender?: string;
@@ -146,7 +152,7 @@ import type { NPC结构 } from './domain/social';
 import type { 世界数据结构 } from './game/world';
 import type { 剧情系统结构 } from './game/story';
 import type { 角色数据结构 } from './domain/character';
-import type { 聊天记录结构 } from '../types';
+import type { 聊天记录结构, 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../types';
 
 export interface DeviceGameContext {
     角色: 角色数据结构 | null;
@@ -154,4 +160,7 @@ export interface DeviceGameContext {
     世界: 世界数据结构 | null;
     剧情: 剧情系统结构 | null;
     历史记录: 聊天记录结构[];
+    // 校园系统
+    校规系统?: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] };
+    催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
 }

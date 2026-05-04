@@ -314,7 +314,11 @@ export const useGame = () => {
         festivals, setFestivals,
         currentTheme, setCurrentTheme,
         currentEra, setCurrentEra,
-        scrollRef, abortControllerRef, variableGenerationAbortControllerRef
+        scrollRef, abortControllerRef, variableGenerationAbortControllerRef,
+
+        // Campus Systems
+        校规系统, 设置校规系统,
+        催眠系统, 设置催眠系统
     } = gameState;
 
     // Mobile Device
@@ -1535,6 +1539,8 @@ export const useGame = () => {
             同人剧情规划,
             同人女主剧情规划,
             开局配置,
+            校规系统,
+            催眠系统,
             规范化环境信息,
             规范化剧情状态,
             规范化剧情规划状态,
@@ -1751,6 +1757,8 @@ export const useGame = () => {
         获取角色锚点列表: () => 规范化接口设置(apiConfigRef.current).功能模型占位.角色锚点列表,
         获取当前角色锚点ID: () => 规范化接口设置(apiConfigRef.current).功能模型占位.当前角色锚点ID,
         获取当前时代信息: () => 时代信息Ref.current,
+        校规系统,
+        催眠系统,
         构建完整地点文本,
         规范化环境信息,
         规范化世界状态,
@@ -1800,6 +1808,8 @@ export const useGame = () => {
             }));
         },
         设置时代信息: 应用时代信息到状态,
+        设置校规系统: 设置校规系统,
+        设置催眠系统: 设置催眠系统,
         setView,
         setShowSaveLoad,
         设置最近开局配置,
@@ -2109,7 +2119,9 @@ export const useGame = () => {
         setters: {
             setShowSettings, setShowInventory, setShowEquipment, setShowBattle, setShowSocial, setShowTeam, setShowKungfu, setShowWorld, setShowMap, setShowSect, setShowTask, setShowAgreement, setShowStory, setShowHeroinePlan, setShowMemory, setShowSaveLoad,
             setActiveTab, setCurrentTheme, setCurrentEra,
-            setApiConfig, setVisualConfig, setImageManagerConfig, setPrompts
+            setApiConfig, setVisualConfig, setImageManagerConfig, setPrompts,
+            set校规系统: 设置校规系统,
+            set催眠系统: 设置催眠系统
         },
         actions: {
             handleSend,

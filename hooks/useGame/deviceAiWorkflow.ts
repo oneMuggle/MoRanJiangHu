@@ -89,6 +89,30 @@ export function 构建设备消息系统提示词(
             角色: '设备工具描述者',
             输出格式: 'JSON 数组，每个工具包含 name（名称）、description（描述）',
         },
+        schedule: {
+            角色: '课程表内容生成器',
+            输出格式: 'JSON 数组，每门课程包含 name（名称）、location（地点）、teacher（教师）、time（时间段）',
+        },
+        campus_card: {
+            角色: '校园卡消费记录生成器',
+            输出格式: 'JSON 数组，每条记录包含 time（时间）、location（地点）、amount（金额）、type（类型）',
+        },
+        club: {
+            角色: '社团活动生成器',
+            输出格式: 'JSON 数组，每个活动包含 name（名称）、organizer（组织者）、time（时间）、location（地点）、description（描述）',
+        },
+        confession: {
+            角色: '表白墙内容生成器',
+            输出格式: 'JSON 数组，每条包含 author（匿名作者）、title（标题）、content（内容）、time（时间）、reactions（回应数）',
+        },
+        rules: {
+            角色: '校规内容生成器',
+            输出格式: 'JSON 数组，每条校规包含 title（标题）、content（内容）、category（分类）、severity（严重程度）',
+        },
+        hypnosis: {
+            角色: '催眠效果描述生成器',
+            输出格式: 'JSON 数组，每条包含 target（目标）、effect（效果）、duration（持续时间）、intensity（强度）',
+        },
     };
 
     const appInfo = appTypeMap[appType];

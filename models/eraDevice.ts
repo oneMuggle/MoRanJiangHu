@@ -219,6 +219,49 @@ export const eraDeviceConfigs: Record<string, DeviceConfig> = {
         },
     },
 
+    // ========== 当代 · 校园纪元 ==========
+    'contemporary_campus': {
+        deviceId: 'smartphone_campus',
+        deviceName: '智能手机',
+        deviceForm: 'smartphone',
+        eraId: 'contemporary_campus',
+        apps: ['map', 'contacts', 'chat', 'forum', 'news', 'album', 'tools', 'schedule', 'campus_card', 'club', 'confession', 'rules', 'hypnosis'],
+        uiStyle: 'modern',
+        normalAppNames: {
+            map: '地图', contacts: '通讯录', chat: '私聊', forum: '校园论坛', news: '校园资讯', album: '相册', tools: '工具',
+            schedule: '课程表', campus_card: '校园卡', club: '社团活动', confession: '表白墙',
+            rules: '学生手册', hypnosis: '心理辅导',
+        },
+        capabilities: {
+            hasGPS: true,
+            hasVocalInput: true,
+            hasTextInput: true,
+            hasProjection: false,
+            hasNeuralLink: false,
+            hasAR: true,
+            通讯范围: '校园内',
+            能源类型: '电力',
+        },
+        liModeOverrides: {
+            appNames: {
+                map: '夜行地图',
+                contacts: '关系网',
+                chat: '私密聊天',
+                forum: '深夜树洞',
+                news: '暗面推送',
+                album: '私密相册',
+                tools: '暗面工具',
+                schedule: '秘密约会',
+                campus_card: '校园钱包',
+                club: '地下社团',
+                confession: '匿名告白',
+                rules: '暗影校规',
+                hypnosis: '深度催眠',
+            },
+            themeColor: '#2D6B3A',
+        },
+    },
+
     // ========== 当代 · 乡村 ==========
     'contemporary_rural': {
         deviceId: 'radio_rural',
@@ -1215,6 +1258,12 @@ export function getAppName(
         news: '资讯',
         album: '相册',
         tools: '工具',
+        schedule: '课程表',
+        campus_card: '校园卡',
+        club: '社团活动',
+        confession: '表白墙',
+        rules: '校规编辑器',
+        hypnosis: '催眠App',
     };
     return defaultNames[app];
 }
@@ -1233,4 +1282,10 @@ export const DEFAULT_APP_NAMES: Record<MobileApp, { normal: string; li: string }
     news: { normal: '资讯', li: '暗面推送' },
     album: { normal: '相册', li: '私密相册' },
     tools: { normal: '工具', li: '暗面工具' },
+    schedule: { normal: '课程表', li: '秘密约会' },
+    campus_card: { normal: '校园卡', li: '校园钱包' },
+    club: { normal: '社团活动', li: '地下社团' },
+    confession: { normal: '表白墙', li: '匿名告白' },
+    rules: { normal: '学生手册', li: '暗影校规' },
+    hypnosis: { normal: '心理辅导', li: '深度催眠' },
 };

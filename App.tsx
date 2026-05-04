@@ -1718,6 +1718,16 @@ const App: React.FC = () => {
                                     世界: state.世界 || null,
                                     剧情: state.剧情 || null,
                                     历史记录: state.历史记录 || [],
+                                    校规系统: (state as any).校规系统,
+                                    催眠系统: (state as any).催眠系统,
+                                }}
+                                onRulesChange={(updater) => {
+                                    const prev = (state as any).校规系统 || { 校规列表: [], 影响日志: [] };
+                                    setters.set校规系统?.(updater(prev));
+                                }}
+                                onHypnosisChange={(updater) => {
+                                    const prev = (state as any).催眠系统 || { 催眠记录列表: [], app等级: { 当前等级: 1, 已使用次数: 0, 升级阈值: 5, 解锁能力: [] }, 累计使用次数: 0 };
+                                    setters.set催眠系统?.(updater(prev));
                                 }}
                             />
                         </懒加载边界>

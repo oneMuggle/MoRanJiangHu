@@ -9,6 +9,15 @@ import ForumApp from './apps/ForumApp';
 import NewsApp from './apps/NewsApp';
 import AlbumApp from './apps/AlbumApp';
 import ToolsApp from './apps/ToolsApp';
+import CampusForumApp from './apps/CampusForumApp';
+import CampusChatApp from './apps/CampusChatApp';
+import CampusScheduleApp from './apps/CampusScheduleApp';
+import CampusCardApp from './apps/CampusCardApp';
+import CampusClubApp from './apps/CampusClubApp';
+import CampusRulesApp from './apps/CampusRulesApp';
+import CampusHypnosisApp from './apps/CampusHypnosisApp';
+
+import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../../types';
 
 interface AppProps {
     eraId: string;
@@ -16,6 +25,9 @@ interface AppProps {
     appId: MobileApp;
     onBack: () => void;
     gameContext?: DeviceGameContext;
+    // 校园系统回调（可选）
+    onRulesChange?: (updater: (prev: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
+    onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
 }
 
 interface MobileHomeProps {
@@ -25,6 +37,9 @@ interface MobileHomeProps {
     onReturnHome: () => void;
     onClose: () => void;
     gameContext?: DeviceGameContext;
+    // 校园系统回调
+    onRulesChange?: (updater: (prev: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
+    onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
 }
 
 const appIcons: Record<MobileApp, string> = {
@@ -35,6 +50,12 @@ const appIcons: Record<MobileApp, string> = {
     news: '📰',
     album: '🖼️',
     tools: '🔧',
+    schedule: '📅',
+    campus_card: '💳',
+    club: '🎯',
+    confession: '💌',
+    rules: '📜',
+    hypnosis: '🌀',
 };
 
 const MobileHome: React.FC<MobileHomeProps> = ({
@@ -44,6 +65,8 @@ const MobileHome: React.FC<MobileHomeProps> = ({
     onReturnHome,
     onClose,
     gameContext,
+    onRulesChange,
+    onHypnosisChange,
 }) => {
     const [config, setConfig] = useState<DeviceConfig | null>(null);
     const [liModeName, setLiModeName] = useState<string | undefined>();
@@ -76,6 +99,8 @@ const MobileHome: React.FC<MobileHomeProps> = ({
             appId: deviceState.activeApp!,
             onBack: onReturnHome,
             gameContext,
+            onRulesChange,
+            onHypnosisChange,
         };
         switch (deviceState.activeApp) {
             case 'chat': return <ChatApp {...appProps} />;
@@ -85,6 +110,12 @@ const MobileHome: React.FC<MobileHomeProps> = ({
             case 'news': return <NewsApp {...appProps} />;
             case 'album': return <AlbumApp {...appProps} />;
             case 'tools': return <ToolsApp {...appProps} />;
+            case 'schedule': return <CampusScheduleApp {...appProps} />;
+            case 'campus_card': return <CampusCardApp {...appProps} />;
+            case 'club': return <CampusClubApp {...appProps} />;
+            case 'confession': return <CampusForumApp {...appProps} />;
+            case 'rules': return <CampusRulesApp {...appProps} />;
+            case 'hypnosis': return <CampusHypnosisApp {...appProps} />;
             default: return null;
         }
     };

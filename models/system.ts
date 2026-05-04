@@ -8,6 +8,7 @@ import { NPC结构 } from './social';
 import { 世界数据结构 } from './world';
 import { 详细门派结构 } from './sect';
 import { 任务结构, 约定结构 } from './task';
+import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from './campusPhone';
 import { 剧情系统结构 } from './story';
 import { 剧情规划结构 } from './storyPlan';
 import { 女主剧情规划结构 } from './heroinePlan';
@@ -1667,6 +1668,9 @@ export interface 存档结构 {
     角色锚点列表?: 角色锚点结构[];
     当前角色锚点ID?: string;
     时代信息?: 时代信息结构;
+    // Campus Systems (校园纪元)
+    校规系统?: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] };
+    催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
 }
 
 export type PromptCategory = '核心设定' | '数值设定' | '难度设定' | '写作设定' | '自定义';
