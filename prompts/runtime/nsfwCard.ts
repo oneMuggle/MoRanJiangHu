@@ -2,7 +2,7 @@ import type { NPC结构 } from '../../models/social';
 import type { NSFW场景类型 } from '../../models/system';
 import { 获取最亲密动作, 构建亲密度动作约束 } from './intimacy';
 import { 计算亲密度等级 } from '../../models/intimacy';
-import { 构建里象修行叙事约束 } from './nsfw';
+import { 自动选择叙事约束 } from './nsfw';
 
 /**
  * 构建单个 NPC 的 NSFW 角色卡片文本
@@ -12,7 +12,8 @@ import { 构建里象修行叙事约束 } from './nsfw';
  */
 export const 构建NPC_NSWF卡片 = (
   npc: NPC结构,
-  nsfw场景类型: NSFW场景类型
+  nsfw场景类型: NSFW场景类型,
+  options?: { 时代配置ID?: string }
 ): string => {
   if (nsfw场景类型 === '无') return '';
 
@@ -26,7 +27,7 @@ export const 构建NPC_NSWF卡片 = (
   lines.push(`亲密度等级: ${亲密度等级}（${获取最亲密动作(亲密度等级)}）`);
 
   // 动作约束
-  const 动作约束 = 构建亲密度动作约束(亲密度等级, nsfw场景类型);
+  const 动作约束 = 构建亲密度动作约束(亲密度等级, nsfw场景类型, { 时代配置ID: options?.时代配置ID });
   if (动作约束) {
     lines.push(`动作约束: ${动作约束}`);
   }
@@ -71,7 +72,7 @@ export const 构建NPC_NSWF卡片 = (
 
   // 里象修行叙事约束（Level 5 时注入）
   if (亲密度等级 >= 5) {
-    const 叙事约束 = 构建里象修行叙事约束(nsfw场景类型);
+    const 叙事约束 = 自动选择叙事约束(options?.时代配置ID, nsfw场景类型);
     if (叙事约束) {
       lines.push(叙事约束);
     }
@@ -88,7 +89,8 @@ export const 构建NPC_NSWF卡片 = (
  */
 export const 构建在场NPC_NSWF卡片组 = (
   npcs: NPC结构[],
-  nsfw场景类型: NSFW场景类型
+  nsfw场景类型: NSFW场景类型,
+  options?: { 时代配置ID?: string }
 ): string => {
   if (nsfw场景类型 === '无') return '';
 
@@ -96,7 +98,7 @@ export const 构建在场NPC_NSWF卡片组 = (
   if (在场NPC.length === 0) return '';
 
   const cards = 在场NPC
-    .map(npc => 构建NPC_NSWF卡片(npc, nsfw场景类型))
+    .map(npc => 构建NPC_NSWF卡片(npc, nsfw场景类型, options))
     .filter(Boolean);
 
   if (cards.length === 0) return '';

@@ -93,7 +93,7 @@ ${构建修炼体系附加块(`- 初始境界: ${charData.境界}`)}
 export const 构建世界观种子提示词 = (worldConfig: WorldGenConfig, charData: 角色数据结构): string => {
     const anchor = 构建世界观锚点提示词(worldConfig, charData);
     const eraConfig = 获取时代配置ByID(worldConfig.时代配置ID);
-    const lixiangSectsWorldBook = 构建双修门派世界书(worldConfig.nsfw场景类型);
+    const lixiangSectsWorldBook = 构建双修门派世界书(worldConfig.nsfw场景类型, { 时代配置ID: worldConfig.时代配置ID });
     const liWuxiaSects = 构建里武侠门派设定();
     const isAncient = eraConfig.时代 === '古代';
 
