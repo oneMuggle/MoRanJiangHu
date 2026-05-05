@@ -549,7 +549,7 @@ const 解析正文日志 = (body: string): Array<{ sender: string; text: string 
     return logs.filter(item => item.text.trim().length > 0);
 };
 
-const 清理命令尾部分隔符 = (source: string): string => {
+export const 清理命令尾部分隔符 = (source: string): string => {
     const text = (source || '').trimEnd();
     if (!text) return '';
     let inString = false;
@@ -589,7 +589,7 @@ const 清理命令尾部分隔符 = (source: string): string => {
     return text.replace(/[；;，,]\s*$/, '').trimEnd();
 };
 
-const 计算括号平衡 = (source: string): number => {
+export const 计算括号平衡 = (source: string): number => {
     let balance = 0;
     let inString = false;
     let stringQuote = '';
@@ -626,7 +626,7 @@ const 计算括号平衡 = (source: string): number => {
     return balance;
 };
 
-const 收集多行命令值 = (
+export const 收集多行命令值 = (
     sourceLines: string[],
     startIndex: number,
     initialValueText: string
