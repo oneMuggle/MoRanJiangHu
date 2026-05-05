@@ -83,12 +83,12 @@ other rule`;
         });
 
         it('includes action options line when enabled', () => {
-            const result = 构建COT伪装提示词({ 启用行动选项: true });
+            const result = 构建COT伪装提示词({ 启用行动选项: true } as any);
             expect(result).toContain('<行动选项>');
         });
 
         it('excludes action options line when disabled', () => {
-            const result = 构建COT伪装提示词({ 启用行动选项: false });
+            const result = 构建COT伪装提示词({ 启用行动选项: false } as any);
             expect(result).not.toContain('<行动选项>');
         });
 

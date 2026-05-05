@@ -476,6 +476,8 @@ export type 体系类型 = '武侠' | '志怪' | '双修';
 
 export type 剧情推进速度 = '缓慢' | '正常' | '快速' | '跳过至关键节点';
 
+export type 行动选项增强档位 = '缓慢' | '正常' | '快速' | '跳过至关键节点';
+
 export const 剧情推进速度描述映射: Record<剧情推进速度, string> = {
     '缓慢': '每个回合聚焦极小范围的细节互动，节奏舒缓，重情感递进与氛围营造。',
     '正常': '按默认节奏推进剧情，平衡叙事与互动的比重。',
@@ -1537,8 +1539,9 @@ export interface 游戏设置结构 {
     叙事人称: '第一人称' | '第二人称' | '第三人称';
     启用行动选项: boolean; // Whether to require action_options output
     行动选项输入模式: 行动选项输入模式类型; // Whether clicking an option appends or replaces input text
-    剧情推进速度: 剧情推进速度; // Pacing control for story progression via action options
-    启用NSFW促进选项: boolean; // When NSFW is enabled, include intimacy-promoting action options
+    启用行动选项增强: boolean; // Generate action options at multiple pacing levels
+    启用NSFW推进选项: boolean; // Include intimacy-promoting options in ambiguous scenes
+    剧情推进速度: 剧情推进速度; // Legacy pacing, kept for backward compatibility
     启用COT伪装注入: boolean; // Inject pseudo historical COT message before latest user input
     启用GPT模式: boolean; // Main-story normal mode: send current user input directly as the user trigger message
     启用女主剧情规划: boolean; // Inject heroine planning prompts as optional addon
