@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { 聊天记录结构, 记忆系统结构 } from '../../../types';
 import { 构建带时间戳的记忆条目, 解析记忆条目时间信息 } from '../../../hooks/useGame/memoryUtils';
 import { 搜索记忆条目, 记忆搜索结果 } from '../../../hooks/useGame/memoryRecall';
+import MemoryImportExportPanel from './MemoryImportExportPanel';
 
 interface Props {
     history: 聊天记录结构[];
@@ -107,6 +108,7 @@ const MemoryModal: React.FC<Props> = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<记忆搜索结果[]>([]);
     const [searchTabBefore, setSearchTabBefore] = useState<TabType>('context');
+    const [showImportExport, setShowImportExport] = useState(false);
 
     const fallbackImmediateData: 记忆展示条目[] = history
         .filter((msg) => msg.role === 'assistant' && msg.structuredResponse?.shortTerm)
@@ -374,14 +376,26 @@ const MemoryModal: React.FC<Props> = ({
                             </span>
                         </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-black/50 border border-gray-700 text-gray-400 hover:text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition-all shadow-sm hover:rotate-90 group"
-                    >
-                        <svg className="w-5 h-5 group-hover:drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setShowImportExport(true)}
+                            className="px-4 py-2 rounded-lg border border-gray-600 bg-black/50 text-gray-400 hover:text-wuxia-gold hover:border-wuxia-gold hover:bg-wuxia-gold/10 transition-all text-sm flex items-center gap-2"
+                            title="导入导出记忆"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            <span className="hidden sm:inline">导入导出</span>
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="w-10 h-10 flex items-center justify-center rounded-full bg-black/50 border border-gray-700 text-gray-400 hover:text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition-all shadow-sm hover:rotate-90 group"
+                        >
+                            <svg className="w-5 h-5 group-hover:drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex flex-col flex-1 overflow-hidden relative z-10">
@@ -653,6 +667,26 @@ const MemoryModal: React.FC<Props> = ({
                                     铭刻 <span>✧</span>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {showImportExport && memorySystem && (
+                    <div className="absolute inset-0 z-[300] bg-black/95 backdrop-blur-md flex items-center justify-center p-6 animate-fadeIn_fast">
+                        <div className="w-full max-w-lg bg-gradient-to-br from-[#0a0f12] to-black border border-wuxia-gold/30 rounded-2xl shadow-[0_0_60px_rgba(255,215,0,0.15)] overflow-hidden">
+                            <MemoryImportExportPanel
+                                memorySystem={memorySystem}
+                                playerName={history.find(h => h.role === 'user')?.content?.slice(0, 20) || '玩家'}
+                                onImport={(imported) => {
+                                    onSaveMemory?.(imported);
+                                    setShowImportExport(false);
+                                }}
+                                onMerge={(merged) => {
+                                    onSaveMemory?.(merged);
+                                    setShowImportExport(false);
+                                }}
+                                onClose={() => setShowImportExport(false)}
+                            />
                         </div>
                     </div>
                 )}
