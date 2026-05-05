@@ -1793,6 +1793,14 @@ const App: React.FC = () => {
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
                                     actions.handleSend(content);
                                 }}
+                                onUnlockNPC={(newNpc) => {
+                                    const prev = state.社交 || [];
+                                    // 避免重复添加同名 NPC
+                                    const exists = prev.some(npc => npc.id === newNpc.id || npc.姓名 === newNpc.姓名);
+                                    if (!exists) {
+                                        setters.set社交?.([...prev, newNpc]);
+                                    }
+                                }}
                             />
                         </懒加载边界>
                     )}

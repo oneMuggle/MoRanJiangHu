@@ -115,6 +115,10 @@ export function 构建设备消息系统提示词(
             角色: '催眠效果描述生成器',
             输出格式: 'JSON 数组，每条包含 target（目标）、effect（效果）、duration（持续时间）、intensity（强度）',
         },
+        bdsn: {
+            角色: 'BDSM 论坛帖子生成器',
+            输出格式: 'JSON 数组，每个帖子包含 author（匿名昵称）、title（标题）、content（正文）、category（子分类）、time（时间）、replies（回复数）、views（浏览数）、replyList（回复列表，2-4条）、impactLevel（影响等级：轻微/中等/严重）、bdsmCategory（BDSM子分类：匿名讨论/经验交流/物品话题/心理探索/安全科普/寻主召奴）。寻主召奴帖子额外包含 recruiterRole（寻主/召奴/不限）、relationshipType（期望关系类型）',
+        },
     };
 
     const appInfo = appTypeMap[appType];
@@ -291,6 +295,7 @@ export async function 生成设备联系人(
 // ============================================================
 
 import type { 论坛帖子, 论坛分类, 聊天消息, 课程, 消费记录, 社团活动 } from '../../models/campusPhone';
+import type { BDSM论坛帖子, BDSM帖子分类, 招募方角色, 影响等级, 联系状态 } from '../../models/campusNSFW/bdsm-forum';
 
 const 取文本 = (v: unknown, fallback = ''): string =>
     typeof v === 'string' ? v : fallback;
@@ -382,6 +387,66 @@ export function 解析AI社团活动(rawItems: unknown[]): 社团活动[] {
             地点: 取文本(obj.location, '待定'),
             描述: 取文本(obj.description, ''),
             参与人数: 取数值(obj.participants, 0),
+        };
+    });
+}
+
+// ============================================================
+// BDSM 论坛内容解析
+// ============================================================
+
+const 影响等级映射: Record<string, 影响等级> = {
+    '轻微': '轻微',
+    '中等': '中等',
+    '严重': '严重',
+};
+
+const 招募方角色映射: Record<string, 招募方角色> = {
+    '寻主': '寻主',
+    '召奴': '召奴',
+    '不限': '不限',
+};
+
+export function 解析AIBDSM帖子(rawItems: unknown[]): BDSM论坛帖子[] {
+    return rawItems.map((item, idx) => {
+        const obj = item as Record<string, unknown>;
+        const replyList = (obj.replyList as unknown[]) || [];
+        const category = 取文本(obj.category, '匿名讨论') as BDSM帖子分类;
+        const is寻主召奴 = category === '寻主召奴';
+        const 招募信息 = is寻主召奴 ? {
+            招募方角色: 招募方角色映射[取文本(obj.recruiterRole, '不限')],
+            期望关系类型: 取文本(obj.relationshipType, '不限'),
+            解锁NPC姓名: '',
+            '关联NPC ID': '',
+            是否已联系: false,
+            联系状态: '未联系' as 联系状态,
+        } : undefined;
+
+        return {
+            id: `ai-bdsm-${Date.now()}-${idx}`,
+            作者: 取文本(obj.author, '匿名'),
+            标题: 取文本(obj.title, '未命名帖子'),
+            内容: 取文本(obj.content, ''),
+            分类: 'BDSM' as 论坛分类,
+            子分类: category,
+            发布时间: 取文本(obj.time, '近日'),
+            回复数: 取数值(obj.replies, 0),
+            浏览数: 取数值(obj.views, 0),
+            点赞数: 取数值(obj.likes, 0),
+            是否置顶: false,
+            是否精华: false,
+            影响等级: 影响等级映射[取文本(obj.impactLevel, '轻微')] || '轻微',
+            寻主召奴信息: 招募信息,
+            回复列表: replyList.slice(0, 5).map((r, ri) => {
+                const robj = r as Record<string, unknown>;
+                return {
+                    id: `bdsm-reply-${idx}-${ri}`,
+                    作者: 取文本(robj.author, '路人'),
+                    内容: 取文本(robj.content, ''),
+                    回复时间: 取文本(robj.time, '近日'),
+                    楼层: ri + 1,
+                };
+            }),
         };
     });
 }

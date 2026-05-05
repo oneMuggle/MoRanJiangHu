@@ -66,6 +66,20 @@ export type {
   校园祭状态,
 } from './festival';
 
+// v1.5 BDSM 论坛
+export type {
+  BDSM帖子分类,
+  招募方角色,
+  联系状态,
+  影响等级,
+  寻主召奴信息,
+  BDSM论坛帖子,
+  BDSM影响记录,
+  联系对话,
+  寻主召奴联系会话,
+  BDSM论坛设置,
+} from './bdsm-forum';
+
 // 设置类型
 export interface 校园NSFW设置 {
   启用校园NSFW深化系统: boolean;
@@ -96,6 +110,11 @@ export interface 校园NSFW设置 {
   启用摊位NSFW: boolean;
   启用舞台NSFW: boolean;
   校园祭频率: '每学期一次' | '每学年一次' | '随机';
+  // v1.5 BDSM 论坛
+  启用BDSM论坛: boolean;
+  BDSM内容强度: '关闭' | '轻度' | '中度' | '深度';
+  启用BDSM_NPC影响: boolean;
+  启用BDSM_流言传播: boolean;
 }
 
 export const 默认校园NSFW设置: 校园NSFW设置 = {
@@ -127,6 +146,11 @@ export const 默认校园NSFW设置: 校园NSFW设置 = {
   启用摊位NSFW: false,
   启用舞台NSFW: false,
   校园祭频率: '每学年一次',
+  // v1.5 BDSM 论坛
+  启用BDSM论坛: false,
+  BDSM内容强度: '轻度',
+  启用BDSM_NPC影响: true,
+  启用BDSM_流言传播: true,
 };
 
 // 挂载点接口

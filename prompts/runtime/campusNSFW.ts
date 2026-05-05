@@ -15,6 +15,7 @@ import type {
   桌游类型,
   密室主题,
 } from '../../models/campusNSFW';
+import { 构建BDSM论坛叙事约束 } from './bdsmForum';
 import type { 校园亲密互动类型 } from '../../models/intimacy';
 
 // ==================== 核心配置注入 ====================
@@ -41,6 +42,11 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
   密室主题?: 密室主题;
   内容强度?: '微暗' | '暧昧' | '露骨';
   其他Npc欲望摘要?: string;
+  // v1.5 BDSM 论坛
+  启用BDSM论坛?: boolean;
+  BDSM内容强度?: '关闭' | '轻度' | '中度' | '深度';
+  论坛活跃帖子数?: number;
+  寻主召奴未联系帖数?: number;
 }): string => {
   const {
     欲望阶段,
@@ -60,6 +66,10 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
     密室主题,
     内容强度,
     其他Npc欲望摘要,
+    启用BDSM论坛,
+    BDSM内容强度,
+    论坛活跃帖子数,
+    寻主召奴未联系帖数,
   } = 参数;
 
   const 组件: string[] = [];
@@ -94,6 +104,16 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
 
   if (桌游类型) {
     组件.push(构建桌游叙事约束(桌游类型, 密室主题));
+  }
+
+  // v1.5 BDSM 论坛
+  if (启用BDSM论坛 && BDSM内容强度 && BDSM内容强度 !== '关闭') {
+    const 论坛约束 = 构建BDSM论坛叙事约束({
+      活跃帖子数: 论坛活跃帖子数 ?? 0,
+      内容强度: BDSM内容强度,
+      寻主召奴未联系帖数: 寻主召奴未联系帖数 ?? 0,
+    });
+    if (论坛约束) 组件.push(论坛约束);
   }
 
   if (其他Npc欲望摘要) {

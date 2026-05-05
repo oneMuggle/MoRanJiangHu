@@ -2,6 +2,7 @@ import React from 'react';
 import MobileHome from './MobileHome';
 import { DeviceState, MobileApp, DeviceGameContext } from '../../../models/mobileDevice';
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../../types';
+import type { NPC结构 } from '../../../models/domain/social';
 
 interface MobileDeviceProps {
     eraId: string;
@@ -14,6 +15,7 @@ interface MobileDeviceProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: () => void;
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onUnlockNPC?: (npc: NPC结构) => void;
 }
 
 const MobileDevice: React.FC<MobileDeviceProps> = ({
@@ -27,6 +29,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
     onHypnosisChange,
     onRefresh,
     onSendMessage,
+    onUnlockNPC,
 }) => {
     return (
         <div className="w-full h-full bg-gray-900/95 backdrop-blur-sm rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
@@ -41,6 +44,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
                 onHypnosisChange={onHypnosisChange}
                 onRefresh={onRefresh}
                 onSendMessage={onSendMessage}
+                onUnlockNPC={onUnlockNPC}
             />
         </div>
     );

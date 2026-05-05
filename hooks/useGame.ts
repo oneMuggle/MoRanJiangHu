@@ -2206,7 +2206,8 @@ export const useGame = () => {
             setApiConfig, setVisualConfig, setImageManagerConfig, setPrompts,
             set校规系统: 设置校规系统,
             set催眠系统: 设置催眠系统,
-            set校园系统: 设置校园系统
+            set校园系统: 设置校园系统,
+            set社交: 设置社交,
         },
         actions: {
             handleSend,

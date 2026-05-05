@@ -43,7 +43,7 @@ export interface 设备消息触发结果 {
 /** 根据时代决定默认生成哪些 App 的内容 */
 export function 获取时代默认生成App(eraId: string, mode: DeviceMode): MobileApp[] {
     if (mode === 'li') {
-        return ['news', 'forum', 'chat'];
+        return ['news', 'forum', 'chat', 'bdsn'];
     }
     if (eraId.startsWith('ancient')) {
         return ['news', 'forum'];

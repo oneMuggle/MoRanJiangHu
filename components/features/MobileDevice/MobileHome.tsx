@@ -18,6 +18,7 @@ import CampusRulesApp from './apps/CampusRulesApp';
 import CampusHypnosisApp from './apps/CampusHypnosisApp';
 
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../../types';
+import type { NPC结构 } from '../../../models/domain/social';
 
 interface AppProps {
     eraId: string;
@@ -30,6 +31,7 @@ interface AppProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: () => void;
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onUnlockNPC?: (npc: NPC结构) => void;
 }
 
 interface MobileHomeProps {
@@ -44,6 +46,7 @@ interface MobileHomeProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: () => void;
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onUnlockNPC?: (npc: NPC结构) => void;
 }
 
 const appIcons: Record<MobileApp, string> = {
@@ -60,6 +63,7 @@ const appIcons: Record<MobileApp, string> = {
     confession: '💌',
     rules: '📜',
     hypnosis: '🌀',
+    bdsn: '🌙',
 };
 
 const MobileHome: React.FC<MobileHomeProps> = ({
@@ -73,6 +77,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
     onHypnosisChange,
     onRefresh,
     onSendMessage,
+    onUnlockNPC,
 }) => {
     const [config, setConfig] = useState<DeviceConfig | null>(null);
     const [liModeName, setLiModeName] = useState<string | undefined>();
@@ -109,6 +114,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
             onHypnosisChange,
             onRefresh,
             onSendMessage,
+            onUnlockNPC,
         };
         switch (deviceState.activeApp) {
             case 'chat': return <CampusChatApp {...appProps} />;
@@ -124,6 +130,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
             case 'confession': return <CampusForumApp {...appProps} />;
             case 'rules': return <CampusRulesApp {...appProps} />;
             case 'hypnosis': return <CampusHypnosisApp {...appProps} />;
+            case 'bdsn': return <CampusForumApp {...appProps} />;
             default: return null;
         }
     };

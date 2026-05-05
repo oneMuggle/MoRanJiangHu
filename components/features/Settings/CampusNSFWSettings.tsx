@@ -316,6 +316,37 @@ export const CampusNSFWSettings: React.FC<Props> = ({ settings, onChange }) => {
             onChange={(v) => update('校园祭频率', v as any)}
             disabled={!settings.启用校园祭NSFW}
           />
+
+          {/* v1.5 BDSM 论坛 */}
+          <SectionHeader title="BDSM 论坛系统" />
+          <ToggleSwitch
+            label="启用 BDSM 论坛"
+            description="开启后校园深夜板块增加 BDSM 子论坛，包含匿名讨论、寻主召奴等子分类"
+            checked={settings.启用BDSM论坛}
+            onChange={(v) => update('启用BDSM论坛', v)}
+          />
+          <SelectOption
+            label="BDSM 内容强度"
+            description="关闭: 不生成 | 轻度: 心理暗示 | 中度: 明确行为 | 深度: 详细场景"
+            value={settings.BDSM内容强度}
+            options={['关闭', '轻度', '中度', '深度']}
+            onChange={(v) => update('BDSM内容强度', v as any)}
+            disabled={!settings.启用BDSM论坛}
+          />
+          <ToggleSwitch
+            label="启用 NPC 影响"
+            description="开启后浏览 BDSM 帖子会推进 NPC 欲望阶段"
+            checked={settings.启用BDSM_NPC影响}
+            onChange={(v) => update('启用BDSM_NPC影响', v)}
+            disabled={!settings.启用BDSM论坛}
+          />
+          <ToggleSwitch
+            label="启用流言传播"
+            description="开启后严重/中等帖子会增加校园流言等级"
+            checked={settings.启用BDSM_流言传播}
+            onChange={(v) => update('启用BDSM_流言传播', v)}
+            disabled={!settings.启用BDSM论坛}
+          />
         </>
       )}
     </div>

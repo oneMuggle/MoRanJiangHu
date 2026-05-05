@@ -225,12 +225,12 @@ export const eraDeviceConfigs: Record<string, DeviceConfig> = {
         deviceName: '智能手机',
         deviceForm: 'smartphone',
         eraId: 'contemporary_campus',
-        apps: ['map', 'contacts', 'chat', 'forum', 'news', 'album', 'tools', 'schedule', 'campus_card', 'club', 'confession', 'rules', 'hypnosis'],
+        apps: ['map', 'contacts', 'chat', 'forum', 'news', 'album', 'tools', 'schedule', 'campus_card', 'club', 'confession', 'rules', 'hypnosis', 'bdsn'],
         uiStyle: 'modern',
         normalAppNames: {
             map: '地图', contacts: '通讯录', chat: '私聊', forum: '校园论坛', news: '校园资讯', album: '相册', tools: '工具',
             schedule: '课程表', campus_card: '校园卡', club: '社团活动', confession: '表白墙',
-            rules: '学生手册', hypnosis: '心理辅导',
+            rules: '学生手册', hypnosis: '心理辅导', bdsn: '深夜板块',
         },
         capabilities: {
             hasGPS: true,
@@ -257,6 +257,7 @@ export const eraDeviceConfigs: Record<string, DeviceConfig> = {
                 confession: '匿名告白',
                 rules: '暗影校规',
                 hypnosis: '深度催眠',
+                bdsn: '禁忌论坛',
             },
             themeColor: '#2D6B3A',
         },
@@ -1264,6 +1265,7 @@ export function getAppName(
         confession: '表白墙',
         rules: '校规编辑器',
         hypnosis: '催眠App',
+        bdsn: '深夜板块',
     };
     return defaultNames[app];
 }
@@ -1288,4 +1290,5 @@ export const DEFAULT_APP_NAMES: Record<MobileApp, { normal: string; li: string }
     confession: { normal: '表白墙', li: '匿名告白' },
     rules: { normal: '学生手册', li: '暗影校规' },
     hypnosis: { normal: '心理辅导', li: '深度催眠' },
+    bdsn: { normal: '深夜板块', li: '禁忌论坛' },
 };

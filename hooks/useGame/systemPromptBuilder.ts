@@ -58,6 +58,7 @@ import type { LiModeStage } from '../../models/eraTheme/types';
 import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionOptionsRuntime';
 import { 构建校规注入提示词, 构建催眠注入提示词 } from './campusPromptInjector';
 import { 构建设备通讯摘要 } from './triggerDeviceMessageWorkflow';
+import { 构建BDSM论坛叙事约束 } from '../../prompts/runtime/bdsmForum';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -1465,6 +1466,20 @@ export const 构建系统提示词 = ({
             const 催眠系统 = statePayload?.催眠系统;
             if (!催眠系统?.催眠记录列表?.length) return null;
             return 构建催眠注入提示词({ 催眠记录列表: 催眠系统.催眠记录列表 });
+        })(),
+        // 校园系统：BDSM 论坛活跃帖子注入
+        (() => {
+            const 校园系统 = statePayload?.校园系统;
+            const posts = 校园系统?.BDSM帖子列表;
+            if (!posts?.length) return null;
+            const 寻主召奴未联系 = posts.filter(p =>
+                p.寻主召奴信息 && !p.寻主召奴信息.是否已联系
+            ).length;
+            return 构建BDSM论坛叙事约束({
+                活跃帖子数: Math.min(posts.length, 5),
+                内容强度: 校园系统.BDSM内容强度 || '轻度',
+                寻主召奴未联系帖数: 寻主召奴未联系,
+            });
         })(),
         设备通讯摘要 || null
     ]

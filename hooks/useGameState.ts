@@ -208,6 +208,7 @@ export const useGameState = () => {
     // Campus System Data (论坛、私聊、课程表、校园卡、社团活动)
     const [校园系统, 设置校园系统] = useState<校园系统数据>({
         论坛帖子列表: [],
+        BDSM帖子列表: [],
         私聊会话列表: [],
         课程表: {},
         校园卡: { 余额: 0, 消费记录: [] },

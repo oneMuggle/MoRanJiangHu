@@ -20,7 +20,7 @@ export interface 论坛帖子 {
     回复列表: 论坛回复[];
 }
 
-export type 论坛分类 = '校园资讯' | '学术交流' | '社团活动' | '闲置交易' | '情感树洞' | '匿名灌水' | '求助答疑';
+export type 论坛分类 = '校园资讯' | '学术交流' | '社团活动' | '闲置交易' | '情感树洞' | '匿名灌水' | '求助答疑' | 'BDSM';
 
 export interface 论坛回复 {
     id: string;
@@ -171,4 +171,6 @@ export interface 校园系统数据 {
     社团活动列表: 社团活动[];
     // NSFW 深化系统扩展 (v1.0-v1.4)
     欲望系统?: 校园NSFW系统扩展['欲望系统'];
+    // BDSM 论坛子系统 (v1.5)
+    BDSM帖子列表?: import('./campusNSFW/bdsm-forum').BDSM论坛帖子[];
 }

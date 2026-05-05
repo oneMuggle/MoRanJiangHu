@@ -28,7 +28,8 @@ export type MobileApp =
     | 'club'                  // 社团（校园特有）
     | 'confession'            // 表白墙（校园特有）
     | 'rules'                 // 校规编辑器（校园特有）
-    | 'hypnosis';             // 催眠App（校园特有）
+    | 'hypnosis'              // 催眠App（校园特有）
+    | 'bdsn';                 // BDSM论坛（校园特有）
 
 // 设备运行模式
 export type DeviceMode = 'normal' | 'li';
