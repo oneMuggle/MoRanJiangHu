@@ -1876,6 +1876,60 @@ export const useGame = () => {
         );
     };
 
+    // --- 私聊发送工作流 ---
+    const handlePrivateChatSend = async (
+        npcId: string,
+        npcName: string,
+        content: string
+    ): Promise<{ npcReply: string }> => {
+        const 私聊Api = 获取主剧情接口配置(apiConfig);
+        if (!私聊Api || !私聊Api.apiKey) {
+            return { npcReply: '[无法连接AI，私聊功能不可用]' };
+        }
+
+        // 获取当前私聊会话历史
+        const 私聊列表 = 校园系统?.私聊会话列表 || [];
+        const 当前会话 = 私聊列表.find((s: any) => s.id === npcId);
+        const 会话历史 = (当前会话?.消息列表 || []).map((m: any) => ({
+            sender: m.发送者,
+            content: m.内容,
+            isMe: m.发送者 === (角色?.姓名 || '玩家')
+        }));
+
+        try {
+            const { 执行私聊发送工作流 } = await import('./useGame/privateChatWorkflow');
+            const result = await 执行私聊发送工作流({
+                npcId,
+                npcName,
+                玩家姓名: 角色?.姓名 || '玩家',
+                会话历史,
+                校园系统,
+                apiConfig: 私聊Api
+            }, content);
+
+            // 如果 AI 响应中包含欲望系统状态更新，应用它
+            if (result.状态更新?.更新档案) {
+                设置校园系统?.(prev => {
+                    const 欲望系统 = (prev?.欲望系统 || {}) as any;
+                    const 现有档案 = 欲望系统.NPC欲望档案 || {};
+                    const 更新后档案 = { ...现有档案 };
+                    for (const [id, 更新] of Object.entries(result.状态更新!.更新档案)) {
+                        更新后档案[id] = { ...(更新后档案[id] || {}), ...更新 };
+                    }
+                    return {
+                        ...prev,
+                        欲望系统: { ...欲望系统, NPC欲望档案: 更新后档案 }
+                    };
+                });
+            }
+
+            return { npcReply: result.npcReply };
+        } catch (err) {
+            console.warn('[私聊发送] 失败:', err);
+            return { npcReply: '[消息发送失败，请重试]' };
+        }
+    };
+
     const {
         savePngStylePreset: 保存PNG画风预设,
         deletePngStylePreset: 删除PNG画风预设,
@@ -2329,6 +2383,7 @@ export const useGame = () => {
         },
         actions: {
             handleSend,
+            handlePrivateChatSend,
             handleStop,
             handleCancelVariableGeneration,
             handleRegenerate,

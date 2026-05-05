@@ -61,6 +61,15 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                     联系状态: '关系建立' as 联系状态,
                 } : post.寻主召奴信息,
             }));
+            // 同步更新本地 selectedPost，避免显示旧状态
+            setSelectedPost(prev => prev && prev.id === contactingPost.id ? {
+                ...prev,
+                寻主召奴信息: prev.寻主召奴信息 ? {
+                    ...prev.寻主召奴信息,
+                    是否已联系: true,
+                    联系状态: '关系建立' as 联系状态,
+                } : prev.寻主召奴信息,
+            } : prev);
             const newNpc = 从BDSM帖子创建NPC(contactingPost);
             onUnlockNPC?.(newNpc);
         } else if (contactingPost) {
@@ -73,6 +82,15 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                     联系状态: 结果 === '沟通中' ? '沟通中' as 联系状态 : '已拒绝' as 联系状态,
                 } : post.寻主召奴信息,
             }));
+            // 同步更新本地 selectedPost
+            setSelectedPost(prev => prev && prev.id === contactingPost.id ? {
+                ...prev,
+                寻主召奴信息: prev.寻主召奴信息 ? {
+                    ...prev.寻主召奴信息,
+                    是否已联系: true,
+                    联系状态: 结果 === '沟通中' ? '沟通中' as 联系状态 : '已拒绝' as 联系状态,
+                } : prev.寻主召奴信息,
+            } : prev);
         }
         setContactingPost(null);
     };

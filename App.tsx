@@ -1796,7 +1796,26 @@ const App: React.FC = () => {
                                     (t: any) => t.status === 'processing'
                                 ) || false}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
-                                    actions.handleSend(content);
+                                    actions.handlePrivateChatSend?.(npcId, npcName, content).then(result => {
+                                        if (result.npcReply) {
+                                            const prev = state.校园系统 as any;
+                                            const 私聊列表 = prev?.私聊会话列表 || [];
+                                            const 更新后列表 = 私聊列表.map((s: any) => {
+                                                if (s.id === npcId) {
+                                                    const newMsg = {
+                                                        id: `msg-${Date.now()}`,
+                                                        发送者: npcName,
+                                                        内容: result.npcReply,
+                                                        时间: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+                                                        是否已读: false,
+                                                    };
+                                                    return { ...s, 消息列表: [...(s.消息列表 || []), newMsg], 最后消息: result.npcReply };
+                                                }
+                                                return s;
+                                            });
+                                            setters.set校园系统?.({ ...prev, 私聊会话列表: 更新后列表 });
+                                        }
+                                    });
                                 }}
                                 onUnlockNPC={(newNpc) => {
                                     const prev = state.社交 || [];
