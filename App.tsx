@@ -77,6 +77,8 @@ const MobileSaveLoadModal = 创建可预加载懒组件(() => import('./componen
 const MobileMusicPlayer = 创建可预加载懒组件(() => import('./components/features/Music/mobile/MobileMusicPlayer'));
 const NovelDecompositionWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelDecomposition/NovelDecompositionWorkbenchModal'));
 const MobileNovelDecompositionWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelDecomposition/MobileNovelDecompositionWorkbenchModal'));
+const NovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/NovelWritingWorkbenchModal'));
+const MobileNovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/MobileNovelWritingWorkbenchModal'));
 const MobileDeviceModal = 创建可预加载懒组件(() => import('./components/features/MobileDevice/MobileDeviceModal'));
 
 const 懒加载占位: React.FC = () => (
@@ -98,6 +100,7 @@ const App: React.FC = () => {
     const [showImageManager, setShowImageManager] = React.useState(false);
     const [showWorldbookManager, setShowWorldbookManager] = React.useState(false);
     const [showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench] = React.useState(false);
+    const [showNovelWritingWorkbench, setShowNovelWritingWorkbench] = React.useState(false);
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
     const [showCampusDesire, setShowCampusDesire] = React.useState(false);
     const [chatContentHidden, setChatContentHidden] = React.useState(false);
@@ -527,6 +530,7 @@ const App: React.FC = () => {
     const openLoad = React.useCallback(() => setters.setShowSaveLoad({ show: true, mode: 'load' }), [setters]);
     const closeSettings = React.useCallback(() => setters.setShowSettings(false), [setters]);
     const closeNovelDecompositionWorkbench = React.useCallback(() => setShowNovelDecompositionWorkbench(false), []);
+    const closeNovelWritingWorkbench = React.useCallback(() => setShowNovelWritingWorkbench(false), []);
     const closeSaveLoad = React.useCallback(() => setters.setShowSaveLoad({ show: false, mode: 'save' }), [setters]);
     const closeWorldbookManager = React.useCallback(() => setShowWorldbookManager(false), []);
     const closeMobileMusic = React.useCallback(() => setShowMobileMusic(false), []);
@@ -748,6 +752,7 @@ const App: React.FC = () => {
                     onImageManager={openImageManagerWithCheck}
                     onWorldbookManager={openWorldbookManager}
                     onNovelDecomposition={() => { void openNovelDecompositionWorkbench(); }}
+                    onNovelWriting={() => { void setShowNovelWritingWorkbench(true); }}
                     onSettings={openSettings}
                     hasSave={state.hasSave}
                 />
@@ -1214,6 +1219,24 @@ const App: React.FC = () => {
                             onSave={actions.saveSettings}
                             onClose={closeNovelDecompositionWorkbench}
                             requestConfirm={requestConfirm}
+                            onNotify={actions.pushNotification}
+                        />
+                    )}
+                </懒加载边界>
+            )}
+
+            {showNovelWritingWorkbench && (
+                <懒加载边界>
+                    {isMobile ? (
+                        <MobileNovelWritingWorkbenchModal
+                            open={showNovelWritingWorkbench}
+                            onClose={closeNovelWritingWorkbench}
+                            onNotify={actions.pushNotification}
+                        />
+                    ) : (
+                        <NovelWritingWorkbenchModal
+                            open={showNovelWritingWorkbench}
+                            onClose={closeNovelWritingWorkbench}
                             onNotify={actions.pushNotification}
                         />
                     )}
