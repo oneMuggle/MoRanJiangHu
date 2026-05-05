@@ -38,13 +38,25 @@ export default function ApiConfigAssistant({ onClose, currentSettings, onApply }
     }, [messages]);
 
     // Auto-fill from existing configs
+    const autoConfigured = useRef(false);
     useEffect(() => {
+        if (autoConfigured.current) return;
         const mainConfig = currentSettings.configs?.find((c) => c.id === currentSettings.activeConfigId);
-        if (mainConfig?.baseUrl && mainConfig?.apiKey && !configReady) {
+        if (mainConfig?.baseUrl && mainConfig?.apiKey) {
             setAssistantBaseUrl(mainConfig.baseUrl.replace(/\/+$/, ''));
             setAssistantApiKey(mainConfig.apiKey);
             setAssistantModel(mainConfig.model || '');
-            // Don't auto-close panel — let user verify
+            setConfigReady(true);
+            setShowConfigPanel(false);
+            autoConfigured.current = true;
+            // Post a system message to inform user
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: `已自动使用当前配置：${mainConfig.名称 || '未命名'}（${mainConfig.baseUrl.replace(/\/+$/, '')}）\n如需更换助手后端，请点击右上角齿轮图标。`,
+                },
+            ]);
         }
     }, [currentSettings]);
 
@@ -117,8 +129,8 @@ export default function ApiConfigAssistant({ onClose, currentSettings, onApply }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col bg-gray-900/95 border border-wuxia-gold/30 rounded-xl shadow-2xl">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="relative w-full max-w-2xl max-h-[85vh] sm:max-h-[85vh] h-[100dvh] sm:h-auto flex flex-col bg-gray-900/95 border border-wuxia-gold/30 rounded-none sm:rounded-xl shadow-2xl mx-2 sm:mx-4">
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-wuxia-gold/20">
                     <h2 className="text-lg font-bold font-serif text-wuxia-gold">AI 配置助手</h2>
@@ -258,32 +270,32 @@ function AssistantConfigPanel({
                 </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <input
                     type="text"
                     value={baseUrl}
                     onChange={(e) => onBaseUrlChange(e.target.value)}
                     placeholder="https://example.com/v1"
-                    className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
+                    className="min-w-0 flex-1 sm:flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
                 />
                 <input
                     type="password"
                     value={apiKey}
                     onChange={(e) => onApiKeyChange(e.target.value)}
                     placeholder="sk-..."
-                    className="flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
+                    className="min-w-0 flex-1 sm:flex-1 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
                 />
                 <input
                     type="text"
                     value={model}
                     onChange={(e) => onModelChange(e.target.value)}
                     placeholder="模型名 (可选)"
-                    className="w-32 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
+                    className="w-24 sm:w-32 bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs text-white placeholder-gray-500 focus:border-wuxia-gold focus:outline-none"
                 />
                 <button
                     onClick={onConfirm}
                     disabled={!baseUrl.trim() || !apiKey.trim()}
-                    className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
+                    className={`w-full sm:w-auto px-3 py-1.5 rounded text-xs font-bold transition-colors ${
                         isReady
                             ? 'bg-green-600/30 text-green-400 border border-green-500/30'
                             : 'bg-wuxia-gold/20 text-wuxia-gold disabled:opacity-40'
@@ -303,7 +315,7 @@ function MessageBubble({ message }: { message: AssistantMessage }) {
     return (
         <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
             <div
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
+                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap break-words ${
                     isError
                         ? 'bg-red-900/40 text-red-300 border border-red-500/30'
                         : isUser
