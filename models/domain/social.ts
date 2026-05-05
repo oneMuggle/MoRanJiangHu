@@ -1,6 +1,6 @@
 
 import type { NPC图片档案 } from './imageGeneration';
-import type { NPC欲望档案, 亲密里程碑 } from '../campusNSFW';
+import type { NPC欲望档案, 亲密里程碑, NPC关系数据 } from '../campusNSFW';
 
 export type NPC性别 = '男' | '女';
 
@@ -124,4 +124,6 @@ export interface NPC结构 {
     // --- 校园 NSFW 深化系统 (可选扩展) ---
     欲望档案?: NPC欲望档案;
     关系历史?: 亲密里程碑[];
+    // --- v2.0 NPC 关系系统 ---
+    关系数据?: NPC关系数据;
 }

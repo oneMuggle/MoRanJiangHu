@@ -150,12 +150,26 @@ export const contemporaryEpoch: EraNode = makeNode(
                         openingScenes: [
                                 { id: 'urban_1', name: '都市霓虹', description: '现代都市霓虹闪烁，写字楼里暗藏玄机' },
                                 { id: 'urban_2', name: '地下拳场', description: '城市边缘的地下拳场，格斗与赌资交易' },
-                                { id: 'urban_3', name: '午夜街头', description: '午夜街头，两个陌生人的命运交汇' }
+                                { id: 'urban_3', name: '午夜街头', description: '午夜街头，两个陌生人的命运交汇' },
+                                { id: 'urban_4', name: '早高峰地铁', description: '人潮汹涌的地铁站台，你是千万通勤族中的一员' },
+                                { id: 'urban_5', name: '便利店夜班', description: '24小时便利店的荧光灯下，形形色色的夜归人' },
+                                { id: 'urban_6', name: '工地旁早餐摊', description: '清晨的工地门口，早餐摊的蒸汽弥漫' },
+                                { id: 'urban_7', name: '写字楼大堂', description: '玻璃幕墙的写字楼，你在前台等待面试' },
+                                { id: 'urban_8', name: '城中村握手楼', description: '密密麻麻的城中村，阳光只能照进一线天' },
+                                { id: 'urban_9', name: '网吧包厢', description: '烟雾缭绕的网吧，你在这里度过无数夜晚' },
+                                { id: 'urban_10', name: '医院走廊', description: '消毒水味的医院，你在家属等待区' }
                         ],
                         characterArchetypes: [
                                 { id: 'urban_ceo', name: '科技新贵', description: '互联网公司的年轻CEO', appearance: '休闲西装，智能手表，永远在接电话', abilities: ['商业嗅觉', '人脉资源', '危机公关'] },
                                 { id: 'urban_martial_artist', name: '地下拳王', description: '在地下拳场保持不败战绩的格斗家', appearance: '纹身，肌肉线条分明，身上满是伤疤', abilities: ['综合格斗', '抗击打', '地下人脉'] },
-                                { id: 'urban_hacker', name: '白帽黑客', description: '在暗网中寻找真相的技术天才', appearance: '黑眼圈，连帽衫，永远带着笔记本电脑', abilities: ['网络渗透', '数据挖掘', '系统破解'] }
+                                { id: 'urban_hacker', name: '白帽黑客', description: '在暗网中寻找真相的技术天才', appearance: '黑眼圈，连帽衫，永远带着笔记本电脑', abilities: ['网络渗透', '数据挖掘', '系统破解'] },
+                                { id: 'urban_delivery', name: '外卖骑手', description: '算法驱动下的配送大军一员', appearance: '头盔，保温箱，电瓶车，晒黑的皮肤', abilities: ['城市导航', '时间管理', '多平台操作'] },
+                                { id: 'urban_craftsman', name: '蓝领技工', description: '有一技之长的手艺人', appearance: '工装，工具箱，粗糙的手，朴实的笑容', abilities: ['水电维修', '机械修理', '应急处理'] },
+                                { id: 'urban_retail_worker', name: '便利店店员', description: '24小时便利店的守夜人', appearance: '制服，围裙，疲惫的眼神，习惯性的微笑', abilities: ['服务意识', '观察力', '夜班耐力'] },
+                                { id: 'urban_driver', name: '网约车司机', description: '城市的移动摄像头，见证无数陌生人的旅途', appearance: '驾驶座，手机支架，车载充电器，淡定的眼神', abilities: ['城市地理', '社交能力', '路线规划'] },
+                                { id: 'urban_coser', name: '网红博主', description: '自媒体时代的流量追逐者', appearance: '补光灯，手机支架，精致的妆，疲惫但亢奋', abilities: ['内容创作', '粉丝运营', '商业嗅觉'] },
+                                { id: 'urban_security', name: '小区保安', description: '守护一方平安的门神', appearance: '制服，对讲机，警戒的眼神，笔挺的站姿', abilities: ['观察力', '沟通能力', '应急处理'] },
+                                { id: 'urban_courier', name: '快递小哥', description: '最后一公里的奔跑者', appearance: '三轮车，快递袋，汗湿的T恤，黝黑的胳膊', abilities: ['片区情报', '高效配送', '邻里人脉'] }
                         ],
                         writingSamples: [
                                 { id: 'urban_ws_1', title: '午夜霓虹', excerpt: '写字楼的灯光一盏盏熄灭，最后一辆电梯下行。城市不眠，便利店的灯光在街角孤独地亮着。' },

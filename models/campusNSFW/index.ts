@@ -93,6 +93,26 @@ export type {
   BDSM关系状态,
 } from './sm';
 
+// v2.0 NPC 关系系统
+export type {
+  关系类型,
+  关系状态,
+  NPC关系数据,
+  关系事件,
+  互动类型,
+} from './relationship';
+
+export {
+  关系阈值配置,
+  互动效果配置,
+  场景加成配置,
+  创建默认关系数据,
+  计算关系类型,
+  能否进阶,
+  计算互动效果,
+  验证关系数据,
+} from './relationship';
+
 // 设置类型
 export interface 校园NSFW设置 {
   启用校园NSFW深化系统: boolean;
