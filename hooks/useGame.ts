@@ -46,7 +46,7 @@ import { 应用时代主题到根元素 } from '../styles/themes';
 import { 设置时代UI文案 } from '../utils/eraUIText';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
-import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 获取主剧情接口配置, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
+import { 规范化接口设置, 获取记忆总结接口配置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 获取主剧情接口配置, 获取设备消息接口配置, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用 } from '../utils/apiConfig';
 import type { 当前可用接口结构 } from '../utils/apiConfig';
 import {
     规范化记忆系统,
@@ -1726,13 +1726,13 @@ export const useGame = () => {
                         const 当前时代 = currentEra;
                         if (!当前时代) return;
                         const mode = 派生设备模式();
-                        const 主接口 = 获取主剧情接口配置(apiConfig);
-                        if (!主接口?.baseUrl || !主接口?.apiKey) return;
+                        const 设备消息接口 = 获取设备消息接口配置(apiConfig);
+                        if (!设备消息接口?.baseUrl || !设备消息接口?.apiKey) return;
                         const liIntensity = gameConfig?.子纪元里模式强度?.[当前时代];
                         const result = await 触发设备消息生成({
                             eraId: 当前时代,
                             mode,
-                            apiConfig: 主接口,
+                            apiConfig: 设备消息接口,
                             apiSettings: apiConfig,
                             context: {
                                 角色名: 角色.姓名 || '无名',

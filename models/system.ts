@@ -281,6 +281,11 @@ export interface 功能模型占位配置结构 {
     文章优化API地址: string;
     文章优化API密钥: string;
     文章优化提示词: string;
+    设备消息独立模型开关: boolean;
+    设备消息使用模型: string;
+    设备消息使用配置ID: string;
+    设备消息API地址: string;
+    设备消息API密钥: string;
     小说拆分使用模型: string;
     小说拆分API地址: string;
     小说拆分API密钥: string;
