@@ -1,3 +1,5 @@
+import type { 剧情槽位结构 } from './storySlots';
+
 export interface 剧情任务结构 {
     标题: string;
     任务说明: string;
@@ -70,4 +72,10 @@ export interface 剧情规划结构 {
     待触发事件: 剧情待触发事件结构[];
     镜头规划: 剧情镜头结构[];
     换章规则: 剧情换章规则结构;
+    /** 剧情槽位列表 */
+    剧情槽位: 剧情槽位结构[];
+    /** 已激活的槽位ID列表 */
+    已激活槽位: string[];
+    /** 已完成的槽位ID列表 */
+    已完成槽位: string[];
 }
