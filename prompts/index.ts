@@ -41,6 +41,9 @@ import { 写作_防止说话 } from './writing/noControl';
 import { 写作_风格 } from './writing/style';
 import { 写作_避免极端情绪 } from './writing/emotionGuard';
 
+// Shared
+import { 共享COT片段库, 共享_判定逻辑, 共享_资源校验, 共享_NPC行为, 共享_时间推进, 共享_变量落点, 共享_世界观一致性, 共享_战斗判定, 共享_记忆管理 } from './shared/cotFragments';
+
 export const 默认提示词: 提示词结构[] = [
     // Core
     核心_世界观, // Added
