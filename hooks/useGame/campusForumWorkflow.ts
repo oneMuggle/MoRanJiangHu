@@ -6,13 +6,14 @@
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
 import type { 接口设置结构 } from '../../models/system';
 import type { DeviceMode, DeviceGameContext } from '../../models/mobileDevice';
-import type { 校园系统数据 } from '../../models/campusPhone';
+import type { 校园系统数据, 论坛帖子 } from '../../models/campusPhone';
 import type { 校园NSFW设置 } from '../../models/campusNSFW';
+import type { BDSM论坛帖子 } from '../../models/campusNSFW/bdsm-forum';
 import { 生成设备消息, 解析AI论坛帖子, 解析AIBDSM帖子 } from './deviceAiWorkflow';
 
 export interface 论坛刷新结果 {
-    论坛帖子: { id: string; 标题: string; 分类: string }[];
-    BDSM帖子: { id: string; 标题: string; 子分类: string }[];
+    论坛帖子: 论坛帖子[];
+    BDSM帖子: BDSM论坛帖子[];
     errors: string[];
 }
 
@@ -48,7 +49,7 @@ export async function 刷新校园论坛(
         }, apiConfig, apiSettings, count);
 
         const parsedPosts = 解析AI论坛帖子(forumResult.messages as unknown[]);
-        result.论坛帖子 = parsedPosts.map(p => ({ id: p.id, 标题: p.标题, 分类: p.分类 }));
+        result.论坛帖子 = parsedPosts;
     } catch (err) {
         result.errors.push(`论坛生成失败: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -61,7 +62,7 @@ export async function 刷新校园论坛(
             }, apiConfig, apiSettings, count);
 
             const parsedPosts = 解析AIBDSM帖子(bdsmResult.messages as unknown[]);
-            result.BDSM帖子 = parsedPosts.map(p => ({ id: p.id, 标题: p.标题, 子分类: p.子分类 }));
+            result.BDSM帖子 = parsedPosts;
         } catch (err) {
             result.errors.push(`BDSM生成失败: ${err instanceof Error ? err.message : String(err)}`);
         }

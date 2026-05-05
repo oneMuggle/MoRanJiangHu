@@ -1778,17 +1778,12 @@ const App: React.FC = () => {
                                 onRefresh={() => {
                                     const activeApp = meta.deviceState.activeApp;
                                     if (!activeApp) return;
-                                    const appPromptMap: Record<string, string> = {
-                                        forum: '/手机 刷新论坛内容',
-                                        chat: '/手机 刷新私聊消息',
-                                        schedule: '/手机 刷新课程表',
-                                        campus_card: '/手机 刷新校园卡消费记录',
-                                        club: '/手机 刷新社团活动',
-                                        confession: '/手机 刷新表白墙',
-                                        news: '/手机 刷新新闻',
-                                    };
-                                    const prompt = appPromptMap[activeApp] || '/手机 刷新设备内容';
-                                    actions.handleSend(prompt);
+                                    setters.set设备刷新队列?.(prev => [...prev, {
+                                        id: `refresh-${Date.now()}`,
+                                        app: activeApp,
+                                        status: 'pending' as const,
+                                        创建时间: Date.now(),
+                                    }]);
                                 }}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
                                     actions.handleSend(content);

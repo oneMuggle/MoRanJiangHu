@@ -48,6 +48,27 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
     };
 
     const sessions: ChatSession[] = useMemo(() => {
+        // 优先使用校园系统的私聊会话列表
+        const systemSessions = gameContext?.校园系统?.私聊会话列表;
+        if (systemSessions && systemSessions.length > 0) {
+            return systemSessions.map((session, idx) => ({
+                id: session.id || `sys-chat-${idx}`,
+                name: session.对方姓名,
+                lastMessage: session.最后消息,
+                lastTime: session.最后时间,
+                unread: session.未读数,
+                relation: 关系类型映射[session.关系类型] || '同学',
+                messages: session.消息列表.map((msg, mi) => ({
+                    id: msg.id || `msg-${idx}-${mi}`,
+                    sender: msg.发送者,
+                    content: msg.内容,
+                    time: msg.时间,
+                    isMe: msg.发送者 !== session.对方姓名,
+                })),
+            }));
+        }
+
+        // 回退：从社交列表生成
         if (!gameContext?.社交?.length) return [];
 
         return gameContext.社交.slice(0, 15).map((npc, idx) => {
@@ -88,7 +109,7 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                 messages,
             };
         });
-    }, [gameContext?.社交, gameContext?.历史记录]);
+    }, [gameContext?.社交, gameContext?.历史记录, gameContext?.校园系统?.私聊会话列表]);
 
     const handleSend = () => {
         if (!inputText.trim() || !activeSession) return;
