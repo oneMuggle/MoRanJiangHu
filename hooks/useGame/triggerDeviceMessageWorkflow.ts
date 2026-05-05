@@ -5,7 +5,6 @@
 
 import type { DeviceMessage, DeviceMode, MobileApp, DeviceNotification, DeviceStats } from '../../models/mobileDevice';
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
-import type { 接口设置结构 } from '../../models/system';
 import type { LiModeIntensity } from '../../prompts/runtime/eraLiMode';
 import { 生成设备消息 } from './deviceAiWorkflow';
 import * as dbService from '../../services/dbService';
@@ -14,7 +13,7 @@ export interface 设备消息触发参数 {
     eraId: string;
     mode: DeviceMode;
     apiConfig: 当前可用接口结构;
-    apiSettings: 接口设置结构;
+    apiSettings: 当前可用接口结构;
     context: {
         角色名: string;
         当前场景: string;

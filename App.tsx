@@ -1829,8 +1829,8 @@ const App: React.FC = () => {
                                     const activeApp = meta.deviceState.activeApp;
                                     if (!activeApp) return;
                                     // 防止重复提交
-                                    const hasPending = (meta as any).deviceRefreshQueue?.some(
-                                        (t: any) => t.status === 'pending' || t.status === 'processing'
+                                    const hasPending = meta.deviceRefreshQueue?.some(
+                                        (t) => t.status === 'pending' || t.status === 'processing'
                                     );
                                     if (hasPending) return;
                                     // 深夜板块传入时，使用 'bdsn' 覆盖默认 app
@@ -1842,8 +1842,8 @@ const App: React.FC = () => {
                                         创建时间: Date.now(),
                                     }]);
                                 }}
-                                isRefreshing={(meta as any).deviceRefreshQueue?.some(
-                                    (t: any) => t.status === 'processing'
+                                isRefreshing={meta.deviceRefreshQueue?.some(
+                                    (t) => t.status === 'processing'
                                 ) || false}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
                                     return actions.handlePrivateChatSend?.(npcId, npcName, content).then(result => {

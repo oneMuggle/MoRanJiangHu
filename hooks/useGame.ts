@@ -588,7 +588,7 @@ export const useGame = () => {
     });
 
     // 后台设备刷新监控
-    const nsfw设置 = (gameConfig as any)?.校园NSFW设置 || { 启用BDSM论坛: true, BDSM内容强度: '轻度' };
+    const nsfw设置 = gameConfig?.校园NSFW设置 || { 启用BDSM论坛: true, BDSM内容强度: '轻度' };
     const 设备消息接口 = 获取设备消息接口配置(apiConfig);
     const 设备刷新GameContext: DeviceGameContext = {
         角色: 角色 || null,
