@@ -12,7 +12,6 @@ const 见面地点选项: { value: 见面地点; icon: string; desc: string }[] 
 
 interface BDSMNegotiationPanelProps {
     npcName: string;
-    当前回合: number;
     默认安全词?: string;
     onConfirm: (协商结果: {
         npcName: string;
@@ -26,7 +25,6 @@ interface BDSMNegotiationPanelProps {
 
 const BDSMNegotiationPanel: React.FC<BDSMNegotiationPanelProps> = ({
     npcName,
-    当前回合,
     默认安全词 = '月光',
     onConfirm,
     onCancel,
@@ -72,12 +70,12 @@ const BDSMNegotiationPanel: React.FC<BDSMNegotiationPanelProps> = ({
     return (
         <div className="flex flex-col h-full bg-gray-900/95 text-gray-200">
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700/50">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700/50 shrink-0">
                 <button onClick={onCancel} className="text-gray-400 hover:text-white transition-colors">&larr;</button>
                 <h3 className="font-semibold text-white text-sm flex-1">协商见面 — {npcName}</h3>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-5">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-5">
                 {/* Safety Word */}
                 <div>
                     <label className="block text-xs text-gray-400 mb-1">安全词 <span className="text-red-400">*</span></label>
@@ -95,7 +93,7 @@ const BDSMNegotiationPanel: React.FC<BDSMNegotiationPanelProps> = ({
                 <div>
                     <label className="block text-xs text-gray-400 mb-1">见面时间</label>
                     <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500">{当前回合}回合后</span>
+                        <span className="text-xs text-gray-500">{回合偏移} 回合后</span>
                         <input
                             type="range"
                             min={1}
@@ -159,7 +157,7 @@ const BDSMNegotiationPanel: React.FC<BDSMNegotiationPanelProps> = ({
             </div>
 
             {/* Confirm Button */}
-            <div className="p-4 border-t border-gray-700/50">
+            <div className="p-4 border-t border-gray-700/50 shrink-0">
                 <button
                     onClick={handleConfirm}
                     className="w-full py-2.5 rounded-lg bg-gradient-to-r from-purple-700 to-pink-700 text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all"

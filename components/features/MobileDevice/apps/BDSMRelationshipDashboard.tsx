@@ -45,7 +45,7 @@ const BDSMRelationshipDashboard: React.FC<Props> = ({ 关系状态, npcName, onG
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
                 {/* NPC 信息 */}
                 <div className="text-center">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 mx-auto flex items-center justify-center text-2xl text-white font-bold mb-2">

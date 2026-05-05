@@ -90,7 +90,7 @@ const BDSMContractNegotiation: React.FC<Props> = ({ npcName, 当前阶段, 服�
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
                 {步骤 === '类型' && (
                     <div>
                         <h4 className="text-xs font-semibold text-gray-400 mb-3">选择契约类型</h4>

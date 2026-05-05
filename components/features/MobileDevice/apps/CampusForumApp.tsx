@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { DeviceMode, MobileApp, DeviceGameContext } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
 import type { 论坛帖子 } from '../../../../models/campusPhone';
@@ -43,6 +43,48 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
     const [contactingPost, setContactingPost] = useState<BDSM论坛帖子 | null>(null);
     const [activeCategory, setActiveCategory] = useState('全部');
     const [activeBDSMSub, setActiveBDSMSub] = useState<BDSM帖子分类 | '全部'>('全部');
+
+    // 懒加载分页状态（不同板块独立管理）
+    const PAGE_SIZE = 10;
+    const [forumDisplayCount, setForumDisplayCount] = useState(PAGE_SIZE);
+    const [bdsmDisplayCount, setBdsmDisplayCount] = useState(PAGE_SIZE);
+    const [isLazyLoading, setIsLazyLoading] = useState(false);
+    const sentinelRef = useRef<HTMLLIElement>(null);
+
+    // 切换板块/分类时重置显示数量
+    useEffect(() => {
+        setForumDisplayCount(PAGE_SIZE);
+    }, [activeBoard, activeCategory]);
+
+    useEffect(() => {
+        setBdsmDisplayCount(PAGE_SIZE);
+    }, [activeBoard, activeBDSMSub]);
+
+    // IntersectionObserver：滚动到底部时加载更多
+    const handleLoadMore = useCallback(() => {
+        if (isLazyLoading) return;
+        setIsLazyLoading(true);
+        setTimeout(() => {
+            if (activeBoard === 'forum') {
+                setForumDisplayCount(prev => prev + PAGE_SIZE);
+            } else {
+                setBdsmDisplayCount(prev => prev + PAGE_SIZE);
+            }
+            setIsLazyLoading(false);
+        }, 100);
+    }, [activeBoard, isLazyLoading]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) handleLoadMore();
+            },
+            { rootMargin: '100px' }
+        );
+        const el = sentinelRef.current;
+        if (el) observer.observe(el);
+        return () => { if (el) observer.unobserve(el); };
+    }, [handleLoadMore]);
 
     const handleContactPost = (post: BDSM论坛帖子) => {
         setContactingPost(post);
@@ -148,6 +190,11 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
         if (activeCategory === '全部') return posts;
         return posts.filter(p => p.分类 === activeCategory);
     }, [activeBoard, activeCategory, activeBDSMSub, posts, bdsmPosts]);
+
+    // 懒加载分页后的帖子列表
+    const displayCount = activeBoard === 'forum' ? forumDisplayCount : bdsmDisplayCount;
+    const paginatedPosts = filteredPosts.slice(0, displayCount);
+    const hasMore = filteredPosts.length > displayCount;
 
     const isBDSMPost = (post: 论坛帖子 | BDSM论坛帖子): post is BDSM论坛帖子 => {
         return '子分类' in post && '影响等级' in post;
@@ -320,9 +367,9 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
 
             {/* 帖子列表 */}
             <div className="flex-1 overflow-y-auto">
-                {filteredPosts.length > 0 ? (
+                {paginatedPosts.length > 0 ? (
                     <ul className="divide-y divide-gray-800/50">
-                        {filteredPosts.map(post => {
+                        {paginatedPosts.map(post => {
                             const isBDSM = isBDSMPost(post);
                             return (
                                 <li key={post.id}>
@@ -351,6 +398,21 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                                 </li>
                             );
                         })}
+                        {hasMore && (
+                            <li ref={sentinelRef} className="py-3 text-center">
+                                {isLazyLoading ? (
+                                    <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                                        <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                        </svg>
+                                        加载中…
+                                    </div>
+                                ) : (
+                                    <div className="text-xs text-gray-600">上拉加载更多</div>
+                                )}
+                            </li>
+                        )}
                     </ul>
                 ) : isRefreshing ? (
                     <div className="flex flex-col items-center justify-center h-full text-center p-8">

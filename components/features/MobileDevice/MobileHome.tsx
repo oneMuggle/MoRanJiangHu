@@ -35,7 +35,7 @@ interface AppProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: (board?: 'bdsn') => void;
     isRefreshing?: boolean;
-    onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onSendMessage?: (npcId: string, npcName: string, content: string) => Promise<{ npcReply: string }>;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
@@ -54,7 +54,7 @@ interface MobileHomeProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: (board?: 'bdsn') => void;
     isRefreshing?: boolean;
-    onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onSendMessage?: (npcId: string, npcName: string, content: string) => Promise<{ npcReply: string }>;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     // BDSM 任务操作

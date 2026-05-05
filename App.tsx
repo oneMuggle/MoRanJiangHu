@@ -1796,7 +1796,7 @@ const App: React.FC = () => {
                                     (t: any) => t.status === 'processing'
                                 ) || false}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
-                                    actions.handlePrivateChatSend?.(npcId, npcName, content).then(result => {
+                                    return actions.handlePrivateChatSend?.(npcId, npcName, content).then(result => {
                                         if (result.npcReply) {
                                             const prev = state.校园系统 as any;
                                             const 私聊列表 = prev?.私聊会话列表 || [];
@@ -1815,6 +1815,7 @@ const App: React.FC = () => {
                                             });
                                             setters.set校园系统?.({ ...prev, 私聊会话列表: 更新后列表 });
                                         }
+                                        return result;
                                     });
                                 }}
                                 onUnlockNPC={(newNpc) => {
@@ -1865,13 +1866,34 @@ const App: React.FC = () => {
                                             }],
                                             关系类型: 关系标签 as any,
                                         };
-                                        setters.set校园系统?.({ ...prev, 私聊会话列表: [...私聊列表, 新会话] });
+                                        // 同时初始化 NPC 欲望档案中的 BDSM 关系
+                                        const 欲望系统 = prev?.欲望系统 || {};
+                                        const NPC欲望档案 = 欲望系统.NPC欲望档案 || {};
+                                        if (!NPC欲望档案[npcId]) {
+                                            NPC欲望档案[npcId] = {
+                                                姓名: npcName,
+                                                _npcName: npcName,
+                                                BDSM关系: {
+                                                    阶段: '初识',
+                                                    服从度: 50,
+                                                    权力天平: 0,
+                                                    契约记录: [],
+                                                    任务历史: [],
+                                                    日常指令: [],
+                                                    里程碑: [],
+                                                    安全词: '月光',
+                                                    底线列表: [],
+                                                },
+                                            };
+                                            欲望系统.NPC欲望档案 = NPC欲望档案;
+                                        }
+                                        setters.set校园系统?.({ ...prev, 私聊会话列表: [...私聊列表, 新会话], 欲望系统 });
                                     }
                                 }}
                                 onConfirmNegotiation={(npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => {
                                     const prev = state.校园系统 as any;
                                     const 预约列表 = prev?.见面预约列表 || [];
-                                    const 当前回合 = (prev as any)?.当前回合数 || 1;
+                                    const 当前回合 = state.历史记录?.length ?? 0;
                                     const 新预约 = {
                                         npcId,
                                         npcName,

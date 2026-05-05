@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, Suspense, lazy } from 'react';
 import { DeviceMode, MobileApp, DeviceGameContext } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
 import type { 见面地点 } from '../../../../models/campusPhone';
 import type { BDSM关系状态 } from '../../../../models/campusNSFW/sm';
-import BDSMTaskPanel from './BDSMTaskPanel';
-import BDSMContractPanel from './BDSMContractPanel';
-import BDSMRelationshipDashboard from './BDSMRelationshipDashboard';
-import BDSMNegotiationPanel from './BDSMNegotiationPanel';
-import BDSMContractNegotiation from './BDSMContractNegotiation';
-import BDSMSafetySettings from './BDSMSafetySettings';
+
+const BDSMTaskPanel = lazy(() => import('./BDSMTaskPanel'));
+const BDSMContractPanel = lazy(() => import('./BDSMContractPanel'));
+const BDSMRelationshipDashboard = lazy(() => import('./BDSMRelationshipDashboard'));
+const BDSMNegotiationPanel = lazy(() => import('./BDSMNegotiationPanel'));
+const BDSMContractNegotiation = lazy(() => import('./BDSMContractNegotiation'));
+const BDSMSafetySettings = lazy(() => import('./BDSMSafetySettings'));
 
 interface AppProps {
     eraId: string;
@@ -16,7 +17,7 @@ interface AppProps {
     appId: MobileApp;
     onBack: () => void;
     gameContext?: DeviceGameContext;
-    onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onSendMessage?: (npcId: string, npcName: string, content: string) => Promise<{ npcReply: string }>;
     onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
     onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: 见面地点; 安全词: string; 玩家底线: string[] }) => void;
 }
@@ -57,21 +58,32 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
     const [negotiating, setNegotiating] = useState(false);
     const [negotiatingContract, setNegotiatingContract] = useState(false);
     const [editingSafety, setEditingSafety] = useState(false);
+    const [waitingForReply, setWaitingForReply] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // 自动滚动到最新消息
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [activeSession?.messages?.length, activeSession?.id]);
 
     // 从欲望系统中查找当前会话 NPC 的 BDSM 关系状态
-    const findBDSM关系 = (npc姓名: string): BDSM关系状态 | null => {
+    const findBDSM关系 = (npcId: string, npc姓名: string): BDSM关系状态 | null => {
         const 欲望系统 = gameContext?.校园系统?.欲望系统;
         const 档案 = 欲望系统?.NPC欲望档案;
         if (!档案) return null;
+        // 优先用 npcId 直接匹配
+        const 直接匹配 = 档案[npcId] as any;
+        if (直接匹配?.BDSM关系) return 直接匹配.BDSM关系 as BDSM关系状态;
+        // 回退：按姓名匹配
         for (const [, v] of Object.entries(档案)) {
             const b = (v as any).BDSM关系;
-            if (b && (v as any)._npcName === npc姓名) return b as BDSM关系状态;
+            if (b && ((v as any)._npcName === npc姓名 || (v as any).姓名 === npc姓名)) return b as BDSM关系状态;
         }
         return null;
     };
 
-    const hasBDSM关系 = activeSession ? findBDSM关系(activeSession.name) !== null : false;
-    const 当前BDSM关系 = activeSession ? findBDSM关系(activeSession.name) : null;
+    const hasBDSM关系 = activeSession ? findBDSM关系(activeSession.id, activeSession.name) !== null : false;
+    const 当前BDSM关系 = activeSession ? findBDSM关系(activeSession.id, activeSession.name) : null;
 
     const 关系类型映射: Record<string, string> = {
         '恋人': '恋人', '室友': '室友', '同学': '同学',
@@ -142,11 +154,14 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
         });
     }, [gameContext?.社交, gameContext?.历史记录, gameContext?.校园系统?.私聊会话列表]);
 
-    const handleSend = () => {
-        if (!inputText.trim() || !activeSession) return;
+    const handleSend = async () => {
+        if (!inputText.trim() || !activeSession || waitingForReply) return;
         const npcName = activeSession.name;
-        onSendMessage?.(activeSession.id, npcName, inputText.trim());
+        const userMessage = inputText.trim();
         setInputText('');
+        setWaitingForReply(true);
+
+        // 先添加用户消息
         setActiveSession(prev => {
             if (!prev) return null;
             return {
@@ -154,92 +169,141 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                 messages: [...prev.messages, {
                     id: `sent-${Date.now()}`,
                     sender: '我',
-                    content: inputText.trim(),
+                    content: userMessage,
                     time: '刚刚',
                     isMe: true,
                 }],
-                lastMessage: inputText.trim(),
+                lastMessage: userMessage,
                 lastTime: '刚刚',
                 unread: 0,
             };
         });
+
+        // 等待 NPC 回复并追加
+        try {
+            const result = await onSendMessage?.(activeSession.id, npcName, userMessage);
+            if (result?.npcReply) {
+                setActiveSession(prev => {
+                    if (!prev) return null;
+                    return {
+                        ...prev,
+                        messages: [...prev.messages, {
+                            id: `npc-${Date.now()}`,
+                            sender: npcName,
+                            content: result.npcReply,
+                            time: '刚刚',
+                            isMe: false,
+                        }],
+                        lastMessage: result.npcReply,
+                        lastTime: '刚刚',
+                    };
+                });
+            }
+        } catch {
+            // NPC 回复失败，静默处理
+        } finally {
+            setWaitingForReply(false);
+        }
     };
+
+const LOADING_FALLBACK = (
+        <div className="flex items-center justify-center h-full text-gray-500 text-sm gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            加载中…
+        </div>
+    );
+
+    const LOADING_FALLBACK_FULL = (
+        <div className="flex items-center justify-center h-full bg-gray-900/95 text-gray-500 text-sm gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            加载中…
+        </div>
+    );
 
     if (activeSession) {
         // 见面协商面板
         if (negotiating) {
             return (
-                <BDSMNegotiationPanel
-                    npcName={activeSession.name}
-                    当前回合={(gameContext?.历史记录?.length || 0) + 1}
-                    onConfirm={(协商结果) => {
-                        onConfirmNegotiation?.(activeSession.id, activeSession.name, {
-                            见面回合偏移: 协商结果.见面回合偏移,
-                            见面地点: 协商结果.见面地点,
-                            安全词: 协商结果.安全词,
-                            玩家底线: 协商结果.玩家底线,
-                        });
-                        setNegotiating(false);
-                    }}
-                    onCancel={() => setNegotiating(false)}
-                />
+                <div className="flex flex-col h-full">
+                    <Suspense fallback={LOADING_FALLBACK_FULL}>
+                        <BDSMNegotiationPanel
+                            npcName={activeSession.name}
+                            onConfirm={(协商结果) => {
+                                onConfirmNegotiation?.(activeSession.id, activeSession.name, {
+                                    见面回合偏移: 协商结果.见面回合偏移,
+                                    见面地点: 协商结果.见面地点,
+                                    安全词: 协商结果.安全词,
+                                    玩家底线: 协商结果.玩家底线,
+                                });
+                                setNegotiating(false);
+                            }}
+                            onCancel={() => setNegotiating(false)}
+                        />
+                    </Suspense>
+                </div>
             );
         }
 
         // 契约协商面板
         if (negotiatingContract && 当前BDSM关系) {
             return (
-                <BDSMContractNegotiation
-                    npcName={activeSession.name}
-                    当前阶段={当前BDSM关系.阶段}
-                    服从度={当前BDSM关系.服从度}
-                    onConfirm={(协商结果) => {
-                        // TODO: wire to useGame action
-                        setNegotiatingContract(false);
-                        setBdsmPanel('契约');
-                    }}
-                    onCancel={() => setNegotiatingContract(false)}
-                />
+                <div className="flex flex-col h-full">
+                    <Suspense fallback={LOADING_FALLBACK_FULL}>
+                        <BDSMContractNegotiation
+                            npcName={activeSession.name}
+                            当前阶段={当前BDSM关系.阶段}
+                            服从度={当前BDSM关系.服从度}
+                            onConfirm={() => {
+                                setNegotiatingContract(false);
+                                setBdsmPanel('契约');
+                            }}
+                            onCancel={() => setNegotiatingContract(false)}
+                        />
+                    </Suspense>
+                </div>
             );
         }
 
         // BDSM 子面板渲染
         if (bdsmPanel !== '聊天' && 当前BDSM关系) {
-            const panelProps = {
-                关系状态: 当前BDSM关系,
-                日常指令: 当前BDSM关系.日常指令 || [],
-                npcName: activeSession.name,
-                onGoToTasks: () => setBdsmPanel('任务'),
-                onGoToContract: () => setBdsmPanel('契约'),
-            };
             return (
                 <div className="flex flex-col h-full">
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700/50">
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700/50 shrink-0">
                         <button onClick={() => setBdsmPanel('聊天')} className="text-gray-400 hover:text-white transition-colors">&larr;</button>
                         <h3 className="font-semibold text-white text-sm flex-1 truncate">{activeSession.name}</h3>
                         <span className="text-[10px] text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded">{当前BDSM关系.阶段}</span>
                     </div>
-                    {bdsmPanel === '任务' && (
-                        <BDSMTaskPanel
-                            关系状态={当前BDSM关系}
-                            日常指令={当前BDSM关系.日常指令 || []}
-                        />
-                    )}
-                    {bdsmPanel === '契约' && (
-                        <BDSMContractPanel
-                            关系状态={当前BDSM关系}
-                            onNegotiateContract={() => setNegotiatingContract(true)}
-                        />
-                    )}
-                    {bdsmPanel === '总览' && (
-                        <BDSMRelationshipDashboard
-                            关系状态={当前BDSM关系}
-                            npcName={activeSession.name}
-                            onGoToTasks={() => setBdsmPanel('任务')}
-                            onGoToContract={() => setBdsmPanel('契约')}
-                            onEditSafety={() => setEditingSafety(true)}
-                        />
-                    )}
+                    <Suspense fallback={LOADING_FALLBACK}>
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        {bdsmPanel === '任务' && (
+                            <BDSMTaskPanel
+                                关系状态={当前BDSM关系}
+                                日常指令={当前BDSM关系.日常指令 || []}
+                            />
+                        )}
+                        {bdsmPanel === '契约' && (
+                            <BDSMContractPanel
+                                关系状态={当前BDSM关系}
+                                onNegotiateContract={() => setNegotiatingContract(true)}
+                            />
+                        )}
+                        {bdsmPanel === '总览' && (
+                            <BDSMRelationshipDashboard
+                                关系状态={当前BDSM关系}
+                                npcName={activeSession.name}
+                                onGoToTasks={() => setBdsmPanel('任务')}
+                                onGoToContract={() => setBdsmPanel('契约')}
+                                onEditSafety={() => setEditingSafety(true)}
+                            />
+                        )}
+                    </div>
+                    </Suspense>
                 </div>
             );
         }
@@ -247,12 +311,16 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
         // 安全设置面板
         if (editingSafety && 当前BDSM关系) {
             return (
-                <BDSMSafetySettings
-                    关系状态={当前BDSM关系}
-                    npcName={activeSession.name}
-                    onSave={() => setEditingSafety(false)}
-                    onCancel={() => setEditingSafety(false)}
-                />
+                <div className="flex flex-col h-full">
+                    <Suspense fallback={LOADING_FALLBACK_FULL}>
+                        <BDSMSafetySettings
+                            关系状态={当前BDSM关系}
+                            npcName={activeSession.name}
+                            onSave={() => setEditingSafety(false)}
+                            onCancel={() => setEditingSafety(false)}
+                        />
+                    </Suspense>
+                </div>
             );
         }
 
@@ -294,6 +362,19 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                             </div>
                         </div>
                     ))}
+                    {waitingForReply && (
+                        <div className="flex justify-start">
+                            <div className="max-w-[75%] rounded-lg px-3 py-2 text-sm bg-gray-700/50 text-gray-400">
+                                <div className="text-[9px] text-gray-500 mb-0.5">{activeSession.name}</div>
+                                <div className="flex items-center gap-1">
+                                    <span className="inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <span className="inline-block w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
                 </div>
                 <div className="flex gap-2 px-4 py-3 border-t border-gray-700/50">
                     <input
@@ -305,9 +386,14 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!inputText.trim()}
+                        disabled={!inputText.trim() || waitingForReply}
                         className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >发送</button>
+                    >{waitingForReply ? (
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                    ) : '发送'}</button>
                 </div>
             </div>
         );
@@ -323,7 +409,7 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                 {sessions.length > 0 ? (
                     <ul className="divide-y divide-gray-800/50">
                         {sessions.map(session => {
-                            const bRel = findBDSM关系(session.name);
+                            const bRel = findBDSM关系(session.id, session.name);
                             return (
                             <li key={session.id}>
                                 <button
