@@ -114,6 +114,7 @@ import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
 import { 规范化可选开局配置 } from '../utils/openingConfig';
+import type { DeviceGameContext } from '../models/mobileDevice';
 import { 构建COT伪装提示词, 规范化比较文本, 酒馆预设模式可用 } from './useGame/promptRuntime';
 import { 构建文生图运行时额外提示词 } from '../prompts/runtime/nsfw';
 import { 构建真实世界模式提示词 } from '../prompts/runtime/realWorldMode';
@@ -155,6 +156,7 @@ import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记
 import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/variableGenerationProgress';
 import { use后台生图监控 } from './useGame/backgroundImageMonitor';
 import { 触发设备消息生成 } from './useGame/triggerDeviceMessageWorkflow';
+import { use后台设备刷新监控, type 设备刷新任务 } from './useGame/deviceRefreshMonitor';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -433,6 +435,10 @@ export const useGame = () => {
     const 时代信息Ref = useRef<时代信息结构 | undefined>(undefined);
     const [时代信息, set时代信息] = useState<时代信息结构 | undefined>(undefined);
     const [场景生图任务队列, set场景生图任务队列] = useState<场景生图任务记录[]>([]);
+
+    // 设备刷新任务队列
+    const [设备刷新任务队列, set设备刷新任务队列] = useState<设备刷新任务[]>([]);
+
     const 后台手动生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 构图: '头像' | '半身' | '立绘' }>>([]);
     const 已提示后台生图任务Ref = useRef<Set<string>>(new Set());
     const 后台私密生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 部位: 香闺秘档部位类型 }>>([]);
@@ -577,6 +583,32 @@ export const useGame = () => {
         推送右下角提示,
         NPC生图任务队列,
         场景生图任务队列
+    });
+
+    // 后台设备刷新监控
+    const nsfw设置 = (gameConfig as any)?.校园NSFW设置 || { 启用BDSM论坛: false, BDSM内容强度: '关闭' };
+    const 设备刷新GameContext: DeviceGameContext = {
+        角色: 角色 || null,
+        社交: 社交 || [],
+        世界: 世界 || null,
+        剧情: 剧情 || null,
+        历史记录: 历史记录 || [],
+        校规系统: 校规系统,
+        催眠系统: 催眠系统,
+        校园系统: 校园系统,
+    };
+    use后台设备刷新监控({
+        设备刷新任务队列,
+        set设备刷新任务队列,
+        校园系统,
+        set校园系统: 设置校园系统,
+        eraId: currentEra,
+        mode: 派生设备模式(),
+        apiConfig: apiConfig as any,
+        apiSettings: apiConfig as any,
+        gameContext: 设备刷新GameContext,
+        nsfw设置,
+        推送右下角提示,
     });
 
     useEffect(() => {
@@ -1293,7 +1325,21 @@ export const useGame = () => {
             规范化同人剧情规划状态,
             规范化同人女主剧情规划状态,
             规范化角色物品容器映射,
-            规范化校园系统: (raw?: any) => 深拷贝(raw || {}),
+            规范化校园系统: (raw?: any) => {
+                const safe = 深拷贝(raw || {});
+                return {
+                    论坛帖子列表: Array.isArray(safe.论坛帖子列表) ? safe.论坛帖子列表 : [],
+                    BDSM帖子列表: Array.isArray(safe.BDSM帖子列表) ? safe.BDSM帖子列表 : [],
+                    私聊会话列表: Array.isArray(safe.私聊会话列表) ? safe.私聊会话列表 : [],
+                    课程表: (safe.课程表 && typeof safe.课程表 === 'object') ? safe.课程表 : {},
+                    校园卡: (safe.校园卡 && typeof safe.校园卡 === 'object') ? {
+                        余额: typeof safe.校园卡.余额 === 'number' ? safe.校园卡.余额 : 0,
+                        消费记录: Array.isArray(safe.校园卡.消费记录) ? safe.校园卡.消费记录 : [],
+                    } : { 余额: 0, 消费记录: [] },
+                    社团活动列表: Array.isArray(safe.社团活动列表) ? safe.社团活动列表 : [],
+                    欲望系统: safe.欲望系统 ?? undefined,
+                };
+            },
             战斗结束自动清空,
             设置角色,
             设置环境,
@@ -2199,6 +2245,7 @@ export const useGame = () => {
             eraInfo: 时代信息Ref.current,
             // Mobile Device
             deviceState: 设备状态,
+            deviceRefreshQueue: 设备刷新任务队列,
         },
         setters: {
             setShowSettings, setShowInventory, setShowEquipment, setShowBattle, setShowSocial, setShowTeam, setShowKungfu, setShowWorld, setShowMap, setShowSect, setShowTask, setShowAgreement, setShowStory, setShowHeroinePlan, setShowMemory, setShowSaveLoad,
@@ -2208,6 +2255,7 @@ export const useGame = () => {
             set催眠系统: 设置催眠系统,
             set校园系统: 设置校园系统,
             set社交: 设置社交,
+            set设备刷新队列: set设备刷新任务队列,
         },
         actions: {
             handleSend,
