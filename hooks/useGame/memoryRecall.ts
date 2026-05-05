@@ -1,5 +1,5 @@
 import { 记忆系统结构 } from '../../types';
-import { 规范化记忆系统, 格式化回忆名称 } from './memoryUtils';
+import { 规范化记忆系统, 格式化回忆名称, 解析记忆条目时间信息 } from './memoryUtils';
 
 export type 剧情回忆候选 = {
     id: string;
@@ -235,4 +235,172 @@ export const 根据检索结果构建剧情回忆标签 = (
         '弱回忆：',
         weakBlocks.length > 0 ? weakBlocks.join('\n\n') : '无'
     ].join('\n').trim();
+};
+
+// ==================== 记忆检索功能 ====================
+
+export type 记忆搜索结果 = {
+    id: string;
+    层: '即时' | '短期' | '中期' | '长期';
+    记忆原文: string;
+    概括: string;
+    时间戳: string;
+    回合: number;
+    匹配度: number;
+    匹配片段: string;
+};
+
+type 记忆层级 = '即时' | '短期' | '中期' | '长期';
+
+const 计算搜索匹配度 = (
+    queryTerms: string[],
+    searchableText: string
+): { score: number; fragments: string[] } => {
+    if (queryTerms.length === 0 || !searchableText.trim()) {
+        return { score: 0, fragments: [] };
+    }
+    const text = searchableText.toLowerCase();
+    let score = 0;
+    const fragments: string[] = [];
+
+    queryTerms.forEach((term) => {
+        const lowerTerm = term.toLowerCase();
+        if (!text.includes(lowerTerm)) return;
+
+        // 基础分数：词长越长分数越高
+        const baseScore = lowerTerm.length >= 4 ? 5 : lowerTerm.length === 3 ? 3 : 1.5;
+        score += baseScore;
+
+        // 统计出现次数（最多计3次）
+        const matches = text.match(new RegExp(lowerTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'));
+        if (matches && matches.length > 1) {
+            score += Math.min(matches.length - 1, 2) * 0.5;
+        }
+
+        // 提取匹配片段上下文（前后各20字符）
+        let startIdx = 0;
+        while (true) {
+            const idx = text.indexOf(lowerTerm, startIdx);
+            if (idx === -1) break;
+            const fragmentStart = Math.max(0, idx - 20);
+            const fragmentEnd = Math.min(searchableText.length, idx + lowerTerm.length + 20);
+            const fragment = searchableText.slice(fragmentStart, fragmentEnd);
+            if (!fragments.includes(fragment)) {
+                fragments.push(fragment);
+            }
+            if (fragments.length >= 3) break;
+            startIdx = idx + 1;
+        }
+    });
+
+    return { score, fragments };
+};
+
+const 提取即时记忆可搜索文本 = (entry: string): { name: string; summary: string; raw: string } => {
+    const 即时短期分隔标记 = '\n<<SHORT_TERM_SYNC>>\n';
+    const splitAt = entry.lastIndexOf(即时短期分隔标记);
+    const main = splitAt >= 0 ? entry.slice(0, splitAt).trim() : entry.trim();
+    const shortSummary = splitAt >= 0 ? entry.slice(splitAt + 即时短期分隔标记.length).trim() : '';
+    return { name: '', summary: shortSummary, raw: main };
+};
+
+export const 搜索记忆条目 = (
+    query: string,
+    mem: 记忆系统结构,
+    options?: { limit?: number; 层Filter?: 记忆层级[] }
+): 记忆搜索结果[] => {
+    const normalized = 规范化记忆系统(mem);
+    const queryTerms = 提取检索词(query);
+    if (queryTerms.length === 0) return [];
+
+    const limit = Math.max(1, Math.min(100, options?.limit || 20));
+    const layerFilter = options?.层Filter || null;
+
+    const results: 记忆搜索结果[] = [];
+
+    // 搜索即时记忆
+    if (!layerFilter || layerFilter.includes('即时')) {
+        normalized.即时记忆.forEach((entry, idx) => {
+            const parsed = 提取即时记忆可搜索文本(entry);
+            const searchable = [parsed.raw, parsed.summary].filter(Boolean).join('\n');
+            const { score, fragments } = 计算搜索匹配度(queryTerms, searchable);
+            if (score > 0) {
+                results.push({
+                    id: `即时_${idx}`,
+                    层: '即时',
+                    记忆原文: parsed.raw,
+                    概括: parsed.summary,
+                    时间戳: '',
+                    回合: idx + 1,
+                    匹配度: score,
+                    匹配片段: fragments.join('...')
+                });
+            }
+        });
+    }
+
+    // 搜索短期记忆
+    if (!layerFilter || layerFilter.includes('短期')) {
+        normalized.短期记忆.forEach((entry, idx) => {
+            const { 内容 } = 解析记忆条目时间信息(entry);
+            const { score, fragments } = 计算搜索匹配度(queryTerms, entry);
+            if (score > 0) {
+                results.push({
+                    id: `短期_${idx}`,
+                    层: '短期',
+                    记忆原文: 内容,
+                    概括: 内容,
+                    时间戳: '',
+                    回合: idx + 1,
+                    匹配度: score,
+                    匹配片段: fragments.join('...')
+                });
+            }
+        });
+    }
+
+    // 搜索中期记忆
+    if (!layerFilter || layerFilter.includes('中期')) {
+        normalized.中期记忆.forEach((entry, idx) => {
+            const { 内容 } = 解析记忆条目时间信息(entry);
+            const { score, fragments } = 计算搜索匹配度(queryTerms, entry);
+            if (score > 0) {
+                results.push({
+                    id: `中期_${idx}`,
+                    层: '中期',
+                    记忆原文: 内容,
+                    概括: 内容,
+                    时间戳: '',
+                    回合: idx + 1,
+                    匹配度: score,
+                    匹配片段: fragments.join('...')
+                });
+            }
+        });
+    }
+
+    // 搜索长期记忆
+    if (!layerFilter || layerFilter.includes('长期')) {
+        normalized.长期记忆.forEach((entry, idx) => {
+            const { 内容 } = 解析记忆条目时间信息(entry);
+            const { score, fragments } = 计算搜索匹配度(queryTerms, entry);
+            if (score > 0) {
+                results.push({
+                    id: `长期_${idx}`,
+                    层: '长期',
+                    记忆原文: 内容,
+                    概括: 内容,
+                    时间戳: '',
+                    回合: idx + 1,
+                    匹配度: score,
+                    匹配片段: fragments.join('...')
+                });
+            }
+        });
+    }
+
+    // 按匹配度降序排列，取前 limit 条
+    return results
+        .sort((a, b) => b.匹配度 - a.匹配度)
+        .slice(0, limit);
 };

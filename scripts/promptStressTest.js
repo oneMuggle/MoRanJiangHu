@@ -44,7 +44,7 @@ function checkFandomPromptAssembly() {
     },
     {
       name: 'realm_generation_runtime',
-      file: 'services/ai/storyTasks.ts',
+      file: 'services/ai/text/storyTasks.ts',
       needles: ['generateFandomRealmData', '同人境界体系生成系统提示词', '校验境界体系提示词完整性']
     },
     {

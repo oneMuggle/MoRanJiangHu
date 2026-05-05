@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { 聊天记录结构, 记忆系统结构 } from '../../../types';
 import { 构建带时间戳的记忆条目, 解析记忆条目时间信息 } from '../../../hooks/useGame/memoryUtils';
+import { 搜索记忆条目, 记忆搜索结果 } from '../../../hooks/useGame/memoryRecall';
 
 interface Props {
     history: 聊天记录结构[];
@@ -11,7 +12,7 @@ interface Props {
     onStartMemorySummary?: (source: '短期' | '中期', startIndex: number, endIndex: number) => void;
 }
 
-type TabType = 'context' | 'short' | 'medium' | 'long';
+type TabType = 'context' | 'short' | 'medium' | 'long' | 'search';
 const 即时短期分隔标记 = '\n<<SHORT_TERM_SYNC>>\n';
 
 type 编辑条目状态 = {
@@ -103,6 +104,9 @@ const MemoryModal: React.FC<Props> = ({
         error: ''
     });
     const [summaryRange, setSummaryRange] = useState<区间总结状态>({ start: '1', end: '1', error: '' });
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<记忆搜索结果[]>([]);
+    const [searchTabBefore, setSearchTabBefore] = useState<TabType>('context');
 
     const fallbackImmediateData: 记忆展示条目[] = history
         .filter((msg) => msg.role === 'assistant' && msg.structuredResponse?.shortTerm)
@@ -172,14 +176,75 @@ const MemoryModal: React.FC<Props> = ({
         if (activeTab === 'context') return contextData;
         if (activeTab === 'short') return shortData;
         if (activeTab === 'medium') return mediumData;
+        if (activeTab === 'long') return longData;
+        if (activeTab === 'search') {
+            // 将搜索结果转换为展示格式
+            return searchResults.map((result, idx) => ({
+                id: idx,
+                content: result.匹配片段,
+                rawContent: result.记忆原文 || result.概括,
+                fromMemory: true,
+                rawDate: `${result.层}记忆`,
+                syncedShort: '',
+                timeStart: '',
+                timeEnd: '',
+                // 搜索结果特有字段
+                层: result.层,
+                回合: result.回合,
+                匹配度: result.匹配度,
+                匹配片段: result.匹配片段,
+                记忆原文: result.记忆原文
+            })) as (typeof contextData[0] & { 层?: string; 回合?: number; 匹配度?: number; 匹配片段?: string; 记忆原文?: string })[];
+        }
         return longData;
-    }, [activeTab, contextData, longData, mediumData, shortData]);
+    }, [activeTab, contextData, longData, mediumData, shortData, searchResults]);
 
     const currentLayerLength = activeTab === 'short'
         ? (memorySystem?.短期记忆?.length || 0)
         : activeTab === 'medium'
             ? (memorySystem?.中期记忆?.length || 0)
             : 0;
+
+    // ==================== 记忆检索功能 ====================
+    const 执行记忆搜索 = useCallback(() => {
+        if (!searchQuery.trim()) {
+            setSearchResults([]);
+            return;
+        }
+        const results = 搜索记忆条目(searchQuery, memorySystem || 创建空记忆系统(), { limit: 20 });
+        setSearchResults(results);
+    }, [searchQuery, memorySystem]);
+
+    const 切换到搜索标签 = () => {
+        if (activeTab !== 'search') {
+            setSearchTabBefore(activeTab);
+            setActiveTab('search');
+        }
+        执行记忆搜索();
+    };
+
+    const 清除搜索 = () => {
+        setSearchQuery('');
+        setSearchResults([]);
+        setActiveTab(searchTabBefore);
+    };
+
+    const 处理搜索输入 = (value: string) => {
+        setSearchQuery(value);
+        if (value.trim()) {
+            // 防抖延迟
+            const timeoutId = setTimeout(() => {
+                if (activeTab !== 'search') {
+                    setSearchTabBefore(activeTab);
+                    setActiveTab('search');
+                }
+                执行记忆搜索();
+            }, 300);
+            return () => clearTimeout(timeoutId);
+        } else {
+            setSearchResults([]);
+        }
+    };
 
     useEffect(() => {
         if (activeTab !== 'short' && activeTab !== 'medium') return;
@@ -321,11 +386,36 @@ const MemoryModal: React.FC<Props> = ({
 
                 <div className="flex flex-col flex-1 overflow-hidden relative z-10">
                     <div className="flex border-b border-wuxia-cyan/20 bg-black/40 px-8 pt-6 gap-4 shrink-0 shadow-md relative z-20">
+                        {/* 搜索栏 */}
+                        <div className="flex items-center gap-2 mr-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => 处理搜索输入(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && 切换到搜索标签()}
+                                    placeholder="搜索记忆..."
+                                    className="w-48 h-10 pl-10 pr-10 rounded-lg border border-gray-700 bg-black/60 text-sm text-cyan-100 outline-none focus:border-wuxia-cyan/60 focus:bg-cyan-950/20 transition-all font-serif"
+                                />
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                {searchQuery && (
+                                    <button
+                                        onClick={清除搜索}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-gray-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                         {[
                             { id: 'context', label: '浮光掠影', desc: '即刻之念', icon: '✦' },
                             { id: 'short', label: '浅层识海', desc: '近期之忆', icon: '❂' },
                             { id: 'medium', label: '深层识海', desc: '沉淀之思', icon: '🌀' },
-                            { id: 'long', label: '神魂烙印', desc: '亘古之识', icon: '⚜' }
+                            { id: 'long', label: '神魂烙印', desc: '亘古之识', icon: '⚜' },
+                            { id: 'search', label: '检索结果', desc: '搜索命中', icon: '🔍' }
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -399,21 +489,36 @@ const MemoryModal: React.FC<Props> = ({
                                     <div className={`absolute left-[18px] top-3 w-3 h-3 rounded-full border-2 transition-all shadow-[0_0_10px_rgba(34,211,238,0.5)] z-10 ${
                                         activeTab === 'context' ? 'bg-wuxia-cyan border-white text-black group-hover:scale-125' :
                                             activeTab === 'long' ? 'bg-wuxia-gold border-white text-black group-hover:scale-125' :
-                                                'bg-black border-cyan-500 group-hover:bg-wuxia-cyan group-hover:scale-125'
+                                                activeTab === 'search' ? 'bg-purple-500 border-white text-black group-hover:scale-125' :
+                                                    'bg-black border-cyan-500 group-hover:bg-wuxia-cyan group-hover:scale-125'
                                     }`}></div>
 
                                     <div className="bg-gradient-to-br from-black/80 to-black/60 border border-gray-800 p-6 rounded-xl group-hover:bg-black/80 group-hover:border-wuxia-cyan/40 transition-all relative shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.1)] overflow-hidden">
                                         
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-radial from-wuxia-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                         
-                                        {mem.rawDate && (
+                                        {activeTab === 'search' && '层' in mem && (
+                                            <div className="text-xs text-purple-400/70 font-mono mb-4 border-b border-gray-800/80 pb-2 flex items-center gap-2">
+                                                <span className="text-base text-purple-500">◷</span> {mem.层} · 回合{mem.回合} · 匹配度{Math.round(mem.匹配度 * 10) / 10}
+                                            </div>
+                                        )}
+                                        {mem.rawDate && activeTab !== 'search' && (
                                             <div className="text-xs text-cyan-500/70 font-mono mb-4 border-b border-gray-800/80 pb-2 flex items-center gap-2">
                                                 <span className="text-base text-cyan-700">◷</span> {mem.rawDate}
                                             </div>
                                         )}
                                         <p className="text-gray-300 font-serif leading-[2.5] text-sm text-justify whitespace-pre-wrap relative z-10">
-                                            {mem.content || mem.rawContent}
+                                            {activeTab === 'search' && '匹配片段' in mem && mem.匹配片段
+                                                ? <span className="text-purple-200/80">{mem.匹配片段}</span>
+                                                : (mem.content || mem.rawContent)
+                                            }
                                         </p>
+                                        {activeTab === 'search' && '记忆原文' in mem && mem.记忆原文 && (
+                                            <details className="mt-4">
+                                                <summary className="text-xs text-cyan-500/60 cursor-pointer hover:text-cyan-400">查看完整记忆</summary>
+                                                <p className="mt-2 text-gray-400 font-serif leading-[2] text-xs whitespace-pre-wrap">{mem.记忆原文}</p>
+                                            </details>
+                                        )}
                                         
                                         {activeTab === 'context' && mem.syncedShort && (
                                             <div className="mt-5 bg-gradient-to-r from-cyan-950/20 to-transparent p-4 rounded-lg border-l-2 border-cyan-800/50 relative z-10">
@@ -426,7 +531,7 @@ const MemoryModal: React.FC<Props> = ({
                                                 </p>
                                             </div>
                                         )}
-                                        {onSaveMemory && mem.fromMemory && (
+                                        {onSaveMemory && mem.fromMemory && activeTab !== 'search' && (
                                             <button
                                                 type="button"
                                                 onClick={() => 打开条目编辑(mem)}
@@ -442,8 +547,12 @@ const MemoryModal: React.FC<Props> = ({
                                     <div className="w-24 h-24 rounded-full border border-dashed border-cyan-800/50 flex items-center justify-center animate-[spin_20s_linear_infinite]">
                                         <span className="text-5xl opacity-30 transform rotate-45">☯</span>
                                     </div>
-                                    <span className="text-2xl tracking-[0.4em] font-bold text-gray-600">灵台澄空，诸念不生</span>
-                                    <span className="text-xs tracking-widest text-gray-500">需历练红尘，方能凝结神识</span>
+                                    <span className="text-2xl tracking-[0.4em] font-bold text-gray-600">
+                                        {activeTab === 'search' ? '灵台澄空，未寻得相关神念' : '灵台澄空，诸念不生'}
+                                    </span>
+                                    <span className="text-xs tracking-widest text-gray-500">
+                                        {activeTab === 'search' ? '请尝试其他关键词' : '需历练红尘，方能凝结神识'}
+                                    </span>
                                 </div>
                             )}
                         </div>
