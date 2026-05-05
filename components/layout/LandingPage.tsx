@@ -47,11 +47,12 @@ interface Props {
     onImageManager: () => void;
     onWorldbookManager: () => void;
     onNovelDecomposition: () => void;
+    onNovelWriting: () => void;
     onSettings: () => void;
     hasSave: boolean;
 }
 
-const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorldbookManager, onNovelDecomposition, onSettings, hasSave }) => {
+const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorldbookManager, onNovelDecomposition, onNovelWriting, onSettings, hasSave }) => {
     const 文案 = useUIText();
     return (
         <div className="h-full w-full flex flex-col items-center justify-center relative overflow-hidden bg-black z-40 rounded-xl">
@@ -131,6 +132,10 @@ const LandingPage: React.FC<Props> = ({ onStart, onLoad, onImageManager, onWorld
 
                 <GameButton onClick={onNovelDecomposition} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
                     {文案.小说分解按钮}
+                </GameButton>
+
+                <GameButton onClick={onNovelWriting} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-90 hover:opacity-100 min-h-[44px]">
+                    {文案.小说写作按钮}
                 </GameButton>
 
                 <GameButton onClick={onSettings} variant="secondary" className="text-base md:text-lg py-3 md:py-4 shadow-lg border-opacity-50 opacity-80 hover:opacity-100 min-h-[44px]">
