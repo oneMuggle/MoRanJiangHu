@@ -29,6 +29,208 @@ const 读取数字 = (value: unknown, fallback: number): number => {
     return Number.isFinite(num) ? num : fallback;
 };
 
+/**
+ * 校验数据集结构完整性，返回错误信息列表
+ */
+const 校验分享数据集结构 = (raw: any, index: number): string[] => {
+    const errors: string[] = [];
+    const prefix = `数据集[${index + 1}]`;
+
+    if (!raw || typeof raw !== 'object') {
+        errors.push(`${prefix}: 无效的数据集对象`);
+        return errors;
+    }
+
+    const id = 读取文本(raw?.id).trim();
+    const 标题 = 读取文本(raw?.标题).trim();
+    const 作品名 = 读取文本(raw?.作品名).trim();
+
+    if (!id) errors.push(`${prefix}: 缺少有效ID`);
+    if (!标题 && !作品名) errors.push(`${prefix}: 缺少标题和作品名`);
+
+    // 校验章节列表结构
+    const 章节列表 = raw?.章节列表;
+    if (章节列表 !== undefined && !Array.isArray(章节列表)) {
+        errors.push(`${prefix}: 章节列表必须是数组`);
+    } else if (Array.isArray(章节列表)) {
+        章节列表.forEach((chapter: any, ci: number) => {
+            if (!chapter || typeof chapter !== 'object') {
+                errors.push(`${prefix}.章节[${ci}]: 无效的章节对象`);
+            } else if (!读取文本(chapter?.id).trim()) {
+                errors.push(`${prefix}.章节[${ci}]: 缺少有效ID`);
+            }
+        });
+    }
+
+    // 校验分段列表结构
+    const 分段列表 = raw?.分段列表;
+    if (分段列表 !== undefined && !Array.isArray(分段列表)) {
+        errors.push(`${prefix}: 分段列表必须是数组`);
+    } else if (Array.isArray(分段列表)) {
+        分段列表.forEach((segment: any, si: number) => {
+            if (!segment || typeof segment !== 'object') {
+                errors.push(`${prefix}.分段[${si}]: 无效的分段对象`);
+            } else if (!读取文本(segment?.id).trim()) {
+                errors.push(`${prefix}.分段[${si}]: 缺少有效ID`);
+            }
+        });
+    }
+
+    // 校验注入树结构
+    const 注入树 = raw?.注入树;
+    if (注入树 !== undefined && !Array.isArray(注入树)) {
+        errors.push(`${prefix}: 注入树必须是数组`);
+    } else if (Array.isArray(注入树)) {
+        const validateNodes = (nodes: any[], path: string) => {
+            nodes.forEach((node: any, ni: number) => {
+                if (!node || typeof node !== 'object') {
+                    errors.push(`${path}[${ni}]: 无效的节点对象`);
+                    return;
+                }
+                if (!读取文本(node?.id).trim()) {
+                    errors.push(`${path}[${ni}]: 缺少有效ID`);
+                }
+                if (Array.isArray(node?.子节点)) {
+                    validateNodes(node.子节点, `${path}[${ni}].子节点`);
+                }
+            });
+        };
+        validateNodes(注入树, `${prefix}.注入树`);
+    }
+
+    return errors;
+};
+
+/**
+ * 校验任务结构完整性
+ */
+const 校验分享任务结构 = (raw: any, index: number): string[] => {
+    const errors: string[] = [];
+    const prefix = `任务[${index + 1}]`;
+
+    if (!raw || typeof raw !== 'object') {
+        errors.push(`${prefix}: 无效的任务对象`);
+        return errors;
+    }
+
+    if (!读取文本(raw?.数据集ID).trim()) {
+        errors.push(`${prefix}: 缺少数据集ID`);
+    }
+
+    // 校验已完成/失败分段ID列表是字符串数组
+    const completedSegments = raw?.已完成分段ID列表;
+    if (completedSegments !== undefined && !Array.isArray(completedSegments)) {
+        errors.push(`${prefix}: 已完成分段ID列表必须是数组`);
+    }
+
+    const failedSegments = raw?.失败分段ID列表;
+    if (failedSegments !== undefined && !Array.isArray(failedSegments)) {
+        errors.push(`${prefix}: 失败分段ID列表必须是数组`);
+    }
+
+    return errors;
+};
+
+/**
+ * 对导入的旧版本数据进行兼容性修复
+ */
+const 兼容修复分享数据集 = (raw: any): any => {
+    if (!raw || typeof raw !== 'object') return raw;
+
+    const version = Math.max(1, Math.floor(读取数字(raw?.schemaVersion, 1)));
+    let fixed = { ...raw };
+
+    // v1->v2: 确保存在分段模式字段
+    if (version < 2) {
+        if (!fixed.分段模式) {
+            fixed.分段模式 = 'single_chapter';
+        }
+    }
+
+    // v2->v3: 补全每批章数
+    if (version < 3) {
+        if (typeof fixed.每批章数 !== 'number' || fixed.每批章数 < 1) {
+            fixed.每批章数 = 1;
+        }
+    }
+
+    // v3->v4: 补全时间线起点
+    if (version < 4) {
+        if (!fixed.默认时间线起点) {
+            fixed.默认时间线起点 = 默认小说时间线起点;
+        }
+        fixed.是否识别原著时间线 = 读取布尔(fixed.是否识别原著时间线, false);
+    }
+
+    // v4->v5: 补全核心角色摘要
+    if (version < 5) {
+        if (!Array.isArray(fixed.核心角色摘要)) {
+            fixed.核心角色摘要 = [];
+        }
+        if (!Array.isArray(fixed.核心角色)) {
+            fixed.核心角色 = [];
+        }
+    }
+
+    // v5->v6: 补全当前阶段概括
+    if (version < 6) {
+        if (!读取文本(fixed.当前阶段概括)) {
+            fixed.当前阶段概括 = '';
+        }
+    }
+
+    // v6->v7: 确保注入树结构完整
+    if (version < 7) {
+        if (!Array.isArray(fixed.注入树)) {
+            fixed.注入树 = [];
+        }
+    }
+
+    // 更新版本号
+    fixed.schemaVersion = 小说拆分数据集版本;
+
+    return fixed;
+};
+
+/**
+ * 对导入的旧版本任务数据进行兼容性修复
+ */
+const 兼容修复分享任务 = (raw: any): any => {
+    if (!raw || typeof raw !== 'object') return raw;
+
+    const fixed = { ...raw };
+
+    // 确保存在必要字段
+    if (typeof fixed.后台运行 !== 'boolean') {
+        fixed.后台运行 = true;
+    }
+    if (typeof fixed.自动续跑 !== 'boolean') {
+        fixed.自动续跑 = true;
+    }
+    if (typeof fixed.单次处理批量 !== 'number' || fixed.单次处理批量 < 1) {
+        fixed.单次处理批量 = 1;
+    }
+    if (typeof fixed.自动重试次数 !== 'number' || fixed.自动重试次数 < 0) {
+        fixed.自动重试次数 = 0;
+    }
+    if (!Array.isArray(fixed.已完成分段ID列表)) {
+        fixed.已完成分段ID列表 = [];
+    }
+    if (!Array.isArray(fixed.失败分段ID列表)) {
+        fixed.失败分段ID列表 = [];
+    }
+
+    // 标准化状态值
+    fixed.状态 = ['queued', 'running', 'paused', 'completed', 'failed', 'cancelled', 'idle'].includes(fixed.状态)
+        ? fixed.状态
+        : 'idle';
+    fixed.当前阶段 = ['prepare', 'segmenting', 'processing', 'snapshotting', 'completed', 'failed', 'idle'].includes(fixed.当前阶段)
+        ? fixed.当前阶段
+        : 'idle';
+
+    return fixed;
+};
+
 const 标准化登场角色项文本 = (value: unknown): string => 读取文本(value)
     .replace(/\r\n/g, '\n')
     .split('\n')
@@ -1007,7 +1209,7 @@ export const 导入小说拆分分享数据 = async (
     const schema = 读取文本(parsed?.schema).trim();
     const version = Math.max(1, Math.floor(读取数字(parsed?.version, 1)));
     if (schema !== 小说拆分分享格式标识) {
-        throw new Error(`导入失败：分解数据格式“${schema || '未知类型'}”不受支持。`);
+        throw new Error(`导入失败：分解数据格式"${schema || '未知类型'}"不受支持。`);
     }
     if (version > 小说拆分分享版本) {
         throw new Error(`导入失败：分享包版本 ${version} 高于当前支持版本 ${小说拆分分享版本}。`);
@@ -1019,6 +1221,27 @@ export const 导入小说拆分分享数据 = async (
 
     const sourceTasks = Array.isArray(parsed?.tasks) ? parsed.tasks : [];
     const sourceSnapshots = Array.isArray(parsed?.snapshots) ? parsed.snapshots : [];
+
+    // 对源数据进行兼容修复和校验
+    const allValidationErrors: string[] = [];
+    const fixedSourceDatasets = sourceDatasets.map((raw: any, index: number) => {
+        const fixed = 兼容修复分享数据集(raw);
+        const errors = 校验分享数据集结构(fixed, index);
+        allValidationErrors.push(...errors);
+        return fixed;
+    });
+
+    const fixedSourceTasks = sourceTasks.map((raw: any, index: number) => {
+        const fixed = 兼容修复分享任务(raw);
+        const errors = 校验分享任务结构(fixed, index);
+        allValidationErrors.push(...errors);
+        return fixed;
+    });
+
+    // 如果有校验错误，记录警告但继续导入（兼容修复已尽可能修复问题）
+    if (allValidationErrors.length > 0) {
+        console.warn('[小说分解导入] 部分数据结构存在兼容性问题，已自动修复:', allValidationErrors);
+    }
     let rawMap = new Map<string, 小说拆分分享原文项结构>();
     if (options?.includeRawText !== false) {
         const rawEntry = entries[manifest.rawFile || 小说拆分分享原文文件];
@@ -1050,7 +1273,7 @@ export const 导入小说拆分分享数据 = async (
 
     sourceDatasets.forEach((rawDataset: any, datasetIndex: number) => {
         const normalizedDataset = 合并小说拆分分享原文(
-            规范化小说拆分数据集(rawDataset),
+            规范化小说拆分数据集(fixedSourceDatasets[datasetIndex]),
             rawMap.get(读取文本(rawDataset?.id).trim())
         );
         const nextDatasetId = 生成ID('novel_dataset');
@@ -1079,15 +1302,23 @@ export const 导入小说拆分分享数据 = async (
         importedDatasetIds.push(nextDatasetId);
 
         sourceTasks
-            .filter((item: any) => 读取文本(item?.数据集ID).trim() === normalizedDataset.id)
-            .forEach((rawTask: any) => {
-                const normalizedTask = 规范化小说拆分任务(rawTask);
+            .filter((item: any, taskIndex: number) => {
+                const fixedTask = fixedSourceTasks[taskIndex];
+                return 读取文本(item?.数据集ID).trim() === normalizedDataset.id;
+            })
+            .forEach((rawTask: any, taskArrayIndex: number) => {
+                // 找到在 sourceTasks 中的原始索引
+                const originalTaskIndex = sourceTasks.findIndex((t: any) =>
+                    读取文本(t?.数据集ID).trim() === normalizedDataset.id
+                );
+                const fixedTask = originalTaskIndex >= 0 ? fixedSourceTasks[originalTaskIndex] : rawTask;
+                const normalizedTask = 规范化小说拆分任务(fixedTask);
                 nextTasks.unshift(规范化小说拆分任务({
                     ...normalizedTask,
                     id: 生成ID('novel_task'),
                     数据集ID: nextDatasetId,
-                    已完成分段ID列表: normalizedTask.已完成分段ID列表.map((item) => segmentIdMap.get(item) || item),
-                    失败分段ID列表: normalizedTask.失败分段ID列表.map((item) => segmentIdMap.get(item) || item),
+                    已完成分段ID列表: normalizedTask.已完成分段ID列表.map((item: string) => segmentIdMap.get(item) || item),
+                    失败分段ID列表: normalizedTask.失败分段ID列表.map((item: string) => segmentIdMap.get(item) || item),
                     createdAt: Date.now(),
                     updatedAt: Date.now()
                 }));
