@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { use后台生图监控 } from './backgroundImageMonitor';
+import { useBackgroundImageMonitor } from './backgroundImageMonitor';
 
 describe('backgroundImageMonitor', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    describe('use后台生图监控', () => {
+    describe('useBackgroundImageMonitor', () => {
         const makeDeps = (overrides: any = {}) => ({
             推送右下角提示: vi.fn(),
             NPC生图任务队列: [],
@@ -17,7 +17,7 @@ describe('backgroundImageMonitor', () => {
 
         it('returns refs and recording functions', () => {
             const deps = makeDeps();
-            const { result } = renderHook(() => use后台生图监控(deps));
+            const { result } = renderHook(() => useBackgroundImageMonitor(deps));
             expect(result.current.refs).toBeDefined();
             expect(typeof result.current.记录后台场景监控).toBe('function');
             expect(typeof result.current.记录后台手动生图监控).toBe('function');
@@ -26,21 +26,21 @@ describe('backgroundImageMonitor', () => {
 
         it('records manual image generation monitor', () => {
             const deps = makeDeps();
-            const { result } = renderHook(() => use后台生图监控(deps));
+            const { result } = renderHook(() => useBackgroundImageMonitor(deps));
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: Date.now(), npcName: '张三', 构图: '头像' });
             expect(result.current.refs.后台手动生图监控Ref.current).toHaveLength(1);
         });
 
         it('records private image generation monitor', () => {
             const deps = makeDeps();
-            const { result } = renderHook(() => use后台生图监控(deps));
+            const { result } = renderHook(() => useBackgroundImageMonitor(deps));
             result.current.记录后台私密生图监控({ npcId: 'npc_1', since: Date.now(), npcName: '张三', 部位: '胸部' });
             expect(result.current.refs.后台私密生图监控Ref.current).toHaveLength(1);
         });
 
         it('records scene image generation monitor', () => {
             const deps = makeDeps();
-            const { result } = renderHook(() => use后台生图监控(deps));
+            const { result } = renderHook(() => useBackgroundImageMonitor(deps));
             result.current.记录后台场景监控({ since: Date.now(), 摘要: '场景摘要' });
             expect(result.current.refs.后台场景生图监控Ref.current).toHaveLength(1);
         });
@@ -55,7 +55,7 @@ describe('backgroundImageMonitor', () => {
                 构图: '头像' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '头像' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -77,7 +77,7 @@ describe('backgroundImageMonitor', () => {
                 错误信息: '超时',
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '立绘' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -98,7 +98,7 @@ describe('backgroundImageMonitor', () => {
                 构图: '头像' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '头像' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -117,7 +117,7 @@ describe('backgroundImageMonitor', () => {
                 构图: '头像' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '头像' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -139,7 +139,7 @@ describe('backgroundImageMonitor', () => {
                 部位: '胸部' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台私密生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 部位: '胸部' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -158,7 +158,7 @@ describe('backgroundImageMonitor', () => {
                 创建时间: Date.now(),
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台场景监控({ since: task.创建时间 - 1000, 摘要: '竹林夜色' });
             act(() => {
                 deps.场景生图任务队列 = [task];
@@ -178,7 +178,7 @@ describe('backgroundImageMonitor', () => {
                 错误信息: '网络错误',
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台场景监控({ since: task.创建时间 - 1000, 摘要: '' });
             act(() => {
                 deps.场景生图任务队列 = [task];
@@ -202,7 +202,7 @@ describe('backgroundImageMonitor', () => {
                 构图: '头像' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '头像' });
             act(() => {
                 deps.NPC生图任务队列 = [task];
@@ -221,7 +221,7 @@ describe('backgroundImageMonitor', () => {
                 构图: '头像' as const,
             };
             const deps = makeDeps();
-            const { result, rerender } = renderHook(({ deps }) => use后台生图监控(deps), { initialProps: { deps } });
+            const { result, rerender } = renderHook(({ deps }) => useBackgroundImageMonitor(deps), { initialProps: { deps } });
             result.current.记录后台手动生图监控({ npcId: 'npc_1', since: task.创建时间 - 1000, npcName: '张三', 构图: '头像' });
             act(() => {
                 deps.NPC生图任务队列 = [task];

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import type { 场景生图任务记录, NPC生图任务记录, 香闺秘档部位类型 } from '../../types';
 
-export const use后台生图监控 = (deps: {
+export const useBackgroundImageMonitor = (deps: {
     推送右下角提示: (toast: { title: string; message: string; tone?: 'info' | 'success' | 'error' }) => void;
     NPC生图任务队列: NPC生图任务记录[];
     场景生图任务队列: 场景生图任务记录[];

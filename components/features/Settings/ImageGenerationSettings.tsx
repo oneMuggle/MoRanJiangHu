@@ -1828,27 +1828,8 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
         );
     };
 
-    const renderPlayerPage = () => {
-        const handleTogglePlayerMode = (checked: boolean) => {
-            setForm((prev) => ({
-                ...prev,
-                功能模型占位: {
-                    ...prev.功能模型占位,
-                    主角生图启用: checked
-                }
-            }));
-        };
-
-        const 当前主角后端 = form.功能模型占位.主角生图独立接口启用
-            ? form.功能模型占位.主角生图后端类型
-            : form.功能模型占位.文生图后端类型;
-        const 主角文生图模型选项 = Array.from(new Set(
-            (当前主角后端 === 'novelai' ? NovelAI模型建议 : [])
-                .concat(modelOptions.主角生图模型使用模型, form.功能模型占位.主角生图模型使用模型, form.功能模型占位.文生图模型使用模型)
-                .map((item) => (item || '').trim())
-                .filter(Boolean)
-        ));
-
+    // 自定义 Hook：提取 renderPlayerPage 中的 useMemo 计算逻辑
+    const usePlayerPageData = (form: 接口设置结构, updatePlaceholder: (key: string, value: unknown) => void) => {
         const playerArtistPresets = useMemo(
             () => (Array.isArray(form.功能模型占位.画师串预设列表) ? form.功能模型占位.画师串预设列表 : [])
                 .filter((item) => item && typeof item.id === 'string' && !item.id.startsWith('png_artist_')),
@@ -1875,6 +1856,58 @@ const ImageGenerationSettings: React.FC<Props> = ({ settings, onSave }) => {
         const selectedPlayerTransformerPreset = scopedPlayerTransformerPresets.find((item) => item.id === currentPlayerTransformerPresetId)
             || scopedPlayerTransformerPresets[0]
             || null;
+
+        return {
+            playerArtistPresets,
+            scopedPlayerArtistPresets,
+            currentPlayerArtistPresetId,
+            selectedPlayerArtistPreset,
+            pngPlayerStylePresets,
+            currentPlayerPngPresetId,
+            selectedPlayerPngPreset,
+            transformerPlayerPresets,
+            scopedPlayerTransformerPresets,
+            currentPlayerTransformerPresetId,
+            selectedPlayerTransformerPreset,
+        };
+    };
+
+    // 在组件顶层调用 Hook
+    const playerPageData = usePlayerPageData(form, updatePlaceholder);
+
+    const renderPlayerPage = () => {
+        const handleTogglePlayerMode = (checked: boolean) => {
+            setForm((prev) => ({
+                ...prev,
+                功能模型占位: {
+                    ...prev.功能模型占位,
+                    主角生图启用: checked
+                }
+            }));
+        };
+
+        const 当前主角后端 = form.功能模型占位.主角生图独立接口启用
+            ? form.功能模型占位.主角生图后端类型
+            : form.功能模型占位.文生图后端类型;
+        const 主角文生图模型选项 = Array.from(new Set(
+            (当前主角后端 === 'novelai' ? NovelAI模型建议 : [])
+                .concat(modelOptions.主角生图模型使用模型, form.功能模型占位.主角生图模型使用模型, form.功能模型占位.文生图模型使用模型)
+                .map((item) => (item || '').trim())
+                .filter(Boolean)
+        ));
+
+        // 使用从 Hook 获取的数据
+        const {
+            scopedPlayerArtistPresets,
+            currentPlayerArtistPresetId,
+            selectedPlayerArtistPreset,
+            pngPlayerStylePresets,
+            currentPlayerPngPresetId,
+            selectedPlayerPngPreset,
+            scopedPlayerTransformerPresets,
+            currentPlayerTransformerPresetId,
+            selectedPlayerTransformerPreset,
+        } = playerPageData;
 
         const 更新当前主角画师串预设ID = (presetId: string) => {
             updatePlaceholder('主角画师串预设ID', presetId);

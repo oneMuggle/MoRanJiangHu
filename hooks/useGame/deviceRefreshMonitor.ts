@@ -19,7 +19,7 @@ export interface 设备刷新任务 {
     创建时间: number;
 }
 
-interface Use后台设备刷新监控Deps {
+interface UseDeviceRefreshMonitorDeps {
     设备刷新任务队列: 设备刷新任务[];
     set设备刷新任务队列: (updater: (prev: 设备刷新任务[]) => 设备刷新任务[]) => void;
     set校园系统: (updater: (prev: 校园系统数据) => 校园系统数据) => void;
@@ -32,7 +32,7 @@ interface Use后台设备刷新监控Deps {
     推送右下角提示: (toast: { title: string; message: string; tone?: 'info' | 'success' | 'error' }) => void;
 }
 
-export const use后台设备刷新监控 = (deps: Use后台设备刷新监控Deps) => {
+export const useDeviceRefreshMonitor = (deps: UseDeviceRefreshMonitorDeps) => {
     const 处理中Ref = useRef(false);
 
     useEffect(() => {

@@ -13,6 +13,11 @@ interface Props {
 
 type SubTab = 'recall' | 'memory_summary' | 'variable' | 'planning' | 'heroine_plan' | 'polish' | 'world_evolution' | 'device_message';
 
+// 自定义 Hook 用于手动输入显示状态
+const useShowManualInput = () => {
+    return useState<boolean>(false);
+};
+
 const IntegratedModelSettings: React.FC<Props> = ({ settings, onSave }) => {
     const [form, setForm] = useState<接口设置结构>(() => 规范化接口设置(settings));
     const [modelOptions, setModelOptions] = useState<string[]>([]);
@@ -314,6 +319,16 @@ const IntegratedModelSettings: React.FC<Props> = ({ settings, onSave }) => {
         { id: 'device_message' as const, label: '设备消息' }
     ];
 
+    // 每个 tab 的 showManualInput 状态
+    const [recallShowManualInput, setRecallShowManualInput] = useShowManualInput();
+    const [memorySummaryShowManualInput, setMemorySummaryShowManualInput] = useShowManualInput();
+    const [variableShowManualInput, setVariableShowManualInput] = useShowManualInput();
+    const [planningShowManualInput, setPlanningShowManualInput] = useShowManualInput();
+    const [heroinePlanShowManualInput, setHeroinePlanShowManualInput] = useShowManualInput();
+    const [polishShowManualInput, setPolishShowManualInput] = useShowManualInput();
+    const [worldEvolutionShowManualInput, setWorldEvolutionShowManualInput] = useShowManualInput();
+    const [deviceMessageShowManualInput, setDeviceMessageShowManualInput] = useShowManualInput();
+
 const renderSubContent = () => {
         if (activeSubTab === 'recall') {
             const modelValue = (form.功能模型占位.剧情回忆使用模型 || '').trim();
@@ -325,7 +340,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = recallShowManualInput;
+            const setShowManualInput = setRecallShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -474,7 +490,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = memorySummaryShowManualInput;
+            const setShowManualInput = setMemorySummaryShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -590,7 +607,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = variableShowManualInput;
+            const setShowManualInput = setVariableShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -704,7 +722,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = planningShowManualInput;
+            const setShowManualInput = setPlanningShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -802,7 +821,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = heroinePlanShowManualInput;
+            const setShowManualInput = setHeroinePlanShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -903,7 +923,8 @@ const renderSubContent = () => {
                 modelValue,
                 主剧情解析模型
             ].map((item) => (item || '').trim()).filter(Boolean)));
-            const [showManualInput, setShowManualInput] = useState(false);
+            const showManualInput = polishShowManualInput;
+            const setShowManualInput = setPolishShowManualInput;
 
             return (
                 <div className="space-y-4">
@@ -1036,7 +1057,8 @@ const renderSubContent = () => {
             modelValue,
             主剧情解析模型
         ].map((item) => (item || '').trim()).filter(Boolean)));
-        const [showManualInput, setShowManualInput] = useState(false);
+        const showManualInput = worldEvolutionShowManualInput;
+        const setShowManualInput = setWorldEvolutionShowManualInput;
 
         return (
             <div className="space-y-4">
@@ -1152,7 +1174,8 @@ const renderSubContent = () => {
             modelValue,
             主剧情解析模型
         ].map((item) => (item || '').trim()).filter(Boolean)));
-        const [showManualInput, setShowManualInput] = useState(false);
+        const showManualInput = deviceMessageShowManualInput;
+        const setShowManualInput = setDeviceMessageShowManualInput;
 
         return (
             <div className="space-y-4">

@@ -156,9 +156,9 @@ import { 创建回档快照系统, type 回合快照结构 } from './useGame/rol
 import { 创建通知系统, type 右下角提示结构 } from './useGame/notificationSystem';
 import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记忆总结阶段类型 } from './useGame/memorySummaryHandlers';
 import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/variableGenerationProgress';
-import { use后台生图监控 } from './useGame/backgroundImageMonitor';
+import { useBackgroundImageMonitor } from './useGame/backgroundImageMonitor';
 import { 触发设备消息生成 } from './useGame/triggerDeviceMessageWorkflow';
-import { use后台设备刷新监控, type 设备刷新任务 } from './useGame/deviceRefreshMonitor';
+import { useDeviceRefreshMonitor, type 设备刷新任务 } from './useGame/deviceRefreshMonitor';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -581,7 +581,7 @@ export const useGame = () => {
     });
     const { 构建记忆总结用户提示词, 清理记忆总结输出, handleStartMemorySummary, handleCancelMemorySummary, handleBackToMemorySummaryRemind, handleUpdateMemorySummaryDraft, handleStartManualMemorySummary, handleApplyMemorySummary, 构建NPC记忆总结任务, 构建NPC记忆总结用户提示词, 清空NPC记忆总结流程, 刷新NPC记忆总结队列, 应用并同步社交列表, 清空记忆总结流程, 刷新记忆总结任务, 应用并同步记忆系统, handleStartNpcMemorySummary, handleCancelNpcMemorySummary, handleBackToNpcMemorySummaryRemind, handleUpdateNpcMemorySummaryDraft, handleQueueManualNpcMemorySummary, handleApplyNpcMemorySummary } = 记忆总结处理器;
 
-    const 后台生图监控 = use后台生图监控({
+    const 后台生图监控 = useBackgroundImageMonitor({
         推送右下角提示,
         NPC生图任务队列,
         场景生图任务队列
@@ -600,7 +600,7 @@ export const useGame = () => {
         催眠系统: 催眠系统,
         校园系统: 校园系统,
     };
-    use后台设备刷新监控({
+    useDeviceRefreshMonitor({
         设备刷新任务队列,
         set设备刷新任务队列,
         set校园系统: 设置校园系统,
