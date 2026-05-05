@@ -84,6 +84,24 @@ export const EraSelector: React.FC<Props> = ({ value, onChange, onCancel }) => {
         if (id) setMobileTab(2);
     };
 
+    // 随机选择一个子纪元
+    const handleRandom = () => {
+        const subEraNodes = allEraNodes.filter((n: EraNode) => n.depth === 2);
+        if (subEraNodes.length === 0) return;
+        const randomIndex = Math.floor(Math.random() * subEraNodes.length);
+        const randomSubEra = subEraNodes[randomIndex];
+        handleSubEraSelect(randomSubEra.id);
+        // 桌面端也需要设置选中的 epoch 和 era
+        const node = allEraNodes.find((n: EraNode) => n.id === randomSubEra.id);
+        if (node?.parent) {
+            const era = allEraNodes.find((n: EraNode) => n.id === node.parent);
+            if (era?.parent) {
+                setSelectedEpoch(era.parent);
+                setSelectedEra(era.id);
+            }
+        }
+    };
+
     // 移动端各标签下的内容渲染
     const renderMobileTabContent = () => {
         if (mobileTab === 0) {
@@ -181,12 +199,21 @@ export const EraSelector: React.FC<Props> = ({ value, onChange, onCancel }) => {
                     <h1 className="text-lg md:text-xl font-serif font-bold text-wuxia-gold tracking-wider">
                         {文案.选择时代 || '选择时代'}
                     </h1>
-                    <button
-                        onClick={onCancel}
-                        className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2"
-                    >
-                        取消
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleRandom}
+                            className="text-sm text-wuxia-gold hover:text-wuxia-gold/80 transition-colors px-3 py-2 flex items-center gap-1"
+                            title="随机选择"
+                        >
+                            🎲 随机
+                        </button>
+                        <button
+                            onClick={onCancel}
+                            className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2"
+                        >
+                            取消
+                        </button>
+                    </div>
                 </div>
 
                 {/* 桌面端：左右分栏（隐藏于移动端） */}
