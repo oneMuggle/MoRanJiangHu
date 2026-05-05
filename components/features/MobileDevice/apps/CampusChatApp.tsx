@@ -230,9 +230,10 @@ const LOADING_FALLBACK = (
         // 见面协商面板
         if (negotiating) {
             return (
-                <div className="flex flex-col h-full">
-                    <Suspense fallback={LOADING_FALLBACK_FULL}>
-                        <BDSMNegotiationPanel
+                <div className="flex flex-col h-full overflow-hidden">
+                    <Suspense fallback={LOADING_FALLBACK_FULL} key="negotiation">
+                        <div className="flex flex-col h-full min-h-0 overflow-hidden">
+                            <BDSMNegotiationPanel
                             npcName={activeSession.name}
                             onConfirm={(协商结果) => {
                                 onConfirmNegotiation?.(activeSession.id, activeSession.name, {
@@ -245,6 +246,7 @@ const LOADING_FALLBACK = (
                             }}
                             onCancel={() => setNegotiating(false)}
                         />
+                        </div>
                     </Suspense>
                 </div>
             );
@@ -253,9 +255,10 @@ const LOADING_FALLBACK = (
         // 契约协商面板
         if (negotiatingContract && 当前BDSM关系) {
             return (
-                <div className="flex flex-col h-full">
-                    <Suspense fallback={LOADING_FALLBACK_FULL}>
-                        <BDSMContractNegotiation
+                <div className="flex flex-col h-full overflow-hidden">
+                    <Suspense fallback={LOADING_FALLBACK_FULL} key="contract">
+                        <div className="flex flex-col h-full min-h-0 overflow-hidden">
+                            <BDSMContractNegotiation
                             npcName={activeSession.name}
                             当前阶段={当前BDSM关系.阶段}
                             服从度={当前BDSM关系.服从度}
@@ -265,6 +268,7 @@ const LOADING_FALLBACK = (
                             }}
                             onCancel={() => setNegotiatingContract(false)}
                         />
+                        </div>
                     </Suspense>
                 </div>
             );
@@ -311,14 +315,16 @@ const LOADING_FALLBACK = (
         // 安全设置面板
         if (editingSafety && 当前BDSM关系) {
             return (
-                <div className="flex flex-col h-full">
-                    <Suspense fallback={LOADING_FALLBACK_FULL}>
-                        <BDSMSafetySettings
-                            关系状态={当前BDSM关系}
-                            npcName={activeSession.name}
-                            onSave={() => setEditingSafety(false)}
-                            onCancel={() => setEditingSafety(false)}
-                        />
+                <div className="flex flex-col h-full overflow-hidden">
+                    <Suspense fallback={LOADING_FALLBACK_FULL} key="safety">
+                        <div className="flex flex-col h-full min-h-0 overflow-hidden">
+                            <BDSMSafetySettings
+                                关系状态={当前BDSM关系}
+                                npcName={activeSession.name}
+                                onSave={() => setEditingSafety(false)}
+                                onCancel={() => setEditingSafety(false)}
+                            />
+                        </div>
                     </Suspense>
                 </div>
             );

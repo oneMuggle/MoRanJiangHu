@@ -707,6 +707,33 @@ const App: React.FC = () => {
         return () => window.removeEventListener('keydown', handler);
     }, [state.view, state.showSettings, state.showSocial, state.showInventory, state.showEquipment, state.showBattle, state.showTeam, state.showKungfu, state.showWorld, state.showMap, state.showSect, state.showTask, state.showAgreement, state.showStory, state.showHeroinePlan, state.showMemory, state.showSaveLoad, actions.openDevice]);
 
+    // 约定状态同步 → 见面预约（当约定状态变为已履行/已违约时，同步更新预约状态）
+    React.useEffect(() => {
+        const 校园系统 = state.校园系统 as any;
+        if (!校园系统?.见面预约列表?.length || !state.约定列表?.length) return;
+
+        const 更新预约列表 = 校园系统.见面预约列表.map((预约: any) => {
+            const 匹配约定 = state.约定列表.find(
+                a => a.对象 === 预约.npcName && a.背景故事?.includes('校园BDSM见面预约')
+            );
+            if (!匹配约定) return 预约;
+
+            const 新状态映射: Record<string, string> = {
+                '已履行': '已见面',
+                '已违约': '已违约',
+            };
+            const 新预约状态 = 新状态映射[匹配约定.当前状态];
+            if (新预约状态 && 预约.状态 !== 新预约状态) {
+                return { ...预约, 状态: 新预约状态 };
+            }
+            return 预约;
+        });
+
+        if (JSON.stringify(更新预约列表) !== JSON.stringify(校园系统.见面预约列表)) {
+            setters.set校园系统?.({ ...校园系统, 见面预约列表: 更新预约列表 });
+        }
+    }, [state.约定列表, state.校园系统, setters.set校园系统]);
+
 
     return (
         <MusicProvider visualConfig={state.visualConfig} onSaveVisual={actions.saveVisualSettings}>
@@ -1905,6 +1932,23 @@ const App: React.FC = () => {
                                         创建回合: 当前回合,
                                     };
                                     setters.set校园系统?.({ ...prev, 见面预约列表: [...预约列表, 新预约] });
+
+                                    // 同步创建约定（供玩家在约定模块查看）
+                                    const 现有约定 = state.约定列表 || [];
+                                    const 新约定 = {
+                                        对象: npcName,
+                                        性质: '承诺' as const,
+                                        标题: `${协商结果.见面地点}之约`,
+                                        誓言内容: `与${npcName}相约于${协商结果.见面地点}，回合后相见。安全词：${协商结果.安全词}`,
+                                        约定地点: 协商结果.见面地点,
+                                        约定时间: `${当前回合 + 协商结果.见面回合偏移}回合后`,
+                                        有效时段: 协商结果.见面回合偏移,
+                                        当前状态: '等待中' as const,
+                                        履行后果: `与${npcName}的见面达成，将开启一段特殊的亲密关系`,
+                                        违约后果: `辜负了${npcName}的信任，关系将受到严重影响`,
+                                        背景故事: `校园BDSM见面预约 | 安全词: ${协商结果.安全词}${协商结果.玩家底线.length > 0 ? ' | 玩家底线: ' + 协商结果.玩家底线.join('、') : ''}`,
+                                    };
+                                    setters.set约定列表([...现有约定, 新约定]);
                                 }}
                             />
                         </懒加载边界>
