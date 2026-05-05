@@ -112,7 +112,7 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                 messages.push({
                     id: `greet-${idx}`,
                     sender: npc.姓名,
-                    content: npc.简介?.slice(0, 30) || 问候语模板[idx % 问候语模板.length],
+                    content: 问候语模板[idx % 问候语模板.length],
                     time: '近日',
                     isMe: false,
                 });
