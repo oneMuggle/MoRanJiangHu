@@ -14,6 +14,8 @@ import {
     写入四段记忆
 } from '../memoryUtils';
 import { 规范化记忆配置 } from '../memoryUtils';
+import { 处理BDSM状态更新 } from '../bdsmStateIntegration';
+import type { BDSM状态更新回调 } from '../bdsmStateIntegration';
 import type { GameResponse, 聊天记录结构, 剧情系统结构, 记忆系统结构 } from '../../../types';
 import type { 世界演变进度, 规划分析进度, 正文润色进度, 变量生成进度, 设备消息进度 } from './independentStages';
 import type { 回合快照结构 } from './index';
@@ -38,8 +40,6 @@ export type 响应命令基础状态 = {
 
 export type 响应处理阶段依赖 = {
     深拷贝: <T>(value: T) => T;
-    获取原始AI消息: (rawText: string) => string;
-    提取原始报错详情: (error: any) => string;
     processResponseCommands: (
         response: GameResponse,
         baseState?: Partial<{
@@ -137,6 +137,7 @@ export type 响应处理阶段依赖 = {
         sendInput: string;
         signal?: AbortSignal;
     }) => Promise<{ summary?: string; rawText?: string } | void>;
+    onBDSM状态更新?: BDSM状态更新回调;
 };
 
 // ─── 响应处理阶段输入 ────────────────────────────────────────────────────────
@@ -244,9 +245,14 @@ export const 执行响应处理阶段 = async (
     let aiData = 按世界演变分流净化响应(aiResult.response, worldEvolutionSplitEnabled).response;
     let displayAiData = aiData;
     const socialBeforeMainCommands = deps.深拷贝(currentState.社交);
-    const rawAiText = deps.获取原始AI消息
+    let rawAiText = deps.获取原始AI消息
         ? deps.获取原始AI消息(aiResult.rawText)
         : aiResult.rawText;
+
+    // ─── BDSM 状态更新解析 ──────────────────────────────────────────────
+    if (deps.onBDSM状态更新) {
+        rawAiText = 处理BDSM状态更新(rawAiText, deps.onBDSM状态更新);
+    }
 
     // ─── 正文润色阶段 ──────────────────────────────────────────────────────
     if (文章优化功能已开启()) {

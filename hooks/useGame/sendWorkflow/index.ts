@@ -41,6 +41,7 @@ export type {
     独立阶段失败决策参数,
     规划分析进度,
     世界演变进度,
+    BDSM任务补充进度,
 } from './independentStages';
 
 export { 构建可重试独立阶段执行器 } from './independentStages';
@@ -63,6 +64,7 @@ export type 发送选项 = {
     onPlanningProgress?: (progress: import('./independentStages').规划分析进度) => void;
     onVariableGenerationProgress?: (progress: import('./independentStages').变量生成进度) => void;
     onDeviceMessageProgress?: (progress: import('./independentStages').设备消息进度) => void;
+    onBDSMTaskSupplementProgress?: (progress: import('./independentStages').BDSM任务补充进度) => void;
     onStageFailureDecision?: (params: import('./independentStages').独立阶段失败决策参数) =>
         Promise<import('./independentStages').独立阶段失败决策> |
         import('./independentStages').独立阶段失败决策;
@@ -144,58 +146,7 @@ type 主剧情发送当前状态 = {
     时代配置ID?: string;
 };
 
-/** 从当前状态提取校园NSFW运行时参数 */
-function 构建校园NSFW参数(state: 主剧情发送当前状态) {
-    const 欲望系统 = state.校园系统?.欲望系统;
-    if (!欲望系统) return undefined;
-
-    // 取第一个有欲望档案的NPC作为当前焦点（后续可扩展为按上下文选择）
-    const npcIds = Object.keys(欲望系统.NPC欲望档案 || {});
-    if (npcIds.length === 0) return undefined;
-
-    // 取欲望阶段最高的NPC
-    const 阶段权重: Record<string, number> = { '克制': 0, '试探': 1, '渴望': 2, '沉沦': 3, '支配': 4 };
-    const 焦点NpcId = npcIds.reduce((best, id) => {
-        const a = 欲望系统.NPC欲望档案![id];
-        const b = 欲望系统.NPC欲望档案![best];
-        return (阶段权重[a?.当前阶段] || 0) > (阶段权重[b?.当前阶段] || 0) ? id : best;
-    });
-
-    const 焦点档案 = 欲望系统.NPC欲望档案?.[焦点NpcId];
-    if (!焦点档案) return undefined;
-
-    // 构建所有NPC的欲望状态摘要（非焦点NPC的简要信息）
-    const 其他Npc摘要: string[] = [];
-    for (const id of npcIds) {
-        if (id === 焦点NpcId) continue;
-        const 档案 = 欲望系统.NPC欲望档案![id];
-        if (!档案) continue;
-        其他Npc摘要.push(`${id}: ${档案.当前阶段}/${档案.关系轨道}(进度${档案.阶段进度}/${档案.轨道进度}) 暴露${档案.暴露风险值}`);
-    }
-
-    const 校园祭状态 = 欲望系统.校园祭状态;
-    const 桌游状态 = 欲望系统.桌游状态;
-
-    return {
-        欲望阶段: 焦点档案.当前阶段,
-        关系轨道: 焦点档案.关系轨道,
-        暴露风险: 焦点档案.暴露风险值,
-        流言等级: 焦点档案.流言等级,
-        露出偏好等级: 焦点档案.露出状态?.当前等级,
-        紧张度: 焦点档案.紧张度状态?.当前值,
-        权力倾向: 焦点档案.权力倾向,
-        服从度: 焦点档案.服从度?.当前值,
-        已解锁SM场景: 欲望系统.SM场景池?.map((r: any) => r.类型),
-        校园祭阶段: 校园祭状态?.阶段,
-        校园祭主题: 校园祭状态?.主题,
-        摊位类型: 校园祭状态?.班级摊位,
-        后夜祭状态: 校园祭状态?.后夜祭状态,
-        桌游类型: 桌游状态?.桌游类型,
-        密室主题: (桌游状态?.当前桌游 as any)?.当前主题,
-        内容强度: state.gameConfig?.校园NSFW设置?.NSFW内容强度,
-        其他Npc欲望摘要: 其他Npc摘要.length > 0 ? 其他Npc摘要.join('；') : undefined,
-    };
-}
+import { 构建校园NSFW参数, 处理BDSM状态更新, type BDSM状态更新回调 } from '../bdsmStateIntegration';
 
 // ─── 主剧情发送依赖 ─────────────────────────────────────────────────────────
 
@@ -206,6 +157,7 @@ type 主剧情发送依赖 = {
     设置剧情: (value: 剧情系统结构) => void;
     设置历史记录: (value: 聊天记录结构[] | ((prev: 聊天记录结构[]) => 聊天记录结构[])) => void;
     应用并同步记忆系统: (memory: 记忆系统结构, options?: { 静默总结提示?: boolean }) => void;
+    onBDSM状态更新?: BDSM状态更新回调;
     构建系统提示词: (promptPool: any[], memoryData: 记忆系统结构, socialData: any[], statePayload: any, options?: any, deviceMessages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }>) => 主剧情系统上下文 & {
         runtimePromptStates: Record<string, any>;
     };
@@ -698,7 +650,8 @@ export const 执行主剧情发送工作流 = async (
                 performAutoSave: deps.performAutoSave,
                 获取原始AI消息: deps.获取原始AI消息,
                 提取原始报错详情: deps.提取原始报错详情,
-                触发设备消息生成: deps.触发设备消息生成
+                触发设备消息生成: deps.触发设备消息生成,
+                onBDSM状态更新: deps.onBDSM状态更新
             },
             执行可重试独立阶段,
             deps.文章优化功能已开启,
@@ -724,6 +677,34 @@ export const 执行主剧情发送工作流 = async (
             memory: processingResult.nextMemory,
             force: true
         });
+
+        // ─── BDSM 任务补充阶段 ─────────────────────────────────────────
+        const 校园系统 = currentState.校园系统;
+        if (校园系统?.欲望系统?.NPC欲望档案) {
+            const 活跃NpcIds = Object.keys(校园系统.欲望系统.NPC欲望档案);
+            for (const npcId of 活跃NpcIds) {
+                const 档案 = 校园系统.欲望系统.NPC欲望档案[npcId];
+                const bdsM关系 = 档案?.BDSM关系;
+                if (!bdsM关系) continue;
+
+                options?.onBDSMTaskSupplementProgress?.({ phase: 'start', text: `检查 ${npcId} 的任务补充` });
+
+                const 活跃任务数 = (bdsM关系.任务历史 || []).filter((t: any) => t.状态 === '进行中' || t.状态 === '待接受').length;
+                if (活跃任务数 < 2) {
+                    options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 活跃任务不足，触发补充` });
+                    // 注：实际任务生成通过 onBDSM状态更新 回调在下一回合处理
+                }
+
+                // 检查日常指令是否需要刷新
+                const 日常指令 = bdsM关系.日常指令 || [];
+                const 全部完成 = 日常指令.length > 0 && 日常指令.every((i: any) => i.是否完成);
+                if (全部完成 || 日常指令.length === 0) {
+                    options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 日常指令需要刷新` });
+                }
+
+                options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 任务补充检查完成` });
+            }
+        }
 
         return { attachedRecallPreview };
 

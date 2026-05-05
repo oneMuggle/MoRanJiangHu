@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { DeviceMode, MobileApp, DeviceGameContext } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
+import type { 见面地点 } from '../../../../models/campusPhone';
 import type { BDSM关系状态 } from '../../../../models/campusNSFW/sm';
 import BDSMTaskPanel from './BDSMTaskPanel';
 import BDSMContractPanel from './BDSMContractPanel';
 import BDSMRelationshipDashboard from './BDSMRelationshipDashboard';
+import BDSMNegotiationPanel from './BDSMNegotiationPanel';
+import BDSMContractNegotiation from './BDSMContractNegotiation';
+import BDSMSafetySettings from './BDSMSafetySettings';
 
 interface AppProps {
     eraId: string;
@@ -13,6 +17,8 @@ interface AppProps {
     onBack: () => void;
     gameContext?: DeviceGameContext;
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
+    onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: 见面地点; 安全词: string; 玩家底线: string[] }) => void;
 }
 
 type BdsmPanelMode = '聊天' | '任务' | '契约' | '总览';
@@ -42,12 +48,15 @@ const 问候语模板: string[] = [
     '你好呀~',
 ];
 
-const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onSendMessage }) => {
+const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onSendMessage, onConfirmNegotiation }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '私聊';
     const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
     const [inputText, setInputText] = useState('');
     const [bdsmPanel, setBdsmPanel] = useState<BdsmPanelMode>('聊天');
+    const [negotiating, setNegotiating] = useState(false);
+    const [negotiatingContract, setNegotiatingContract] = useState(false);
+    const [editingSafety, setEditingSafety] = useState(false);
 
     // 从欲望系统中查找当前会话 NPC 的 BDSM 关系状态
     const findBDSM关系 = (npc姓名: string): BDSM关系状态 | null => {
@@ -157,6 +166,43 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
     };
 
     if (activeSession) {
+        // 见面协商面板
+        if (negotiating) {
+            return (
+                <BDSMNegotiationPanel
+                    npcName={activeSession.name}
+                    当前回合={(gameContext?.历史记录?.length || 0) + 1}
+                    onConfirm={(协商结果) => {
+                        onConfirmNegotiation?.(activeSession.id, activeSession.name, {
+                            见面回合偏移: 协商结果.见面回合偏移,
+                            见面地点: 协商结果.见面地点,
+                            安全词: 协商结果.安全词,
+                            玩家底线: 协商结果.玩家底线,
+                        });
+                        setNegotiating(false);
+                    }}
+                    onCancel={() => setNegotiating(false)}
+                />
+            );
+        }
+
+        // 契约协商面板
+        if (negotiatingContract && 当前BDSM关系) {
+            return (
+                <BDSMContractNegotiation
+                    npcName={activeSession.name}
+                    当前阶段={当前BDSM关系.阶段}
+                    服从度={当前BDSM关系.服从度}
+                    onConfirm={(协商结果) => {
+                        // TODO: wire to useGame action
+                        setNegotiatingContract(false);
+                        setBdsmPanel('契约');
+                    }}
+                    onCancel={() => setNegotiatingContract(false)}
+                />
+            );
+        }
+
         // BDSM 子面板渲染
         if (bdsmPanel !== '聊天' && 当前BDSM关系) {
             const panelProps = {
@@ -180,7 +226,10 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                         />
                     )}
                     {bdsmPanel === '契约' && (
-                        <BDSMContractPanel 关系状态={当前BDSM关系} />
+                        <BDSMContractPanel
+                            关系状态={当前BDSM关系}
+                            onNegotiateContract={() => setNegotiatingContract(true)}
+                        />
                     )}
                     {bdsmPanel === '总览' && (
                         <BDSMRelationshipDashboard
@@ -188,9 +237,22 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                             npcName={activeSession.name}
                             onGoToTasks={() => setBdsmPanel('任务')}
                             onGoToContract={() => setBdsmPanel('契约')}
+                            onEditSafety={() => setEditingSafety(true)}
                         />
                     )}
                 </div>
+            );
+        }
+
+        // 安全设置面板
+        if (editingSafety && 当前BDSM关系) {
+            return (
+                <BDSMSafetySettings
+                    关系状态={当前BDSM关系}
+                    npcName={activeSession.name}
+                    onSave={() => setEditingSafety(false)}
+                    onCancel={() => setEditingSafety(false)}
+                />
             );
         }
 
@@ -212,6 +274,12 @@ const CampusChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCon
                                 onClick={() => setBdsmPanel('任务')}
                                 className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded hover:bg-blue-500/20 transition-colors"
                             >任务</button>
+                            {!negotiating && (
+                                <button
+                                    onClick={() => setNegotiating(true)}
+                                    className="text-[10px] text-pink-400 bg-pink-500/10 px-1.5 py-0.5 rounded hover:bg-pink-500/20 transition-colors"
+                                >见面</button>
+                            )}
                         </div>
                     )}
                 </div>

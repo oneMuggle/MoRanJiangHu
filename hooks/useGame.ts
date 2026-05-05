@@ -70,7 +70,7 @@ import {
 } from './useGame/systemPromptBuilder';
 import { 从NPC创建欲望档案, 创建默认欲望档案 } from './useGame/campusNSFWEngine';
 import { 构建见面场景提示词, 解析见面结果, 生成任务摘要, type 见面场景上下文, type 日常指令 } from './useGame/bdsmMeetingWorkflow';
-import type { BDSM调教任务, BDSM任务状态, BDSM评价等级, 契约记录 } from '../models/campusNSFW';
+import type { BDSM调教任务, BDSM任务状态, BDSM评价等级, 契约记录, 关系阶段, BDSM日常指令 } from '../models/campusNSFW';
 import {
     创建开场基础状态,
     创建开场命令基态,
@@ -1871,6 +1871,101 @@ export const useGame = () => {
                         throw err;
                     }
                 },
+                onBDSM状态更新: (bdsmResult) => {
+                    // 解析 AI 响应中的 BDSM 状态更新并应用到校园系统
+                    const 校园NSFW已启用 = (gameConfig as any)?.校园NSFW设置?.启用校园NSFW深化系统;
+                    if (!校园NSFW已启用) return;
+
+                    设置校园系统(prev => {
+                        const 欲望系统 = prev?.欲望系统;
+                        if (!欲望系统?.NPC欲望档案) return prev;
+
+                        const 更新后档案 = { ...欲望系统.NPC欲望档案 };
+
+                        // 任务更新
+                        if (bdsmResult.任务更新 && bdsmResult.任务更新.length > 0) {
+                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
+                                const 档案Any = 档案 as any;
+                                if (!档案Any.BDSM关系) continue;
+                                const 任务列表 = 档案Any.BDSM关系.任务历史 || [];
+                                const 更新 = bdsmResult.任务更新!.filter(t =>
+                                    任务列表.some((t2: any) => t2.id === t.id)
+                                );
+                                for (const t of 更新) {
+                                    const idx = 任务列表.findIndex((x: any) => x.id === t.id);
+                                    if (idx >= 0) {
+                                        if (t.状态) 任务列表[idx].状态 = t.状态;
+                                        if (t.评价) 任务列表[idx].评价 = t.评价;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 服从度变化
+                        if (bdsmResult.服从度变化) {
+                            for (const [npcId, delta] of Object.entries(bdsmResult.服从度变化)) {
+                                if (更新后档案[npcId]?.BDSM关系) {
+                                    更新后档案[npcId].BDSM关系.服从度 =
+                                        Math.max(0, Math.min(100,
+                                            (更新后档案[npcId].BDSM关系.服从度 || 50) + delta
+                                        ));
+                                }
+                            }
+                        }
+
+                        // 关系阶段推进
+                        if (bdsmResult.关系阶段推进) {
+                            for (const [npcId, 新阶段] of Object.entries(bdsmResult.关系阶段推进)) {
+                                if (更新后档案[npcId]?.BDSM关系) {
+                                    更新后档案[npcId].BDSM关系.阶段 = 新阶段 as 关系阶段;
+                                }
+                            }
+                        }
+
+                        // 契约更新
+                        if (bdsmResult.契约更新 && bdsmResult.契约更新.length > 0) {
+                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
+                                const 档案Any = 档案 as any;
+                                if (!档案Any.BDSM关系) continue;
+                                const 契约列表 = 档案Any.BDSM关系.契约记录 || [];
+                                for (const c of bdsmResult.契约更新!) {
+                                    const idx = 契约列表.findIndex((x: any) => x.id === c.id);
+                                    if (idx >= 0 && c.违约次数 !== undefined) {
+                                        契约列表[idx].违约次数 = c.违约次数;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 里程碑
+                        if (bdsmResult.里程碑 && bdsmResult.里程碑.length > 0) {
+                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
+                                const 档案Any = 档案 as any;
+                                if (!档案Any.BDSM关系) continue;
+                                档案Any.BDSM关系.里程碑 = [
+                                    ...(档案Any.BDSM关系.里程碑 || []),
+                                    ...bdsmResult.里程碑!
+                                ];
+                            }
+                        }
+
+                        // 日常指令
+                        if (bdsmResult.日常指令 && bdsmResult.日常指令.length > 0) {
+                            // 日常指令关联到当前焦点 NPC（取第一个有 BDSM 关系的）
+                            const 焦点NpcId = Object.keys(更新后档案).find(id =>
+                                更新后档案[id]?.BDSM关系
+                            );
+                            if (焦点NpcId) {
+                                更新后档案[焦点NpcId].BDSM关系.日常指令 = bdsmResult.日常指令 as BDSM日常指令[];
+                            }
+                        }
+
+                        return {
+                            ...prev,
+                            欲望系统: { ...欲望系统, NPC欲望档案: 更新后档案 },
+                        };
+                    });
+                },
             },
             options
         );
@@ -1928,6 +2023,147 @@ export const useGame = () => {
             console.warn('[私聊发送] 失败:', err);
             return { npcReply: '[消息发送失败，请重试]' };
         }
+    };
+
+    /**
+     * 报告任务完成：标记状态 → AI 评价 → 更新服从度 → 检查阶段推进 → 检查 Aftercare
+     */
+    const handleReportTaskComplete = async (
+        taskId: string,
+        npcId: string,
+        executionDescription: string
+    ): Promise<{ evaluation: string; obedienceDelta: number }> => {
+        const 校园系统快照 = 校园系统;
+        const 欲望系统 = 校园系统快照?.欲望系统;
+        if (!欲望系统?.NPC欲望档案?.[npcId]) {
+            return { evaluation: '[错误：未找到NPC欲望档案]', obedienceDelta: 0 };
+        }
+
+        const 档案 = 欲望系统.NPC欲望档案[npcId];
+        const bdsM关系 = 档案.BDSM关系;
+        if (!bdsM关系?.任务历史) {
+            return { evaluation: '[错误：未找到任务历史]', obedienceDelta: 0 };
+        }
+
+        // 1. 标记任务为已完成
+        const 任务列表 = bdsM关系.任务历史;
+        const 任务 = 任务列表.find((t: any) => t.id === taskId);
+        if (!任务) {
+            return { evaluation: '[错误：未找到指定任务]', obedienceDelta: 0 };
+        }
+
+        任务.状态 = '已完成';
+        任务.完成时间 = new Date().toISOString();
+
+        // 2. 调用 AI 评价
+        const 主剧情Api = 获取主剧情接口配置(apiConfig);
+        if (!主剧情Api || !主剧情Api.apiKey) {
+            return { evaluation: '[AI不可用，无法评价]', obedienceDelta: 0 };
+        }
+
+        try {
+            const { 构建任务完成评价提示词 } = await import('../prompts/runtime/bdsmTasks');
+            const { 请求模型文本 } = await import('../services/ai/chatCompletionClient');
+            const 评价提示词 = 构建任务完成评价提示词({
+                任务类型: 任务.类型,
+                任务难度: 任务.难度,
+                任务描述: 任务.描述,
+                执行情况描述: executionDescription,
+                当前服从度: bdsM关系.服从度,
+                NPC性格特征: npcId,
+            });
+
+            const 评价结果文本 = await 请求模型文本(主剧情Api, [
+                { role: 'system', content: '你是 BDSM 关系中的任务评价系统。' },
+                { role: 'user', content: 评价提示词 },
+            ], { temperature: 0.7 });
+
+            // 3. 解析评价结果
+            let 评价: { grade?: string; obedienceChange?: number; feedback?: string; consequence?: string } = {};
+            try {
+                const jsonMatch = 评价结果文本.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    评价 = JSON.parse(jsonMatch[0]);
+                }
+            } catch {
+                评价 = { grade: '良好', obedienceChange: 5, feedback: 评价结果文本.slice(0, 100) };
+            }
+
+            const 服从度变化 = 评价.obedienceChange ?? 0;
+
+            // 3. 应用任务影响
+            const { 处理BDSM任务影响 } = await import('./useGame/campusNSFWEngine');
+            const 评价等级 = (评价.grade || '良好') as '完美服从' | '优秀' | '良好' | '勉强' | '失败' | '拒绝';
+            const 结果 = 处理BDSM任务影响({
+                NPC档案: 档案,
+                任务评价: 评价等级,
+                服从度变化,
+            });
+
+            任务.评价 = 评价等级;
+            任务.服从度变化 = 服从度变化;
+
+            // 4. 应用状态更新
+            设置校园系统(prev => {
+                const 欲望系统 = (prev?.欲望系统 || {}) as any;
+                const 档案 = { ...(欲望系统.NPC欲望档案?.[npcId] || {}), ...结果.更新后档案 };
+                return {
+                    ...prev,
+                    欲望系统: { ...欲望系统, NPC欲望档案: { ...欲望系统.NPC欲望档案, [npcId]: 档案 } },
+                };
+            });
+
+            return {
+                evaluation: 评价.feedback || 评价结果文本.slice(0, 200),
+                obedienceDelta: 服从度变化,
+            };
+        } catch (err) {
+            console.warn('[任务评价] 失败:', err);
+            return { evaluation: '[评价失败]', obedienceDelta: 0 };
+        }
+    };
+
+    /**
+     * 自动阶段推进：检查并推进 BDSM 关系阶段
+     */
+    const handleStageAdvance = async (npcId: string): Promise<{ advanced: boolean; newStage?: string; reason?: string }> => {
+        const 校园系统快照 = 校园系统;
+        const 欲望系统 = 校园系统快照?.欲望系统;
+        if (!欲望系统?.NPC欲望档案?.[npcId]) {
+            return { advanced: false };
+        }
+
+        const 档案 = 欲望系统.NPC欲望档案[npcId];
+        const bdsM关系 = 档案.BDSM关系;
+        if (!bdsM关系) return { advanced: false };
+
+        const { 判定BDSM关系阶段推进 } = await import('./useGame/campusNSFWEngine');
+        const 结果 = 判定BDSM关系阶段推进(档案);
+
+        if (结果.推进 && 结果.新阶段) {
+            const 旧阶段 = bdsM关系.阶段;
+            设置校园系统(prev => {
+                const 欲望系统 = (prev?.欲望系统 || {}) as any;
+                const 原档案 = 欲望系统.NPC欲望档案?.[npcId];
+                if (!原档案) return prev;
+                const 更新后BDSM = {
+                    ...原档案.BDSM关系,
+                    阶段: 结果.新阶段 as 关系阶段,
+                    里程碑: [
+                        ...(原档案.BDSM关系?.里程碑 || []),
+                        { 类型: '阶段推进', 时间: new Date().toISOString(), 描述: `关系从 "${旧阶段}" 推进至 "${结果.新阶段}"` },
+                    ],
+                };
+                const 更新后档案 = { ...原档案, BDSM关系: 更新后BDSM };
+                return {
+                    ...prev,
+                    欲望系统: { ...欲望系统, NPC欲望档案: { ...欲望系统.NPC欲望档案, [npcId]: 更新后档案 } },
+                };
+            });
+            return { advanced: true, newStage: 结果.新阶段, reason: 结果.理由 };
+        }
+
+        return { advanced: false };
     };
 
     const {
@@ -2492,6 +2728,8 @@ export const useGame = () => {
             buildMeetingPrompt: 构建见面场景提示词,
             parseMeetingResult: 解析见面结果,
             generateTaskSummary: 生成任务摘要,
+            reportTaskComplete: handleReportTaskComplete,
+            stageAdvance: handleStageAdvance,
             // 旅行系统
             handleTravel,
             handleExplore,

@@ -6,6 +6,7 @@ interface Props {
     npcName: string;
     onGoToTasks?: () => void;
     onGoToContract?: () => void;
+    onEditSafety?: () => void;
 }
 
 const 阶段图标: Record<关系阶段, string> = {
@@ -32,7 +33,7 @@ const 阶段描述: Record<关系阶段, string> = {
     '固化': '完全投入，身份认同',
 };
 
-const BDSMRelationshipDashboard: React.FC<Props> = ({ 关系状态, npcName, onGoToTasks, onGoToContract }) => {
+const BDSMRelationshipDashboard: React.FC<Props> = ({ 关系状态, npcName, onGoToTasks, onGoToContract, onEditSafety }) => {
     const progressPercent = Math.min(100, Math.max(0, 关系状态.服从度));
     const powerBalance = Math.min(100, Math.max(0, ((关系状态.权力天平 + 50) / 100) * 100));
 
@@ -146,7 +147,15 @@ const BDSMRelationshipDashboard: React.FC<Props> = ({ 关系状态, npcName, onG
 
                 {/* 安全信息 */}
                 <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/30">
-                    <p className="text-[10px] text-red-400 font-semibold mb-1">安全设置</p>
+                    <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] text-red-400 font-semibold">安全设置</p>
+                        {onEditSafety && (
+                            <button
+                                onClick={onEditSafety}
+                                className="text-[10px] text-purple-400 hover:text-purple-300 transition-colors"
+                            >编辑</button>
+                        )}
+                    </div>
                     <p className="text-[10px] text-gray-400">安全词：{关系状态.安全词}</p>
                     {关系状态.底线列表.length > 0 && (
                         <p className="text-[10px] text-gray-400 mt-1">

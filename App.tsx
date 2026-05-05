@@ -1842,6 +1842,48 @@ const App: React.FC = () => {
                                         actions.updateBDSMTaskStatus?.(npcId, 任务ID, '已放弃');
                                     }
                                 }}
+                                onCreateChatSession={(npcId: string, npcName: string, 关系标签: string, 初始消息: string) => {
+                                    // 创建私聊会话并追加到校园系统
+                                    const prev = state.校园系统 as any;
+                                    const 私聊列表 = prev?.私聊会话列表 || [];
+                                    // 检查是否已存在
+                                    const exists = 私聊列表.some((s: any) => s.id === npcId);
+                                    if (!exists) {
+                                        const now = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                                        const 新会话 = {
+                                            id: npcId,
+                                            对方姓名: npcName,
+                                            最后消息: 初始消息,
+                                            最后时间: now,
+                                            未读数: 1,
+                                            消息列表: [{
+                                                id: `init-${Date.now()}`,
+                                                发送者: npcName,
+                                                内容: 初始消息,
+                                                时间: now,
+                                                是否已读: false,
+                                            }],
+                                            关系类型: 关系标签 as any,
+                                        };
+                                        setters.set校园系统?.({ ...prev, 私聊会话列表: [...私聊列表, 新会话] });
+                                    }
+                                }}
+                                onConfirmNegotiation={(npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => {
+                                    const prev = state.校园系统 as any;
+                                    const 预约列表 = prev?.见面预约列表 || [];
+                                    const 当前回合 = (prev as any)?.当前回合数 || 1;
+                                    const 新预约 = {
+                                        npcId,
+                                        npcName,
+                                        见面回合偏移: 协商结果.见面回合偏移,
+                                        见面地点: 协商结果.见面地点,
+                                        安全词: 协商结果.安全词,
+                                        玩家底线: 协商结果.玩家底线,
+                                        状态: '已协商' as const,
+                                        创建回合: 当前回合,
+                                    };
+                                    setters.set校园系统?.({ ...prev, 见面预约列表: [...预约列表, 新预约] });
+                                }}
                             />
                         </懒加载边界>
                     )}

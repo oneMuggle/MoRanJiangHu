@@ -173,4 +173,20 @@ export interface 校园系统数据 {
     欲望系统?: 校园NSFW系统扩展['欲望系统'];
     // BDSM 论坛子系统 (v1.5)
     BDSM帖子列表?: import('./campusNSFW/bdsm-forum').BDSM论坛帖子[];
+    // BDSM 见面预约 (v1.6)
+    见面预约列表?: 见面预约[];
+}
+
+export type 见面地点 = '咖啡厅' | '图书馆花园' | '废弃教室' | '天台' | '操场角落' | '宿舍';
+
+export interface 见面预约 {
+    npcId: string;
+    npcName: string;
+    见面回合偏移: number;
+    见面地点: 见面地点;
+    安全词: string;
+    玩家底线: string[];
+    npc底线?: string[];
+    状态: '已协商' | '已见面' | '已取消';
+    创建回合: number;
 }

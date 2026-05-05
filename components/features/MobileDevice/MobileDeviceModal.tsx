@@ -20,6 +20,8 @@ interface MobileDeviceModalProps {
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     onBDSM任务操作?: (npcId: string, 操作: '接受' | '报告完成' | '放弃', 任务ID: string, 执行描述?: string) => void;
+    onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
+    onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => void;
 }
 
 const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
@@ -37,6 +39,8 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
     onUnlockNPC,
     onBDSM帖子更新,
     onBDSM任务操作,
+    onCreateChatSession,
+    onConfirmNegotiation,
 }) => {
     return (
         <div
@@ -61,6 +65,8 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
                     onUnlockNPC={onUnlockNPC}
                     onBDSM帖子更新={onBDSM帖子更新}
                     onBDSM任务操作={onBDSM任务操作}
+                    onCreateChatSession={onCreateChatSession}
+                    onConfirmNegotiation={onConfirmNegotiation}
                 />
             </div>
         </div>

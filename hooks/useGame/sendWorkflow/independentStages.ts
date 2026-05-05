@@ -27,7 +27,7 @@ export type 变量生成进度 = {
     commandTexts?: string[];
 };
 
-export type 独立阶段标识 = 'polish' | 'world' | 'planning' | 'variable';
+export type 独立阶段标识 = 'polish' | 'world' | 'planning' | 'variable' | 'bdsmTaskSupplement';
 
 export type 独立阶段失败决策 = 'retry' | 'skip';
 
@@ -48,6 +48,13 @@ export type 设备消息进度 = {
     phase: 'start' | 'done' | 'error' | 'skipped';
     text?: string;
     rawText?: string;
+};
+
+export type BDSM任务补充进度 = {
+    phase: 'start' | 'done' | 'error' | 'skipped';
+    text?: string;
+    rawText?: string;
+    commandTexts?: string[];
 };
 
 export type 世界演变进度 = {

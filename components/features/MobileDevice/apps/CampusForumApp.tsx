@@ -17,6 +17,7 @@ interface AppProps {
     isRefreshing?: boolean;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
+    onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
 }
 
 const 论坛分类 = ['全部', '校园资讯', '学术交流', '社团活动', '情感树洞', '匿名灌水', '求助答疑'];
@@ -32,7 +33,7 @@ const 回复话术池 = [
     '感谢分享，学到了。',
 ];
 
-const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, isRefreshing, onUnlockNPC, onBDSM帖子更新 }) => {
+const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, isRefreshing, onUnlockNPC, onBDSM帖子更新, onCreateChatSession }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '校园论坛';
 
@@ -72,6 +73,12 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
             } : prev);
             const newNpc = 从BDSM帖子创建NPC(contactingPost);
             onUnlockNPC?.(newNpc);
+            // 自动创建私聊会话，让 NPC 出现在 CampusChatApp 中
+            const npcId = newNpc.id;
+            const npcName = newNpc.姓名;
+            const 问候语模板 = ['你好，最近还好吗？', '终于等到你的消息了~', '有什么想聊的吗？', '很高兴认识你。'];
+            const 初始消息 = 问候语模板[Math.floor(Math.random() * 问候语模板.length)];
+            onCreateChatSession?.(npcId, npcName, 'BDSM', 初始消息);
         } else if (contactingPost) {
             // 沟通中或已拒绝也要更新状态
             onBDSM帖子更新?.(contactingPost.id, post => ({
