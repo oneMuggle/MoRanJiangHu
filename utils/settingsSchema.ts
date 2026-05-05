@@ -12,6 +12,7 @@ export const 设置键 = {
     图片管理设置: 'image_manager_settings',
     游戏设置: 'game_settings',
     记忆设置: 'memory_settings',
+    性能监控设置: 'performance_monitor_settings',
     小说分解数据集: 'novel_decomposition_datasets',
     小说分解任务: 'novel_decomposition_tasks',
     小说分解注入快照: 'novel_decomposition_snapshots',
@@ -196,6 +197,13 @@ export const 设置项定义列表: 设置项定义[] = [
         category: 'memory',
         description: '记忆阈值、上传条数和记忆提示词参数。',
         order: 100
+    },
+    {
+        key: 设置键.性能监控设置,
+        label: '性能监控',
+        category: 'system',
+        description: 'FPS 显示与性能慢操作警告阈值。',
+        order: 105
     },
     {
         key: 设置键.小说分解数据集,

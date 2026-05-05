@@ -450,6 +450,24 @@ export interface MusicTrack {
     歌词?: string; // LRC format
 }
 
+/**
+ * 性能监控配置结构
+ * 用于控制性能监控功能的开关和阈值
+ */
+export interface 性能监控配置结构 {
+    启用性能监控: boolean;       // 默认 false
+    显示FPS: boolean;           // 默认 false
+    AI响应慢阈值ms: number;     // 默认 10000ms (10秒)
+    生图慢阈值ms: number;        // 默认 30000ms (30秒)
+}
+
+export const 默认性能监控配置: 性能监控配置结构 = {
+    启用性能监控: false,
+    显示FPS: false,
+    AI响应慢阈值ms: 10000,
+    生图慢阈值ms: 30000,
+};
+
 export type 剧情风格类型 = '后宫' | '修炼' | '一般' | '修罗场' | '纯爱' | 'NTL后宫';
 export type NTL后宫档位 = '禁止乱伦' | '假乱伦' | '无限制';
 export type 酒馆提示词后处理类型 = '未选择' | '单一用户' | '严格' | '半严格';
