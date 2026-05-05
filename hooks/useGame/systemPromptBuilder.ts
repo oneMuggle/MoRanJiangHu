@@ -1648,7 +1648,8 @@ export const 构建系统提示词 = ({
     const nsfwCardBlock = normalizedGameConfig.启用NSFW模式
         ? 构建在场NPC_NSWF卡片组(
             socialData || [],
-            openingConfig?.nsfw场景类型 ?? '无'
+            openingConfig?.nsfw场景类型 ?? '无',
+            { 时代配置ID: options?.eraId }
         )
         : '';
     const contextStoryPlan = 构建剧情安排(statePayload);
