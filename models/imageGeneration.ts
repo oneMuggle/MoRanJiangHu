@@ -170,3 +170,25 @@ export interface 场景生图任务记录 {
     摘要?: string;
     已应用为壁纸?: boolean;
 }
+
+// ==================== 批量生图配置 ====================
+
+export type 任务优先级 = 'high' | 'normal' | 'low';
+
+export interface 批量生图配置 {
+    最大NPC并发数: number;      // 默认: 2
+    最大场景并发数: number;     // 默认: 1
+    重试次数: number;           // 默认: 3
+    基础重试延迟ms: number;    // 默认: 1000
+    最大重试延迟ms: number;     // 默认: 60000
+    启用自动重试: boolean;      // 默认: true
+}
+
+export const 默认批量生图配置: 批量生图配置 = {
+    最大NPC并发数: 2,
+    最大场景并发数: 1,
+    重试次数: 3,
+    基础重试延迟ms: 1000,
+    最大重试延迟ms: 60000,
+    启用自动重试: true,
+};
