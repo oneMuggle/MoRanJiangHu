@@ -147,6 +147,7 @@ type 主剧情发送当前状态 = {
 };
 
 import { 构建校园NSFW参数, 处理BDSM状态更新, type BDSM状态更新回调 } from '../bdsmStateIntegration';
+import { 构建都市网约车NSFW参数 } from '../urbanDriverNSFWIntegration';
 
 // ─── 主剧情发送依赖 ─────────────────────────────────────────────────────────
 
@@ -514,7 +515,13 @@ export const 执行主剧情发送工作流 = async (
             builtinPromptEntries: currentState.内置提示词列表,
             worldbooks: currentState.世界书列表,
             时代配置ID: currentState.时代配置ID,
-            校园NSFW参数: 构建校园NSFW参数(currentState)
+            校园NSFW参数: 构建校园NSFW参数(currentState),
+            都市网约车NSFW参数: 构建都市网约车NSFW参数({
+              都市网约车系统: (currentState as any).都市网约车系统,
+              gameConfig: currentState.gameConfig,
+              角色: { 出身背景: currentState.角色?.出身背景 },
+              时代配置ID: currentState.时代配置ID,
+            })
         });
         const inputTokens = deps.估算消息Token(orderedMessages, activeApi?.model);
 

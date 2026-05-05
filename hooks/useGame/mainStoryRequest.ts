@@ -21,6 +21,18 @@ import type {
     桌游类型,
     密室主题,
 } from '../../models/campusNSFW';
+import type {
+    乘客欲望阶段,
+    行程关系轨道,
+    醉酒状态,
+    药物状态,
+} from '../../models/urbanDriverNSFW/core';
+import type {
+    行程NSFW类型,
+} from '../../models/urbanDriverNSFW/scenarios';
+import type {
+    网约车后果类型,
+} from '../../models/urbanDriverNSFW/consequences';
 import { formatHistoryToScript } from './historyUtils';
 import {
     构建COT伪装提示词,
@@ -147,6 +159,18 @@ export const 构建主剧情请求参数 = (
             内容强度?: '微暗' | '暧昧' | '露骨';
             其他Npc欲望摘要?: string;
         };
+        都市网约车NSFW参数?: {
+            行程类型?: 行程NSFW类型;
+            乘客欲望阶段?: 乘客欲望阶段;
+            关系轨道?: 行程关系轨道;
+            暴露风险?: number;
+            紧张度?: number;
+            醉酒状态?: 醉酒状态;
+            药物状态?: 药物状态;
+            行车记录仪状态?: '关闭' | '录制中' | '已泄露';
+            内容强度?: '微暗' | '暧昧' | '露骨';
+            后果?: { 类型: 网约车后果类型; 严重程度: '轻微' | '中等' | '严重' | '毁灭'; NPC信息?: string };
+        };
     }
 ): 主剧情请求构建结果 => {
     const runtimeGameConfig = 规范化游戏设置(params.gameConfig);
@@ -182,9 +206,9 @@ export const 构建主剧情请求参数 = (
         )
         : '';
     const normalizedRuntimeExtraPrompt = !tavernPresetModeEnabled
-        ? 构建运行时额外提示词(runtimeGameConfig.额外提示词 || '', { ...runtimeGameConfig, 时代配置ID: params.时代配置ID, 校园NSFW参数: params.校园NSFW参数 })
+        ? 构建运行时额外提示词(runtimeGameConfig.额外提示词 || '', { ...runtimeGameConfig, 时代配置ID: params.时代配置ID, 校园NSFW参数: params.校园NSFW参数, 都市网约车NSFW参数: params.都市网约车NSFW参数 })
         : '';
-    const tavernRuntimeExtraPrompt = 构建运行时额外提示词(runtimeGameConfig.额外提示词 || '', { ...runtimeGameConfig, 时代配置ID: params.时代配置ID, 校园NSFW参数: params.校园NSFW参数 });
+    const tavernRuntimeExtraPrompt = 构建运行时额外提示词(runtimeGameConfig.额外提示词 || '', { ...runtimeGameConfig, 时代配置ID: params.时代配置ID, 校园NSFW参数: params.校园NSFW参数, 都市网约车NSFW参数: params.都市网约车NSFW参数 });
     const recallScriptAppend = params.recallTag ? `\n\n【剧情回忆】\n${params.recallTag}` : '';
     const scriptSectionText = `【即时剧情回顾】\n${formatHistoryToScript(params.updatedContextHistory) || '暂无'}${recallScriptAppend}`;
     const latestUserInputAsModel = [
