@@ -102,6 +102,25 @@ export type {
   互动类型,
 } from './relationship';
 
+// v2.1 宿舍系统
+export type {
+  宿舍类型,
+  宿舍楼栋,
+  室友职位,
+  宿舍成员,
+  宿舍数据,
+  宿舍事件,
+} from './dormitory';
+
+export {
+  创建默认宿舍数据,
+  宿舍类型私密基数,
+  室友职位贡献基数,
+  装饰升级消耗,
+  计算私密事件概率,
+  获取宿舍描述,
+} from './dormitory';
+
 export {
   关系阈值配置,
   互动效果配置,
