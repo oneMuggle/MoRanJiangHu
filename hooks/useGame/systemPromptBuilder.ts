@@ -59,6 +59,7 @@ import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionO
 import { 构建校规注入提示词, 构建催眠注入提示词 } from './campusPromptInjector';
 import { 构建设备通讯摘要 } from './triggerDeviceMessageWorkflow';
 import { 构建BDSM论坛叙事约束 } from '../../prompts/runtime/bdsmForum';
+import { 检查到期见面预约, 构建见面注入提示词 } from './bdsmMeetingTrigger';
 
 export type 运行时提示词状态 = {
     当前启用: boolean;
@@ -1520,6 +1521,17 @@ export const 构建系统提示词 = ({
 
             if (关系文本.length === 0) return null;
             return `## BDSM 关系管线\n\n${关系文本.join('\n')}`;
+        })(),
+        // 校园系统：BDSM 见面预约触发
+        (() => {
+            const 校园系统 = statePayload?.校园系统;
+            const 预约列表 = 校园系统?.见面预约列表;
+            const 当前回合 = (statePayload?.历史记录 as unknown[] | undefined)?.length ?? 0;
+            const 到期预约 = 检查到期见面预约(预约列表, 当前回合);
+            if (到期预约.length === 0) return null;
+            // 只取最早到期的一个，避免 prompt 过长
+            const 首个到期 = 到期预约[0];
+            return 构建见面注入提示词(首个到期);
         })(),
         设备通讯摘要 || null
     ]

@@ -37,7 +37,7 @@ const BDSMContractPanel: React.FC<Props> = ({ 关系状态, onNegotiateContract,
                 <h3 className="font-semibold text-white text-sm">契约管理</h3>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
                 <div className="mb-4">
                     <h4 className="text-xs font-semibold text-gray-400 mb-2">当前契约</h4>
                     {有效契约 ? (

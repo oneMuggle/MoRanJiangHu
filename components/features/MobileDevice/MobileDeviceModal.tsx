@@ -16,7 +16,7 @@ interface MobileDeviceModalProps {
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: (board?: 'bdsn') => void;
     isRefreshing?: boolean;
-    onSendMessage?: (npcId: string, npcName: string, content: string) => void;
+    onSendMessage?: (npcId: string, npcName: string, content: string) => Promise<{ npcReply: string }>;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     onBDSM任务操作?: (npcId: string, 操作: '接受' | '报告完成' | '放弃', 任务ID: string, 执行描述?: string) => void;

@@ -158,6 +158,7 @@ type 主剧情发送依赖 = {
     设置历史记录: (value: 聊天记录结构[] | ((prev: 聊天记录结构[]) => 聊天记录结构[])) => void;
     应用并同步记忆系统: (memory: 记忆系统结构, options?: { 静默总结提示?: boolean }) => void;
     onBDSM状态更新?: BDSM状态更新回调;
+    onBDSM见面预约更新?: (更新: { npcId: string; 新状态: string }) => void;
     构建系统提示词: (promptPool: any[], memoryData: 记忆系统结构, socialData: any[], statePayload: any, options?: any, deviceMessages?: Array<{ app: string; title: string; content: string; timestamp: number; read: boolean }>) => 主剧情系统上下文 & {
         runtimePromptStates: Record<string, any>;
     };
@@ -651,7 +652,8 @@ export const 执行主剧情发送工作流 = async (
                 获取原始AI消息: deps.获取原始AI消息,
                 提取原始报错详情: deps.提取原始报错详情,
                 触发设备消息生成: deps.触发设备消息生成,
-                onBDSM状态更新: deps.onBDSM状态更新
+                onBDSM状态更新: deps.onBDSM状态更新,
+                onBDSM见面预约更新: deps.onBDSM见面预约更新
             },
             执行可重试独立阶段,
             deps.文章优化功能已开启,
@@ -680,29 +682,119 @@ export const 执行主剧情发送工作流 = async (
 
         // ─── BDSM 任务补充阶段 ─────────────────────────────────────────
         const 校园系统 = currentState.校园系统;
+        const apiConfig = currentState.apiConfig;
         if (校园系统?.欲望系统?.NPC欲望档案) {
             const 活跃NpcIds = Object.keys(校园系统.欲望系统.NPC欲望档案);
             for (const npcId of 活跃NpcIds) {
                 const 档案 = 校园系统.欲望系统.NPC欲望档案[npcId];
                 const bdsM关系 = 档案?.BDSM关系;
                 if (!bdsM关系) continue;
+                if (bdsM关系.阶段 === '初识') continue;
 
                 options?.onBDSMTaskSupplementProgress?.({ phase: 'start', text: `检查 ${npcId} 的任务补充` });
 
                 const 活跃任务数 = (bdsM关系.任务历史 || []).filter((t: any) => t.状态 === '进行中' || t.状态 === '待接受').length;
-                if (活跃任务数 < 2) {
-                    options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 活跃任务不足，触发补充` });
-                    // 注：实际任务生成通过 onBDSM状态更新 回调在下一回合处理
-                }
-
-                // 检查日常指令是否需要刷新
                 const 日常指令 = bdsM关系.日常指令 || [];
-                const 全部完成 = 日常指令.length > 0 && 日常指令.every((i: any) => i.是否完成);
-                if (全部完成 || 日常指令.length === 0) {
-                    options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 日常指令需要刷新` });
+                const 日常指令已过期 = 日常指令.length > 0 && 日常指令.every((i: any) => i.是否完成);
+                const 需要补充任务 = 活跃任务数 < 2;
+                const 需要刷新指令 = 日常指令已过期 || 日常指令.length === 0;
+
+                if (!需要补充任务 && !需要刷新指令) {
+                    options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 任务充足，跳过补充` });
+                    continue;
                 }
 
-                options?.onBDSMTaskSupplementProgress?.({ phase: 'done', text: `${npcId} 任务补充检查完成` });
+                // 调用 AI 生成补充任务/日常指令
+                const 主剧情Api = 获取主剧情接口配置(apiConfig);
+                if (!主剧情Api || !主剧情Api.apiKey) {
+                    options?.onBDSMTaskSupplementProgress?.({ phase: 'error', text: `${npcId} AI 不可用` });
+                    continue;
+                }
+
+                try {
+                    const { 构建调教任务生成提示词, 构建日常指令生成提示词 } =
+                        await import('../../../prompts/runtime/bdsmTasks');
+                    const { 请求模型文本 } = await import('../../../services/ai/chatCompletionClient');
+
+                    const 任务提示词 = 需要补充任务 ? 构建调教任务生成提示词({
+                        契约类型: '口头约定' as const,
+                        契约状态: '未缔结' as const,
+                        服从度: bdsM关系.服从度,
+                        权力倾向: '',
+                        关系阶段: bdsM关系.阶段,
+                        已解锁场景: [],
+                        历史任务数量: 活跃任务数,
+                    }) : '';
+
+                    const 指令提示词 = 需要刷新指令 ? 构建日常指令生成提示词({
+                        服从度: bdsM关系.服从度,
+                        契约状态: '未缔结' as const,
+                        关系阶段: bdsM关系.阶段,
+                        已发布指令数: 日常指令.length,
+                        当前时间: new Date().toISOString(),
+                    }) : '';
+
+                    const npcName = (档案 as any)._npcName || (档案 as any).姓名 || npcId;
+                    const 综合提示词 = `你是 "${npcName}" 的 BDSM 任务生成系统。当前关系阶段: ${bdsM关系.阶段}，服从度: ${bdsM关系.服从度}。${需要补充任务 ? '请生成 2-3 个新的调教任务（JSON 数组）。' : ''}${需要刷新指令 ? '请生成 1-3 条新的日常指令（JSON 数组）。' : ''}`;
+
+                    const 综合回复 = await 请求模型文本(主剧情Api, [
+                        { role: 'system' as const, content: 综合提示词 },
+                        ...(任务提示词 ? [{ role: 'user' as const, content: 任务提示词 }] : []),
+                        ...(指令提示词 ? [{ role: 'user' as const, content: 指令提示词 }] : []),
+                    ], { temperature: 0.7 });
+
+                    // 解析 AI 返回结果
+                    const jsonMatch = 综合回复.match(/\[[\s\S]*\]/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        const 任务更新结果: any = {};
+
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            // 判断是任务还是日常指令
+                            if (parsed[0].type || parsed[0].类型) {
+                                任务更新结果.任务更新 = parsed.map((t: any) => ({
+                                    id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                                    类型: t.type || t.类型 || '服从测试',
+                                    标题: t.title || t.标题 || '',
+                                    描述: t.description || t.描述 || '',
+                                    难度: t.difficulty || t.难度 || '初级',
+                                    状态: '待接受',
+                                    发布时间: new Date().toISOString(),
+                                    发布者: npcName,
+                                    接受者: npcName,
+                                }));
+                                options?.onBDSMTaskSupplementProgress?.({
+                                    phase: 'done', text: `${npcId} 新增 ${任务更新结果.任务更新.length} 个任务`
+                                });
+                            } else if (parsed[0].category || parsed[0].content) {
+                                任务更新结果.日常指令 = parsed.map((d: any) => ({
+                                    content: d.content || '',
+                                    category: d.category || '任务',
+                                    duration: d.duration || '1回合',
+                                    是否完成: false,
+                                    rewardHint: d.rewardHint || '服从度小幅提升',
+                                    punishmentHint: d.punishmentHint || '记录轻微违约',
+                                }));
+                                options?.onBDSMTaskSupplementProgress?.({
+                                    phase: 'done', text: `${npcId} 刷新 ${任务更新结果.日常指令.length} 条日常指令`
+                                });
+                            }
+                        }
+
+                        // 调用回调应用状态更新
+                        if (Object.keys(任务更新结果).length > 0) {
+                            deps.onBDSM状态更新?.(任务更新结果);
+                        }
+                    } else {
+                        options?.onBDSMTaskSupplementProgress?.({
+                            phase: 'error', text: `${npcId} AI 返回格式无法解析`
+                        });
+                    }
+                } catch (err) {
+                    options?.onBDSMTaskSupplementProgress?.({
+                        phase: 'error', text: `${npcId} 任务生成失败: ${err instanceof Error ? err.message : String(err)}`
+                    });
+                }
             }
         }
 

@@ -142,7 +142,7 @@ const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
             </div>
 
             {/* 聊天区域 */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
                 {messages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.发送者 === '玩家' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${

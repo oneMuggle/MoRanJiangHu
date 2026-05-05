@@ -76,7 +76,7 @@ const BDSMTaskPanel: React.FC<Props> = ({ 关系状态, 日常指令, onAcceptTa
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
                 {活跃任务.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
                         <span className="text-3xl text-gray-600 mb-2">📋</span>
