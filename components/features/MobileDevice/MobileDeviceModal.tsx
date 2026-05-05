@@ -19,6 +19,7 @@ interface MobileDeviceModalProps {
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
+    onBDSM任务操作?: (npcId: string, 操作: '接受' | '报告完成' | '放弃', 任务ID: string, 执行描述?: string) => void;
 }
 
 const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
@@ -35,6 +36,7 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
     onSendMessage,
     onUnlockNPC,
     onBDSM帖子更新,
+    onBDSM任务操作,
 }) => {
     return (
         <div
@@ -58,6 +60,7 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
                     onSendMessage={onSendMessage}
                     onUnlockNPC={onUnlockNPC}
                     onBDSM帖子更新={onBDSM帖子更新}
+                    onBDSM任务操作={onBDSM任务操作}
                 />
             </div>
         </div>

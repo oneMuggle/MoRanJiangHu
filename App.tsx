@@ -1813,6 +1813,16 @@ const App: React.FC = () => {
                                     );
                                     setters.set校园系统?.({ ...campusSystem, BDSM帖子列表: updatedPosts });
                                 }}
+                                onBDSM任务操作={(npcId, 操作, 任务ID, 执行描述) => {
+                                    if (操作 === '接受') {
+                                        actions.updateBDSMTaskStatus?.(npcId, 任务ID, '进行中');
+                                    } else if (操作 === '报告完成') {
+                                        actions.updateBDSMTaskStatus?.(npcId, 任务ID, '已完成');
+                                        actions.addBDSMMilestone?.(npcId, '任务完成', `完成调教任务：${执行描述 || 任务ID}`);
+                                    } else if (操作 === '放弃') {
+                                        actions.updateBDSMTaskStatus?.(npcId, 任务ID, '已放弃');
+                                    }
+                                }}
                             />
                         </懒加载边界>
                     )}

@@ -32,6 +32,8 @@ export interface NPC欲望档案 {
   服从度?: import('./sm').服从度状态;
   契约?: import('./sm').契约记录;
   SM场景历史?: import('./sm').SM场景记录[];
+  // v1.6 关系管线
+  BDSM关系?: import('./sm').BDSM关系状态;
 }
 
 export type 里程碑类型 =

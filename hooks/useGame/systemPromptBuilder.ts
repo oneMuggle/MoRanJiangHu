@@ -1481,6 +1481,46 @@ export const 构建系统提示词 = ({
                 寻主召奴未联系帖数: 寻主召奴未联系,
             });
         })(),
+        // 校园系统：BDSM 关系管线 — 活跃任务与关系状态注入
+        (() => {
+            const 校园系统 = statePayload?.校园系统;
+            const 欲望系统 = 校园系统?.欲望系统;
+            if (!欲望系统?.NPC欲望档案) return null;
+
+            const 关系文本: string[] = [];
+            for (const [npcId, 档案] of Object.entries(欲望系统.NPC欲望档案)) {
+                const bdsm = (档案 as any).BDSM关系;
+                if (!bdsm || bdsm.阶段 === '初识' && !bdsm.任务历史?.length) continue;
+
+                const npc = socialData?.find((s: any) => s.id === npcId);
+                const npcName = npc?.姓名 || npcId;
+
+                关系文本.push(`【${npcName}】BDSM 关系阶段: ${bdsm.阶段}, 服从度: ${bdsm.服从度}/100`);
+
+                const 活跃任务 = (bdsm.任务历史 || [])
+                    .filter((t: any) => t.状态 === '进行中' || t.状态 === '待接受')
+                    .slice(0, 3);
+                if (活跃任务.length > 0) {
+                    关系文本.push('  活跃任务:');
+                    活跃任务.forEach((t: any) => {
+                        关系文本.push(`  - [${t.状态}] ${t.标题}: ${t.描述?.slice(0, 40)}`);
+                    });
+                }
+
+                const 未完成指令 = (bdsm.日常指令 || []).filter((d: any) => !d.是否完成);
+                if (未完成指令.length > 0) {
+                    关系文本.push(`  未完成指令: ${未完成指令.map((d: any) => d.content).join('；')}`);
+                }
+
+                const 契约 = (bdsm.契约记录 || []).find((c: any) => c.状态 !== '已解除');
+                if (契约) {
+                    关系文本.push(`  契约: ${契约.类型} (${契约.条款列表?.join('、') || '无具体条款'})`);
+                }
+            }
+
+            if (关系文本.length === 0) return null;
+            return `## BDSM 关系管线\n\n${关系文本.join('\n')}`;
+        })(),
         设备通讯摘要 || null
     ]
         .filter(Boolean)

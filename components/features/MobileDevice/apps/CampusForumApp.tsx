@@ -6,7 +6,6 @@ import type { BDSM论坛帖子, BDSM帖子分类, 联系对话, 联系状态 } f
 import type { NPC结构 } from '../../../../models/domain/social';
 import { 从BDSM帖子创建NPC } from '../../../../hooks/useGame/bdsmForumEngine';
 import BDSMContactModal from './BDSMContactModal';
-import BDSMMeetingModal from './BDSMMeetingModal';
 
 interface AppProps {
     eraId: string;
@@ -41,7 +40,6 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
     const [activeBoard, setActiveBoard] = useState<'forum' | 'bdsm'>(appId === 'bdsn' ? 'bdsm' : 'forum');
     const [selectedPost, setSelectedPost] = useState<论坛帖子 | BDSM论坛帖子 | null>(null);
     const [contactingPost, setContactingPost] = useState<BDSM论坛帖子 | null>(null);
-    const [meetingPost, setMeetingPost] = useState<BDSM论坛帖子 | null>(null);
     const [activeCategory, setActiveCategory] = useState('全部');
     const [activeBDSMSub, setActiveBDSMSub] = useState<BDSM帖子分类 | '全部'>('全部');
 
@@ -130,21 +128,6 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
         return '子分类' in post && '影响等级' in post;
     };
 
-    const handleMeetingConfirm = (post: BDSM论坛帖子) => {
-        // 见面后推进关系深度
-        onBDSM帖子更新?.(post.id, p => ({
-            ...p,
-            影响等级: p.影响等级 === '轻微' ? '中等' : '严重',
-        }));
-        // 可能触发新事件或NPC属性更新（通过 onUnlockNPC 传递更新后的 NPC）
-        const updatedNpc = 从BDSM帖子创建NPC({
-            ...post,
-            内容: `见面后的${post.寻主召奴信息?.解锁NPC姓名 || post.作者}，关系更进一步。${post.内容}`,
-        });
-        onUnlockNPC?.(updatedNpc);
-        setMeetingPost(null);
-    };
-
     // ========== 联系对话框 ==========
     if (contactingPost) {
         return (
@@ -152,17 +135,6 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                 post={contactingPost}
                 onBack={() => setContactingPost(null)}
                 onConfirm={handleContactConfirm}
-            />
-        );
-    }
-
-    // ========== 见面对话框 ==========
-    if (meetingPost) {
-        return (
-            <BDSMMeetingModal
-                post={meetingPost}
-                onBack={() => setMeetingPost(null)}
-                onConfirm={() => handleMeetingConfirm(meetingPost)}
             />
         );
     }
@@ -231,10 +203,10 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                                             className="text-xs bg-purple-600/80 hover:bg-purple-500 text-white px-3 py-1.5 rounded transition-colors"
                                         >联系TA</button>
                                     ) : 已建立关系 ? (
-                                        <button
-                                            onClick={() => setMeetingPost(selectedPost as BDSM论坛帖子)}
-                                            className="text-xs bg-green-600/80 hover:bg-green-500 text-white px-3 py-1.5 rounded transition-colors"
-                                        >见面</button>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-[10px] text-green-400">✓ 已建立关系</span>
+                                            <span className="text-[10px] text-gray-500">请前往私聊协商见面事宜</span>
+                                        </div>
                                     ) : (
                                         <span className="text-[10px] text-gray-500 px-2 py-1">{info.联系状态}</span>
                                     )}

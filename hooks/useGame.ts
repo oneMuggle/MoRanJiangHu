@@ -69,6 +69,8 @@ import {
     type 运行时提示词状态
 } from './useGame/systemPromptBuilder';
 import { 从NPC创建欲望档案, 创建默认欲望档案 } from './useGame/campusNSFWEngine';
+import { 构建见面场景提示词, 解析见面结果, 生成任务摘要, type 见面场景上下文, type 日常指令 } from './useGame/bdsmMeetingWorkflow';
+import type { BDSM调教任务, BDSM任务状态, BDSM评价等级, 契约记录 } from '../models/campusNSFW';
 import {
     创建开场基础状态,
     创建开场命令基态,
@@ -974,6 +976,74 @@ export const useGame = () => {
         设置NPC生图任务队列: setNPC生图任务队列,
         加载图片AI服务
     });
+
+    // ==================== BDSM 关系管线操作 ====================
+
+    const 更新BDSM关系状态 = useCallback((npcId: string, updater: (state: any) => any) => {
+        设置校园系统(prev => {
+            if (!prev?.欲望系统?.NPC欲望档案?.[npcId]?.BDSM关系) return prev;
+            const 档案 = prev.欲望系统.NPC欲望档案[npcId];
+            return {
+                ...prev,
+                欲望系统: {
+                    ...prev.欲望系统,
+                    NPC欲望档案: {
+                        ...prev.欲望系统.NPC欲望档案,
+                        [npcId]: {
+                            ...档案,
+                            BDSM关系: updater(档案.BDSM关系),
+                        },
+                    },
+                },
+            };
+        });
+    }, [设置校园系统]);
+
+    const 添加BDSM任务 = useCallback((npcId: string, 任务: Omit<BDSM调教任务, 'id' | '状态' | '发布时间'>) => {
+        const 新任务: BDSM调教任务 = {
+            ...任务,
+            id: `bdsm_task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            状态: '待接受' as const,
+            发布时间: new Date().toISOString(),
+        };
+        更新BDSM关系状态(npcId, prev => ({
+            ...prev,
+            任务历史: [...prev.任务历史, 新任务],
+        }));
+        return 新任务;
+    }, [更新BDSM关系状态]);
+
+    const 更新BDSM任务状态 = useCallback((npcId: string, 任务ID: string, 新状态: BDSM任务状态, 评价?: BDSM评价等级) => {
+        更新BDSM关系状态(npcId, prev => ({
+            ...prev,
+            任务历史: prev.任务历史.map(t =>
+                t.id === 任务ID
+                    ? { ...t, 状态: 新状态, 评价, 完成时间: 新状态 === '已完成' ? new Date().toISOString() : t.完成时间 }
+                    : t
+            ),
+        }));
+    }, [更新BDSM关系状态]);
+
+    const 更新契约状态 = useCallback((npcId: string, 新契约: 契约记录) => {
+        更新BDSM关系状态(npcId, prev => ({
+            ...prev,
+            契约记录: [...prev.契约记录, 新契约],
+        }));
+    }, [更新BDSM关系状态]);
+
+    const 添加BDSM里程碑 = useCallback((npcId: string, 类型: string, 描述: string) => {
+        更新BDSM关系状态(npcId, prev => ({
+            ...prev,
+            里程碑: [...prev.里程碑, { 类型, 时间: new Date().toISOString(), 描述 }],
+        }));
+    }, [更新BDSM关系状态]);
+
+    const 设置日常指令 = useCallback((npcId: string, 指令: 日常指令[]) => {
+        更新BDSM关系状态(npcId, prev => ({
+            ...prev,
+            日常指令: 指令,
+        }));
+    }, [更新BDSM关系状态]);
 
     const 读取文生图功能配置 = () => {
         const feature = apiConfig?.功能模型占位 as any;
@@ -2357,6 +2427,16 @@ export const useGame = () => {
             clearPersistentWallpaper: 清除常驻壁纸,
             pushNotification: 推送右下角提示,
             handleEraChange: 处理时代变更,
+            // BDSM 关系管线
+            updateBDSMRelationshipState: 更新BDSM关系状态,
+            addBDSMTask: 添加BDSM任务,
+            updateBDSMTaskStatus: 更新BDSM任务状态,
+            updateContractStatus: 更新契约状态,
+            addBDSMMilestone: 添加BDSM里程碑,
+            setDailyInstructions: 设置日常指令,
+            buildMeetingPrompt: 构建见面场景提示词,
+            parseMeetingResult: 解析见面结果,
+            generateTaskSummary: 生成任务摘要,
             // 旅行系统
             handleTravel,
             handleExplore,

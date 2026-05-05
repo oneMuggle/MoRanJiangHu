@@ -19,6 +19,7 @@ interface MobileDeviceProps {
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
+    onBDSM任务操作?: (npcId: string, 操作: '接受' | '报告完成' | '放弃', 任务ID: string, 执行描述?: string) => void;
 }
 
 const MobileDevice: React.FC<MobileDeviceProps> = ({
@@ -35,6 +36,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
     onSendMessage,
     onUnlockNPC,
     onBDSM帖子更新,
+    onBDSM任务操作,
 }) => {
     return (
         <div className="w-full h-full bg-gray-900/95 backdrop-blur-sm rounded-xl overflow-hidden shadow-2xl border border-gray-700/50">
@@ -52,6 +54,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
                 onSendMessage={onSendMessage}
                 onUnlockNPC={onUnlockNPC}
                 onBDSM帖子更新={onBDSM帖子更新}
+                onBDSM任务操作={onBDSM任务操作}
             />
         </div>
     );

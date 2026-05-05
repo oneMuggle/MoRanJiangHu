@@ -80,6 +80,19 @@ export type {
   BDSM论坛设置,
 } from './bdsm-forum';
 
+// v1.6 BDSM 关系管线
+export type {
+  BDSM任务类型,
+  BDSM任务难度,
+  BDSM任务状态,
+  BDSM评价等级,
+  关系阶段,
+  BDSM调教任务,
+  BDSM日常指令,
+  BDSM里程碑,
+  BDSM关系状态,
+} from './sm';
+
 // 设置类型
 export interface 校园NSFW设置 {
   启用校园NSFW深化系统: boolean;
@@ -115,6 +128,10 @@ export interface 校园NSFW设置 {
   BDSM内容强度: '关闭' | '轻度' | '中度' | '深度';
   启用BDSM_NPC影响: boolean;
   启用BDSM_流言传播: boolean;
+  // v1.6 BDSM 关系管线
+  启用BDSM关系管线: boolean;
+  启用BDSM调教任务: boolean;
+  启用BDSM契约系统: boolean;
 }
 
 export const 默认校园NSFW设置: 校园NSFW设置 = {
@@ -151,6 +168,10 @@ export const 默认校园NSFW设置: 校园NSFW设置 = {
   BDSM内容强度: '轻度',
   启用BDSM_NPC影响: true,
   启用BDSM_流言传播: true,
+  // v1.6 BDSM 关系管线
+  启用BDSM关系管线: true,
+  启用BDSM调教任务: true,
+  启用BDSM契约系统: true,
 };
 
 // 挂载点接口
