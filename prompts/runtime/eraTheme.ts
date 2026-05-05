@@ -43,6 +43,35 @@ export const 构建时代主题注入 = (eraId: string | null | undefined): stri
         sections.push(`## 美术风格参考\n${inherited.artStyle}`);
     }
 
+    // 境界/修炼体系注入
+    if (inherited.realm) {
+        const realm = inherited.realm;
+        const realmSections: string[] = [];
+        realmSections.push(`【境界体系：${realm.name}】`);
+        realmSections.push(`力量体系：${realm.powerSystem}`);
+        if (realm.mapping.length > 0) {
+            realmSections.push(`【境界映射表】`);
+            realmSections.push(realm.mapping.map((m) => `${m.level} => ${m.label}`).join('\n'));
+        }
+        if (realm.stages.length > 0) {
+            realmSections.push(`【大境阶段】`);
+            for (const stage of realm.stages) {
+                realmSections.push(`- ${stage.name}（${stage.levels.join(' / ')}）${stage.abilityBoundary ? `：${stage.abilityBoundary}` : ''}`);
+            }
+        }
+        if (realm.breakthroughs.length > 0) {
+            realmSections.push(`【大境突破表】`);
+            realmSections.push(realm.breakthroughs.map((b) => `${b.from} → ${b.to}`).join('\n'));
+        }
+        if (realm.gapCalibration) {
+            realmSections.push(`【境界差距口径】\n${realm.gapCalibration}`);
+        }
+        if (realm.hardBoundary) {
+            realmSections.push(`【武侠硬边界】\n${realm.hardBoundary}`);
+        }
+        sections.push(realmSections.join('\n'));
+    }
+
     // BGM 标签注入
     if (inherited.bgmTags && inherited.bgmTags.length > 0) {
         sections.push(`## 背景音乐氛围\n${inherited.bgmTags.join('、')}`);

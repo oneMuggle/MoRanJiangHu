@@ -118,6 +118,39 @@ export interface 时代主题UI文案 {
     [key: string]: string;
 }
 
+export interface EraRealmMappingItem {
+    level: number;
+    label: string;
+}
+
+export interface EraRealmStage {
+    name: string;
+    levels: number[];
+    abilityBoundary?: string;
+}
+
+export interface EraRealmBreakthrough {
+    from: number;
+    to: number;
+}
+
+export interface EraRealmConfig {
+    /** 境界体系名称 */
+    name: string;
+    /** 力量体系描述 */
+    powerSystem: string;
+    /** 境界映射表：累计值 → 文案 */
+    mapping: EraRealmMappingItem[];
+    /** 大境阶段列表（用于展示） */
+    stages: EraRealmStage[];
+    /** 大境突破跳转表 */
+    breakthroughs: EraRealmBreakthrough[];
+    /** 境界差距口径说明 */
+    gapCalibration?: string;
+    /** 武侠硬边界说明 */
+    hardBoundary?: string;
+}
+
 export interface EraNode {
     id: string;
     name: string;
@@ -145,6 +178,9 @@ export interface EraNode {
 
     liMode?: EraLiMode | EraLiModeEnhanced;
 
+    /** 境界/修炼体系配置（per era） */
+    realm?: EraRealmConfig;
+
     children?: EraNode[];
 }
 
@@ -158,7 +194,7 @@ export function makeNode(
     name: string,
     depth: EpochDepth,
     parent: string | null,
-    extra: Partial<Pick<EraNode, 'colors' | 'typography' | 'uiStyle' | 'bgmTags' | 'artStyle' | 'description' | 'uiCopy' | 'promptVars' | 'openingScenes' | 'characterArchetypes' | 'writingSamples' | 'conflictTypes' | 'liMode'>> = {},
+    extra: Partial<Pick<EraNode, 'colors' | 'typography' | 'uiStyle' | 'bgmTags' | 'artStyle' | 'description' | 'uiCopy' | 'promptVars' | 'openingScenes' | 'characterArchetypes' | 'writingSamples' | 'conflictTypes' | 'liMode' | 'realm'>> = {},
     children: EraNode[] = []
 ): EraNode {
     return { id, name, depth, parent, ...extra, children: children.length > 0 ? children : undefined };

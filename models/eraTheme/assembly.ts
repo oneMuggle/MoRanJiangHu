@@ -1,4 +1,4 @@
-import { EraNode, EraTree, EraColors, EraTypography, EraUIStyle, EraPromptVars, EraOpeningScene, EraCharacterArchetype, EraWritingSample, EraLiMode, EraLiModeEnhanced } from './types';
+import { EraNode, EraTree, EraColors, EraTypography, EraUIStyle, EraPromptVars, EraOpeningScene, EraCharacterArchetype, EraWritingSample, EraLiMode, EraLiModeEnhanced, EraRealmConfig } from './types';
 import { primordialEpoch } from './epoch-primordial';
 import { ancientEpoch } from './epoch-ancient';
 import { modernEpoch } from './epoch-modern';
@@ -106,6 +106,7 @@ export function resolveEraNode(id: string): {
         writingSamples: EraWritingSample[] | undefined;
         conflictTypes: string[] | undefined;
         liMode: EraLiMode | EraLiModeEnhanced | undefined;
+        realm: EraRealmConfig | undefined;
     };
     sources: string[];
 } | null {
@@ -142,6 +143,7 @@ export function resolveEraNode(id: string): {
     const openingScenesDef = getNodeOnly((n) => n.openingScenes);
     const characterArchetypesDef = getNodeOnly((n) => n.characterArchetypes);
     const writingSamplesDef = getNodeOnly((n) => n.writingSamples);
+    const realmDef = getFirstDefined((n) => n.realm);
 
     const rootEpoch = path[0];
     const defaultColors: EraColors = rootEpoch?.colors ?? ancientEpoch.colors!;
@@ -162,6 +164,7 @@ export function resolveEraNode(id: string): {
             writingSamples: writingSamplesDef,
             conflictTypes: conflictTypesDef?.value,
             liMode: liModeDef?.value,
+            realm: realmDef?.value,
         },
         sources: [
             colorsDef?.sourceId,

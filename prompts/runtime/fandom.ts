@@ -42,6 +42,115 @@ export type 同人运行时提示词包 = {
     境界区块集合: 境界区块集合;
 };
 
+/** 各时代专属境界映射（用于同人模式禁用时的 fallback） */
+const 校园境界映射: 境界映射项[] = [
+    { level: 1, label: '大一初期' },
+    { level: 2, label: '大一中期' },
+    { level: 3, label: '大一后期' },
+    { level: 4, label: '大一圆满' },
+    { level: 5, label: '大二初期' },
+    { level: 6, label: '大二中期' },
+    { level: 7, label: '大二后期' },
+    { level: 8, label: '大二圆满' },
+    { level: 9, label: '大三初期' },
+    { level: 10, label: '大三中期' },
+    { level: 11, label: '大三后期' },
+    { level: 12, label: '大三圆满' },
+    { level: 13, label: '大四初期' },
+    { level: 14, label: '大四中期' },
+    { level: 15, label: '大四后期' },
+    { level: 16, label: '大四圆满' },
+    { level: 17, label: '研一初期' },
+    { level: 18, label: '研一中期' },
+    { level: 19, label: '研一后期' },
+    { level: 20, label: '研一毕业' },
+    { level: 24, label: '博士中期' },
+    { level: 27, label: '博士后初期' },
+    { level: 33, label: '学者' },
+    { level: 43, label: '领域权威' }
+];
+
+const 都市境界映射: 境界映射项[] = [
+    { level: 1, label: '实习生初期' },
+    { level: 2, label: '实习生中期' },
+    { level: 3, label: '实习生后期' },
+    { level: 4, label: '初级员工' },
+    { level: 5, label: '中级员工初期' },
+    { level: 6, label: '中级员工中期' },
+    { level: 7, label: '高级员工初期' },
+    { level: 8, label: '高级员工后期' },
+    { level: 9, label: '主管初期' },
+    { level: 10, label: '主管中期' },
+    { level: 11, label: '主管后期' },
+    { level: 12, label: '经理' },
+    { level: 13, label: '总监初期' },
+    { level: 14, label: '总监中期' },
+    { level: 15, label: '总监后期' },
+    { level: 16, label: 'VP' },
+    { level: 17, label: '合伙人初期' },
+    { level: 18, label: '合伙人中期' },
+    { level: 19, label: '合伙人后期' },
+    { level: 20, label: '合伙人顶峰' },
+    { level: 24, label: 'CEO' },
+    { level: 27, label: '行业领袖' },
+    { level: 33, label: '传奇人物' },
+    { level: 43, label: '时代符号' }
+];
+
+const 废土境界映射: 境界映射项[] = [
+    { level: 1, label: '幸存者初期' },
+    { level: 2, label: '幸存者中期' },
+    { level: 3, label: '幸存者后期' },
+    { level: 4, label: '拾荒者' },
+    { level: 5, label: '猎手初期' },
+    { level: 6, label: '猎手中期' },
+    { level: 7, label: '猎手后期' },
+    { level: 8, label: '营地骨干' },
+    { level: 9, label: '营地领袖初期' },
+    { level: 10, label: '营地领袖中期' },
+    { level: 11, label: '技师初期' },
+    { level: 12, label: '技师后期' },
+    { level: 13, label: '军阀初期' },
+    { level: 14, label: '军阀中期' },
+    { level: 15, label: '军阀后期' },
+    { level: 16, label: '传奇英雄' },
+    { level: 17, label: '重建者初期' },
+    { level: 18, label: '重建者中期' },
+    { level: 19, label: '重建者后期' },
+    { level: 20, label: '新秩序奠基者' },
+    { level: 24, label: '救世主' },
+    { level: 27, label: '文明重塑者' },
+    { level: 33, label: '传奇' },
+    { level: 43, label: '不朽传说' }
+];
+
+const 通用境界映射: 境界映射项[] = [
+    { level: 1, label: '初学者初期' },
+    { level: 2, label: '初学者中期' },
+    { level: 3, label: '初学者后期' },
+    { level: 4, label: '入门' },
+    { level: 5, label: '熟练者初期' },
+    { level: 6, label: '熟练者中期' },
+    { level: 7, label: '熟练者后期' },
+    { level: 8, label: '熟练者圆满' },
+    { level: 9, label: '精通初期' },
+    { level: 10, label: '精通中期' },
+    { level: 11, label: '精通后期' },
+    { level: 12, label: '专家' },
+    { level: 13, label: '大师初期' },
+    { level: 14, label: '大师中期' },
+    { level: 15, label: '大师后期' },
+    { level: 16, label: '宗师' },
+    { level: 17, label: '传奇初期' },
+    { level: 18, label: '传奇中期' },
+    { level: 19, label: '传奇后期' },
+    { level: 20, label: '传说' },
+    { level: 24, label: '巅峰' },
+    { level: 27, label: '至高' },
+    { level: 33, label: '不朽' },
+    { level: 43, label: '永恒' }
+];
+
 const 默认境界映射: 境界映射项[] = [
     { level: 1, label: '开脉境初期' },
     { level: 2, label: '开脉境中期' },
@@ -70,6 +179,24 @@ const 默认境界映射: 境界映射项[] = [
     { level: 33, label: '返真境' },
     { level: 43, label: '天人境' }
 ];
+
+/** 根据 eraId 获取对应时代的境界映射 */
+const 获取时代境界映射 = (eraId: string | null | undefined): 境界映射项[] => {
+    if (!eraId) return 默认境界映射;
+    if (eraId.startsWith('contemporary_campus')) return 校园境界映射;
+    if (
+        eraId.startsWith('contemporary_post_apocalyptic') ||
+        eraId.startsWith('contemporary_zombie') ||
+        eraId.startsWith('contemporary_extreme') ||
+        eraId.startsWith('contemporary_biohazard') ||
+        eraId.startsWith('contemporary_nuclear')
+    ) return 废土境界映射;
+    if (eraId.startsWith('contemporary')) return 都市境界映射;
+    if (eraId.startsWith('near-future')) return 通用境界映射;
+    if (eraId.startsWith('far-future')) return 通用境界映射;
+    if (eraId.startsWith('post-human')) return 通用境界映射;
+    return 默认境界映射;
+};
 
 export const 默认累计境界映射数值列表 = 默认境界映射.map((item) => item.level);
 export const 默认累计境界阶段推进跳转列表 = [
@@ -115,9 +242,9 @@ const 规范化境界标签 = (value: unknown): string => (
         : ''
 );
 
-const 构建默认境界母板 = (): 境界映射母板 => ({
+const 构建默认境界母板 = (eraId?: string | null): 境界映射母板 => ({
     strategy: '现体系回退',
-    mapping: 默认境界映射,
+    mapping: 获取时代境界映射(eraId),
     source: 'default'
 });
 
@@ -169,10 +296,10 @@ const 读取境界映射母板 = (
     };
 };
 
-const 读取境界母板优先级 = (params?: { realmPrompt?: string; worldPrompt?: string }): 境界映射母板 => (
+const 读取境界母板优先级 = (params?: { realmPrompt?: string; worldPrompt?: string; eraId?: string | null }): 境界映射母板 => (
     读取境界映射母板(params?.realmPrompt, 'realm_prompt')
     || 读取境界映射母板(params?.worldPrompt, 'world_prompt')
-    || 构建默认境界母板()
+    || 构建默认境界母板(params?.eraId)
 );
 
 const 构建境界母板展示文本 = (schema: 境界映射母板): string => [
@@ -509,11 +636,13 @@ export const 构建同人运行时提示词包 = (params: {
     openingConfig?: OpeningConfig | null;
     worldPrompt?: string;
     realmPrompt?: string;
+    eraId?: string | null;
 }): 同人运行时提示词包 => {
     const fandom = 读取同人配置(params.openingConfig);
     const realmSchema = 读取境界母板优先级({
         realmPrompt: params.realmPrompt,
-        worldPrompt: params.worldPrompt
+        worldPrompt: params.worldPrompt,
+        eraId: params.eraId
     });
     const realmBlocks = 读取境界区块优先级({
         realmPrompt: params.realmPrompt,
@@ -651,9 +780,11 @@ export const 应用境界体系区块替换 = (
     ), source);
 };
 
-const 默认解析境界映射值 = (realmRaw: unknown): number | undefined => {
+const 默认解析境界映射值 = (realmRaw: unknown, eraId?: string | null): number | undefined => {
     const realm = typeof realmRaw === 'string' ? realmRaw.trim() : '';
     if (!realm) return undefined;
+
+    // 只有武侠时代才使用开脉境 N 重这种格式解析
     const matched = realm.match(/^开脉境\s*([一二三四五六七八九十\d]+)重$/);
     if (matched) {
         const raw = matched[1] || '';
@@ -672,8 +803,9 @@ const 默认解析境界映射值 = (realmRaw: unknown): number | undefined => {
         const numeric = /^\d+$/.test(raw) ? Number(raw) : chineseMap[raw];
         return Number.isFinite(numeric) ? numeric : undefined;
     }
+    const eraMapping = 获取时代境界映射(eraId);
     const normalized = 规范化境界标签(realm);
-    const exact = 默认境界映射.find((item) => 规范化境界标签(item.label) === normalized);
+    const exact = eraMapping.find((item) => 规范化境界标签(item.label) === normalized);
     return exact?.level;
 };
 
@@ -683,6 +815,7 @@ export const 解析境界映射值 = (
         worldPrompt?: string;
         realmPrompt?: string;
         openingConfig?: OpeningConfig | null;
+        eraId?: string | null;
     }
 ): number | undefined => {
     const realm = typeof realmRaw === 'string' ? realmRaw.trim() : '';
@@ -693,7 +826,8 @@ export const 解析境界映射值 = (
     const schema = 构建同人运行时提示词包({
         openingConfig: options?.openingConfig,
         worldPrompt: options?.worldPrompt,
-        realmPrompt: options?.realmPrompt
+        realmPrompt: options?.realmPrompt,
+        eraId: options?.eraId
     }).境界映射母板;
 
     const exact = schema.mapping.find((item) => 规范化境界标签(item.label) === normalized);
@@ -705,5 +839,5 @@ export const 解析境界映射值 = (
     });
     if (partial) return partial.level;
 
-    return 默认解析境界映射值(realm);
+    return 默认解析境界映射值(realm, options?.eraId);
 };
