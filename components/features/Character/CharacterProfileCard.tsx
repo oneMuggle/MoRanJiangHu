@@ -1,10 +1,53 @@
 import React from 'react';
 import { 角色数据结构, 视觉设置结构 } from '../../../types';
 import { 构建区域文字样式 } from '../../../utils/visualSettings';
+
 interface Props {
     character: 角色数据结构;
     visualConfig?: 视觉设置结构;
 }
+
+// 气运稀有度颜色配置
+const 气运稀有度配置 = {
+    '传说': {
+        border: 'border-wuxia-gold/40',
+        bg: 'bg-gradient-to-r from-amber-900/25 to-yellow-900/15',
+        text: 'text-wuxia-gold',
+        label: 'bg-wuxia-gold/20 text-wuxia-gold',
+    },
+    '稀有': {
+        border: 'border-wuxia-cyan/40',
+        bg: 'bg-gradient-to-r from-cyan-900/25 to-teal-900/15',
+        text: 'text-wuxia-cyan',
+        label: 'bg-wuxia-cyan/20 text-wuxia-cyan',
+    },
+    '普通': {
+        border: 'border-gray-600/40',
+        bg: 'bg-gradient-to-r from-gray-800/25 to-gray-700/15',
+        text: 'text-gray-300',
+        label: 'bg-gray-700/30 text-gray-400',
+    },
+};
+
+// 能力类型图标映射
+const 能力类型图标: Record<string, { icon: string; color: string }> = {
+    '战斗': { icon: '⚔️', color: 'text-wuxia-red' },
+    '生存': { icon: '🛡️', color: 'text-green-400' },
+    '社交': { icon: '💬', color: 'text-pink-400' },
+    '谋略': { icon: '🧠', color: 'text-purple-400' },
+    '特殊': { icon: '✨', color: 'text-wuxia-gold' },
+    '辅助': { icon: '🌟', color: 'text-blue-400' },
+};
+
+// 属性图标映射
+const 属性图标: Record<string, string> = {
+    '力量': '💪',
+    '敏捷': '⚡',
+    '体质': '🩸',
+    '根骨': '🦴',
+    '悟性': '🧩',
+    '福源': '🍀',
+};
 
 const CharacterProfileCard: React.FC<Props> = ({ character, visualConfig }) => {
     const 天赋列表 = Array.isArray(character.天赋列表) ? character.天赋列表 : [];
@@ -23,6 +66,17 @@ const CharacterProfileCard: React.FC<Props> = ({ character, visualConfig }) => {
         return 修正率;
     };
 
+    // 获取气运稀有度配置
+    const 获取气运样式 = (稀有度: string) => {
+        return 气运稀有度配置[稀有度 as keyof typeof 气运稀有度配置] || 气运稀有度配置['普通'];
+    };
+
+    // 获取能力类型图标
+    const 获取能力图标 = (类型?: string) => {
+        if (!类型) return null;
+        return 能力类型图标[类型] || null;
+    };
+
     const attributeData = [
         { key: '力', base: character.力量, attr: '力量' },
         { key: '敏', base: character.敏捷, attr: '敏捷' },
@@ -37,6 +91,32 @@ const CharacterProfileCard: React.FC<Props> = ({ character, visualConfig }) => {
         val: a.base,
         bonus: 计算气运修正(a.attr)
     }));
+
+    // 渲染单个气运效果
+    const 渲染气运效果 = (效果列表: any[]) => {
+        return 效果列表.map((eff, ei) => {
+            if (eff.类型 === '属性修正' && eff.属性 && eff.修正值) {
+                const 属性名 = eff.属性;
+                const 修正值 = Math.round((eff.修正值 - 1) * 100);
+                const 图标 = 属性图标[属性名] || '📊';
+                return (
+                    <div key={`attr-${ei}`} className="mt-1.5 rounded border border-wuxia-gold/15 bg-white/[0.03] px-2.5 py-1.5 text-[11px] leading-5">
+                        <span className="mr-1.5">{图标}</span>
+                        <span className="text-gray-300">{属性名}</span>
+                        <span className="ml-1 text-wuxia-gold">+{修正值}%</span>
+                    </div>
+                );
+            }
+            if (eff.描述) {
+                return (
+                    <div key={`desc-${ei}`} className="mt-1.5 rounded border border-wuxia-cyan/15 bg-white/[0.03] px-2.5 py-1.5 text-[11px] leading-5 text-wuxia-cyan/90">
+                        {eff.描述}
+                    </div>
+                );
+            }
+            return null;
+        }).filter(Boolean);
+    };
 
     return (
         <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-wuxia-gold/35 bg-[linear-gradient(145deg,rgba(20,16,12,0.98),rgba(8,8,8,0.98))] shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_20px_rgba(230,200,110,0.08)]" style={areaStyle}>
@@ -122,18 +202,56 @@ const CharacterProfileCard: React.FC<Props> = ({ character, visualConfig }) => {
                         </div>
                         <div className="space-y-3">
                             {气运列表.length > 0 ? (
-                                气运列表.map((qiyun: any, index: number) => (
-                                    <div key={`${qiyun.名称}-${index}`} className="border border-wuxia-cyan/15 bg-black/25 p-3">
-                                        <div className="flex items-center justify-between gap-3">
-                                            <span className="text-sm font-semibold tracking-[0.12em] text-wuxia-cyan">{qiyun.名称}</span>
-                                            <span className="text-[10px] text-wuxia-cyan/70">气运 {index + 1}</span>
+                                气运列表.map((qiyun: any, index: number) => {
+                                    const 样式 = 获取气运样式(qiyun.稀有度);
+                                    const 能力图标 = 获取能力图标(qiyun.能力类型);
+                                    const 显示境界 = qiyun.适用境界 && (qiyun.适用境界[0] !== 0 || qiyun.适用境界[1] !== 99);
+                                    return (
+                                        <div
+                                            key={`${qiyun.名称}-${index}`}
+                                            className={`border ${样式.border} ${样式.bg} p-3`}
+                                        >
+                                            {/* 标题行：名称 + 稀有度标签 + 能力类型图标 */}
+                                            <div className="flex items-center justify-between gap-3">
+                                                <span className={`text-sm font-semibold tracking-[0.12em] ${样式.text}`}>{qiyun.名称}</span>
+                                                <div className="flex items-center gap-2">
+                                                    {能力图标 && (
+                                                        <span className={`text-base ${能力图标.color}`} title={qiyun.能力类型}>
+                                                            {能力图标.icon}
+                                                        </span>
+                                                    )}
+                                                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${样式.label}`}>
+                                                        {qiyun.稀有度}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* 描述 */}
+                                            <p className="mt-2 text-xs leading-6" style={{ color: areaStyle.color }}>{qiyun.描述 || '暂无描述。'}</p>
+
+                                            {/* 效果列表 */}
+                                            {qiyun.效果 && Array.isArray(qiyun.效果) && qiyun.效果.length > 0 && (
+                                                <div className="mt-2.5 space-y-1">
+                                                    {渲染气运效果(qiyun.效果)}
+                                                </div>
+                                            )}
+
+                                            {/* 代价警告 */}
+                                            {qiyun.代价 && (
+                                                <div className="mt-2.5 rounded border border-wuxia-red/30 bg-wuxia-red/10 px-2.5 py-1.5 text-[10px] text-wuxia-red/90">
+                                                    ⚠️ 代价：{qiyun.代价}
+                                                </div>
+                                            )}
+
+                                            {/* 适用境界 */}
+                                            {显示境界 && (
+                                                <div className="mt-2 text-[10px] text-gray-500">
+                                                    适用境界：{qiyun.适用境界[0]}-{qiyun.适用境界[1]}阶
+                                                </div>
+                                            )}
                                         </div>
-                                        <p className="mt-2 text-xs leading-6" style={{ color: areaStyle.color }}>{qiyun.描述 || '暂无描述。'}</p>
-                                        {qiyun.效果 && Array.isArray(qiyun.效果) && qiyun.效果.map((eff: any, ei: number) => (
-                                            eff.描述 && <div key={`eff-${ei}`} className="mt-2 rounded-sm border border-wuxia-cyan/15 bg-white/[0.03] px-2.5 py-2 text-[11px] leading-5 text-wuxia-cyan/90">{eff.描述}</div>
-                                        ))}
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <div className="border border-dashed border-gray-700 px-3 py-6 text-center text-sm text-gray-500">暂无气运记录</div>
                             )}
