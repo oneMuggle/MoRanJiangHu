@@ -14,6 +14,7 @@ interface MobileDeviceProps {
     onRulesChange?: (updater: (prev: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: () => void;
+    isRefreshing?: boolean;
     onSendMessage?: (npcId: string, npcName: string, content: string) => void;
     onUnlockNPC?: (npc: NPC结构) => void;
 }
@@ -28,6 +29,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
     onRulesChange,
     onHypnosisChange,
     onRefresh,
+    isRefreshing,
     onSendMessage,
     onUnlockNPC,
 }) => {
@@ -43,6 +45,7 @@ const MobileDevice: React.FC<MobileDeviceProps> = ({
                 onRulesChange={onRulesChange}
                 onHypnosisChange={onHypnosisChange}
                 onRefresh={onRefresh}
+                isRefreshing={isRefreshing}
                 onSendMessage={onSendMessage}
                 onUnlockNPC={onUnlockNPC}
             />

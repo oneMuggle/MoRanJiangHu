@@ -14,6 +14,7 @@ interface AppProps {
     onBack: () => void;
     gameContext?: DeviceGameContext;
     onRefresh?: () => void;
+    isRefreshing?: boolean;
     onUnlockNPC?: (npc: NPC结构) => void;
 }
 
@@ -30,7 +31,7 @@ const 回复话术池 = [
     '感谢分享，学到了。',
 ];
 
-const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, onUnlockNPC }) => {
+const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, isRefreshing, onUnlockNPC }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '校园论坛';
 
@@ -206,8 +207,18 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                 {onRefresh && (
                     <button
                         onClick={onRefresh}
-                        className="text-xs bg-purple-600/80 hover:bg-purple-500 text-white px-2 py-1 rounded transition-colors"
-                    >AI 刷新</button>
+                        disabled={isRefreshing}
+                        className={`text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 ${
+                            isRefreshing
+                                ? 'bg-gray-600/40 text-gray-400 cursor-not-allowed'
+                                : 'bg-purple-600/80 hover:bg-purple-500 text-white'
+                        }`}
+                    >{isRefreshing && (
+                        <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                    )}{isRefreshing ? '刷新中...' : 'AI 刷新'}</button>
                 )}
             </div>
 
@@ -285,8 +296,18 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                         {onRefresh && (
                             <button
                                 onClick={onRefresh}
-                                className="mt-3 text-xs bg-purple-600/80 hover:bg-purple-500 text-white px-4 py-2 rounded transition-colors"
-                            >AI 生成内容</button>
+                                disabled={isRefreshing}
+                                className={`mt-3 text-xs px-4 py-2 rounded transition-colors flex items-center gap-1 ${
+                                    isRefreshing
+                                        ? 'bg-gray-600/40 text-gray-400 cursor-not-allowed'
+                                        : 'bg-purple-600/80 hover:bg-purple-500 text-white'
+                                }`}
+                            >{isRefreshing && (
+                                <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                            )}{isRefreshing ? '生成中...' : 'AI 生成内容'}</button>
                         )}
                     </div>
                 )}

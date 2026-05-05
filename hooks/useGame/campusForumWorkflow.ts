@@ -9,7 +9,7 @@ import type { DeviceMode, DeviceGameContext } from '../../models/mobileDevice';
 import type { 校园系统数据, 论坛帖子 } from '../../models/campusPhone';
 import type { 校园NSFW设置 } from '../../models/campusNSFW';
 import type { BDSM论坛帖子 } from '../../models/campusNSFW/bdsm-forum';
-import { 生成设备消息, 解析AI论坛帖子, 解析AIBDSM帖子 } from './deviceAiWorkflow';
+import { 生成设备原始消息, 解析AI论坛帖子, 解析AIBDSM帖子 } from './deviceAiWorkflow';
 
 export interface 论坛刷新结果 {
     论坛帖子: 论坛帖子[];
@@ -44,11 +44,11 @@ export async function 刷新校园论坛(
 
     // 1. 生成普通论坛帖子
     try {
-        const forumResult = await 生成设备消息({
+        const forumRawItems = await 生成设备原始消息({
             eraId, mode, appType: 'forum', context: appContext, count, signal,
         }, apiConfig, apiSettings, count);
 
-        const parsedPosts = 解析AI论坛帖子(forumResult.messages as unknown[]);
+        const parsedPosts = 解析AI论坛帖子(forumRawItems);
         result.论坛帖子 = parsedPosts;
     } catch (err) {
         result.errors.push(`论坛生成失败: ${err instanceof Error ? err.message : String(err)}`);
@@ -57,11 +57,11 @@ export async function 刷新校园论坛(
     // 2. 生成 BDSM 帖子（如果启用）
     if (nsfw设置.启用BDSM论坛 && nsfw设置.BDSM内容强度 !== '关闭') {
         try {
-            const bdsmResult = await 生成设备消息({
+            const bdsmRawItems = await 生成设备原始消息({
                 eraId, mode, appType: 'bdsn', context: appContext, count, signal,
             }, apiConfig, apiSettings, count);
 
-            const parsedPosts = 解析AIBDSM帖子(bdsmResult.messages as unknown[]);
+            const parsedPosts = 解析AIBDSM帖子(bdsmRawItems);
             result.BDSM帖子 = parsedPosts;
         } catch (err) {
             result.errors.push(`BDSM生成失败: ${err instanceof Error ? err.message : String(err)}`);

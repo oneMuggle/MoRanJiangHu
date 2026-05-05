@@ -9,7 +9,7 @@ import type { 校园系统数据 } from '../../models/campusPhone';
 import type { 校园NSFW设置 } from '../../models/campusNSFW';
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
 import type { 接口设置结构 } from '../../models/system';
-import { 刷新校园论坛, 论坛刷新结果 } from './campusForumWorkflow';
+import { 生成设备原始消息, 解析AI论坛帖子, 解析AIBDSM帖子 } from './deviceAiWorkflow';
 
 export interface 设备刷新任务 {
     id: string;
@@ -22,7 +22,6 @@ export interface 设备刷新任务 {
 interface Use后台设备刷新监控Deps {
     设备刷新任务队列: 设备刷新任务[];
     set设备刷新任务队列: (updater: (prev: 设备刷新任务[]) => 设备刷新任务[]) => void;
-    校园系统: 校园系统数据;
     set校园系统: (updater: (prev: 校园系统数据) => 校园系统数据) => void;
     eraId: string;
     mode: DeviceMode;
@@ -49,7 +48,8 @@ export const use后台设备刷新监控 = (deps: Use后台设备刷新监控Dep
         );
 
         const executeRefresh = async () => {
-            const { eraId, mode, apiConfig, apiSettings, gameContext, 校园系统, nsfw设置 } = deps;
+            const { eraId, mode, apiConfig, apiSettings, gameContext, nsfw设置 } = deps;
+            const { app } = pendingTask;
 
             // 检查 API 配置是否可用
             if (!apiConfig || !apiSettings) {
@@ -68,58 +68,83 @@ export const use后台设备刷新监控 = (deps: Use后台设备刷新监控Dep
                 return;
             }
 
-            try {
-                const result: 论坛刷新结果 = await 刷新校园论坛({
-                    eraId,
-                    mode,
-                    apiConfig,
-                    apiSettings,
-                    gameContext,
-                    校园系统,
-                    nsfw设置,
-                    count: 5,
-                });
+            const appContext = {
+                当前场景: gameContext.世界?.进行中事件?.[0]?.事件名 || '',
+                角色名: gameContext.角色?.姓名 || '',
+                当前位置: '',
+                世界状态: '',
+            };
 
-                // 将生成的帖子写入校园系统
-                deps.set校园系统(prev => {
-                    const next = { ...prev };
-                    if (result.论坛帖子.length > 0) {
-                        const existing = next.论坛帖子列表 || [];
-                        next.论坛帖子列表 = [...result.论坛帖子, ...existing].slice(0, 50);
-                    }
-                    if (result.BDSM帖子.length > 0) {
-                        const existing = next.BDSM帖子列表 || [];
-                        next.BDSM帖子列表 = [...result.BDSM帖子, ...existing].slice(0, 50);
-                    }
-                    return next;
-                });
+            let 论坛帖子数 = 0;
+            let BDSM帖子数 = 0;
+            const errors: string[] = [];
 
+            // 根据当前 app 决定刷新哪些内容
+            const 需要刷新论坛 = app === 'forum' || app === 'confession';
+            const 需要刷新BDSM = app === 'bdsn';
+
+            if (需要刷新论坛) {
+                try {
+                    const forumRawItems = await 生成设备原始消息({
+                        eraId, mode, appType: 'forum', context: appContext, count: 5,
+                    }, apiConfig, apiSettings, 5);
+                    const parsed = 解析AI论坛帖子(forumRawItems);
+                    if (parsed.length > 0) {
+                        deps.set校园系统(prev => {
+                            const existing = prev.论坛帖子列表 || [];
+                            return { ...prev, 论坛帖子列表: [...parsed, ...existing].slice(0, 50) };
+                        });
+                        论坛帖子数 = parsed.length;
+                    }
+                } catch (err) {
+                    errors.push(`论坛生成失败: ${err instanceof Error ? err.message : String(err)}`);
+                }
+            }
+
+            if (需要刷新BDSM && nsfw设置.启用BDSM论坛 && nsfw设置.BDSM内容强度 !== '关闭') {
+                try {
+                    const bdsmRawItems = await 生成设备原始消息({
+                        eraId, mode, appType: 'bdsn', context: appContext, count: 5,
+                    }, apiConfig, apiSettings, 5);
+                    const parsed = 解析AIBDSM帖子(bdsmRawItems);
+                    if (parsed.length > 0) {
+                        deps.set校园系统(prev => {
+                            const existing = prev.BDSM帖子列表 || [];
+                            return { ...prev, BDSM帖子列表: [...parsed, ...existing].slice(0, 50) };
+                        });
+                        BDSM帖子数 = parsed.length;
+                    }
+                } catch (err) {
+                    errors.push(`BDSM生成失败: ${err instanceof Error ? err.message : String(err)}`);
+                }
+            }
+
+            // 标记任务完成
+            if (errors.length > 0) {
+                deps.set设备刷新任务队列(prev =>
+                    prev.map(t => t.id === pendingTask.id
+                        ? { ...t, status: 'failed', error: errors.join('; ') }
+                        : t
+                    )
+                );
+                deps.推送右下角提示({
+                    title: '刷新部分失败',
+                    message: errors[0]?.slice(0, 80) || '未知错误',
+                    tone: 'error',
+                });
+            } else {
                 deps.set设备刷新任务队列(prev =>
                     prev.map(t => t.id === pendingTask.id ? { ...t, status: 'done' } : t)
                 );
-
-                const total = result.论坛帖子.length + result.BDSM帖子.length;
+                const total = 论坛帖子数 + BDSM帖子数;
                 deps.推送右下角提示({
                     title: '刷新完成',
                     message: `已生成 ${total} 条新内容`,
                     tone: 'success',
                 });
-            } catch (err) {
-                const errorMsg = err instanceof Error ? err.message : String(err);
-                deps.set设备刷新任务队列(prev =>
-                    prev.map(t => t.id === pendingTask.id
-                        ? { ...t, status: 'failed', error: errorMsg }
-                        : t
-                    )
-                );
-                deps.推送右下角提示({
-                    title: '刷新失败',
-                    message: errorMsg.slice(0, 80),
-                    tone: 'error',
-                });
-            } finally {
-                处理中Ref.current = false;
             }
+
+            处理中Ref.current = false;
         };
 
         void executeRefresh();

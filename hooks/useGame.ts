@@ -587,6 +587,7 @@ export const useGame = () => {
 
     // 后台设备刷新监控
     const nsfw设置 = (gameConfig as any)?.校园NSFW设置 || { 启用BDSM论坛: false, BDSM内容强度: '关闭' };
+    const 设备消息接口 = 获取设备消息接口配置(apiConfig);
     const 设备刷新GameContext: DeviceGameContext = {
         角色: 角色 || null,
         社交: 社交 || [],
@@ -600,11 +601,10 @@ export const useGame = () => {
     use后台设备刷新监控({
         设备刷新任务队列,
         set设备刷新任务队列,
-        校园系统,
         set校园系统: 设置校园系统,
         eraId: currentEra,
         mode: 派生设备模式(),
-        apiConfig: apiConfig as any,
+        apiConfig: 设备消息接口!,
         apiSettings: apiConfig as any,
         gameContext: 设备刷新GameContext,
         nsfw设置,

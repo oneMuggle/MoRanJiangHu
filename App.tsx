@@ -1778,6 +1778,11 @@ const App: React.FC = () => {
                                 onRefresh={() => {
                                     const activeApp = meta.deviceState.activeApp;
                                     if (!activeApp) return;
+                                    // 防止重复提交
+                                    const hasPending = (meta as any).deviceRefreshQueue?.some(
+                                        (t: any) => t.status === 'pending' || t.status === 'processing'
+                                    );
+                                    if (hasPending) return;
                                     setters.set设备刷新队列?.(prev => [...prev, {
                                         id: `refresh-${Date.now()}`,
                                         app: activeApp,
@@ -1785,6 +1790,9 @@ const App: React.FC = () => {
                                         创建时间: Date.now(),
                                     }]);
                                 }}
+                                isRefreshing={(meta as any).deviceRefreshQueue?.some(
+                                    (t: any) => t.status === 'processing'
+                                ) || false}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
                                     actions.handleSend(content);
                                 }}

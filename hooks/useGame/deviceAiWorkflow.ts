@@ -178,6 +178,38 @@ function 解析JSON数组(text: string): unknown[] | null {
     }
 }
 
+/** 生成原始 JSON 数组对象（不映射为 DeviceMessage，供论坛/BDSM 等需要完整字段的应用使用） */
+export async function 生成设备原始消息(
+    options: DeviceMessageOptions,
+    apiConfig: 当前可用接口结构,
+    settings: 接口设置结构,
+    count?: number
+): Promise<unknown[]> {
+    const messageCount = count ?? options.count ?? 5;
+
+    const systemPrompt = 构建设备消息系统提示词(options.eraId, options.mode, options.appType, options.liIntensity);
+    const userPrompt = 构建设备消息用户提示词(options, messageCount);
+
+    const messages: 通用消息[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+    ];
+
+    const normalizedMessages = 规范化文本补全消息链(messages);
+
+    const rawText = await 请求模型文本(
+        apiConfig,
+        normalizedMessages,
+        { temperature: 0.7, responseFormat: 'json_object', signal: options.signal }
+    );
+
+    const items = 解析JSON数组(rawText);
+    if (!items) {
+        throw new Error(`AI 返回内容无法解析为 JSON 数组: ${rawText.slice(0, 200)}`);
+    }
+    return items;
+}
+
 export async function 生成设备消息(
     options: DeviceMessageOptions,
     apiConfig: 当前可用接口结构,
