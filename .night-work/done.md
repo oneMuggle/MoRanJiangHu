@@ -270,3 +270,44 @@ All Phase 1, Phase 2, and Phase 3 items specified in the plan are already implem
 
 ### Build Verification
 - `npm run build` → ✅ SUCCESS (exit 0, 12.72s)
+
+---
+
+## Task: Execute docs/plans/2026-04-18_batch-generation-optimization.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-04-18
+- **Plan status**: ✅ 已完成
+- **Implementation date**: 2026-05-06
+- **Scope**: Batch image generation scheduler — unified NPC/scene queue, concurrency control, retry with exponential backoff, priority ordering, pause/resume
+
+## Verification Results
+
+### Implementation Status (All items ✅)
+
+|| Item | Status | Details |
+||------|--------|---------|
+| 批量生图调度器 | ✅ | `hooks/useGame/batchImageGenerationWorkflow.ts` (484 lines) |
+| 批量生图配置类型 | ✅ | `models/imageGeneration.ts` (lines 174-194) |
+| 并发控制 | ✅ | NPC max 2, Scene max 1 (configurable) |
+| 指数退避重试 | ✅ | `计算重试延迟()` — 2^(attempt-1) * base + jitter, max 60s |
+| 优先级排序 | ✅ | manual > retry > auto, then by creation time |
+| 暂停/恢复 | ✅ | `暂停调度()`, `恢复调度()`, `取消所有任务()` |
+
+### Commit History
+- **Commit `5ee8639`** — "night: batch-generation-optimization"
+- Files: `hooks/useGame/batchImageGenerationWorkflow.ts` (484 lines), `models/imageGeneration.ts` (+22 lines)
+
+### Key Implementation Details
+
+1. **调度器工厂** (`创建批量生图调度器`): Takes `BatchDeps` dependency injection
+2. **NPC 任务处理**: `调度NPC任务()`, `执行NPC任务()` with retry logic
+3. **场景任务处理**: `调度场景任务()`, `执行场景任务()` with retry logic  
+4. **主调度循环**: 100ms polling, concurrent execution up to limits
+5. **状态管理**: `处理中NPC任务` / `处理中场景任务` Maps track in-flight Promises
+6. **重试计数**: `任务重试计数` Map per task ID
+
+### Build Verification
+- No new changes required — already implemented and committed
