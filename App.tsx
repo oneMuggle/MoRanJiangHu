@@ -107,6 +107,9 @@ const App: React.FC = () => {
     const [showNovelWritingWorkbench, setShowNovelWritingWorkbench] = React.useState(false);
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
     const [showCampusDesire, setShowCampusDesire] = React.useState(false);
+    const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
+    const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
+    const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [chatContentHidden, setChatContentHidden] = React.useState(false);
     const [sceneQuickGenHint, setSceneQuickGenHint] = React.useState(false);
     const [sceneQuickGenToastVisible, setSceneQuickGenToastVisible] = React.useState(false);
@@ -1609,9 +1612,70 @@ const App: React.FC = () => {
                                         })
                                     )}
                                     onClose={() => setShowCampusDesire(false)}
+                                    onOpenBDSMRelationship={(npcId, npcName) => setShowBDSMRelationship({ npcId, npcName })}
+                                    onOpenBDSMContract={(npcId, npcName) => setShowBDSMContract({ npcId, npcName })}
+                                    onOpenBDSMSafety={(npcId, npcName) => setShowBDSMSafety({ npcId, npcName })}
                                 />
                             )}
                         </懒加载边界>
+                    )}
+
+                    {!isMobile && showBDSMRelationship && (
+                        <BDSMRelationshipModal
+                            关系状态={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMRelationship.npcId]?.BDSM关系}
+                            npcName={showBDSMRelationship.npcName}
+                            日常指令={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMRelationship.npcId]?.BDSM关系?.日常指令 ?? []}
+                            onClose={() => setShowBDSMRelationship(null)}
+                            onGoToContract={() => {
+                                setShowBDSMRelationship(null);
+                                setShowBDSMContract(showBDSMRelationship);
+                            }}
+                            onEditSafety={() => {
+                                setShowBDSMRelationship(null);
+                                setShowBDSMSafety(showBDSMRelationship);
+                            }}
+                        />
+                    )}
+
+                    {!isMobile && showBDSMContract && (
+                        <BDSMContractModal
+                            关系状态={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMContract.npcId]?.BDSM关系}
+                            onClose={() => setShowBDSMContract(null)}
+                        />
+                    )}
+
+                    {!isMobile && showBDSMSafety && (
+                        <BDSMSafetyModal
+                            关系状态={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMSafety.npcId]?.BDSM关系}
+                            npcName={showBDSMSafety.npcName}
+                            onClose={() => setShowBDSMSafety(null)}
+                            onSave={(安全词, 底线) => {
+                                if (showBDSMSafety) {
+                                    const campusSystem = (state as any).校园系统 || {};
+                                    const 欲望系统 = campusSystem.欲望系统 || {};
+                                    const NPC欲望档案 = 欲望系统.NPC欲望档案 || {};
+                                    const 档案 = NPC欲望档案[showBDSMSafety.npcId];
+                                    if (档案?.BDSM关系) {
+                                        NPC欲望档案[showBDSMSafety.npcId] = {
+                                            ...档案,
+                                            BDSM关系: {
+                                                ...档案.BDSM关系,
+                                                安全词,
+                                                底线列表: 底线,
+                                            },
+                                        };
+                                        setters.set校园系统?.({
+                                            ...campusSystem,
+                                            欲望系统: {
+                                                ...欲望系统,
+                                                NPC欲望档案,
+                                            },
+                                        });
+                                    }
+                                }
+                                setShowBDSMSafety(null);
+                            }}
+                        />
                     )}
 
                     {启用修炼体系 && state.showKungfu && (

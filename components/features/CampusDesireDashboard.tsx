@@ -68,9 +68,12 @@ interface NPCDesireCardProps {
   档案: NPC欲望档案;
   后果: 后果记录[];
   里程碑数: number;
+  onOpenBDSMRelationship?: (npcId: string, npcName: string) => void;
+  onOpenBDSMContract?: (npcId: string, npcName: string) => void;
+  onOpenBDSMSafety?: (npcId: string, npcName: string) => void;
 }
 
-const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 里程碑数 }) => {
+const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 里程碑数, npcId, onOpenBDSMRelationship, onOpenBDSMContract, onOpenBDSMSafety }) => {
   const [expanded, setExpanded] = React.useState(false);
 
   const 活跃后果 = useMemo(() => 后果.filter(c => !c.是否已解决), [后果]);
@@ -199,6 +202,42 @@ const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 
             />
           )}
 
+          {/* BDSM 关系入口 (v1.6) */}
+          {(档案 as any).BDSM关系 && (
+            <div className="space-y-2 pt-2 border-t border-white/5">
+              <div className="text-[10px] text-gray-600 uppercase tracking-widest">BDSM 关系</div>
+              <div className="flex gap-2">
+                {onOpenBDSMRelationship && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onOpenBDSMRelationship(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-purple-900/20 border border-purple-500/30 text-purple-400 hover:bg-purple-900/40 transition-colors"
+                  >
+                    关系总览
+                  </button>
+                )}
+                {onOpenBDSMContract && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onOpenBDSMContract(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-amber-900/20 border border-amber-500/30 text-amber-400 hover:bg-amber-900/40 transition-colors"
+                  >
+                    契约管理
+                  </button>
+                )}
+                {onOpenBDSMSafety && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onOpenBDSMSafety(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-red-900/20 border border-red-500/30 text-red-400 hover:bg-red-900/40 transition-colors"
+                  >
+                    安全设置
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 里程碑计数 */}
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-500">里程碑</span>
@@ -238,6 +277,9 @@ interface Props {
   里程碑数: Record<string, number>;
   NPC姓名映射: Record<string, string>;
   onClose: () => void;
+  onOpenBDSMRelationship?: (npcId: string, npcName: string) => void;
+  onOpenBDSMContract?: (npcId: string, npcName: string) => void;
+  onOpenBDSMSafety?: (npcId: string, npcName: string) => void;
 }
 
 export const CampusDesireDashboard: React.FC<Props> = ({
@@ -246,6 +288,9 @@ export const CampusDesireDashboard: React.FC<Props> = ({
   里程碑数,
   NPC姓名映射,
   onClose,
+  onOpenBDSMRelationship,
+  onOpenBDSMContract,
+  onOpenBDSMSafety,
 }) => {
   const npcIds = Object.keys(NPC欲望档案);
 
@@ -339,6 +384,9 @@ export const CampusDesireDashboard: React.FC<Props> = ({
               档案={NPC欲望档案[id]}
               后果={后果列表}
               里程碑数={里程碑数[id] || 0}
+              onOpenBDSMRelationship={onOpenBDSMRelationship}
+              onOpenBDSMContract={onOpenBDSMContract}
+              onOpenBDSMSafety={onOpenBDSMSafety}
             />
           ))}
           {npcIds.length === 0 && (
