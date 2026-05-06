@@ -22,7 +22,8 @@ export const desktopTabs: SettingsTabItem[] = [
     { id: 'novel_decomposition_runtime', label: '当前小说分解注入' },
     { id: 'prompt', label: '提示词' },
     { id: 'theme', label: '界面风格' },
-    { id: 'storage', label: '数据存储' }
+    { id: 'storage', label: '数据存储' },
+    { id: 'performance', label: '性能监控' }
 ];
 
 export const mobileTabs: SettingsTabItem[] = [
@@ -47,5 +48,6 @@ export const mobileTabs: SettingsTabItem[] = [
     { id: 'novel_decomposition_runtime', label: '拆分注入' },
     { id: 'prompt', label: '提示词' },
     { id: 'theme', label: '风格' },
-    { id: 'storage', label: '存储' }
+    { id: 'storage', label: '存储' },
+    { id: 'performance', label: '性能' }
 ];
