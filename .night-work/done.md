@@ -4,6 +4,121 @@
 
 ---
 
+### 任务：执行 docs/plans/2026-05-05_campus-era-talent-optimization.md
+
+**计划文件**: `docs/plans/2026-05-05_campus-era-talent-optimization.md`  
+**执行时间**: 2026-05-07 01:41 AM  
+**状态**: ⚠️ 计划文件不存在
+
+---
+
+#### 调查结果
+
+**计划文件不存在**：搜索 `/home/ubuntu/project/MoRanJiangHu/docs/plans/` 目录，未找到 `2026-05-05_campus-era-talent-optimization.md`。
+
+**最接近的相关文件**：`2026-05-04-campus-era-talent-nsfw-optimization.md`
+
+该文件显示：
+- Phase 1（天赋/气运/背景修正）— ✅ 已完成 2026-05-04
+- Phase 2（NSFW 内容扩充）— ✅ 已完成 2026-05-04  
+- Phase 3（NSFW 框架适配）— ✅ 已完成 2026-05-04
+- "全部测试通过，功能完成" — ❌ 未勾选（待手动测试）
+
+#### 实施验证结果
+
+检查相关文件确认 Phase 1-3 确实已实施：
+
+| 检查项 | 文件 | 状态 |
+|--------|------|------|
+| 背景名称修正 | `data/subEraDefaultPresets.ts` (lines 117-138) | ✅ 已更新：学生会干事、转学生、实验室研究生 |
+| 气运名称修正 | `data/subEraDefaultPresets.ts` (lines 117-138) | ✅ 已更新：校园风云人物、命运邂逅、学术机缘 |
+| 现代情感叙事约束 | `prompts/runtime/nsfw.ts` (lines 90-147) | ✅ 已实现：构建现代情感叙事约束、自动选择叙事约束 |
+| 校园 stageRules | `models/eraTheme/epoch-contemporary.ts` (lines 573-577) | ✅ 已实现：contemporary_campus 的平然/羞耻/欲望三阶段 |
+| 双城 stageRules | `models/eraTheme/epoch-contemporary.ts` (lines 741-745) | ✅ 已实现：contemporary_campus_urban 的三阶段 |
+
+#### 构建验证
+
+执行 `npm run build` 结果：**❌ 构建失败**
+
+```
+error during build:
+utils/worldbook.ts (24:9): "世界演变系统提示词" is not exported by "prompts/runtime/worldEvolution.ts"
+```
+
+**问题分析**：这是一个预存在的导入命名不匹配问题：
+- `utils/worldbook.ts` 导入 `世界演变系统提示词`
+- `prompts/runtime/worldEvolution.ts` 实际导出 `构建世界演变系统提示词`
+
+---
+
+### 任务：执行 docs/plans/2026-05-05_campus-era-npc-relationship.md
+
+**计划文件**: `docs/plans/2026-05-05_campus-era-npc-relationship.md`
+**执行时间**: 2026-05-07 02:XX AM
+**状态**: ⚠️ 部分完成
+
+---
+
+#### 实施验证结果
+
+##### Phase 1-3: 已完成（前期实施）
+
+| 检查项 | 文件 | 状态 |
+|--------|------|------|
+| relationship.ts 模型 | `models/campusNSFW/relationship.ts` | ✅ 已实现：关系类型/状态/NPC关系数据/关系事件/阈值配置/互动效果 |
+| campusNSFW/index.ts 导出 | `models/campusNSFW/index.ts` (lines 96-103, 142-160) | ✅ 已导出所有关系类型和函数 |
+| NPC结构增加关系数据 | `models/domain/social.ts` (line 128) | ✅ 已增加 `关系数据?: NPC关系数据` |
+| campusRelationshipEngine | `hooks/useGame/campusRelationshipEngine.ts` | ✅ 已实现：初始化/更新/事件/阶段计算/互动执行/场景解锁 |
+| campusRelationshipWorkflow | `hooks/useGame/campusRelationshipWorkflow.ts` | ✅ 已实现：关系互动工作流/进展判定/叙事生成/提示词构建 |
+| prompts/runtime/campusRelationship.ts | `prompts/runtime/campusRelationship.ts` | ✅ 已实现：4个提示词构建函数 + 解析函数 |
+
+##### Phase 4: 本次实施
+
+| 检查项 | 文件 | 状态 |
+|--------|------|------|
+| NPC关系状态注入 systemPromptBuilder | `hooks/useGame/systemPromptBuilder.ts` (line 1525+) | ✅ 已增加：遍历社交列表注入关系摘要/解锁场景/近期事件 |
+| AI响应关系状态解析 responseCommandProcessor | `hooks/useGame/responseCommandProcessor.ts` (line 166+) | ✅ 已增加：解析 `<关系状态更新>` XML 标签并应用到社交列表 |
+| relationshipIntegration | `hooks/useGame/campusNSFW/relationshipIntegration.ts` | ✅ 新建：处理关系对欲望档案的影响、检查BDSM解锁条件 |
+
+##### Phase 5: 部分完成
+
+| 检查项 | 文件 | 状态 |
+|--------|------|------|
+| NPCRelationshipPanel | `components/features/NPCRelationshipPanel.tsx` | ✅ 新建：完整的关系面板UI（进度条/事件时间线/互动按钮） |
+| CampusChatApp 集成 | `components/features/MobileDevice/apps/CampusChatApp.tsx` | ⚠️ 待集成：需在私聊界面添加关系状态入口 |
+| MobileHome 入口 | `components/features/MobileDevice/MobileHome.tsx` | ⚠️ 待集成 |
+| App.tsx 懒加载 | `App.tsx` | ⚠️ 待集成 |
+
+#### 提交记录
+
+```
+commit 26f1ab3 - feat(campus): implement NPC relationship system v2.0
+- Add NPC relationship state injection to system prompt builder
+- Add <关系状态更新> XML tag parsing in response processor
+- Add relationship integration module for NSFW engine
+- Create NPCRelationshipPanel UI component
+```
+
+#### 待完成项
+
+1. **CampusChatApp 集成**：在私聊界面添加关系状态入口和快捷互动按钮
+2. **MobileHome 集成**：在手机主屏添加 NPC 关系入口
+3. **App.tsx 懒加载**：面板懒加载和回调绑定
+4. **useGameState.ts 初始化**：确保新游戏时 NPC 关系数据被正确初始化为空状态
+
+#### 已知问题
+
+- 构建时有预存在的 TypeScript 配置问题（正则表达式 flag 与 target 版本不匹配）
+- NPCRelationshipPanel 尚未集成到 App.tsx 的懒加载机制中
+
+**与本任务关系**：无关。校园天赋优化计划已实施完毕，此构建错误是单独的导入问题。
+
+---
+
+
+
+---
+
 ### 里模式阶段系统方案 (li-mode-stages)
 
 **计划文件**: `docs/plans/2026-05-04-li-mode-stages.md` (文件名日期为 05-04，实际计划名含 05-05)  
