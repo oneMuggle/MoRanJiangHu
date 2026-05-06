@@ -1,5 +1,125 @@
 # 2026-05-07 Night Work
 
+## Task: docs/plans/2026-05-03-li-mode-enhancement.md
+
+**执行时间**: 2026-05-07 00:18 UTC
+
+### 状态: ✅ 已完成（历史实现，无需重复执行）
+
+---
+
+## 实施确认
+
+计划已由多个历史 commit 完整实施：
+
+### Phase 1: 数据体系化 ✅
+- **31个 SubEra 全部完成 EraLiModeEnhanced 转换**（commit `803c4ec`, `dea6b76`, `a6c9c41` 等）
+  - `epoch-ancient.ts`: 里武侠、里神话、里宫廷、里奥林匹斯、里罗马、里中世纪、里维京、里凯尔特
+  - `epoch-contemporary.ts`: 里校园、里乡土、里黑色、里嬉皮、里尸变、里冰封、里疫病、里辐射
+  - `epoch-modern.ts`: 里谍战、里暗谍、里晚清、里维多利亚、里爵士、里战后
+  - `epoch-near-future.ts`: 里赛博、里反乌托邦、里星际拓荒
+  - `epoch-far-future.ts`: 里星际帝国、里赛博格、里虚拟
+  - `epoch-post-human.ts`: 里超验、里维度、里数学
+  - `epoch-primordial.ts`: 里图腾、里血祭、里萨满
+
+### Phase 2: 运行时绑定 ✅
+- **2.1 NPC 原型表里人格注入**（commit `a6c9c41`）
+  - `prompts/runtime/eraLiMode.ts`: `构建里模式NPC原型注入()` 函数
+  - `hooks/useGame/systemPromptBuilder.ts`: 接入 NPC 生成链路
+- **2.2 设备工作流强度参数修复**（commit `dea6b76`）
+  - `hooks/useGame/deviceAiWorkflow.ts`: `liIntensity` 参数全链路传递
+  - `hooks/useGame/mobileDeviceWorkflow.ts`: 里模式注入完整
+  - `hooks/useGame/triggerDeviceMessageWorkflow.ts`: 强度参数传递
+- **2.3 Legacy 清理**（commit `dea6b76`）
+  - `prompts/runtime/eraLiMode.ts`: `子纪元里模式是否已注入()` fallback 逻辑
+
+### Phase 3: 玩法融合 ✅
+- **3.1 NPC 表里切换**（commit `dea6b76`）
+  - `models/social.ts`: 新增 `里人格激活条件`, `当前人格状态` 字段
+  - `prompts/runtime/eraLiMode.ts`: `构建NPC表里切换注入()` 函数
+  - `hooks/useGame/npcContext/contextBuilder.ts`: 集成表里切换逻辑
+- **3.2 里模式事件池**（commit `dea6b76`）
+  - `prompts/runtime/eraLiMode.ts`: `filterByIntensity()` 暧昧/露骨级别追加事件引导区块
+- **3.3 强度动态调节**（commit `dea6b76`）
+  - `components/features/Settings/GameSettings.tsx`: 三档强度选择器
+  - `hooks/useGame/systemPromptBuilder.ts`: 已传递强度参数
+
+### Phase 4: UI 体系化 ✅
+- **4.1 全时代强度选择器**（Phase 1 完成后自动生效）
+- **4.2 设置面板同步**（commit `dea6b76`）
+  - `components/features/Settings/GameSettings.tsx`: `子纪元里模式强度` 三档选择器
+- **4.3 游戏内状态提示**（commit `b066db3`, `3a13d03`）
+  - `components/layout/TopBar.tsx` (line 475-493): "里·羞耻·露骨" 徽章
+    - 黄色脉冲动画边框
+    - 点击循环切换强度（微暗→暧昧→露骨）
+    - 鼠标悬浮展开详情
+
+### 类型定义 ✅
+- `models/eraTheme/types.ts` (line 76-113): `EraLiModeEnhanced`, `LiModeStage` 定义完整
+- `models/eraTheme/types.ts` (line 179): `liMode?: EraLiMode | EraLiModeEnhanced` 联合类型
+
+---
+
+## 变更文件
+- `models/eraTheme/types.ts` — EraLiModeEnhanced 类型定义
+- `models/eraTheme/epoch-*.ts` — 31个 SubEra 增强版 liMode 数据
+- `prompts/runtime/eraLiMode.ts` — 里模式 prompt 注入函数（267行）
+- `hooks/useGame/systemPromptBuilder.ts` — NPC 原型注入
+- `hooks/useGame/deviceAiWorkflow.ts` — 设备强度参数
+- `hooks/useGame/mobileDeviceWorkflow.ts` — 移动端设备强度参数
+- `hooks/useGame/npcContext/contextBuilder.ts` — NPC 表里切换
+- `components/layout/TopBar.tsx` — 游戏内状态提示
+- `components/features/Settings/GameSettings.tsx` — 设置面板强度选择器
+
+## Git Commit
+```
+a6c9c41 feat(game): 体系化重构里模式并接入NPC生成与设备流
+dea6b76 feat(game): 引入里模式强度调节与 NPC 表里人格切换
+803c4ec feat(game): 引入子纪元里模式强度并实现境界体系去武侠化
+```
+
+---
+
+## Task: docs/plans/2026-05-03_categorization-and-auto-fill.md
+
+**执行时间**: 2026-05-07 00:20 UTC
+
+### 状态: ✅ 已完成（由 commit 73c75dc 实施）
+
+---
+
+## 实施确认
+
+计划已由 commit `73c75dc` (`2026-05-03 15:07`) 完整实施，无需重复执行。
+
+### 验证清单完成情况
+
+| 检查项 | 状态 |
+|--------|------|
+| types.ts 添加 `分类?: string` 到天赋和背景结构 | ✅ (types.ts:106, 122) |
+| data/presets.ts 所有现代纪元条目标注分类 | ✅ |
+| useNewGameWizardState.ts 添加分类过滤状态 | ✅ |
+| useNewGameWizardState.ts 添加自动填充逻辑 | ✅ |
+| NewGameWizardContent.tsx 添加分类 ChipGroup UI | ✅ |
+| NewGameWizardContent.tsx 添加自动填充开关 | ✅ |
+| 自动填充开关持久化到 IndexedDB | ✅ |
+| data/qiyun/index.ts 新增 ~60 个气运条目 | ✅ |
+| Phase 5 移动端适配 | ✅ |
+
+### 涉及文件 (from commit 73c75dc)
+- `types.ts` — 添加分类字段
+- `data/presets.ts` — 712 行修改，添加分类标注
+- `data/qiyun/index.ts` — 224 行新增气运
+- `components/features/NewGame/useNewGameWizardState.ts` — 262 行新增分类过滤+自动填充
+- `components/features/NewGame/NewGameWizardContent.tsx` — 74 行 UI 更新
+- `docs/plans/2026-05-03_categorization-and-auto-fill.md` — 计划文档
+
+### 构建验证
+- `npm run build` ✅ 成功 (14.13s)
+- TypeScript 类型检查: 存在预存错误于 `scripts/` 目录（非本次引入）
+
+---
+
 ## Task: docs/plans/2026-05-05_campus-era-npc-relationship.md
 
 **执行时间**: 2026-05-07 00:15 UTC
@@ -172,4 +292,67 @@ feat: 现代都市纪元规则系统 Phase 1-5 数据层实现
 ```
 fix(campus): replace uuid with crypto.randomUUID and add campus types
 feat(campus): add campus-era-gameplay-deepening types v3.0
+```
+
+---
+
+## Task: docs/plans/2026-05-03_story-slots-framework.md
+
+**执行时间**: 2026-05-07 00:35 UTC
+
+### 状态: ✅ 完成（已有实现）
+
+---
+
+## 完成内容
+
+### 已有实现确认 ✅
+计划中列出的所有文件均已存在：
+
+1. **`models/planning/storySlots.ts`** ✅ - 剧情槽位类型定义
+   - `剧情槽位类型` 类型别名（8种类型）
+   - `剧情槽位结构` 接口（id、名称、类型、内容、作用域、优先级、启用/失效条件等）
+   - `剧情槽位预算` 配置（各作用域token预算）
+   - `剧情槽位类型标签` 映射
+   - `生成剧情槽位ID()` 工厂函数
+   - `创建剧情槽位()` 工厂函数
+
+2. **`data/story-slots.ts`** ✅ - 槽位注册表
+   - `预设剧情槽位列表`（15个预设槽位：宗门新人试炼、比武大会、月下对话等）
+   - 涵盖所有8种槽位类型
+   - `获取预设槽位By类型()`
+   - `获取预设槽位By作用域()`
+
+3. **`utils/storySlots.ts`** ✅ - 槽位注入逻辑
+   - `评估条件()` - 解析并评估条件表达式
+   - `评估槽位优先级()` - 根据上下文动态调整优先级
+   - `过滤可用槽位()` - 按作用域和条件过滤
+   - `获取可用槽位()` - 获取指定作用域的可用槽位
+   - `按类型分组获取槽位()` - 按类型分组
+   - `估算槽位内容长度()` / `检查预算()` - 预算管理
+   - `获取预算内槽位组合()` - 在预算内获取最佳组合
+   - `格式化槽位内容()` - 模板变量替换
+   - `生成槽位注册表()` / `获取槽位ById()` - 槽位查询
+   - `激活槽位()` - 激活槽位
+
+4. **`models/planning/storyPlan.ts`** ✅ - 已修改，包含槽位状态管理
+   - `剧情槽位: 剧情槽位结构[]`
+   - `已激活槽位: string[]`
+   - `已完成槽位: string[]`
+
+### 验收标准确认 ✅
+1. ✅ 剧情槽位类型定义完整（8种类型）
+2. ✅ 槽位可根据作用域和条件过滤
+3. ✅ 与现有世界书槽位系统共存不冲突
+4. ✅ 剧情规划结构包含槽位列表
+5. ✅ `npm run build` 通过
+
+---
+
+## 变更文件
+无变更（所有文件在计划前已存在）
+
+## Git Commit
+```
+Already implemented - no new commits needed
 ```
