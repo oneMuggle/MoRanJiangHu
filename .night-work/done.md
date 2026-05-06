@@ -1,5 +1,51 @@
 # Night Work - 2026-05-07 (continued)
 
+## Task: Execute docs/plans/2026-05-03-campus-era-li-mode.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-05-03
+- **Scope**: Campus SubEra + Enhanced LiMode System (3-tier intensity control)
+- **All 6 steps**: Already fully implemented
+
+## Implementation Verification
+
+### Step 1: Type Extensions — ✅
+- **File**: `models/eraTheme/types.ts`
+- `EraLiModeEnhanced` interface (lines 80-113): corePrinciple, powerSystem, dualPersonalities, sceneTypes, desireMotives, taboos, aiDirectives, intensityLevels, stageRules
+- `EraCharacterArchetype.表人格` / `里人格` (lines 57-59)
+- `EraNode.liMode` union type (line 179): `EraLiMode | EraLiModeEnhanced`
+
+### Step 2: LiMode Injection Logic — ✅
+- **File**: `prompts/runtime/eraLiMode.ts` (267 lines)
+- `构建子纪元里模式注入()` — structured field assembly + intensity filtering (微暗/暧昧/露骨)
+- `构建里模式NPC原型注入()` — dual personality template injection
+- `构建NPC表里切换注入()` — NPC personality switching
+- `构建里模式阶段注入()` — stage rules (平然/羞耻/欲望) with DEFAULT_STAGE_RULES
+
+### Step 3: Campus SubEra Node — ✅
+- **File**: `models/eraTheme/epoch-contemporary.ts` (lines 411-581)
+- `contemporary_campus` fully defined: colors (80 180 120 / 220 120 140), bgmTags (校园/青春/吉他/轻快), artStyle (青春校园写实·暖光)
+- UI Copy: 入学报到, 重返校园, 学籍档案, 学分, 活力, 生活费, 元
+- 6 opening scenes (图书馆自习, 社团招新, 毕业典礼, 深夜实验室, 操场夜跑, 食堂偶遇)
+- 6 character archetypes with 表人格/里人格: 学霸, 社团达人, 隐形大佬, 叛逆者, 温柔学长, 神秘转学生
+- Enhanced liMode with complete 3-tier intensity system
+
+### Step 4: Qiyun/Talents/Presets — ✅
+- `data/talents/modern.ts`: 考试体质, 社团达人, 奖学金猎手, 青涩魅力, 反差体质, 眼神勾人, etc. — all with `子纪元适配: ['contemporary_campus']`
+- `data/talents/nsfw.ts`: 深夜实验室常驻者, 社团部室钥匙持有者, 天台观景者, etc.
+- `data/qiyun/categories/hehuan.ts`: 青梅竹马缘, 月考锦鲤, 社团招福, 天台邂逅运, etc.
+- `data/newGamePresets.ts`: 7 campus presets with `时代配置ID: 'contemporary_campus'`
+
+### Step 5: R2 CDN Manifest — ✅
+- `scripts/standardize_manifests.ts` (line 84): `'contemporary_campus': '现代·校园'`
+
+### Step 6: Plan Document — ✅
+- All items checked in plan doc
+
+---
+
 ## Task: Execute docs/plans/2026-05-03_image-generation-pipeline.md
 
 ## Status: ✅ ALREADY IMPLEMENTED
