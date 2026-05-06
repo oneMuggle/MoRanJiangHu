@@ -1,6 +1,65 @@
 # 夜间工作记录 (Night Work Log)
 
-## 2026-05-07 执行记录
+## 2026-05-07 第二次执行 (01:48 AM)
+
+---
+
+### 任务：执行 docs/plans/2026-05-04-campus-era-talent-nsfw-optimization.md
+
+**计划文件**: `docs/plans/2026-05-04-campus-era-talent-nsfw-optimization.md`
+**执行时间**: 2026-05-07 01:48 AM
+**状态**: ✅ 已验证完成
+
+---
+
+#### 验证结果
+
+##### Phase 1: 天赋/气运/背景修正 ✅
+
+| 检查项 | 文件位置 | 验证结果 |
+|--------|----------|----------|
+| 背景名称 `学生会体质` → `学生会干事` | `data/subEraDefaultPresets.ts` line 119 | ✅ |
+| 背景名称 `叛逆基因` → `转学生` | `data/subEraDefaultPresets.ts` line 127 | ✅ |
+| 背景名称 `深夜实验室常驻者` → `实验室研究生` | `data/subEraDefaultPresets.ts` line 135 | ✅ |
+| 气运 `学霸光环` → `命运邂逅` | `data/subEraDefaultPresets.ts` line 129 | ✅ |
+| 气运 `挂科预警` → `学术机缘` | `data/subEraDefaultPresets.ts` line 137 | ✅ |
+| newGamePresets.ts 同步 | `data/newGamePresets.ts` lines 50, 69, 88 | ✅ |
+
+##### Phase 2: NSFW 内容扩充 ✅
+
+| 检查项 | 文件位置 | 验证结果 |
+|--------|----------|----------|
+| dualPersonalities 扩写 (~50字) | `epoch-contemporary.ts` lines 529-535 | ✅ 6条详细人格描述 |
+| sceneTypes 扩写 (~50字) | `epoch-contemporary.ts` lines 537-543 | ✅ 含氛围和感官细节 |
+| desireMotives 扩写 (~30字) | `epoch-contemporary.ts` lines 545-551 | ✅ 含深层心理动机 |
+| taboos 扩写 (~30字) | `epoch-contemporary.ts` lines 553-558 | ✅ 含后果描述 |
+| intensityLevels 扩写 (~60字) | `epoch-contemporary.ts` lines 568-571 | ✅ 三级详细表现 |
+| stageRules 新增 | `epoch-contemporary.ts` lines 573-577 | ✅ 平然/羞耻/欲望三阶段 |
+
+##### Phase 3: NSFW 框架适配 ✅
+
+| 检查项 | 文件位置 | 验证结果 |
+|--------|----------|----------|
+| `构建现代情感叙事约束` 函数 | `prompts/runtime/nsfw.ts` lines 90-125 | ✅ 现代情感框架 |
+| `自动选择叙事约束` 函数 | `prompts/runtime/nsfw.ts` lines 139-147 | ✅ 时代ID自动选择 |
+| 武侠框架保留 | `prompts/runtime/nsfw.ts` lines 47-82 | ✅ 不影响古代/修仙时代 |
+| 运行时函数支持时代参数 | `prompts/runtime/nsfw.ts` lines 178-307 | ✅ 向后兼容 |
+
+##### TypeScript 编译
+
+执行 `npx tsc --noEmit`：预存的测试文件类型错误（liModeStyles.ts, 教练状态.ts 等），无新增错误。
+
+##### 结论
+
+所有三个 Phase 均已正确实施，功能完成。
+
+---
+
+## 2026-05-07 首次执行记录
+
+---
+
+### 任务：执行 docs/plans/2026-05-05_campus-era-talent-optimization.md
 
 ---
 
