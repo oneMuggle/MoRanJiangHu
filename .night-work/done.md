@@ -332,3 +332,103 @@ models/campusNSFW/
 
 计划步骤 1-5, 7, 8, 10, 12, 13, 15 已完成并验证通过。步骤 6（气运去重精简）需人工逐条审查，建议后续单独执行。步骤 9, 11 因收益不足已跳过。步骤 14, 16 为可选手动任务。
 
+---
+
+# 2026-05-04 里模式阶段系统方案
+
+**执行计划**: `docs/plans/2026-05-04-li-mode-stages.md`
+**执行时间**: 2026-05-07 (cron verification)
+**状态**: ✅ 已完成
+
+---
+
+## 实施摘要
+
+引入了与"强度"正交的"阶段"（平然/羞耻/欲望）维度，用于控制 NPC 在亲密场景下的心理态度和行为倾向。
+
+---
+
+## Phase 1: 数据模型扩展 ✅
+
+### `models/eraTheme/types.ts`
+- 第 77 行: `export type LiModeStage = '平然' | '羞耻' | '欲望';`
+- 第 106 行: `EraLiModeEnhanced` 增加 `stageRules` 字段
+
+### `models/system.ts`
+- 第 1644 行: `游戏设置结构` 增加 `子纪元里模式阶段?: Record<string, LiModeStage>`
+
+### `models/social.ts`
+- 第 121 行: `NPC结构` 增加 `里模式阶段?: LiModeStage`
+
+---
+
+## Phase 2: 阶段规则数据填充 ✅
+
+### `prompts/runtime/eraLiMode.ts`
+- 第 18 行: `DEFAULT_STAGE_RULES` 通用阶段规则模板
+- 第 239 行: `构建里模式阶段注入` 函数
+  - 优先使用 SubEra 自定义 `stageRules`
+  - 回退到 `DEFAULT_STAGE_RULES` 通用模板
+
+---
+
+## Phase 3: Prompt 注入链路 ✅
+
+### `hooks/useGame/systemPromptBuilder.ts`
+- 第 56 行: 导入 `构建里模式阶段注入`
+- 第 1447 行: 调用 `构建里模式阶段注入`，注入阶段行为规则
+
+### `hooks/useGame/npcContext/contextBuilder.ts`
+- 第 7 行: 导入 `构建里模式阶段注入`
+- 第 457 行: NPC 个体阶段注入（优先 NPC 个体设置，回退全局）
+
+---
+
+## Phase 4: UI 体系 ✅
+
+### `NewGameWizardContent.tsx`
+- 第 448 行: 三档阶段按钮选择器（平然/羞耻/欲望）
+
+### `useNewGameWizardState.ts`
+- 阶段状态持久化到开局配置
+
+### `GameSettings.tsx`
+- 第 536 行: 设置面板阶段选择器
+
+### `TopBar.tsx`
+- 第 298 行: 徽章显示格式改为"阶段·强度"（如"羞耻·暧昧"）
+
+### `App.tsx`
+- 传递 `子纪元里模式阶段` 到 TopBar
+
+---
+
+## 成功标准验证
+
+| 标准 | 状态 |
+|------|------|
+| `LiModeStage` 类型定义存在 | ✅ |
+| `EraLiModeEnhanced.stageRules` 字段存在 | ✅ |
+| 游戏设置包含 `子纪元里模式阶段` | ✅ |
+| NPC 结构包含 `里模式阶段` | ✅ |
+| `DEFAULT_STAGE_RULES` 通用模板存在 | ✅ |
+| `构建里模式阶段注入` 函数存在 | ✅ |
+| systemPromptBuilder 集成阶段注入 | ✅ |
+| npcContext 集成阶段注入 | ✅ |
+| NewGameWizard 阶段选择器 | ✅ |
+| GameSettings 阶段选择器 | ✅ |
+| TopBar 徽章显示阶段 | ✅ |
+| TypeScript 构建无错误 | ✅ |
+
+---
+
+## 构建验证
+
+✅ `npm run build` 成功完成（12.14s）
+
+---
+
+## 提交记录
+
+- `020ba16` feat(li-mode): 引入里模式阶段系统
+
