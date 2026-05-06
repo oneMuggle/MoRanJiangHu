@@ -4,9 +4,9 @@
  */
 
 import React, { useMemo } from 'react';
-import type { NPC结构 } from '../../../models/domain/social';
-import type { NPC关系数据, 关系类型, 关系状态, 互动类型 } from '../../../models/campusNSFW';
-import { 计算关系类型 } from '../../../models/campusNSFW';
+import type { NPC结构 } from '../../models/domain/social';
+import type { NPC关系数据, 关系类型, 关系状态, 互动类型 } from '../../models/campusNSFW';
+import { 计算关系类型 } from '../../models/campusNSFW';
 
 interface NPCRelationshipPanelProps {
   npc: NPC结构;

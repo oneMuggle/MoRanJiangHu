@@ -84,6 +84,7 @@ const MobileNovelDecompositionWorkbenchModal = 创建可预加载懒组件(() =>
 const NovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/NovelWritingWorkbenchModal'));
 const MobileNovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/MobileNovelWritingWorkbenchModal'));
 const MobileDeviceModal = 创建可预加载懒组件(() => import('./components/features/MobileDevice/MobileDeviceModal'));
+const NPCRelationshipPanel = 创建可预加载懒组件(() => import('./components/features/NPCRelationshipPanel'));
 
 const 懒加载占位: React.FC = () => (
     <div className="fixed inset-0 z-[260] flex items-center justify-center bg-black/45 px-6 py-10 text-center backdrop-blur-[2px]">
@@ -111,6 +112,7 @@ const App: React.FC = () => {
     const [showBDSMTask, setShowBDSMTask] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
+    const [showNPCRelationship, setShowNPCRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [chatContentHidden, setChatContentHidden] = React.useState(false);
     const [sceneQuickGenHint, setSceneQuickGenHint] = React.useState(false);
     const [sceneQuickGenToastVisible, setSceneQuickGenToastVisible] = React.useState(false);
@@ -1716,6 +1718,14 @@ const App: React.FC = () => {
                                 }
                                 setShowBDSMSafety(null);
                             }}
+                        />
+                    )}
+
+                    {/* NPC 关系详情面板 */}
+                    {!isMobile && showNPCRelationship && (
+                        <NPCRelationshipPanel
+                            npc={state.社交.find(n => n.id === showNPCRelationship.npcId) || (state.社交[0] as any)}
+                            onClose={() => setShowNPCRelationship(null)}
                         />
                     )}
 
