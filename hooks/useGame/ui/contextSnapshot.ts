@@ -1,7 +1,7 @@
 import type { OpeningConfig, 聊天记录结构, 记忆系统结构, 角色数据结构, 提示词结构, 内置提示词条目结构, 世界书结构 } from '../../../types';
 import { 获取剧情回忆接口配置, 获取主剧情接口配置, 接口配置是否可用 } from '../../../utils/apiConfig';
 import { 规范化游戏设置 } from '../../../utils/gameSettings';
-import { 规范化记忆配置, 规范化记忆系统 } from './memory/memoryUtils';
+import { 规范化记忆配置, 规范化记忆系统 } from '../memory/memoryUtils';
 import { 构建主剧情请求参数, type 主剧情系统上下文 } from '../mainStoryRequest';
 import { 剧情回忆检索COT提示词, 剧情回忆检索输出格式提示词, 构建剧情回忆检索用户提示词 } from '../../../prompts/runtime/recall';
 import { 构建剧情回忆检索上下文 } from '../memory/memoryRecall';

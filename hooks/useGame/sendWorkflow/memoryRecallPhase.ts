@@ -4,8 +4,8 @@
  * 仅处理回忆检索，不包含后续正文生成
  */
 
-import { 规范化记忆系统 } from '../memoryUtils';
-import { 提取剧情回忆标签 } from '../memoryRecall';
+import { 规范化记忆系统 } from '../memory/memoryUtils';
+import { 提取剧情回忆标签 } from '../memory/memoryRecall';
 import { 执行剧情回忆检索 } from '../recallWorkflow';
 import { 构建COT伪装提示词 } from '../promptRuntime';
 import { 规范化游戏设置 } from '../../../utils/gameSettings';

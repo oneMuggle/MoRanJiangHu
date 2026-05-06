@@ -58,15 +58,15 @@ import {
     酒馆预设模式可用,
     type 酒馆上下文结构
 } from '../promptRuntime';
-import { 提取响应规划文本 } from './quality/thinkingContext';
+import { 提取响应规划文本 } from '../quality/thinkingContext';
 import { 环境时间转标准串 } from '../time/timeUtils';
-import { 规范化记忆系统, 规范化记忆配置, 构建即时记忆条目, 构建短期记忆条目, 写入四段记忆 } from './memory/memoryUtils';
+import { 规范化记忆系统, 规范化记忆配置, 构建即时记忆条目, 构建短期记忆条目, 写入四段记忆 } from '../memory/memoryUtils';
 import { 构建世界演变上下文文本 } from '../world/worldEvolutionUtils';
 import { 获取开局小说拆分注入文本, 获取激活小说拆分注入文本 } from '../../../services/novel-decomposition/novelDecompositionInjection';
 import { 同步剧情小说分解时间校准 } from '../../../services/novel-decomposition/novelDecompositionCalibration';
 import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../../utils/promptFeatureToggles';
-import { 执行变量模型校准工作流 } from './planning/variableModelWorkflow';
-import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from './planning/variableCalibrationMerge';
+import { 执行变量模型校准工作流 } from '../planning/variableModelWorkflow';
+import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from '../planning/variableCalibrationMerge';
 
 type 开场命令基态 = {
     角色: 角色数据结构;

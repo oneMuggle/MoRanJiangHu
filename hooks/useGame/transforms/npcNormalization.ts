@@ -1,4 +1,4 @@
-import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../timeUtils';
+import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../time/timeUtils';
 import { 压缩图片资源字段 } from '../../../utils/imageAssets';
 
 const 取首个非空文本 = (...values: unknown[]): string | undefined => {

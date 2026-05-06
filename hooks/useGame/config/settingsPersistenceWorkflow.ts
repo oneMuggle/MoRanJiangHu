@@ -15,14 +15,14 @@ import type {
     词组转化器提示词预设结构
 } from '../../../types';
 import * as dbService from '../../../services/dbService';
-import { 按场景图上限裁剪档案 } from '../sceneImageArchiveWorkflow';
+import { 按场景图上限裁剪档案 } from '../image/sceneImageArchiveWorkflow';
 import { 规范化游戏设置 } from '../../../utils/gameSettings';
 import { 规范化图片管理设置 } from '../../../utils/imageManagerSettings';
 import { 设置键 } from '../../../utils/settingsSchema';
 import { 规范化接口设置 } from '../../../utils/apiConfig';
 import { 内置提示词存储键, 规范化内置提示词列表 } from '../../../utils/builtinPrompts';
 import { 世界书存储键, 世界书预设组存储键, 规范化世界书列表, 规范化世界书预设组列表 } from '../../../utils/worldbook';
-import { 规范化记忆配置 } from '../memoryUtils';
+import { 规范化记忆配置 } from '../memory/memoryUtils';
 
 type 设置持久化工作流依赖 = {
     获取接口配置: () => 接口设置结构;

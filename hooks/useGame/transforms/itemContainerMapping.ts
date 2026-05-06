@@ -1,5 +1,5 @@
 import { 角色数据结构, 装备槽位 } from '../../../types';
-import { normalizeCanonicalGameTime } from '../timeUtils';
+import { normalizeCanonicalGameTime } from '../time/timeUtils';
 import { 压缩图片资源字段 } from '../../../utils/imageAssets';
 import { 规范化文本 } from '../../../utils/stringNormalizers';
 

@@ -1,5 +1,5 @@
 import { 环境信息结构 } from '../../../types';
-import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../timeUtils';
+import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../time/timeUtils';
 import { 规范化文本 } from '../../../utils/stringNormalizers';
 
 const 取地点片段 = (raw: unknown): string => (typeof raw === 'string' ? raw.trim() : '');
