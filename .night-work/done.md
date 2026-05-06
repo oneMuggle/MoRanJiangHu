@@ -93,3 +93,104 @@
 ## 结论
 
 BDSM 模块整体质量良好，大部分计划问题已经得到解决。本次新增了 `bdsmStateValidation.ts` 校验工具，增强了数据健壮性，建议在存档加载和 NPC 创建时调用。
+
+---
+
+# 2026-05-07 校园手机应用审计修复
+
+**执行计划**: `docs/plans/2026-05-05_campus-phone-app-audit.md`
+
+---
+
+## 实施摘要
+
+对校园时代手机 14 个应用进行了审计，发现并修复了多个数据源和类型定义问题。
+
+---
+
+## Phase 1 - 数据源规范化 ✅
+
+### 1.1 规范化校园系统函数增强
+- **文件**: `hooks/useGame.ts` 第 1585-1600 行
+- **变更**: 增加 `表白墙帖子列表` 和 `见面预约列表` 字段的校验逻辑
+- 原有字段校验已完整（论坛帖子列表、私聊会话列表、课程表、校园卡、社团活动列表）
+
+### 1.2 校园系统数据模型新增表白墙字段
+- **文件**: `models/campusPhone.ts`
+- **变更**: `校园系统数据` 接口新增 `表白墙帖子列表: 论坛帖子[]` 字段
+- **目的**: 为表白墙（confession）提供独立数据源，与普通论坛（forum）分离
+
+### 1.3 状态初始化默认值更新
+- **文件**: `hooks/useGameState.ts` 第 208-216 行
+- **变更**: `useState<校园系统数据>` 初始值增加 `表白墙帖子列表: []`
+
+---
+
+## Phase 2 - 私聊数据源 ✅ (确认无需修改)
+
+### 2.1 CampusChatApp 数据源优先级
+- **确认**: `CampusChatApp.tsx` 第 93-112 行已优先读取 `校园系统.私聊会话列表`
+- **回退逻辑**: 当校园系统私聊列表为空时，回退到 `gameContext.社交` 生成会话
+- **结论**: 无需修改，功能已按计划实现
+
+---
+
+## Phase 3 - 类型定义清理 ✅
+
+### 3.1 催眠类型导入统一
+- **文件**: `components/features/MobileDevice/apps/CampusHypnosisApp.tsx`
+- **变更前**: `催眠进化阶段表` 从 campusPhone 导入，`催眠记录/催眠App等级/催眠类型` 从 `../../types` 导入
+- **变更后**: 全部从 `../../models/campusPhone` 统一导入
+- **原因**: `types.ts` 重导出 `models/campusPhone` 的类型，存在隐式重复定义风险
+
+### 3.2 论坛分类列表与类型对齐
+- **文件**: `components/features/MobileDevice/apps/CampusForumApp.tsx`
+- **变更**: `论坛分类` 数组增加 `'BDSM'` 分类，与 `models/campusPhone.ts` 中的 `论坛分类` 类型定义对齐
+
+---
+
+## Phase 4 - 功能增强 ✅
+
+### 4.1 CampusForumApp 三端数据源分离
+- **文件**: `components/features/MobileDevice/apps/CampusForumApp.tsx`
+- **变更**:
+  - 新增 `confessionPosts` useMemo，从 `校园系统.表白墙帖子列表` 读取
+  - 新增 `activeBoard: 'forum' | 'confession' | 'bdsm'` 状态区分三种板块
+  - 新增 `activeConfessionSub` 状态管理表白墙子分类
+  - UI 增加表白墙独立 tab 按钮和子分类筛选
+  - 懒加载分页正确处理三种板块的独立计数
+
+### 4.2 表白墙独立分类定义
+- **新增**: `表白墙分类 = ['全部', '暗恋表白', '恋爱心得', '单身求助', '情感倾诉']`
+
+---
+
+## 修改文件
+
+| 文件 | 变更 |
+|------|------|
+| `models/campusPhone.ts` | 修改 - 校园系统数据新增表白墙帖子列表字段 |
+| `hooks/useGameState.ts` | 修改 - 初始化默认值包含表白墙帖子列表 |
+| `hooks/useGame.ts` | 修改 - 规范化校园系统函数增加表白墙和见面预约字段校验 |
+| `components/features/MobileDevice/apps/CampusForumApp.tsx` | 修改 - 三端数据源分离、分类对齐 |
+| `components/features/MobileDevice/apps/CampusHypnosisApp.tsx` | 修改 - 类型导入统一 |
+
+---
+
+## 构建验证
+
+✅ `npm run build` 成功完成（14.22s）
+
+---
+
+## 结论
+
+审计中发现的 8 个问题修复情况：
+- **问题 1** (HIGH): 规范化函数已增强 ✅
+- **问题 2** (MEDIUM): CampusChatApp 已优先使用校园系统私聊 ✅
+- **问题 3** (MEDIUM): 课程表类型统一（未使用的接口已确认，死代码无影响）✅
+- **问题 4** (LOW): 表白墙数据源已分离 ✅
+- **问题 5** (LOW): 校规/催眠系统架构不变更 ✅
+- **问题 6** (HIGH): 刷新校园论坛已正确写回校园系统 ✅
+- **问题 7** (LOW): 论坛分类列表已与类型对齐 ✅
+- **问题 8** (MEDIUM): 催眠类型导入已统一 ✅
