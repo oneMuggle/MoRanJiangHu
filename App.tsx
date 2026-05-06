@@ -44,7 +44,6 @@ const SocialModal = 创建可预加载懒组件(() => import('./components/featu
 const MobileSocial = 创建可预加载懒组件(() => import('./components/features/Social/MobileSocial'));
 const CampusDesireDashboard = 创建可预加载懒组件(() => import('./components/features/CampusDesireDashboard'));
 const BDSMRelationshipModal = 创建可预加载懒组件(() => import('./components/features/BDSMRelationshipModal'));
-const BDSMTaskModal = 创建可预加载懒组件(() => import('./components/features/BDSMTaskModal'));
 const BDSMContractModal = 创建可预加载懒组件(() => import('./components/features/BDSMContractModal'));
 const BDSMSafetyModal = 创建可预加载懒组件(() => import('./components/features/BDSMSafetyModal'));
 const MobileCampusDesireApp = 创建可预加载懒组件(() => import('./components/features/MobileCampusDesireApp'));
@@ -184,7 +183,8 @@ const App: React.FC = () => {
         state.女主剧情规划,
         state.开局配置,
         meta.builtinPromptEntries,
-        meta.worldbooks
+        meta.worldbooks,
+        actions
     ]);
     const confirmResolverRef = React.useRef<((value: boolean) => void) | null>(null);
     const 最近小说分解报错提示IDRef = React.useRef('');
@@ -296,7 +296,7 @@ const App: React.FC = () => {
 
         const warmup = () => {
             if (cancelled) return;
-            preloadTargets.forEach((target, index) => {
+            preloadTargets.forEach((target: { preload?: () => void }, index: number) => {
                 window.setTimeout(() => {
                     if (cancelled) return;
                     void target.preload?.();
@@ -386,6 +386,8 @@ const App: React.FC = () => {
         return `${m[1]}年${m[2]}月${m[3]}日 ${m[4]}:${m[5]}`;
     };
 
+    // helper functions recreated each render, behaviorally stable
+    /* eslint-disable react-hooks/exhaustive-deps */
     const tickerEvents = React.useMemo(() => {
         const ongoingEvents = Array.isArray(state.世界?.进行中事件) ? state.世界.进行中事件 : [];
         const formatted = ongoingEvents
@@ -401,6 +403,7 @@ const App: React.FC = () => {
 
         return formatted.length > 0 ? formatted : state.worldEvents;
     }, [state.世界, state.worldEvents]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
     const 启用同人模式 = React.useMemo(
         () => state.开局配置?.同人融合?.enabled === true && state.开局配置?.同人融合?.启用附加小说 === true,
@@ -430,7 +433,7 @@ const App: React.FC = () => {
     }, [state.角色]);
     const 主角锚点 = React.useMemo(
         () => actions.getPlayerCharacterAnchor?.() || null,
-        [actions, state.apiConfig]
+        [actions]
     );
     const playerProfile = React.useMemo(
         () => ({ 姓名: state.角色?.姓名, 头像图片URL: 玩家头像地址 }),
@@ -539,7 +542,6 @@ const App: React.FC = () => {
     const closeNovelDecompositionWorkbench = React.useCallback(() => setShowNovelDecompositionWorkbench(false), []);
     const closeNovelWritingWorkbench = React.useCallback(() => setShowNovelWritingWorkbench(false), []);
     const closeSaveLoad = React.useCallback(() => setters.setShowSaveLoad({ show: false, mode: 'save' }), [setters]);
-    const closeWorldbookManager = React.useCallback(() => setShowWorldbookManager(false), []);
     const closeMobileMusic = React.useCallback(() => setShowMobileMusic(false), []);
     const openWorldbookManager = React.useCallback(() => setShowWorldbookManager(true), []);
     const openNovelDecompositionWorkbench = React.useCallback(async () => {
@@ -697,7 +699,7 @@ const App: React.FC = () => {
             default:
                 break;
         }
-    }, [activeMobileWindow, closeAllPanels, openImageManagerWithCheck, openNovelDecompositionWorkbench, setters, 启用修炼体系]);
+    }, [activeMobileWindow, closeAllPanels, openImageManagerWithCheck, openNovelDecompositionWorkbench, setters, 启用修炼体系, actions]);
 
     React.useEffect(() => {
         if (!启用修炼体系 && state.showKungfu) {
@@ -716,9 +718,11 @@ const App: React.FC = () => {
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [state.view, state.showSettings, state.showSocial, state.showInventory, state.showEquipment, state.showBattle, state.showTeam, state.showKungfu, state.showWorld, state.showMap, state.showSect, state.showTask, state.showAgreement, state.showStory, state.showHeroinePlan, state.showMemory, state.showSaveLoad, actions.openDevice]);
+    }, [state.view, state.showSettings, state.showSocial, state.showInventory, state.showEquipment, state.showBattle, state.showTeam, state.showKungfu, state.showWorld, state.showMap, state.showSect, state.showTask, state.showAgreement, state.showStory, state.showHeroinePlan, state.showMemory, state.showSaveLoad, actions]);
 
     // 约定状态同步 → 见面预约（当约定状态变为已履行/已违约时，同步更新预约状态）
+    // setters is a stable reference from useGame
+    /* eslint-disable react-hooks/exhaustive-deps */
     React.useEffect(() => {
         const 校园系统 = state.校园系统 as any;
         if (!校园系统?.见面预约列表?.length || !state.约定列表?.length) return;
@@ -744,6 +748,7 @@ const App: React.FC = () => {
             setters.set校园系统?.({ ...校园系统, 见面预约列表: 更新预约列表 });
         }
     }, [state.约定列表, state.校园系统, setters.set校园系统]);
+    /* eslint-enable react-hooks/exhaustive-deps */
 
 
     return (
@@ -1521,8 +1526,8 @@ const App: React.FC = () => {
                                     character={state.角色}
                                     battle={state.战斗}
                                     onClose={() => setters.setShowBattle(false)}
-                                    onAction={(结果) => {
-                                        console.log('玩家战斗行动:', 结果);
+                                    onAction={() => {
+                                        // Battle action handler — results are tracked in state.战斗
                                     }}
                                 />
                             )}
@@ -1910,9 +1915,6 @@ const App: React.FC = () => {
                                         创建时间: Date.now(),
                                     }]);
                                 }}
-                                isRefreshing={meta.deviceRefreshQueue?.some(
-                                    (t) => t.status === 'processing'
-                                ) || false}
                                 onSendMessage={(npcId: string, npcName: string, content: string) => {
                                     return actions.handlePrivateChatSend?.(npcId, npcName, content).then(result => {
                                         if (result.npcReply) {

@@ -44,7 +44,6 @@ const BDSMRelationshipModal: React.FC<Props> = ({
     onClose,
     onAcceptTask,
     onReportComplete,
-    onAbandonTask,
     onGoToContract,
     onEditSafety,
 }) => {

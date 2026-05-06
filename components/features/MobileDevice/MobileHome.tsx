@@ -5,10 +5,8 @@ import { resolveEraNode } from '../../../models/eraTheme';
 import type { 当前可用接口结构 } from '../../../utils/apiConfig';
 
 type ApiConfigLike = 当前可用接口结构 | Record<string, unknown>;
-import ChatApp from './apps/ChatApp';
 import MapApp from './apps/MapApp';
 import ContactsApp from './apps/ContactsApp';
-import ForumApp from './apps/ForumApp';
 import NewsApp from './apps/NewsApp';
 import AlbumApp from './apps/AlbumApp';
 import ToolsApp from './apps/ToolsApp';

@@ -481,7 +481,7 @@ export const 构建Aftercare注入提示词 = (参数: {
   服从度: number;
   服从度加成: number;
 }): string => {
-  const { npcName, 触发原因, 当前阶段, 服从度, 服从度加成 } = 参数;
+  const { 触发原因, 当前阶段, 服从度, 服从度加成 } = 参数;
 
   return `请生成一段 Aftercare（事后温存）场景的叙事。
 

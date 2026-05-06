@@ -146,7 +146,7 @@ type 主剧情发送当前状态 = {
     时代配置ID?: string;
 };
 
-import { 构建校园NSFW参数, 处理BDSM状态更新, type BDSM状态更新回调 } from '../bdsmStateIntegration';
+import { 构建校园NSFW参数, type BDSM状态更新回调 } from '../bdsmStateIntegration';
 import { 构建都市网约车NSFW参数 } from '../urbanDriverNSFWIntegration';
 
 // ─── 主剧情发送依赖 ─────────────────────────────────────────────────────────

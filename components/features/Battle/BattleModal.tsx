@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 角色数据结构, 战斗状态结构 } from '../../../types';
 import { IconSwords, IconYinYang } from '../../ui/Icons';
 import BattleActionPanel from './BattleActionPanel';
@@ -52,29 +52,6 @@ const 资源条: React.FC<{
 const BattleModal: React.FC<Props> = ({ character, battle, onClose, onAction }) => {
     const 敌方列表 = (Array.isArray(battle?.敌方) ? battle.敌方 : []) as 扩展敌方[];
     const 存活敌人数 = 敌方列表.filter((enemy) => (enemy?.当前血量 || 0) > 0).length;
-
-    const 部位列表 = [
-        ['头部', character.头部当前血量, character.头部最大血量, character.头部状态],
-        ['胸腹', character.胸部当前血量, character.胸部最大血量, character.胸部状态], // 简化合并展示，腹部胸部通常相关联，这里按原数据展示
-        ['腹部', character.腹部当前血量, character.腹部最大血量, character.腹部状态],
-        ['左手', character.左手当前血量, character.左手最大血量, character.左手状态],
-        ['右手', character.右手当前血量, character.右手最大血量, character.右手状态],
-        ['左腿', character.左腿当前血量, character.左腿最大血量, character.左腿状态],
-        ['右腿', character.右腿当前血量, character.右腿最大血量, character.右腿状态],
-    ] as const;
-
-    const 合并展示部位 = [
-        { label: '首', cur: character.头部当前血量, max: character.头部最大血量, status: character.头部状态 },
-        { label: '胸', cur: character.胸部当前血量, max: character.胸部最大血量, status: character.胸部状态 },
-        { label: '腹', cur: character.腹部当前血量, max: character.腹部最大血量, status: character.腹部状态 },
-        { label: '臂', cur: (character.左手当前血量 || 0) + (character.右手当前血量 || 0), max: (character.左手最大血量 || 0) + (character.右手最大血量 || 0), status: character.右手状态 !== '正常' ? character.右手状态 : character.左手状态 },
-        { label: '腿', cur: (character.左腿当前血量 || 0) + (character.右腿当前血量 || 0), max: (character.左腿最大血量 || 0) + (character.右腿最大血量 || 0), status: character.右腿状态 !== '正常' ? character.右腿状态 : character.左腿状态 },
-    ];
-
-    const 玩家总血量上限 = 部位列表.reduce((sum, [, , max]) => sum + Math.max(0, Number(max) || 0), 0);
-    const 玩家总血量当前 = 部位列表.reduce((sum, [, cur]) => sum + Math.max(0, Number(cur) || 0), 0);
-    const 境界值 = Math.max(1, Number(character.境界层级) || 1);
-    const 玩家境界展示 = (character.境界 || '').trim() || `境界值 ${境界值}`;
 
     return (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[210] flex items-center justify-center p-4 animate-fadeIn">

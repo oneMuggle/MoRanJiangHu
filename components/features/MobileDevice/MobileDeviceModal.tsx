@@ -18,7 +18,6 @@ interface MobileDeviceModalProps {
     onRulesChange?: (updater: (prev: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
     onHypnosisChange?: (updater: (prev: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     onRefresh?: (board?: 'bdsn') => void;
-    isRefreshing?: boolean;
     onSendMessage?: (npcId: string, npcName: string, content: string) => Promise<{ npcReply: string }>;
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
@@ -39,7 +38,6 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
     onRulesChange,
     onHypnosisChange,
     onRefresh,
-    isRefreshing,
     onSendMessage,
     onUnlockNPC,
     onBDSM帖子更新,
