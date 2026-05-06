@@ -1522,6 +1522,36 @@ export const 构建系统提示词 = ({
             if (关系文本.length === 0) return null;
             return `## BDSM 关系管线\n\n${关系文本.join('\n')}`;
         })(),
+        // 校园纪元 v2.0：NPC 关系状态注入
+        (() => {
+            const 社交列表 = statePayload?.社交;
+            if (!社交列表?.length) return null;
+
+            const 关系文本: string[] = [];
+            for (const npc of 社交列表) {
+                const 关系数据 = (npc as any).关系数据;
+                if (!关系数据 || 关系数据.关系类型 === '陌生' && 关系数据.互动次数 === 0) continue;
+
+                const 摘要 = `【${npc.姓名}】${关系数据.关系类型} · ${关系数据.关系状态} ` +
+                    `好感${关系数据.好感度} 亲密${关系数据.亲密度} 信任${关系数据.信任度} 感情${关系数据.感情值}`;
+
+                关系文本.push(摘要);
+
+                // 解锁场景提示
+                if (关系数据.解锁场景?.length > 0) {
+                    关系文本.push(`  已解锁场景: ${关系数据.解锁场景.join('、')}`);
+                }
+
+                // 近期关系事件
+                const 最近事件 = 关系数据.关键事件?.slice(-2);
+                if (最近事件?.length > 0) {
+                    关系文本.push(`  最近: ${最近事件.map((e: any) => e.标题).join('、')}`);
+                }
+            }
+
+            if (关系文本.length === 0) return null;
+            return `## NPC 关系状态\n\n${关系文本.join('\n')}`;
+        })(),
         // 校园系统：BDSM 见面预约触发
         (() => {
             const 校园系统 = statePayload?.校园系统;
