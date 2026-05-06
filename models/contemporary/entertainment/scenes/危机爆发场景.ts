@@ -155,13 +155,13 @@ export function 生成粉丝反应分化描述(艺人: 艺人核心状态): stri
   const 维护艺人率 = 0.25;
 
   let 描述 = `【粉丝反应分化】（基于${总粉丝数.toLocaleString()}粉丝）\n\n`;
-  描述 += `- 脱粉回踩：约${Math.floor(totalFans * 脱粉回踩率).toLocaleString()}人\n`;
+  描述 += `- 脱粉回踩：约${Math.floor(总粉丝数 * 脱粉回踩率).toLocaleString()}人\n`;
   描述 += `  表达愤怒、要求退圈、在网上攻击艺人\n\n`;
-  描述 += `- 默默脱粉：约${Math.floor(totalFans * 默默脱粉率).toLocaleString()}人\n`;
+  描述 += `- 默默脱粉：约${Math.floor(总粉丝数 * 默默脱粉率).toLocaleString()}人\n`;
   描述 += `  悄悄离开，不再关注\n\n`;
-  描述 += `- 选择接受：约${Math.floor(totalFans * 继续支持率).toLocaleString()}人\n`;
+  描述 += `- 选择接受：约${Math.floor(总粉丝数 * 继续支持率).toLocaleString()}人\n`;
   描述 += `  继续支持，认为艺人也有私生活\n\n`;
-  描述 += `- 维护艺人：约${Math.floor(totalFans * 维护艺人率).toLocaleString()}人\n`;
+  描述 += `- 维护艺人：约${Math.floor(总粉丝数 * 维护艺人率).toLocaleString()}人\n`;
   描述 += `  主动控评、反黑，为艺人辩护\n`;
 
   return 描述;
