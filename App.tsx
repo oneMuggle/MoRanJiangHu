@@ -1620,6 +1620,15 @@ const App: React.FC = () => {
                                     onOpenBDSMRelationship={(npcId, npcName) => setShowBDSMRelationship({ npcId, npcName })}
                                     onOpenBDSMContract={(npcId, npcName) => setShowBDSMContract({ npcId, npcName })}
                                     onOpenBDSMSafety={(npcId, npcName) => setShowBDSMSafety({ npcId, npcName })}
+                                    onGenerateTasks={(npcId, npcName) => {
+                                        void actions.requestBDSMTaskGeneration(npcId, npcName);
+                                    }}
+                                    onGenerateDailyInstructions={(npcId, npcName) => {
+                                        void actions.requestBDSMDailyInstructions(npcId, npcName);
+                                    }}
+                                    onCheckStageAdvance={(npcId, npcName) => {
+                                        void actions.requestBDSMStageAdvance(npcId, npcName);
+                                    }}
                                 />
                             )}
                         </懒加载边界>
@@ -1631,6 +1640,15 @@ const App: React.FC = () => {
                             npcName={showBDSMRelationship.npcName}
                             日常指令={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMRelationship.npcId]?.BDSM关系?.日常指令 ?? []}
                             onClose={() => setShowBDSMRelationship(null)}
+                            onAcceptTask={(taskId) => {
+                                actions.updateBDSMTaskStatus(showBDSMRelationship.npcId, taskId, '进行中');
+                            }}
+                            onReportComplete={(taskId, desc) => {
+                                void actions.requestBDSMTaskEvaluation(showBDSMRelationship.npcId, taskId, desc || '已完成任务');
+                            }}
+                            onAbandonTask={(taskId) => {
+                                actions.updateBDSMTaskStatus(showBDSMRelationship.npcId, taskId, '已放弃');
+                            }}
                             onGoToContract={() => {
                                 setShowBDSMRelationship(null);
                                 setShowBDSMContract(showBDSMRelationship);
@@ -1646,6 +1664,22 @@ const App: React.FC = () => {
                         <BDSMContractModal
                             关系状态={(state as any).校园系统?.欲望系统?.NPC欲望档案?.[showBDSMContract.npcId]?.BDSM关系}
                             onClose={() => setShowBDSMContract(null)}
+                            onNegotiateContract={() => {
+                                void actions.requestBDSMContractGeneration(showBDSMContract.npcId, '书面契约');
+                            }}
+                            onDissolveContract={() => {
+                                // 标记当前契约为已解除
+                                const campusSystem = (state as any).校园系统;
+                                const 档案 = campusSystem?.欲望系统?.NPC欲望档案?.[showBDSMContract.npcId];
+                                if (档案?.BDSM关系?.契约记录?.length > 0) {
+                                    const 最后契约 = 档案.BDSM关系.契约记录[档案.BDSM关系.契约记录.length - 1];
+                                    actions.updateContractStatus(showBDSMContract.npcId, {
+                                        ...最后契约,
+                                        状态: '已解除',
+                                    });
+                                }
+                                setShowBDSMContract(null);
+                            }}
                         />
                     )}
 

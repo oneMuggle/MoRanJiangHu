@@ -46,9 +46,12 @@ export const 触发任务生成 = (params: {
         return { 需要生成: false };
     }
 
+    const 当前契约 = params.关系状态.契约记录.length > 0
+        ? params.关系状态.契约记录[params.关系状态.契约记录.length - 1]
+        : null;
     const 提示词 = 构建调教任务生成提示词({
-        契约类型: '口头约定',
-        契约状态: '口头约定',
+        契约类型: 当前契约?.类型 ?? '口头约定',
+        契约状态: 当前契约?.状态 ?? '口头约定',
         服从度: params.关系状态.服从度,
         权力倾向: params.关系状态.权力天平 > 0 ? '支配' : '服从',
         关系阶段: params.关系状态.阶段,
@@ -83,9 +86,12 @@ export const 触发日常指令刷新 = (params: {
         return { 需要刷新: false };
     }
 
+    const 当前契约 = params.关系状态.契约记录.length > 0
+        ? params.关系状态.契约记录[params.关系状态.契约记录.length - 1]
+        : null;
     const 提示词 = 构建日常指令生成提示词({
         服从度: params.关系状态.服从度,
-        契约状态: '口头约定',
+        契约状态: 当前契约?.状态 ?? '口头约定',
         关系阶段: params.关系状态.阶段,
         已发布指令数: params.日常指令.length,
         NPC性格特征: params.npcName,

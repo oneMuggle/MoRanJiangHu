@@ -71,9 +71,12 @@ interface NPCDesireCardProps {
   onOpenBDSMRelationship?: (npcId: string, npcName: string) => void;
   onOpenBDSMContract?: (npcId: string, npcName: string) => void;
   onOpenBDSMSafety?: (npcId: string, npcName: string) => void;
+  onGenerateTasks?: (npcId: string, npcName: string) => void;
+  onGenerateDailyInstructions?: (npcId: string, npcName: string) => void;
+  onCheckStageAdvance?: (npcId: string, npcName: string) => void;
 }
 
-const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 里程碑数, npcId, onOpenBDSMRelationship, onOpenBDSMContract, onOpenBDSMSafety }) => {
+const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 里程碑数, npcId, onOpenBDSMRelationship, onOpenBDSMContract, onOpenBDSMSafety, onGenerateTasks, onGenerateDailyInstructions, onCheckStageAdvance }) => {
   const [expanded, setExpanded] = React.useState(false);
 
   const 活跃后果 = useMemo(() => 后果.filter(c => !c.是否已解决), [后果]);
@@ -235,6 +238,35 @@ const NPCDesireCard: React.FC<NPCDesireCardProps> = ({ npcName, 档案, 后果, 
                   </button>
                 )}
               </div>
+              <div className="flex gap-2 mt-2">
+                {onGenerateTasks && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onGenerateTasks(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-blue-900/20 border border-blue-500/30 text-blue-400 hover:bg-blue-900/40 transition-colors"
+                  >
+                    生成任务
+                  </button>
+                )}
+                {onGenerateDailyInstructions && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onGenerateDailyInstructions(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-cyan-900/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-900/40 transition-colors"
+                  >
+                    刷新指令
+                  </button>
+                )}
+                {onCheckStageAdvance && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onCheckStageAdvance(npcId, npcName); }}
+                    className="flex-1 text-[11px] py-1.5 rounded bg-amber-900/20 border border-amber-500/30 text-amber-400 hover:bg-amber-900/40 transition-colors"
+                  >
+                    阶段判定
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -280,6 +312,9 @@ interface Props {
   onOpenBDSMRelationship?: (npcId: string, npcName: string) => void;
   onOpenBDSMContract?: (npcId: string, npcName: string) => void;
   onOpenBDSMSafety?: (npcId: string, npcName: string) => void;
+  onGenerateTasks?: (npcId: string, npcName: string) => void;
+  onGenerateDailyInstructions?: (npcId: string, npcName: string) => void;
+  onCheckStageAdvance?: (npcId: string, npcName: string) => void;
 }
 
 export const CampusDesireDashboard: React.FC<Props> = ({
@@ -291,6 +326,9 @@ export const CampusDesireDashboard: React.FC<Props> = ({
   onOpenBDSMRelationship,
   onOpenBDSMContract,
   onOpenBDSMSafety,
+  onGenerateTasks,
+  onGenerateDailyInstructions,
+  onCheckStageAdvance,
 }) => {
   const npcIds = Object.keys(NPC欲望档案);
 
@@ -387,6 +425,9 @@ export const CampusDesireDashboard: React.FC<Props> = ({
               onOpenBDSMRelationship={onOpenBDSMRelationship}
               onOpenBDSMContract={onOpenBDSMContract}
               onOpenBDSMSafety={onOpenBDSMSafety}
+              onGenerateTasks={onGenerateTasks}
+              onGenerateDailyInstructions={onGenerateDailyInstructions}
+              onCheckStageAdvance={onCheckStageAdvance}
             />
           ))}
           {npcIds.length === 0 && (
