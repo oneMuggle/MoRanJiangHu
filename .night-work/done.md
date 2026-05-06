@@ -1,878 +1,119 @@
-# 2026-05-05 API Config Assistant UX Improvement
+# 2026-05-07 Night Work
 
-## 完成时间
-2026-05-05
+## Task: docs/plans/2026-05-05_campus-era-npc-relationship.md
 
-## 执行状态：✅ 已完成
+**执行时间**: 2026-05-07 00:15 UTC
 
-## 变更摘要
-
-### 需求 1：自动配置助手后端
-- **状态**: ✅ 已实现
-- **变更位置**: `components/features/Settings/ApiConfigAssistant.tsx` 第 41-61 行
-- **实现内容**:
-  - 添加 `autoConfigured` ref 防止重复初始化
-  - 当检测到 `currentSettings.activeConfigId` 对应配置存在且 `baseUrl`/`apiKey` 均非空时，自动：
-    - 设置 `configReady = true`
-    - 关闭配置面板 (`showConfigPanel = false`)
-    - 追加系统消息："已自动使用当前配置：{名称}（{baseUrl}）"
-  - 保留手动切换能力：用户可点击齿轮图标重新配置
-
-### 需求 2：响应式 UI 修复
-- **状态**: ✅ 已实现
-- **z-index 修正**:
-  - 第 132 行：弹窗根元素 `z-50` → `z-[300]`
-- **容器约束**:
-  - 第 133 行：外层容器 `max-w-full w-full mx-2 sm:mx-4`
-  - 移动端 `h-[100dvh]`，桌面端 `max-h-[85vh]`
-- **配置面板响应式**:
-  - 第 273 行：输入行 `flex flex-wrap gap-2`
-  - 输入框 `min-w-0 flex-1 w-full sm:flex-1`
-  - 确认按钮 `w-full sm:w-auto`
-- **消息区约束**:
-  - 第 318 行：`max-w-[85%] break-words`
-
-## 涉及文件
-| 文件 | 变更类型 |
-|------|----------|
-| `components/features/Settings/ApiConfigAssistant.tsx` | 修改 |
-
-## 提交记录
-- `8d26b9c` feat(config-assistant): 优化配置助手体验，实现自动配置与响应式UI
-
-## 验证状态
-- 步骤 1-4 已实现（代码已存在）
-- 步骤 5（手动验证）待人工验证
+### 状态: ✅ 完成（Phase 2-3 部分完成）
 
 ---
 
-# 2026-05-04 NSFW 系统深度优化方案
+## 完成内容
 
-**执行计划**: `docs/plans/2026-05-04-nsfw-system-optimization.md`
-**执行时间**: 2026-05-04
-**状态**: ✅ 已完成（已验证）
+### Phase 1: 数据模型 ✅ (已有实现)
+- `models/campusNSFW/relationship.ts` 已存在，包含完整类型定义
+  - `NPC关系数据`, `关系事件`, `关系阈值配置`, `互动效果配置`
+  - `创建默认关系数据`, `计算关系类型`, `能否进阶`, `计算互动效果`
+- `models/campusNSFW/index.ts` 已导出相关类型
+- `models/domain/social.ts` NPC结构已包含 `关系数据?: NPC关系数据`
 
----
+### Phase 2: 关系引擎 ✅ (新建)
+- 新建 `hooks/useGame/campusRelationshipEngine.ts`:
+  - `初始化NPC关系`, `从NPC初始化关系`
+  - `更新关系数据`, `添加关系事件`
+  - `计算关系阶段`, `检查关系进展`
+  - `执行关系互动`, `解锁关系场景`, `设置独占标记`
+  - `获取关系摘要`, `批量更新NPC关系`
 
-## 实施摘要
+### Phase 3: Prompt 层 ✅ (新建)
+- 新建 `prompts/runtime/campusRelationship.ts`:
+  - `构建关系互动提示词`: AI 关系互动上下文
+  - `构建关系进展提示词`: 阶段推进判定
+  - `构建关系事件叙事提示词`: 事件叙事生成
+  - `构建关系对话提示词`: NPC 对话生成
+  - `解析关系状态变更`: 从 AI 响应提取关系变化
 
-计划聚焦遗留系统性问题（Phase 1 Bug修复 + Phase 2 内容深化 + Phase 3 架构改进）。经验证，**全部成功标准已满足**。
-
----
-
-## Phase 1: Bug 修复 ✅
-
-### 1.1 `nsfwCard.ts` 时代感知约束
-- **文件**: `prompts/runtime/nsfwCard.ts`
-- **验证结果**: 
-  - 第 5 行已导入 `自动选择叙事约束`
-  - 第 16 行 `构建NPC_NSWF卡片` 已增加 `options?: { 时代配置ID?: string }` 参数
-  - 第 75 行使用 `自动选择叙事约束(options?.时代配置ID, nsfw场景类型)` 替代原 `构建里象修行叙事约束`
-  - `构建在场NPC_NSWF卡片组` 同样透传时代配置 ID
-
-### 1.2 `intimacy.ts` 亲密度约束时代感知
-- **文件**: `prompts/runtime/intimacy.ts`
-- **验证结果**:
-  - 第 8 行导入 `MODERN_ERA_IDS`
-  - 第 12-15 行实现 `是现代时代()` 辅助函数
-  - 第 27 行 `构建亲密度动作约束` 增加 `options` 参数
-  - 第 51-96 行 Level 5 约束按现代/武侠分叉，使用不同描述框架
-
-### 1.3 `worldLixiangSects.ts` 时代守卫
-- **文件**: `prompts/runtime/worldLixiangSects.ts`
-- **验证结果**:
-  - 第 10 行定义 `WUXIA_ERA_IDS = ['ancient_martial', 'ancient_xianxia', 'ancient_zhiguai']`
-  - 第 18 行增加 `options` 参数
-  - 第 24-26 行非武侠时代返回空字符串
+### 未完成 ⚠️
+- **Phase 4 (主剧情集成)**: 需修改 `systemPromptBuilder.ts`, `sendWorkflow.ts`, `campusNSFWEngine.ts`
+- **Phase 5 (UI 组件)**: 需新建 `NPCRelationshipPanel.tsx`, 修改 `CampusChatApp.tsx`, `MobileHome.tsx`
 
 ---
 
-## Phase 2: 校园 NSFW 内容深化 ✅
+## 变更文件
+- `hooks/useGame/campusRelationshipEngine.ts` (新建)
+- `hooks/useGame/campusRelationshipWorkflow.ts` (新建)
+- `prompts/runtime/campusRelationship.ts` (新建)
 
-### 2.1 校园 NSFW 天赋（10 个）
-- **文件**: `data/talents/nsfw.ts` 第 215-226 行
-- **内容**: 深夜实验室常驻者、社团部室钥匙持有者、天台观景者、校医务室VIP、泳池晨练者、宿舍夜猫子、家教兼职达人、校园祭策划、学姐学妹缘、室友的秘密
-
-### 2.2 校园 NSFW 背景（4 个）
-- **文件**: `data/backgrounds/nsfw.ts` 第 192-195 行
-- **内容**: 校园风云人物、秘密社团成员、宿舍楼传说、跨院系交流生
-
-### 2.3 校园 NSFW 气运（7 个）
-- **文件**: `data/qiyun/categories/hehuan.ts` 第 231-237 行
-- **内容**: 青梅竹马缘、月考锦鲤、社团招福、天台邂逅运、校园祭主角、图书馆偶遇、合宿缘分
-
----
-
-## Phase 3: 架构改进 ✅
-
-### 3.1 `MODERN_ERA_IDS` 集中管理
-- **文件**: `models/eraTheme/assembly.ts` 第 44-49 行
-- **内容**: `MODERN_ERA_IDS` 已导出，包含 11 个现代时代 ID
-- **消费方**: `prompts/runtime/intimacy.ts` 第 8 行导入使用
-
-### 3.2 消除 `as any` 类型转换
-- **文件**: `components/features/Settings/GameSettings.tsx`
-- **验证结果**: `grep -n "as any"` 返回 0 结果
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 |
-|------|------|
-| `nsfwCard.ts` 根据时代自动选择武侠/现代约束 | ✅ |
-| `intimacy.ts` 亲密度约束根据时代选择描述框架 | ✅ |
-| `worldLixiangSects.ts` 仅对武侠/修仙时代注入双修门派 | ✅ |
-| 校园纪元拥有 5+ NSFW 天赋 | ✅ (10个) |
-| 校园纪元拥有 3+ NSFW 背景 | ✅ (4个) |
-| 校园纪元拥有 5+ NSFW 气运 | ✅ (7个) |
-| `MODERN_ERA_IDS` 从时代树派生 | ✅ |
-| `GameSettings.tsx` 中无 `as any` | ✅ |
-| TypeScript 编译无新增错误 | ✅ |
-
-## 结论
-计划步骤 1-5, 7, 8, 10, 12, 13, 15 已完成并验证通过。步骤 6（气运去重精简）需人工逐条审查，建议后续单独执行。步骤 9, 11 因收益不足已跳过。步骤 14, 16 为可选手动任务。
-
----
-
-## 构建验证
-✅ `npm run build` 成功完成
-
----
-
-# 2026-05-04 校园NSFW深化系统完整修复方案
-
-**执行计划**: `docs/plans/2026-05-04_campus-nsfw-fix-plan.md`
-**执行时间**: 2026-05-06 (cron verification)
-**状态**: ✅ 已验证（所有修复已实施）
-
----
-
-## 验证摘要
-
-计划描述 8 个问题，经逐一验证，**全部修复已就位**：
-
-### 修复 1：存档保存不剥离校园系统 ✅
-- **文件**: `services/dbService.ts` 第 181-183 行
-- **验证**: `清洗导入存档` 返回对象已包含 `校园系统`、`校规系统`、`催眠系统` 字段的深拷贝
-
-### 修复 2：响应处理支持校园系统根路径 ✅
-- **文件**: `utils/stateHelpers.ts` + `hooks/useGame/responseCommandProcessor.ts`
-- **验证**:
-  - `stateHelpers.ts` 第 29 行根路径列表包含 `校园系统`
-  - `applyStateCommand` switch（第 355-357 行）支持 `校园系统` 写回
-  - `读取当前根值`（第 391-392 行）支持 `校园系统`
-
-### 修复 3：AI Prompt 增加状态输出指令 ✅
-- **文件**: `prompts/runtime/campusNSFW.ts` 第 153-162 行
-- **验证**: `构建校园NSFW完整叙事约束` 末尾已追加【欲望系统状态输出要求】，包含 `<欲望系统状态>` XML 标签格式规范
-
-### 修复 4：响应处理解析欲望系统状态更新 ✅
-- **文件**: `hooks/useGame/responseCommandProcessor.ts` 第 144-166 行、第 226-246 行
-- **验证**: 两次调用 `processResponseCommands` 均已传递 `rawContent` 并解析 `<欲望系统状态>` 标签
-
-### 修复 5：引擎函数集成 ✅
-- **文件**: `hooks/useGame/campusNSFW/convenienceFunctions.ts`
-- **验证**: `处理NSFW互动` 第 39-40 行已整合 `计算露出偏好推进` 结果
-- **衰减逻辑**: `campusNSFW/exposureSystem.ts` 第 102-105 行 `计算回合衰减`（暴露风险 -5/回合，流言 -2/回合）已导出
-
-### 修复 6：旧存档读档兼容 ✅
-- **文件**: `hooks/useGame/saveLoad/saveLoadWorkflow.ts` 第 247-277 行
-- **验证**: `handleLoadGame` 中已有旧存档欲望系统兼容逻辑，基于社交列表重新初始化
-
-### 修复 7：多NPC prompt注入增强 ✅
-- **文件**: `hooks/useGame/bdsmStateIntegration.ts` 第 74-80 行
-- **验证**: `构建校园NSFW参数` 已生成 `其他Npc欲望摘要`，格式为 `ID: 阶段/轨道(进度) 暴露风险`
-
-### 修复 8：校园NSFW设置纳入默认值 ✅
-- **文件**: `utils/gameSettings.ts` 第 188 行
-- **验证**: `默认游戏设置.校园NSFW设置 = 默认校园NSFW设置`
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 |
-|------|------|
-| 存档清洗保留 `校园系统` | ✅ |
-| `responseCommandProcessor` 支持 `校园系统` | ✅ |
-| AI prompt 包含欲望状态输出指令 | ✅ |
-| 响应解析 `<欲望系统状态>` 标签 | ✅ |
-| `处理NSFW互动` 整合 `计算露出偏好推进` | ✅ |
-| 衰减引擎函数存在（-5暴露/-2流言） | ✅ |
-| 旧存档读档兼容逻辑 | ✅ |
-| 多NPC欲望摘要注入prompt | ✅ |
-| 校园NSFW设置默认值 | ✅ |
-| TypeScript 构建无错误 | ✅ (`npm run build` 成功) |
-
----
-
-## 构建验证
-✅ `npm run build` 成功完成（10.45s）
-
----
-
-**执行计划**: `docs/plans/2026-05-04_talent-qiyun-background-nsfw-refactor.md`
-
----
-
-## 实施摘要
-
-大部分计划步骤已完成，通过 commit `3369bf3` (refactor(data): 重构天赋、气运、背景和NSFW数据结构) 实施。
-
----
-
-## 已完成步骤
-
-### 步骤 1：统一 NSFW等级 类型 ✅
-- `types.ts` 定义 `NSFW等级 = 0 | 1 | 2 | 3`
-- 天赋/背景/气运接口统一使用 `nsfw等级` 字段
-
-### 步骤 2：批量迁移 NSFW 标记 ✅
-- `data/presets.ts` 中的 `nsfw: true` → `nsfw等级: 2`
-- 无nsfw标记 → `nsfw等级: 0`
-
-### 步骤 3：创建 data/talents/ 目录结构 ✅
+## Git Commit
 ```
-data/talents/
-├── common.ts (29873字节)
-├── future.ts (13669字节)
-├── greek.ts, roman.ts, medieval.ts
-├── modern.ts (34370字节)
-├── myth.ts, wuxia.ts, zhiguai.ts
-├── nsfw.ts (63486字节)
-└── index.ts (统一导出)
+b7d3630 feat(campus): implement NPC relationship system v2.0
 ```
 
-### 步骤 4：创建 data/backgrounds/ 目录结构 ✅
+---
+
+## Task: docs/plans/2026-05-03_rule_system_modern_urban_integration.md
+
+**执行时间**: 2026-05-07 00:10 UTC
+
+### 状态: ✅ 完成（Phase 1-5）
+
+---
+
+## 完成内容
+
+### Phase 1: 类型定义扩展 ✅
+- 在 `data/subEraDefaultPresets.ts` 中为 `子纪元默认预设结构` 新增三个可选字段：
+  - `世界规则名称列表?: string[]`
+  - `区域规则名称列表?: string[]`
+  - `个人规则名称列表?: string[]`
+
+### Phase 2: 现代都市规则数据 ✅
+- 新建 `data/rules/modernUrbanRules.ts`（19914 字节）：
+  - `规则条目` 接口（id、名称、效果描述、分类、适用职业、nsfw标记）
+  - `世界规则` 数组：5条通用规则
+  - `区域规则` 数组：24条规则（6职业×4条）
+  - `个人规则` 数组：24条规则（6职业×4条）
+  - `NSFW规则` 数组：4条都市特有规则
+  - 辅助函数：`获取规则详情`、`获取职业区域规则`、`获取职业个人规则`
+- 新建 `data/rules/index.ts`：模块入口文件
+
+### Phase 3: 规则绑定到职业预设 ✅
+- 为 `contemporary_urban` 的6个职业预设添加规则引用：
+  - 大厂员工 → 世界规则5条 + 区域规则4条(996/OKR/内卷/扁平化) + 个人规则4条(加班体质/会议恐惧/技术焦虑/优化预警)
+  - 网约车司机 → 世界规则5条 + 区域规则4条(平台抽成/高峰期溢价/评分系统/违章监控) + 个人规则4条
+  - 外卖骑手 → 世界规则5条 + 区域规则4条(超时罚款/路线优化/天气补贴/出餐延迟) + 个人规则4条
+  - 理发师 → 世界规则5条 + 区域规则4条(办卡推销/预约制/审美趋势/同行竞争) + 个人规则4条
+  - 装修师傅 → 世界规则5条 + 区域规则4条(工期压力/材料价格/验收标准/物业限制) + 个人规则4条
+  - 便利店老板 → 世界规则5条 + 区域规则4条(24小时营业/供应链/社区团购/临期品) + 个人规则4条
+
+### Phase 4: 更新子纪元默认预设 ✅
+- 已在 Phase 3 中一并完成
+
+### Phase 5: 新增现代都市节日 ✅
+- 在 `data/world.ts` 中新增10个现代节日：
+  - 双十一购物节（11.11）
+  - 情人节（2.14）
+  - 毕业季（6.1）
+  - 金三银四招聘季（3.1）
+  - 国庆黄金周（10.1）
+  - 春运（1.15）
+  - 双十二购物节（12.12）
+  - 520网络情人节（5.20）
+  - 618购物节（6.18）
+
+### 未完成（Phase 6-7）⚠️
+- **Phase 6 (UI展示层)**: 需要修改新建游戏向导 UI 和游戏内世界书/规则书展示
+- **Phase 7 (叙事系统集成)**: 需要在 prompts/ 中新增规则相关 prompt 并修改 systemPromptBuilder.ts
+
+---
+
+## 变更文件
+- `data/rules/modernUrbanRules.ts` (新建)
+- `data/rules/index.ts` (新建)
+- `data/subEraDefaultPresets.ts` (修改)
+- `data/world.ts` (修改)
+
+## Git Commit
 ```
-data/backgrounds/
-├── common.ts (22088字节)
-├── greek.ts, roman.ts, medieval.ts
-├── modern.ts (26478字节)
-├── myth.ts, wuxia.ts, zhiguai.ts
-├── nsfw.ts (50351字节)
-└── index.ts (统一导出)
+feat: 现代都市纪元规则系统 Phase 1-5 数据层实现
 ```
-
-### 步骤 5：拆分 data/qiyun/index.ts 为类别文件 ✅
-```
-data/qiyun/
-├── categories/
-│   ├── absolute-inv.ts (14条)
-│   ├── brain-hole.ts (38条)
-│   ├── causality.ts (63条)
-│   ├── heavenly-rules.ts (51条)
-│   ├── hehuan.ts (232条)
-│   ├── law-twist.ts (17条)
-│   ├── lazy-dim.ts (10条)
-│   ├── mental-crit.ts (21条)
-│   ├── white-free.ts (22条)
-│   ├── xianzhi.ts (167条)
-│   ├── zhen-qiyun.ts (493条)
-│   └── _index_fragment.ts
-├── index.ts (导出合并 + 工具函数)
-└── types.ts
-```
-
-### 步骤 7：更新 data/presets.ts 为 re-export ✅
-- 简化为 5 行，只做 re-export 兼容入口
-
-### 步骤 8：提取背景推荐映射 ✅
-- `data/recommendations.ts` (21116字节)
-
-### 步骤 10：简化 useNewGameWizardState.ts ✅
-- 移除 179 行内联推荐映射
-- 1272行 → 1094行
-
-### 步骤 12：拆分 models/campusNSFW.ts ✅
-```
-models/campusNSFW/
-├── core.ts, exposure.ts, sm.ts
-├── party-games.ts, festival.ts
-├── bdsm-forum.ts, dormitory.ts
-├── relationship.ts, index.ts
-└── bdsmConstants.ts
-```
-
-### 步骤 13：更新 import 路径 ✅
-- 构建通过
-
-### 步骤 15：npm run build 验证 ✅
-- 构建成功 (11.38s)
-
----
-
-## 跳过步骤（低收益）
-
-| 步骤 | 原因 |
-|------|------|
-| 步骤 9 | toggleTalent/toggleQiyun 仅 8 行，提取 API 更复杂 |
-| 步骤 11 | nsfw.ts 仅 160 行，函数边界已清晰，拆分收益不足 |
-
----
-
-## 待执行（手动/可选）
-
-| 步骤 | 内容 | 状态 |
-|------|------|------|
-| 步骤 6 | 气运数据去重精简 | **未执行** - 合欢秘辛232条、限制版气运167条需人工逐条审查 |
-| 步骤 14 | UI筛选增强 | 当前已有搜索+分类过滤，可后续按需增强 |
-| 步骤 16 | 端到端测试 | 手动测试验证 |
-
----
-
-## 构建验证
-
-✅ `npm run build` 成功完成
-
----
-
-## 结论
-
-计划步骤 1-5, 7, 8, 10, 12, 13, 15 已完成并验证通过。步骤 6（气运去重精简）需人工逐条审查，建议后续单独执行。步骤 9, 11 因收益不足已跳过。步骤 14, 16 为可选手动任务。
-
----
-
-# 2026-05-04 校园纪元·手机系统深化
-
-**执行计划**: `docs/plans/2026-05-04-campus-era-phone-system.md`
-**执行时间**: 2026-05-07 (cron verification)
-**状态**: ✅ 已完成（所有实施阶段完成）
-
----
-
-## 实施摘要
-
-计划实施校园纪元手机系统的深化功能，包括论坛系统、聊天系统、校园特有APP（课程表、校园卡、社团）、校规编辑器和催眠App。**Phase 1-6 全部完成**，构建验证通过。
-
----
-
-## Phase 1: 数据模型与设备配置 ✅
-
-### 步骤 1：创建校园手机数据模型
-- **文件**: `models/campusPhone.ts` (193行)
-- **内容**: 论坛帖子、论坛回复、私聊会话、聊天消息、课程表、校园卡、消费记录、社团活动、校规条目、校规影响日志、催眠记录、催眠App等级、催眠能力、催眠进化阶段等类型
-- **状态**: ✅ 已完成
-
-### 步骤 2：扩展 MobileApp 类型
-- **文件**: `models/mobileDevice.ts` (第18-32行)
-- **内容**: 添加 `'schedule' | 'campus_card' | 'club' | 'confession' | 'rules' | 'hypnosis' | 'bdsn'`
-- **状态**: ✅ 已完成
-
-### 步骤 3：扩展游戏状态类型
-- **文件**: `hooks/useGame/` 相关文件
-- **内容**: `校规系统` 和 `催眠系统` 字段已在 GameState 中定义
-- **状态**: ✅ 已完成
-
-### 步骤 4：为校园纪元添加设备配置
-- **文件**: `models/eraDevice.ts` (第222-264行)
-- **内容**: `contemporary_campus` 配置已注册，包含全部13个APP（map, contacts, chat, forum, news, album, tools, schedule, campus_card, club, confession, rules, hypnosis, bdsn）
-- **里模式覆盖**: 夜行地图、关系网、私密聊天、深夜树洞、暗面推送、私密相册、暗面工具、秘密约会、校园钱包、地下社团、匿名告白、暗影校规、深度催眠、禁忌论坛
-- **状态**: ✅ 已完成
-
----
-
-## Phase 2: 基础APP组件开发 ✅
-
-### 步骤 5：CampusForumApp
-- **文件**: `components/features/MobileDevice/apps/CampusForumApp.tsx` (490行)
-- **内容**: 分类Tab栏、帖子列表、帖子详情页、BDSM板块集成、表白墙集成、懒加载分页
-- **状态**: ✅ 已完成
-
-### 步骤 6：CampusChatApp
-- **文件**: `components/features/MobileDevice/apps/CampusChatApp.tsx`
-- **内容**: 会话列表（类似微信）、气泡式聊天界面、联系人选择
-- **状态**: ✅ 已完成
-
-### 步骤 7：CampusScheduleApp
-- **文件**: `components/features/MobileDevice/apps/CampusScheduleApp.tsx` (83行)
-- **内容**: 周视图网格（7天×5时段）、课程数据从 gameContext 推导
-- **状态**: ✅ 已完成
-
-### 步骤 8：CampusCardApp
-- **文件**: `components/features/MobileDevice/apps/CampusCardApp.tsx`
-- **内容**: 余额显示、消费记录列表
-- **状态**: ✅ 已完成
-
-### 步骤 9：CampusClubApp
-- **文件**: `components/features/MobileDevice/apps/CampusClubApp.tsx`
-- **内容**: 社团活动卡片列表
-- **状态**: ✅ 已完成
-
----
-
-## Phase 3: 核心APP组件开发 ✅
-
-### 步骤 10：CampusRulesApp（校规编辑器）
-- **文件**: `components/features/MobileDevice/apps/CampusRulesApp.tsx` (239行)
-- **内容**: 校规列表、新增/编辑/删除校规表单、启用/禁用切换、影响程度分级
-- **状态**: ✅ 已完成
-
-### 步骤 11：CampusHypnosisApp（催眠App）
-- **文件**: `components/features/MobileDevice/apps/CampusHypnosisApp.tsx`
-- **内容**: 目标选择、催眠类型选择（根据等级解锁）、指令输入、催眠记录、等级进度
-- **状态**: ✅ 已完成
-
----
-
-## Phase 4: 集成与系统对接 ✅
-
-### 步骤 12：更新 MobileHome 组件
-- **文件**: `components/features/MobileDevice/MobileHome.tsx` (349行)
-- **内容**: 新APP图标映射（第72-87行）、switch-case路由（第159-175行）
-- **状态**: ✅ 已完成
-
-### 步骤 13-14：校规/催眠系统集成到AI提示词
-- **文件**: `hooks/useGame/systemPromptBuilder.ts` 等
-- **内容**: 校规影响NPC行为、催眠指令生效
-- **状态**: ✅ 已完成
-
-### 步骤 15：完善里模式集成
-- **文件**: `models/eraTheme/epoch-contemporary.ts`
-- **内容**: `contemporary_campus` 里模式配置完善
-- **状态**: ✅ 已完成
-
----
-
-## Phase 5: NSFW适配与测试 ✅
-
-### 步骤 16：SFW/NSFW 内容切换适配
-- **内容**: NSFW 模式下解锁额外内容尺度
-- **状态**: ✅ 已完成
-
-### 步骤 17：状态初始化和持久化
-- **文件**: `hooks/useGame/` 相关文件
-- **内容**: 校规系统、催眠系统状态持久化到 IndexedDB
-- **状态**: ✅ 已完成
-
-### 步骤 18：设备消息工作流扩展
-- **内容**: 校规影响事件通知、催眠效果反馈、App升级通知
-- **状态**: ✅ 已完成
-
----
-
-## Phase 6: 校园APP修复 ✅
-
-根据 commit `d1ca26e` (feat(campus-phone): 校园手机系统审计修复) 和 `89f4ccb` (docs: record campus-phone audit completion in done.md)，Phase 6 校园APP数据源修复已完成。
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 |
-|------|------|
-| `contemporary_campus` 设备配置正常 | ✅ |
-| 论坛APP按分类浏览，帖子从游戏状态推导 | ✅ |
-| 私聊APP显示NPC会话列表，气泡式界面 | ✅ |
-| 课程表APP显示周视图 | ✅ |
-| 校园卡APP显示余额和消费记录 | ✅ |
-| 校规编辑器可增删改查 | ✅ |
-| 催眠App可选择目标施加催眠 | ✅ |
-| 催眠App随使用次数升级 | ✅ |
-| SFW模式下不出现NSFW内容 | ✅ |
-| NSFW模式下内容根据nsfw场景类型调整 | ✅ |
-| 里模式切换时应用名和主题色变化 | ✅ |
-| 其他纪元设备不受影响 | ✅ |
-| 新增组件文件 < 800行 | ✅ |
-| 构建成功 | ✅ |
-
----
-
-## 构建验证
-
-✅ `npm run build` 成功完成 (10.51s)
-
----
-
-## 待手动验证
-
-- [ ] 全部测试通过，功能完成（需人工测试）
-
----
-
-# 2026-05-04 里模式阶段系统方案
-
-**执行计划**: `docs/plans/2026-05-04-li-mode-stages.md`
-**执行时间**: 2026-05-07 (cron verification)
-**状态**: ✅ 已完成
-
----
-
-## 实施摘要
-
-引入了与"强度"正交的"阶段"（平然/羞耻/欲望）维度，用于控制 NPC 在亲密场景下的心理态度和行为倾向。
-
----
-
-## Phase 1: 数据模型扩展 ✅
-
-### `models/eraTheme/types.ts`
-- 第 77 行: `export type LiModeStage = '平然' | '羞耻' | '欲望';`
-- 第 106 行: `EraLiModeEnhanced` 增加 `stageRules` 字段
-
-### `models/system.ts`
-- 第 1644 行: `游戏设置结构` 增加 `子纪元里模式阶段?: Record<string, LiModeStage>`
-
-### `models/social.ts`
-- 第 121 行: `NPC结构` 增加 `里模式阶段?: LiModeStage`
-
----
-
-## Phase 2: 阶段规则数据填充 ✅
-
-### `prompts/runtime/eraLiMode.ts`
-- 第 18 行: `DEFAULT_STAGE_RULES` 通用阶段规则模板
-- 第 239 行: `构建里模式阶段注入` 函数
-  - 优先使用 SubEra 自定义 `stageRules`
-  - 回退到 `DEFAULT_STAGE_RULES` 通用模板
-
----
-
-## Phase 3: Prompt 注入链路 ✅
-
-### `hooks/useGame/systemPromptBuilder.ts`
-- 第 56 行: 导入 `构建里模式阶段注入`
-- 第 1447 行: 调用 `构建里模式阶段注入`，注入阶段行为规则
-
-### `hooks/useGame/npcContext/contextBuilder.ts`
-- 第 7 行: 导入 `构建里模式阶段注入`
-- 第 457 行: NPC 个体阶段注入（优先 NPC 个体设置，回退全局）
-
----
-
-## Phase 4: UI 体系 ✅
-
-### `NewGameWizardContent.tsx`
-- 第 448 行: 三档阶段按钮选择器（平然/羞耻/欲望）
-
-### `useNewGameWizardState.ts`
-- 阶段状态持久化到开局配置
-
-### `GameSettings.tsx`
-- 第 536 行: 设置面板阶段选择器
-
-### `TopBar.tsx`
-- 第 298 行: 徽章显示格式改为"阶段·强度"（如"羞耻·暧昧"）
-
-### `App.tsx`
-- 传递 `子纪元里模式阶段` 到 TopBar
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 |
-|------|------|
-| `LiModeStage` 类型定义存在 | ✅ |
-| `EraLiModeEnhanced.stageRules` 字段存在 | ✅ |
-| 游戏设置包含 `子纪元里模式阶段` | ✅ |
-| NPC 结构包含 `里模式阶段` | ✅ |
-| `DEFAULT_STAGE_RULES` 通用模板存在 | ✅ |
-| `构建里模式阶段注入` 函数存在 | ✅ |
-| systemPromptBuilder 集成阶段注入 | ✅ |
-| npcContext 集成阶段注入 | ✅ |
-| NewGameWizard 阶段选择器 | ✅ |
-| GameSettings 阶段选择器 | ✅ |
-| TopBar 徽章显示阶段 | ✅ |
-| TypeScript 构建无错误 | ✅ |
-
----
-
-## 构建验证
-
-✅ `npm run build` 成功完成（12.14s）
-
----
-
-## 提交记录
-
-- `020ba16` feat(li-mode): 引入里模式阶段系统
-
-
----
-
-# 2026-05-03 校园子纪元 + 强化里模式
-
-**执行计划**: `docs/plans/2026-05-03-campus-era-li-mode.md`
-**执行时间**: 2026-05-07 (cron verification)
-**状态**: ✅ 已完成（已验证）
-
----
-
-## 实施摘要
-
-计划描述 6 大步骤，经逐一验证，**全部已完成**。
-
----
-
-## 步骤 1：扩展类型定义 ✅
-
-- **文件**: `models/eraTheme/types.ts`
-- `EraLiModeEnhanced` 接口定义结构化字段（corePrinciple/powerSystem/dualPersonalities/sceneTypes/desireMotives/taboos/aiDirectives/intensityLevels/stageRules）
-- `EraCharacterArchetype` 添加 `表人格`/`里人格` 可选字段
-- `EraNode.liMode` 类型支持 `EraLiMode | EraLiModeEnhanced`
-- `LiModeStage` 类型定义（平然/羞耻/欲望）
-
----
-
-## 步骤 2：更新里模式注入逻辑 ✅
-
-- **文件**: `prompts/runtime/eraLiMode.ts` (267行)
-- `构建子纪元里模式注入` — 优先结构化字段，fallback 到 rules 文本，三级强度过滤
-- `构建里模式NPC原型注入` — 从 dualPersonalities 提取表里人格模板
-- `构建NPC表里切换注入` — 里人格激活时注入人格状态提示
-- `构建里模式阶段注入` — 平然/羞耻/欲望三阶段行为规则
-- `DEFAULT_STAGE_RULES` 通用模板（可被 SubEra stageRules 覆盖）
-
----
-
-## 步骤 3：定义校园子纪元节点 ✅
-
-- **文件**: `models/eraTheme/epoch-contemporary.ts` 第 410-581 行
-- `contemporary_campus` 节点完整定义（depth=2, parent=contemporary_eastern）
-- 基础配置：青春绿主色(`80 180 120`)、樱花粉强调色(`220 120 140`)、bgmTags: 校园/青春/吉他/轻快
-- 完整 UI 文案（50+ 字段校园化）
-- 6 个开局场景（图书馆自习/社团招新/毕业典礼/深夜实验室/操场夜跑/食堂偶遇）
-- 6 个角色原型（含表人格/里人格）
-- 2 个写作样例
-- 强化版里模式（结构化字段 + intensityLevels + stageRules）
-
----
-
-## 步骤 4：气运/天赋/开局预设 ✅
-
-### 天赋
-
-- `data/talents/nsfw.ts` 第 214-226 行：12 个校园 NSFW 天赋（深夜实验室常驻者/社团部室钥匙持有者/天台观景者/校医务室VIP/泳池晨练者/宿舍夜猫子/家教兼职达人/校园祭策划/学姐学妹缘/室友的秘密）
-- `data/talents/modern.ts` 第 24-136 行：12 个校园专属天赋（考试体质/社团达人/奖学金猎手/青涩魅力/反差体质/眼神勾人/体香迷人/独处女王/氛围营造/雨天体质/深夜共鸣/露出潜质/支配直觉/多角棋手/事后温柔）
-
-### 背景
-
-- `data/backgrounds/nsfw.ts` 第 191-195 行：4 个校园 NSFW 背景（校园风云人物/秘密社团成员/宿舍楼传说/跨院系交流生）
-- `data/backgrounds/modern.ts` 第 97-117 行：6 个校园背景（考试体质/社团达人/奖学金猎手/过目不忘/叛逆基因/学生会体质/食堂干饭王）
-
-### 气运
-
-- `data/qiyun/categories/hehuan.ts` 第 230-261 行：约 20 个校园 NSFW 气运（青梅竹马缘/月考锦鲤/社团招福/天台邂逅运/校园祭主角/图书馆偶遇/合宿缘分/教室后排/实验台旁的触碰/社团仓库的秘密/校服的纽扣/午休天台/更衣室隔壁/文化祭后台/合浴场缘分/期末补习夜/毕业相册 等）
-- `data/qiyun/categories/zhen-qiyun.ts` 第 267-331 行：校园气运（校园桃花/室友暧昧/校园风云人物/学霸光环/挂科预警）
-
-### 开局预设
-
-- `data/newGamePresets.ts` 第 37-92 行：3 个校园开局方案（campus_freshman 大一新生/campus_transfer 转学生/campus_grad 研究生）
-
----
-
-## 步骤 5：R2 CDN 素材 ✅
-
-- **目录**: `data/era_assets/contemporary_campus/`
-- `manifest.json` 存在（1825字节），包含 6 个场景图 ID + 1 个 BGM ID
-- CDN URL 指向 `https://mrqk.cc.cd/data/era_assets/contemporary_campus/`
-- 注：实际图片/MP3 文件未下载到本地仓库，仅有 manifest 元数据
-
----
-
-## 步骤 6：UI 强度选择器 + 内容展示 + 提示词注入 ✅
-
-### 强度选择器
-
-- `components/features/NewGame/NewGameWizardContent.tsx` 第 399-428 行：子纪元里模式开关 + 三级强度选择（微暗/暧昧/露骨）
-- `components/features/Settings/GameSettings.tsx`：游戏设置中包含里模式阶段选择器
-- `components/layout/TopBar.tsx` 第 480-489 行：顶部栏里模式强度徽章 + 点击切换
-
-### 内容展示
-
-- `onLiModeIntensityChange` prop 在 App.tsx 第 819-822 行实现
-- `子纪元里模式强度` 存储在 `gameConfig` 中
-
-### 提示词注入
-
-- `App.tsx` 传递 `启用子纪元里模式`/`子纪元里模式强度`/`子纪元里模式阶段` 给 TopBar
-- `prompts/runtime/eraLiMode.ts` 导出 `构建子纪元里模式注入`/`构建里模式NPC原型注入`/`构建里模式阶段注入` 等函数
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 |
-|------|------|
-| `EraLiModeEnhanced` 接口定义完整 | ✅ |
-| `EraCharacterArchetype` 含表/里人格字段 | ✅ |
-| 里模式注入逻辑支持结构化字段 + fallback | ✅ |
-| 三级强度过滤（微暗/暧昧/露骨） | ✅ |
-| `contemporary_campus` 节点完整（含强化版里模式） | ✅ |
-| 6 个角色原型含表/里人格 | ✅ |
-| 6 个开局场景 | ✅ |
-| 完整 UI 文案校园化 | ✅ |
-| 校园专属天赋 20+ 个 | ✅ |
-| 校园专属背景 10+ 个 | ✅ |
-| 校园专属气运 20+ 个 | ✅ |
-| 3 个校园开局预设方案 | ✅ |
-| manifest.json 含 6 场景图 + 1 BGM | ✅ |
-| 强度选择器 UI 实现 | ✅ |
-| TypeScript 构建无错误 | ✅ |
-
----
-
-## 构建验证
-
-✅ `npm run build` 成功完成（10.44s）
-
----
-
-# 2026-05-04 校园纪元·天赋气运背景与NSFW优化方案
-
-**执行计划**: `docs/plans/2026-05-04-campus-era-talent-nsfw-optimization.md`
-**执行时间**: 2026-05-07 (cron verification)
-**状态**: ✅ 已完成（已验证）
-
----
-
-## 成功标准验证
-
-| 标准 | 状态 | 验证位置 |
-|------|------|----------|
-| 校园纪元背景名称使用具体身份 | ✅ | `data/subEraDefaultPresets.ts` L113,121,129: 学生会干事、转学生、实验室研究生 |
-| 校园纪元气运名称符合"命运/奇遇"定义 | ✅ | L115,123,131: 校园风云人物、命运邂逅、学术机缘 |
-| 开局预设与子纪元默认预设背景/气运名称对应 | ✅ | `data/newGamePresets.ts` L50,69,88 匹配 subEraDefaultPresets |
-| 校园里模式结构化字段深度与都市子纪元相当 | ✅ | `models/eraTheme/epoch-contemporary.ts` L524-579: dualPersonalities(~50字)、sceneTypes(~50字)、desireMotives(~30字)、taboos(~30字)、intensityLevels(~60字) |
-| 校园纪元有自定义 stageRules | ✅ | L573-577: 平然/羞耻/欲望三阶段校园专属行为规则 |
-| 校园纪元 NSFW 内容不使用武侠/修仙术语 | ✅ | `prompts/runtime/nsfw.ts` L90-125: 构建现代情感叙事约束函数存在 |
-| 武侠时代 NSFW 约束不受影响 | ✅ | L140-147: 自动选择叙事约束根据 eraId 判断，现代时代用现代情感框架，武侠用双修框架 |
-| SFW 模式不泄露任何 NSFW 内容 | ✅ | L31-33: 默认NSFW模式提示词包含 SFW 判断逻辑 |
-
----
-
-## Phase 1 验证: 天赋/气运/背景修正 ✅
-
-### `data/subEraDefaultPresets.ts`
-- L113: 校园新生 `背景名称: '学生会干事'`, `气运: ['校园风云人物']`
-- L121: 叛逆转学生 `背景名称: '转学生'`, `气运: ['命运邂逅']`
-- L129: 科研研究生 `背景名称: '实验室研究生'`, `气运: ['学术机缘']`
-
-### `data/newGamePresets.ts`
-- L50: 大一新生 `背景名称: '学生会干事'`, `气运: {名称: '校园风云人物'}`
-- L69: 转学生 `背景名称: '转学生'`, `气运: {名称: '命运邂逅'}`
-- L88: 研究生 `背景名称: '实验室研究生'`, `气运: {名称: '学术机缘'}`
-
----
-
-## Phase 2 验证: NSFW 内容扩充 ✅
-
-### `models/eraTheme/epoch-contemporary.ts` contemporary_campus liMode
-
-| 字段 | 原长度 | 现长度 | 状态 |
-|------|--------|--------|------|
-| dualPersonalities | ~15字 | ~50字/条 | ✅ L529-536 |
-| sceneTypes | ~20字 | ~50字/条 | ✅ L537-543 |
-| desireMotives | ~15字 | ~30字/条 | ✅ L545-551 |
-| taboos | ~15字 | ~30字/条 | ✅ L553-558 |
-| intensityLevels | ~30字 | ~60字/级 | ✅ L568-572 |
-| stageRules | **无** | 平然/羞耻/欲望三阶段 | ✅ L573-577 |
-
----
-
-## Phase 3 验证: NSFW 框架适配 ✅
-
-### `prompts/runtime/nsfw.ts`
-
-| 函数 | 位置 | 功能 |
-|------|------|------|
-| `构建现代情感叙事约束` | L90-125 | 校园/现代专用NSFW框架，不使用武侠术语 |
-| `自动选择叙事约束` | L140-147 | 根据时代ID自动选择武侠双修或现代情感框架 |
-| `构建运行时NSFW提示词` | L178-254 | 新增 `时代配置ID` 参数，L230 调用 `自动选择叙事约束` |
-| `构建运行时额外提示词` | L256-296 | 新增 `时代配置ID` 参数 |
-| `构建文生图运行时额外提示词` | L298-307 | 新增 `时代配置ID` 参数 |
-
-### 时代分支逻辑
-- L142-144: 现代时代（contemporary_campus, contemporary_urban 等）→ `构建现代情感叙事约束`
-- L146: 其他时代（武侠/修仙）→ `构建里象修行叙事约束`
-
----
-
-## 构建验证
-
-✅ TypeScript 编译检查通过（预存的测试文件类型问题 162 个与本次修改无关）
-
-
----
-
-# 2026-05-07 校园纪元 × 都市纪元融合计划 - 执行记录
-
-## 执行时间
-2026-05-07 00:10
-
-## 执行状态：✅ 已验证完成（先前已实现）
-
-## 验证摘要
-
-### 实现状态确认
-
-| 计划项目 | 状态 | 验证结果 |
-|---------|------|---------|
-| `contemporary_campus_urban` 节点 | ✅ 已存在 | `epoch-contemporary.ts` L583-749 |
-| 融合预设（subEraDefaultPresets.ts） | ✅ 已添加 | L166-190: 通勤学生、校外房东、咖啡店兼职生 |
-| 融合开局方案（newGamePresets.ts） | ✅ 已添加 | L170-227: campus_urban_commuter, campus_urban_landlord, campus_urban_barista |
-| MODERN_ERA_IDS 更新 | ✅ 已存在 | `assembly.ts` L46 包含 `contemporary_campus_urban` |
-| 跨场景开场 | ✅ 已定义 | epoch-contemporary.ts L666-673: 6个开场场景 |
-| 跨场景角色原型 | ✅ 已定义 | epoch-contemporary.ts L674-678: 4个角色原型 |
-| NSFW 框架 | ✅ 已统一 | 现代情感框架覆盖融合子纪元 |
-
-### 构建验证
-- ✅ `npm run build` 成功通过
-- ✅ TypeScript 编译无错误
-- ✅ 工作区干净（无未提交更改）
-
-### 关键文件位置
-- `models/eraTheme/epoch-contemporary.ts` - 融合子纪元节点定义
-- `data/subEraDefaultPresets.ts` - 融合预设数据
-- `data/newGamePresets.ts` - 融合开局方案
-- `models/eraTheme/assembly.ts` - MODERN_ERA_IDS 常量
-
-
----
-
-# 2026-05-07 都市纪元日常生活系统扩展方案 - 执行记录
-
-## 执行时间
-2026-05-07 00:10
-
-## 执行状态：✅ 已验证完成（先前已实现）
-
-## 验证摘要
-
-### Phase 1: 场景与原型扩充
-| 检查项 | 状态 | 验证结果 |
-|--------|------|----------|
-| `openingScenes` 达到 10 个 | ✅ | `epoch-contemporary.ts` L150-161: urban_1~urban_10 共 10 个开局场景 |
-| `characterArchetypes` 达到 10 个 | ✅ | `epoch-contemporary.ts` L162-173: urban_ceo, urban_martial_artist, urban_hacker, urban_delivery, urban_craftsman, urban_retail_worker, urban_driver, urban_coser, urban_security, urban_courier 共 10 个角色原型 |
-
-### Phase 2: 背景与天赋审计
-| 检查项 | 状态 | 验证结果 |
-|--------|------|----------|
-| `data/backgrounds/modern.ts` 都市职场类 | ✅ | L5-14: 大厂员工、自媒体创业者、都市白领、创业失败者、自由职业者、房产中介、外卖站长、投行分析师、律所新人、MCN运营 |
-| `data/backgrounds/modern.ts` 配送出行类 | ✅ | L16-22: 网约车司机、外卖骑手、快递小哥、代驾司机、网约车队长、众包配送员、货运司机 |
-| `data/backgrounds/modern.ts` 生活服务类 | ✅ | L24-30: 理发师、健身教练、美容师、餐饮店员、推拿按摩师、美甲师、宠物美容师 |
-| `data/backgrounds/modern.ts` 蓝领技工类 | ✅ | L32-38: 装修师傅、汽修工、电工、建筑工人、焊工、管道工、空调维修工 |
-| `data/backgrounds/modern.ts` 零售个体类 | ✅ | L40-46: 便利店老板、夜市摊主、水果摊老板、保险推销员、二手车商、手机店老板、菜贩子 |
-| `data/talents/modern.ts` contemporary_urban 天赋 | ✅ | L5-16: 代码直觉、人脉编织、镜头感、夜猫子、城市地图、商业嗅觉、键盘侠、地铁生存、咖啡体质、租房达人、信息流操盘手、格子间伪装等 12 个专属天赋 |
-| 配送出行专属天赋 | ✅ | L18-21: 活地图、平台算法理解、乘客耳目、夜行直觉 |
-| 生活服务专属天赋 | ✅ | L50-55: 手感精准、察言观色、审美在线、体力充沛、客户黏性、工具精通 |
-| 蓝领技工专属天赋 | ✅ | L57-62: 万能手、听音辨障、力气大、安全意识、材料直觉、工地人脉 |
-| 零售个体专属天赋 | ✅ | L64-69: 算盘脑子、砍价王、识货眼、夜市生存、库存管理、邻里熟客 |
-
-### Phase 3: 都市日常系统设计
-- **状态**: 📋 设计文档（不涉及代码实现）
-- **日程系统、通勤系统、社交APP系统** 为设计研究文档，为后续开发提供参考，不作为代码任务
-
-## 涉及文件
-| 文件 | 变更类型 |
-|------|----------|
-| `docs/plans/2026-05-04_urban-era-daily-life.md` | 状态更新为"✅ 已完成" |
-
-## 提交记录
-- 无新提交（所有计划内容在更早的开发周期中已完成实现）
-
-## 构建验证
-- ✅ `npm run build` 成功通过（之前已验证）
-- ✅ 工作区干净
