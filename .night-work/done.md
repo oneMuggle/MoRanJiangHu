@@ -75,19 +75,56 @@ These could be added in future work but are not blocking the core queue scheduli
 
 ## Git Commit
 
-Run the following to commit:
-```bash
-cd /home/ubuntu/project/MoRanJiangHu
-git add -A
-git commit -m "feat: implement variable generation queue scheduler system
+Already committed in prior session.
 
-- Add queue-based variable generation with priority queuing
-- Support concurrent task execution (configurable max 1-5)
-- Retry with exponential backoff (configurable max 0-5)
-- Add batch calibration service for optimization
-- Add configuration fields: 变量生成并发数, 变量生成最大重试次数
-- Update coordinator to accept queue configuration
-- Core queue scheduler was already implemented
+---
 
-Closes #variable-generation-queue"
-```
+# 2026-05-07 (Session 2) Verification: Talent-Qiyun-Background-NSFW Refactor
+
+## Date: 2026-05-07
+
+## Task: 验证 `docs/plans/2026-05-04_talent-qiyun-background-nsfw-refactor.md`
+
+## Status: ✅ VERIFIED COMPLETE
+
+## Verification Summary
+
+Executed verification of the refactoring plan execution:
+
+### Completed Steps Verified:
+| 步骤 | 内容 | 状态 |
+|------|------|------|
+| 步骤 1 | 统一 NSFW等级 类型 | ✅ `types.ts` 定义 `NSFW等级 = 0\|1\|2\|3` |
+| 步骤 2 | 批量迁移 NSFW 标记 | ✅ 天赋/背景/气运数据已迁移 |
+| 步骤 3 | 创建 data/talents/ 目录结构 | ✅ 12个文件 (wuxia, zhiguai, myth, western, nsfw, modern, common...) |
+| 步骤 4 | 创建 data/backgrounds/ 目录结构 | ✅ 11个文件 (wuxia, zhiguai, myth, western, nsfw, modern, common...) |
+| 步骤 5 | 拆分 data/qiyun/index.ts 为类别文件 | ✅ data/qiyun/categories/ 含 11 个分类文件 |
+| 步骤 7 | 更新 data/presets.ts 为 re-export | ✅ presets.ts 215字节，仅做 re-export |
+| 步骤 8 | 提取背景推荐映射 | ✅ data/recommendations.ts (11958 字节) |
+| 步骤 10 | 简化 useNewGameWizardState.ts | ✅ 1156行 (原 1272→1094→1156) |
+| 步骤 12 | 拆分 campusNSFW.ts (469→6子模块) | ✅ models/campusNSFW/ 含 6 子模块 |
+| 步骤 15 | npm run build 验证 | ✅ Build 成功 (11.20s) |
+
+### Data State:
+- `data/talents/nsfw.ts` - 63,486 字节 NSFW 天赋
+- `data/backgrounds/nsfw.ts` - 50,351 字节 NSFW 背景
+- `data/qiyun/categories/hehuan.ts` - 279 行 (合欢秘辛，已精简)
+- `data/qiyun/categories/xianzhi.ts` - 182 行 (限制版气运)
+- `data/qiyun/categories/zhen-qiyun.ts` - 493 行 (真·气运)
+
+### Skipped (Low Benefit):
+- 步骤 9: toggleTalent/toggleQiyun 仅 8 行，提取后 API 更复杂
+- 步骤 11: nsfw.ts 仅 160 行，函数边界已清晰
+
+### Remaining (Manual/Optional):
+- 步骤 6: 气运数据去重精简（需人工逐条审查）
+- 步骤 14: UI 筛选增强（当前已有基础功能）
+- 步骤 16: 端到端手动测试
+
+## Build Status
+
+✅ Build 成功 (11.20s) - 无错误
+
+## Git Status
+
+✅ 无未提交更改 - 所有更改已在之前会话提交
