@@ -236,7 +236,15 @@ export const useImageStore = create<ImageSlice>((set, get) => ({
 
 **useGame.ts 行数变化：** 2952 → 2651 (-301行)
 
-### 6.2 待创建 Slice (10/13)
+## Phase 6: 子 Hook 拆分 — Zustand 就绪 (进行中)
+
+### 6.5 Zustand 已安装 ✅
+- `zustand@5.0.13` 已安装 (`pnpm add zustand`)
+- `hooks/useGame/subsystems/zustandStore.ts` 已创建，包含 UI + Travel 两个 Zustand slice
+- 兼容层 `useUIFromStore()` / `useTravelFromStore()` 提供与原有 hook 相同的 `{ state, actions }` 接口
+- 未来逐步将 useGame.ts 中所有 useState 迁移到此 store
+
+### 6.6 Slice 清单
 
 | Slice | 对应目录 | 预估行数 | 关键状态 | 难度 |
 |-------|---------|---------|---------|------|
@@ -397,9 +405,10 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 | `hooks/useConfirmSystem.tsx` | 新建 | ~57 | - | ✅ 确认对话框逻辑 |
 | `hooks/useGame/index.ts` | 新建 | ~195 | - | ✅ barrel 导出入口 |
 | `hooks/useGame/subsystems/types.ts` | 新建 | ~340 | - | ✅ slice 契约定义 |
-| `hooks/useGame/subsystems/useTravelSlice.ts` | 新建 | ~77 | - | ✅ 旅行/交易 slice |
-| `hooks/useGame/subsystems/useBDSMSlice.ts` | 新建 | ~151 | - | ✅ BDSM 关系 slice |
-| `hooks/useGame/subsystems/useUISlice.ts` | 新建 | ~92 | - | ✅ UI/通知/回档 slice |
+| `hooks/useGame/subsystems/zustandStore.ts` | 新建 | ~110 | - | ✅ Zustand 主 store (UI + Travel) |
+| `hooks/useGame/subsystems/useTravelSlice.ts` | 新建 | ~77 | - | ✅ 旅行/交易 slice (hook 模式) |
+| `hooks/useGame/subsystems/useBDSMSlice.ts` | 新建 | ~151 | - | ✅ BDSM 关系 slice (hook 模式) |
+| `hooks/useGame/subsystems/useUISlice.ts` | 新建 | ~92 | - | ✅ UI/通知/回档 slice (hook 模式) |
 
 ## Phase 1-3 变更统计
 
