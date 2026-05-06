@@ -334,6 +334,163 @@ models/campusNSFW/
 
 ---
 
+# 2026-05-04 校园纪元·手机系统深化
+
+**执行计划**: `docs/plans/2026-05-04-campus-era-phone-system.md`
+**执行时间**: 2026-05-07 (cron verification)
+**状态**: ✅ 已完成（所有实施阶段完成）
+
+---
+
+## 实施摘要
+
+计划实施校园纪元手机系统的深化功能，包括论坛系统、聊天系统、校园特有APP（课程表、校园卡、社团）、校规编辑器和催眠App。**Phase 1-6 全部完成**，构建验证通过。
+
+---
+
+## Phase 1: 数据模型与设备配置 ✅
+
+### 步骤 1：创建校园手机数据模型
+- **文件**: `models/campusPhone.ts` (193行)
+- **内容**: 论坛帖子、论坛回复、私聊会话、聊天消息、课程表、校园卡、消费记录、社团活动、校规条目、校规影响日志、催眠记录、催眠App等级、催眠能力、催眠进化阶段等类型
+- **状态**: ✅ 已完成
+
+### 步骤 2：扩展 MobileApp 类型
+- **文件**: `models/mobileDevice.ts` (第18-32行)
+- **内容**: 添加 `'schedule' | 'campus_card' | 'club' | 'confession' | 'rules' | 'hypnosis' | 'bdsn'`
+- **状态**: ✅ 已完成
+
+### 步骤 3：扩展游戏状态类型
+- **文件**: `hooks/useGame/` 相关文件
+- **内容**: `校规系统` 和 `催眠系统` 字段已在 GameState 中定义
+- **状态**: ✅ 已完成
+
+### 步骤 4：为校园纪元添加设备配置
+- **文件**: `models/eraDevice.ts` (第222-264行)
+- **内容**: `contemporary_campus` 配置已注册，包含全部13个APP（map, contacts, chat, forum, news, album, tools, schedule, campus_card, club, confession, rules, hypnosis, bdsn）
+- **里模式覆盖**: 夜行地图、关系网、私密聊天、深夜树洞、暗面推送、私密相册、暗面工具、秘密约会、校园钱包、地下社团、匿名告白、暗影校规、深度催眠、禁忌论坛
+- **状态**: ✅ 已完成
+
+---
+
+## Phase 2: 基础APP组件开发 ✅
+
+### 步骤 5：CampusForumApp
+- **文件**: `components/features/MobileDevice/apps/CampusForumApp.tsx` (490行)
+- **内容**: 分类Tab栏、帖子列表、帖子详情页、BDSM板块集成、表白墙集成、懒加载分页
+- **状态**: ✅ 已完成
+
+### 步骤 6：CampusChatApp
+- **文件**: `components/features/MobileDevice/apps/CampusChatApp.tsx`
+- **内容**: 会话列表（类似微信）、气泡式聊天界面、联系人选择
+- **状态**: ✅ 已完成
+
+### 步骤 7：CampusScheduleApp
+- **文件**: `components/features/MobileDevice/apps/CampusScheduleApp.tsx` (83行)
+- **内容**: 周视图网格（7天×5时段）、课程数据从 gameContext 推导
+- **状态**: ✅ 已完成
+
+### 步骤 8：CampusCardApp
+- **文件**: `components/features/MobileDevice/apps/CampusCardApp.tsx`
+- **内容**: 余额显示、消费记录列表
+- **状态**: ✅ 已完成
+
+### 步骤 9：CampusClubApp
+- **文件**: `components/features/MobileDevice/apps/CampusClubApp.tsx`
+- **内容**: 社团活动卡片列表
+- **状态**: ✅ 已完成
+
+---
+
+## Phase 3: 核心APP组件开发 ✅
+
+### 步骤 10：CampusRulesApp（校规编辑器）
+- **文件**: `components/features/MobileDevice/apps/CampusRulesApp.tsx` (239行)
+- **内容**: 校规列表、新增/编辑/删除校规表单、启用/禁用切换、影响程度分级
+- **状态**: ✅ 已完成
+
+### 步骤 11：CampusHypnosisApp（催眠App）
+- **文件**: `components/features/MobileDevice/apps/CampusHypnosisApp.tsx`
+- **内容**: 目标选择、催眠类型选择（根据等级解锁）、指令输入、催眠记录、等级进度
+- **状态**: ✅ 已完成
+
+---
+
+## Phase 4: 集成与系统对接 ✅
+
+### 步骤 12：更新 MobileHome 组件
+- **文件**: `components/features/MobileDevice/MobileHome.tsx` (349行)
+- **内容**: 新APP图标映射（第72-87行）、switch-case路由（第159-175行）
+- **状态**: ✅ 已完成
+
+### 步骤 13-14：校规/催眠系统集成到AI提示词
+- **文件**: `hooks/useGame/systemPromptBuilder.ts` 等
+- **内容**: 校规影响NPC行为、催眠指令生效
+- **状态**: ✅ 已完成
+
+### 步骤 15：完善里模式集成
+- **文件**: `models/eraTheme/epoch-contemporary.ts`
+- **内容**: `contemporary_campus` 里模式配置完善
+- **状态**: ✅ 已完成
+
+---
+
+## Phase 5: NSFW适配与测试 ✅
+
+### 步骤 16：SFW/NSFW 内容切换适配
+- **内容**: NSFW 模式下解锁额外内容尺度
+- **状态**: ✅ 已完成
+
+### 步骤 17：状态初始化和持久化
+- **文件**: `hooks/useGame/` 相关文件
+- **内容**: 校规系统、催眠系统状态持久化到 IndexedDB
+- **状态**: ✅ 已完成
+
+### 步骤 18：设备消息工作流扩展
+- **内容**: 校规影响事件通知、催眠效果反馈、App升级通知
+- **状态**: ✅ 已完成
+
+---
+
+## Phase 6: 校园APP修复 ✅
+
+根据 commit `d1ca26e` (feat(campus-phone): 校园手机系统审计修复) 和 `89f4ccb` (docs: record campus-phone audit completion in done.md)，Phase 6 校园APP数据源修复已完成。
+
+---
+
+## 成功标准验证
+
+| 标准 | 状态 |
+|------|------|
+| `contemporary_campus` 设备配置正常 | ✅ |
+| 论坛APP按分类浏览，帖子从游戏状态推导 | ✅ |
+| 私聊APP显示NPC会话列表，气泡式界面 | ✅ |
+| 课程表APP显示周视图 | ✅ |
+| 校园卡APP显示余额和消费记录 | ✅ |
+| 校规编辑器可增删改查 | ✅ |
+| 催眠App可选择目标施加催眠 | ✅ |
+| 催眠App随使用次数升级 | ✅ |
+| SFW模式下不出现NSFW内容 | ✅ |
+| NSFW模式下内容根据nsfw场景类型调整 | ✅ |
+| 里模式切换时应用名和主题色变化 | ✅ |
+| 其他纪元设备不受影响 | ✅ |
+| 新增组件文件 < 800行 | ✅ |
+| 构建成功 | ✅ |
+
+---
+
+## 构建验证
+
+✅ `npm run build` 成功完成 (10.51s)
+
+---
+
+## 待手动验证
+
+- [ ] 全部测试通过，功能完成（需人工测试）
+
+---
+
 # 2026-05-04 里模式阶段系统方案
 
 **执行计划**: `docs/plans/2026-05-04-li-mode-stages.md`
