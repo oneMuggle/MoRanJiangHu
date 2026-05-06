@@ -296,3 +296,30 @@ Phase 4 (最终，依赖 Phase 1-3):
   - 拆分为 `eventTrigger/` 子目录，6 个模块
   - 文件：core.ts(核心), promptAndParse.ts(提示词与解析), stateManagement.ts(状态管理), factories.ts(工厂), v2Enhanced.ts(增强), utilities.ts(工具)
   - TypeScript 编译：零新增错误（eventTrigger.test.ts 缺少 Jest 类型为已有问题）
+
+### Phase 1 补充：Barrel 文件补全 (2026-05-07)
+
+- [x] **transforms/index.ts** (新增 barrel 文件)
+  - 为 transforms/ 子目录创建统一导出文件
+  - TypeScript 编译：零新增错误
+
+- [x] **state/index.ts** (新增 barrel 文件)
+  - 为 state/ 子目录创建统一导出文件，包含 factories, planningNormalizers, historyUtils
+  - TypeScript 编译：零新增错误
+
+### Phase 2: 提示词/工作流模块拆分（5 个文件）- 进行中
+
+**已完成：**
+- [x] **npcContext.ts** (690 → 3 行 re-export)
+  - 拆分为 `npcContext/` 子目录，3 个模块
+  - 文件：contextBuilder.ts(26303), imageDataExtraction.ts(6353), index.ts(292)
+
+**待完成（难度高，需谨慎拆分）：**
+- [ ] **systemPromptBuilder.ts** (1733 行) - 最多被引用，拆分后解锁提示词相关开发
+- [ ] **openingStoryWorkflow.ts** (1466 行) - 子阶段清晰，可按阶段拆分
+- [ ] **promptRuntime.ts** (751 行) - 酒馆模式逻辑，可与 systemPromptBuilder 协同拆分
+- [ ] **sendWorkflow/responseProcessingPhase.ts** (731 行) - 子阶段提取
+
+**目录已创建待填充：**
+- [ ] `hooks/useGame/opening/` - 开局工作流子模块
+- [ ] `hooks/useGame/promptAssembly/` - 系统提示词组装子模块
