@@ -10,7 +10,7 @@ import type {
   糖关系状态完整,
   危机事件,
   曝光风险评估,
-} from './types';
+} from '../types';
 import { 添加危机事件 } from '../states/关系状态';
 import { 更新糖宝状态 } from '../states/糖宝状态';
 import { 更新糖爹状态 } from '../states/糖爹状态';
