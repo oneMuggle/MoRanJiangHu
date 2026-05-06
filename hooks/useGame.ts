@@ -492,9 +492,10 @@ export const useGame = () => {
         set开局变量生成进度,
         世界演变进行中Ref,
         variableGenerationAbortControllerRef,
-        深拷贝
+        深拷贝,
+        队列调度器: 变量生成队列调度器
     });
-    const { 序列化变量校准命令, 清空变量生成上下文缓存, 记录变量生成上下文, 收集最近变量生成上下文, 等待世界演变空闲, handleCancelVariableGeneration } = 变量生成进度系统;
+    const { 序列化变量校准命令, 清空变量生成上下文缓存, 记录变量生成上下文, 收集最近变量生成上下文, 等待世界演变空闲, handleCancelVariableGeneration, 获取变量生成状态, 获取任务详情, 监听任务完成 } = 变量生成进度系统;
 
     const 记忆总结处理器 = 创建记忆总结处理器({
         待处理记忆总结任务,

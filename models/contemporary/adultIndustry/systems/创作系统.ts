@@ -7,7 +7,7 @@ import type {
   内容类型,
   内容分级,
   创作流程配置,
-} from './types';
+} from '../types';
 
 /**
  * 创作流程阶段
@@ -125,6 +125,7 @@ export interface 创作决策点 {
       风险度?: number;
       收益?: number;
       粉丝满意度?: number;
+      疲劳度?: number;
     };
   }[];
 }

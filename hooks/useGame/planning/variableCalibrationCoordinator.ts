@@ -255,7 +255,7 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
             onProgress: wrappedProgressCallback
         });
 
-        // 等待结果
+        // 等待结果 - queue returns 变量模型校准结果 | null
         const variableCalibration = await resultPromise;
         if (!variableCalibration || (variableCalibration.commands.length === 0 && variableCalibration.reports.length === 0)) {
             return;

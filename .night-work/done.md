@@ -1,67 +1,58 @@
-# 2026-05-05 Night Work Done
+# 2026-05-06 Night Work Done
 
 ## Date
-2026-05-05 (executed 2026-05-06)
+2026-05-06
 
 ## Task
-Execute docs/plans/2026-05-05_bdsm-pipeline-deepening.md
+Execute docs/plans/2026-05-05_bdsm-relationship-pipeline.md
 
 ## Status
-✅ COMPLETED — All phases already implemented prior to this execution
+✅ COMPLETED (Phase 4.4 - Main Story Integration Enhancement)
 
 ## Summary
 
-Verified that the **BDSM Relationship Pipeline Deepening** plan is fully implemented. All phases (A-H) marked as `[x]` completed in the plan are confirmed working in the codebase.
+### Background Analysis
+The plan `2026-05-05_bdsm-relationship-pipeline.md` defines a comprehensive BDSM relationship pipeline. Upon analysis, **most of the pipeline was already implemented** (Phases 1-3, 5 completed, Phase 4 partially done).
 
-### Verification Results
+### Gap Found: Phase 4.4 Integration
+The missing piece was **Phase 4.4** which required:
+- `构建调教任务系统叙事约束` (task system narrative constraint prompt) to be called from `构建校园NSFW完整叙事约束`
 
-**Phase A - Forum Contact → Private Chat + Meeting Trigger** ✅
-- `CampusForumApp.tsx` `handleContactConfirm` (L97-150): Creates private chat session via `onCreateChatSession` when relationship is established
-- `BDSMNegotiationPanel.tsx`: Fully implemented with time/location/safety word/bottom line selection
-- `CampusChatApp.tsx` (L236-242): Negotiation panel integrated with `onConfirmNegotiation` callback
-- `App.tsx` (L2071-2103): `onConfirmNegotiation` creates meeting appointment in `见面预约列表`
-- `bdsmMeetingTrigger.ts`: `检查到期见面预约` + `构建见面注入提示词` + `解析见面预约更新`
+### What Was Implemented
 
-**Phase B - BDSM State Parser** ✅
-- `bdsmStateParser.ts` (55 lines): `解析BDSM状态更新` + `移除BDSM状态标签`
-- `bdsmStateIntegration.ts` (107 lines): Bridge between parser and sendWorkflow
-- `responseProcessingPhase.ts` (L253-264): BDSM state parsing integrated into response pipeline
+#### 1. Updated `prompts/runtime/campusNSFW.ts`
+- Added imports for `契约类型`, `契约状态`, `构建调教任务系统叙事约束`, and `BDSM调教任务`
+- Extended `构建校园NSFW完整叙事约束` parameters to accept:
+  - `BDSM活跃任务?: BDSM调教任务[]`
+  - `BDSM日常指令?: string[]`
+  - `BDSM契约状态?: { 类型: 契约类型; 状态: 契约状态; 条款: string[] }`
+- Modified the BDSM relation section to call `构建调教任务系统叙事约束` when active tasks exist
+- Added fallback to simplified BDSM constraint for compatibility
 
-**Phase C - Task Lifecycle Engine** ✅
-- `bdsmTaskTrigger.ts` (190 lines): Task generation trigger + daily instruction refresh + Aftercare detection
-- `useGame.ts` `handleReportTaskComplete` (L2229-2320): Full task lifecycle (mark → AI evaluate → update obedience → stage advance → Aftercare)
-- `useGame.ts` `handleStageAdvance` (L2327): Automatic stage progression
+#### 2. Updated `hooks/useGame/bdsmStateIntegration.ts`
+- Enhanced `构建校园NSFW参数` to collect detailed BDSM task information:
+  - Active tasks (进行中/待接受) - up to 5
+  - Incomplete daily instructions (未完成日常指令)
+  - Latest contract status (最新契约状态)
+- These parameters are now passed to `构建校园NSFW完整叙事约束` → `构建调教任务系统叙事约束`
 
-**Phase D - Contract Negotiation System** ✅
-- `BDSMContractNegotiation.tsx`: Contract negotiation panel
-- `BDSMContractPanel.tsx`: Contract display panel
-- `CampusChatApp.tsx`: Both panels integrated via lazy loading
+### Files Modified
+- `prompts/runtime/campusNSFW.ts` - Integrated task system narrative constraint
+- `hooks/useGame/bdsmStateIntegration.ts` - Enhanced parameter collection
 
-**Phase E - Aftercare Mechanism** ✅
-- `bdsmTaskTrigger.ts` (L103-190): Aftercare detection (`检查Aftercare需求`) + obedience bonus application (`应用Aftercare服从度`)
-- `sendWorkflow/index.ts` (L801-828): Aftercare check integrated in task supplement phase
-
-**Phase F - Safety Settings** ✅
-- `BDSMSafetySettings.tsx`: Safety word editing + bottom line management
-- `BDSMRelationshipDashboard.tsx`: Safety settings entry integrated
-
-**Phase G - System Integration** ✅
-- `sendWorkflow/index.ts` (L690-834): BDSM task supplement phase checks all active relationships, generates tasks/instructions, triggers Aftercare
-- `systemPromptBuilder.ts` (L1525-1535): Meeting appointment injection into main story prompts
-
-**Phase H - Cleanup** ✅
-- `BDSMMeetingModal.tsx`: Confirmed deleted (no file exists, no references found)
+### Already Implemented (Prior Work)
+- Phase 1: Data models (`BDSM关系状态`, `BDSM调教任务`, etc.) ✅
+- Phase 2: Task/Meeting workflows (`bdsmTaskWorkflow.ts`, `bdsmMeetingWorkflow.ts`) ✅
+- Phase 3: Prompt layer (`prompts/runtime/bdsmTasks.ts` - 7 prompt builders) ✅
+- Phase 4.1-4.3: Main story integration (BDSM state parser, integration, triggers) ✅
+- Phase 5: UI components (BDSMTaskPanel, BDSMContractPanel, BDSMRelationshipDashboard) ✅
+- Phase 6: Integration hooks (BDSM state updates, meeting triggers) ✅
 
 ### Build Status
-✅ Build successful (`npm run build` completed without errors)
+✅ Build successful (npm run build completed without errors)
 
-### Files Verified
-- 11 BDSM component files in `components/features/MobileDevice/apps/`
-- 9 BDSM hook files in `hooks/useGame/`
-- Data models in `models/campusNSFW/sm.ts` and `models/campusPhone.ts`
-- Prompts in `prompts/runtime/bdsmTasks.ts`
+### Git Commit
+Commit `bdsm-pipeline-phase-4-4` - BDSM Relationship Pipeline Phase 4.4: Integrate task system narrative constraints
 
-### Notes
-- All plan items were already marked `[x]` completed — confirmed accurate
-- No additional work required; plan was fully executed in prior sessions
-- Build succeeds with no errors
+### Pipeline Complete ✅
+The BDSM Relationship Pipeline is now fully implemented per the plan specification.
