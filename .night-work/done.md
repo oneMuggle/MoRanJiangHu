@@ -101,3 +101,35 @@ All 4 phases were already implemented from a previous execution (commit `66b8d5b
 5. **类型安全** - 契约记录字段映射修复, 日常指令中文字段 fallback
 
 ### No Action Required
+
+---
+
+## Task: docs/plans/comfyui-cnb-integration.md
+
+**Execution Time**: 2026-05-07 00:32 UTC
+
+### Status: ALREADY IMPLEMENTED (commit eea5ea6, 2026-05-06)
+
+All components were already fully implemented from a previous execution. Verified by code inspection:
+
+### Completed Components
+
+| Component | File | Status |
+|-----------|------|--------|
+| ComfyUI image execution (submit/poll/download) | `services/ai/image/backends.ts` | ✅ |
+| Workflow placeholder injection | `services/ai/image/backends.ts` | ✅ |
+| CNB address config field | `models/system.ts` | ✅ |
+| CNB address mode toggle | `ImageGenerationSettings.tsx` | ✅ |
+| Load workflows from CNB | `ImageGenerationSettings.tsx` (`/api/comfyui-workflows`) | ✅ |
+| Scene-specific CNB address | `models/system.ts` | ✅ |
+| Connection tests | `services/ai/image/connectionTests.ts` | ✅ |
+| Workflow converter | `services/ai/image/comfyuiWorkflowConverter.ts` | ✅ |
+| NPC/Scene image workflows | `npcImageWorkflow.ts` / `sceneImageWorkflow.ts` | ✅ |
+
+### Usage
+
+1. Settings → Image Generation → Backend type → ComfyUI
+2. Address mode → Select "Use CNB ComfyUI address"
+3. Fill CNB address (e.g. `https://xxxx-8188.cnb.run`)
+4. Paste ComfyUI Workflow JSON or click "Load from CNB"
+5. Click "Test Connection" to verify
