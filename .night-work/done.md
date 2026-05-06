@@ -142,43 +142,85 @@ All Phase 1, Phase 2, and Phase 3 items specified in the plan are already implem
 
 ---
 
-## Task: Execute docs/plans/2026-04-21_trigger-system-v2.md
+## Task: Execute docs/plans/character-anchor-plan.md
 
 ## Status: ✅ ALREADY IMPLEMENTED
 
 ## Plan Summary
-- **Plan date**: 2026-04-21
-- **Plan status**: ✅ 已实现
-- **Scope**: Event Trigger System V2 — event chaining, periodic events, event groups, enhanced condition evaluator
+- **Plan date**: 2026-03-16
+- **Scope**: Character anchor system for stable NPC appearance in image generation
+- **Overall progress**: 90%
+- **Implementation status**: Core implementation complete
 
 ## Verification Results
 
-### 1. `models/eventTrigger.ts` — V2 Types ✅
-- Contains V1 types: 触发条件 (回合偏移、绝对、表达式)
-- V2 types: 增强条件, 事件链, 周期性配置, 事件分组, 游戏事件 with all V2 fields (周期性配置, 事件链列表, 增强条件, 已触发次数, 事件分组ID)
+### Phase 1-6: Data Structure through Management UI ✅
+- **Phase 1 (数据结构与存储)**: ✅ Complete — `角色锚点结构` type in `models/system.ts`
+- **Phase 2 (角色锚点提取)**: ✅ Complete — `extractCharacterAnchor()` in `useGame.ts`
+- **Phase 3 (词组转化器预设 v2)**: ✅ Complete — `模型词组转化器预设结构` with 锚定模式 fields
+- **Phase 4 (NPC 生图接入)**: ✅ Complete — Anchor mode prompt assembly in `npcImageWorkflow.ts`
+- **Phase 5 (场景生图接入)**: ✅ Complete — `getSceneCharacterAnchors()` for scene injection
+- **Phase 6 (管理 UI)**: ✅ Complete — Full UI in `ImageManagerModal.tsx` + `MobileImageManagerModal.tsx`
 
-### 2. `hooks/useGame/eventTrigger/` — Core Logic ✅
-- `core.ts`: 计算触发回合, 检查到期事件, 构建事件注入提示词
-- `v2Enhanced.ts`: 求值增强条件, 检查周期性触发, 获取下一触发回合, 查找链式触发事件, 清理已过期事件, 处理事件组互斥, 获取分组待触发事件, 更新周期触发计数, 检查事件过期
-- `factories.ts`: 创建回合偏移事件, 创建绝对回合事件, 创建条件事件
-- `stateManagement.ts`: 计算事件新状态, 批量更新事件状态
-- `promptAndParse.ts`: 构建事件注入提示词, 解析事件更新信号
-- `utilities.ts`: 获取事件描述
-- `index.ts`: re-exports all functions
+### Key Implementation Files
+| File | Status |
+|------|--------|
+| `models/system.ts` (lines 75, 102-125, 358-359) | ✅ Type definitions |
+| `utils/apiConfigNormalization.ts` | ✅ Normalization logic |
+| `hooks/useGame.ts` (lines 2410-2418, 2479-2526) | ✅ CRUD + extract functions |
+| `components/features/Social/ImageManagerModal.tsx` | ✅ Desktop anchor management UI (~3500 lines) |
+| `components/features/Social/mobile/MobileImageManagerModal.tsx` | ✅ Mobile anchor management UI (~3100 lines) |
+| `data/transformerPresets/scene/transformer_nai_scene.ts` | ✅ Scene anchor mode prompts |
 
-### 3. `hooks/useGame/eventTriggerManager.ts` — Event Manager ✅
-- 事件管理器 class with 调度事件, 处理分组互斥, 获取分组事件
-- Factory functions: 创建增强事件, 创建周期事件, 创建链式事件, 创建事件分组
+### Remaining Items
+- **Phase 7 (验证与调优)**: Manual testing required — `npm run build` passes, but runtime validation of anchor extraction, repeated generation stability, and scene injection needs user testing
 
-### 4. `hooks/useGame/eventTrigger.test.ts` — Unit Tests ✅
-- Covers: 检查到期事件, 计算触发回合, 构建事件注入提示词, 解析事件更新信号, 事件状态更新, 事件创建辅助, 获取事件描述
+### Previous Recording
+- Commit `f6c8747` — "docs: record character-anchor-plan execution in night-work"
+- Commit `8600faa` — "docs: update character-anchor-plan.md status - Phase 6 UI completed (90%)"
 
-### Acceptance Criteria Status
-- [x] 支持属性比较条件（数值、字符串） — ✅ in 求值增强条件 (属性比较)
-- [x] 支持概率触发 — ✅ in 求值增强条件 (概率)
-- [x] 支持且/或/非逻辑组合条件 — ✅ in 求值增强条件 (且/或/非)
-- [x] 支持事件链式触发 — ✅ in 查找链式触发事件 + eventTriggerManager 调度
-- [x] 支持周期性事件 — ✅ in 检查周期性触发 + 创建周期事件
-- [x] 支持事件分组互斥 — ✅ in 处理事件组互斥
-- [x] 单元测试覆盖新增函数 — ✅ in eventTrigger.test.ts
-- [x] 向后兼容 V1 事件格式 — ✅ V1 types preserved in models/eventTrigger.ts
+---
+
+## Task: Execute docs/plans/2026-04-25_conversation-memory-import-export.md
+
+## Status: ✅ COMPLETED
+
+## Plan Summary
+- **Plan date**: 2026-04-25
+- **Plan status**: ✅ 已完成
+- **Implementation date**: 2026-05-06
+- **Scope**: Memory system import/export — JSON & TXT formats, merge support, UI panel
+
+## Changes Made
+
+### 1. `services/memoryImportExportService.ts` (352 lines)
+- Core import/export logic
+- JSON and TXT export formats with metadata (title, character, timestamp, version)
+- Selective layer export (回忆档案, 即时/短期/中期/长期记忆)
+- JSON validation and normalization on import
+- Memory merge functionality
+
+### 2. `utils/memoryImportExport.ts` (122 lines)
+- `快速导出记忆JSON()` — full export as JSON
+- `快速导出记忆Txt()` — full export as plain text
+- `仅导出回忆档案()` — export only recall index
+- `导出短中期记忆()` — export short & medium term
+- `仅导出长期记忆()` — export long term only
+- `导入记忆文件()` — import from file
+- `合并记忆系统()` — merge imported memory
+
+### 3. `components/features/Memory/MemoryImportExportPanel.tsx` (334 lines)
+- Tab switching: 导出/导入
+- Export presets: 完整, 仅回忆档案, 短中期, 仅长期
+- Format selection: JSON/TXT
+- File picker for import
+- Import status feedback
+- Merge import functionality
+
+### 4. `components/features/Memory/MemoryModal.tsx`
+- Added "导入导出" button in top-right bar
+- Integrated MemoryImportExportPanel modal on button click
+
+## Verification
+- Git commit: `08d56a9` — "night: conversation-memory-import-export"
+- Files created: 3 new files (808 lines total)
