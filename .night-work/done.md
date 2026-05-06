@@ -1,3 +1,51 @@
+# Night Work - 2026-05-07 (continued)
+
+## Task: Execute docs/plans/2026-04-27_novel-writing-assistant.md
+
+## Status: ✅ PHASE 1 ALREADY IMPLEMENTED (1 bug fix applied)
+
+## Plan Summary
+- **Plan date**: 2026-04-27
+- **Scope**: Novel Writing Assistant — AI-assisted novel writing with outline generation, chapter writing, style consistency
+- **Phase 1 scope**: Basic skeleton (models, service, components, homepage entry, task status management)
+
+## Phase 1 Checklist Verification
+
+| Item | Status | Location |
+|------|--------|----------|
+| Data models | ✅ | `models/novelWriting.ts` — `小说写作数据集结构`, `小说写作任务结构`, `小说写作章节结构`, `小说写作大纲结构`, `小说写作角色结构` |
+| Service layer | ✅ | `services/novelWriting/novelWritingService.ts` — CRUD for projects, chapters, characters; IndexedDB persistence |
+| Desktop component | ✅ | `components/features/NovelWriting/NovelWritingWorkbenchModal.tsx` (486 lines) |
+| Mobile component | ✅ | `components/features/NovelWriting/MobileNovelWritingWorkbenchModal.tsx` (449 lines) |
+| Homepage entry | ✅ | `components/layout/LandingPage.tsx` line 138 — `{文案.小说写作按钮}` |
+| App.tsx integration | ✅ | Lazy-loaded `NovelWritingWorkbenchModal` and `MobileNovelWritingWorkbenchModal` |
+| Writing prompts | ✅ | `prompts/runtime/novelWriting.ts` (大纲生成), `prompts/runtime/novelWritingChapter.ts` (章节撰写) |
+
+## Bug Fix Applied
+
+### Missing `小说写作按钮` in default UI copy
+The LandingPage referenced `文案.小说写作按钮` but this key was missing from the default `当前文案` object in `utils/eraUIText.ts`.
+
+**Fix**: Added `小说写作按钮: '小说写作'` to the default UI文案 object.
+
+**File changed**: `utils/eraUIText.ts`
+```diff
+     小说分解按钮: '小说分解',
++    小说写作按钮: '小说写作',
+     设置按钮: '设置',
+```
+
+## Build Verification
+- `npm run build` → ✅ SUCCESS
+
+## Git Commit
+- Commit `e1ef0af` — "fix(novelWriting): add missing 小说写作按钮 text to default UI copy"
+
+## Conclusion
+Phase 1 (基础骨架) was already fully implemented. The bug fix ensures the homepage button text is properly defined.
+
+---
+
 # Night Work - 2026-05-07
 
 ## Task: Execute docs/plans/2026-04-28_prompt-engine-upgrade.md
