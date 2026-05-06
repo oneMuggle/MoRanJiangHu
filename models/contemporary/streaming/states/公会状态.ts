@@ -2,12 +2,14 @@
  * MCN公会状态
  */
 
-import type { 公会等级 } from '../types';
+import type { MCN公会等级 } from '../types';
+
+export type { MCN公会等级 };
 
 export interface MCN公会状态 {
   公会ID: string;
   公会名称: string;
-  公会等级: 公会等级;
+  公会等级: MCN公会等级;
 
   // 合同条款
   合同期限: number;         // 月数
