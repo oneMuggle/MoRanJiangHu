@@ -1,75 +1,37 @@
-# 2026-05-06 夜间工作记录
+# 夜间工作记录 (Night Work Log)
 
-## 任务
-执行 docs/plans/2026-05-06_outdoor-nsfw-plan.md
+## 2026-05-07 执行记录
 
-## 完成时间
-2026-05-07 01:20 AM
+---
 
-## 执行摘要
+### 都市纪元日常生活系统扩展方案
 
-完成了"野外/极限运动 NSFW 模块"(P4)的实现，基于计划文档进行完整模块重构。
+**计划文件**: `docs/plans/2026-05-04_urban-era-daily-life.md`  
+**执行时间**: 2026-05-07 01:29 AM  
+**状态**: ✅ 已完成（实现前已存在）
 
-## 完成内容
+#### Phase 1: 场景与原型扩充
+- [x] `contemporary_urban` 的 `openingScenes` 已扩充至 **10 个**
+  - urban_1 ~ urban_10 已实现（都市霓虹、地下拳场、午夜街头、早高峰地铁、便利店夜班、工地旁早餐摊、写字楼大堂、城中村握手楼、网吧包厢、医院走廊）
+- [x] `contemporary_urban` 的 `characterArchetypes` 已扩充至 **10 个**
+  - urban_ceo, urban_martial_artist, urban_hacker, urban_delivery, urban_craftsman, urban_retail_worker, urban_driver, urban_coser, urban_security, urban_courier 已实现
 
-### 1. 类型系统 (types.ts)
-- 运动类型：12种户外运动类型（徒步穿越、登山攀岩、潜水探险等）
-- 活动性质：7种活动性质（正规商业活动、私人约伴、付费教学等）
-- 参与者相关类型：参与者类型、参与者状态、教练领队类型、教练动机
-- 场所相关类型：活动场所、住宿类型、私密程度
-- 记录设备类型：记录设备类型、拍摄方式、设备归属
-- 越界行为类型：10种越界行为定义
-- 泄露类型和传播范围定义
-- 核心状态接口：参与者核心状态、教练领队核心状态、活动项目状态、泄露事件状态
-- 设备授权接口
-- 配置和常量：户外NSFW配置、环境风险因素、叙事尺度、肾上腺素影响等
+#### Phase 2: 背景与天赋审计
+- [x] `data/backgrounds/modern.ts` 中 `contemporary_urban` 适配背景已完整
+  - 都市职场类：大厂员工、自媒体创业者、都市白领等 ✅
+  - 配送出行类：网约车司机、外卖骑手、快递小哥等 ✅
+  - 生活服务类：理发师、健身教练、推拿按摩师等 ✅
+  - 蓝领技工类：装修师傅、汽修工、电工等 ✅
+  - 零售个体类：便利店老板、夜市摊主、保险推销员等 ✅
+- [x] `data/talents/modern.ts` 中 `contemporary_urban` 适配天赋已完整
+  - 都市职场天赋、直播网红天赋、配送出行天赋、生活服务天赋、蓝领技工天赋、零售个体天赋均已配置 ✅
 
-### 2. 场景系统 (scenes/场景系统.ts)
-- 五种主要场景定义：
-  - 正规户外活动场景（商业俱乐部一日徒步）
-  - 野外露营场景（两日一夜露营）
-  - 极限挑战拍摄场景（野外生存挑战拍摄）
-  - 水上运动场景（潜水/溯溪）
-  - 野外探险偷拍场景（陷阱场景）
-- 场景选择逻辑
-- 场景风险评估函数
-- 越界触发检测函数
+#### Phase 3: 都市日常系统设计
+- [x] 日程系统、通勤系统、社交APP系统已在 `epoch-contemporary.ts` 的 `liMode` 配置中实现
 
-### 3. 装备系统 (systems/装备系统.ts)
-- 装备记录接口
-- 隐蔽设备特征列表
-- 设备授权管理
-- 设备风险评估
-- 可疑设备检测
-- 设备扫描提示生成
+**涉及文件**:
+- `models/eraTheme/epoch-contemporary.ts` - openingScenes (10个) + characterArchetypes (10个)
+- `data/backgrounds/modern.ts` - contemporary_urban 适配背景
+- `data/talents/modern.ts` - contemporary_urban 适配天赋
 
-### 4. 活动系统 (systems/活动系统.ts)
-- 创建野外活动函数
-- 尺度递进系统和场景
-- 肾上腺素影响计算
-- 活动阶段管理
-
-### 5. 安全系统 (systems/安全系统.ts)
-- 安全检查点列表
-- 安全词列表
-- 教练筛选参数和评估
-- 越界应对后果矩阵
-- 言语/行为越界信号识别
-- 泄露事件创建
-- 求援难度矩阵
-
-## 文件变更
-- 修改: models/contemporary/outdoor/types.ts
-- 修改: models/contemporary/outdoor/index.ts
-- 新增: models/contemporary/outdoor/scenes/场景系统.ts
-- 新增: models/contemporary/outdoor/systems/装备系统.ts
-- 新增: models/contemporary/outdoor/systems/活动系统.ts
-- 新增: models/contemporary/outdoor/systems/安全系统.ts
-- 创建: .night-work/done.md
-
-## 验证
-- TypeScript 编译通过，无错误
-- 遵循项目既有编码风格（中文命名）
-
-## 待办
-- 后续可继续实现 P4-2 至 P4-5 的完整场景和互动系统
+---
