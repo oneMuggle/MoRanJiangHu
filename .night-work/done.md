@@ -1,5 +1,33 @@
 # Night Work - 2026-05-07
 
+## Task: Execute docs/plans/2026-05-05_campus-era-npc-relationship.md
+
+## Status: ✅ COMPLETED
+
+## Plan Summary
+- **Plan date**: 2026-05-05
+- **Scope**: Campus NPC Relationship System Phase 5 Integration
+- **Implementation**: Fixed import paths, integrated lazy-loaded NPCRelationshipPanel into App.tsx
+
+## Changes Made
+
+### 1. `components/features/NPCRelationshipPanel.tsx`
+- Fixed import path: `../../../models/campusNSFW` → `../../models/campusNSFW`
+
+### 2. `App.tsx`
+- Added lazy-loaded NPCRelationshipPanel component (line 86)
+- Added `showNPCRelationship` state (line 109)
+- Added panel rendering with desktop-only condition `{!isMobile && showNPCRelationship && ...}` (line 1738)
+
+### 3. `prompts/runtime/campusNSFW.ts`
+- Added 【NPC 关系状态输出要求】 section to system prompt
+
+## Verification
+- Build: `npm run build` → ✅ SUCCESS (exit 0)
+- Git commit: `632179e` — "feat: 完成 NPC 关系系统 Phase 5 集成"
+
+---
+
 ## Task: Execute docs/plans/2026-04-26_era-theme-inheritance.md
 
 ## Status: ✅ ALREADY IMPLEMENTED
