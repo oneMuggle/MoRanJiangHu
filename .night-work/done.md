@@ -33,6 +33,49 @@
 
 ---
 
+### Plan: docs/plans/2026-05-05_urban-driver-nsfw-enhancement.md
+
+**Status**: ✅ Already fully implemented
+
+**Verification Summary**:
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 1 | Data models - 4 new files (core.ts, scenarios.ts, consequences.ts, index.ts) | ✅ Complete |
+| Phase 2 | Engine layer - urbanDriverNSFWEngine.ts (~392 lines) | ✅ Complete |
+| Phase 3 | Prompt components - urbanDriverNSFW.ts (~281 lines) | ✅ Complete |
+| Phase 4 | Runtime integration - prompts/runtime/nsfw.ts updated with 都市网约车NSFW参数 | ✅ Complete |
+| Phase 5 | Settings UI - UrbanDriverNSFWSettings.tsx + tabDefinitions.ts + SettingsPanel.tsx | ✅ Complete |
+| Phase 6 | Era config - epoch-contemporary.ts extended with dualPersonalities, sceneTypes, desireMotives, taboos, aiDirectives | ✅ Complete |
+| Phase 7 | Game presets - 2 new presets (urban_night_driver, urban_city_hunter) in newGamePresets.ts | ✅ Complete |
+
+**New Files Created**:
+- `models/urbanDriverNSFW/core.ts` - Core types: 乘客欲望阶段, 行程关系轨道, 乘客欲望档案, 醉酒/药物状态
+- `models/urbanDriverNSFW/scenarios.ts` - Scene types: 8 trip NSFW types, 6 passenger presets, 10 locations
+- `models/urbanDriverNSFW/consequences.ts` - 12 consequence types with severity weights
+- `models/urbanDriverNSFW/index.ts` - Module entry, 都市网约车NSFW设置 interface and defaults
+- `hooks/useGame/urbanDriverNSFWEngine.ts` - Pure function engine (~392 lines)
+- `hooks/useGame/urbanDriverNSFWIntegration.ts` - Workflow bridge for main story
+- `prompts/runtime/urbanDriverNSFW.ts` - Prompt components (~281 lines)
+- `components/features/Settings/UrbanDriverNSFWSettings.tsx` - Settings panel UI (~254 lines)
+
+**Modified Files**:
+- `models/system.ts` - Added 都市网约车NSFW设置 field
+- `prompts/runtime/nsfw.ts` - Added 都市网约车NSFW参数 injection logic
+- `models/eraTheme/epoch-contemporary.ts` - Extended liMode with 11 new dual personalities, 11 scene types, 12 desire motives, 5 new taboos, 10 new aiDirectives
+- `data/newGamePresets.ts` - Added 2 new presets (夜班司机, 都市猎手)
+- `components/features/Settings/tabDefinitions.ts` - Added urban_driver_nsfw tab
+- `components/features/Settings/SettingsPanel.tsx` - Registered urban_driver_nsfw tab rendering
+
+**Integration Points**:
+- `prompts/runtime/nsfw.ts`: 构建运行时NSFW提示词() accepts 都市网约车NSFW参数
+- `prompts/runtime/nsfw.ts`: 构建运行时额外提示词() injects constraints when eraId === 'contemporary_urban'
+- `models/system.ts` line 1636: 游戏设置结构 includes 都市网约车NSFW设置 field
+
+**TypeScript Compilation**: No urbanDriverNSFW-specific errors detected
+
+---
+
 ### Plan: docs/plans/2026-05-04_li-mode-enhancement.md
 
 **Status**: ⚠️ FILE NOT FOUND
