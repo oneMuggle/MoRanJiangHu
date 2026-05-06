@@ -3,7 +3,8 @@
  * 关键时间节点、事件触发、学年进度
  */
 
-import { v4 as uuidv4 } from 'uuid';
+// 使用 crypto.randomUUID 替代 uuid 依赖
+const uuidv4 = (): string => crypto.randomUUID();
 
 // 学期事件类型
 export type 学期事件类型 = '开学' | '期中' | '期末' | '节假日' | '社团节' | '运动会' | '校庆' | '毕业';
