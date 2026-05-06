@@ -1048,228 +1048,228 @@ const renderSubContent = () => {
             );
         }
 
-        const modelValue = (form.功能模型占位.世界演变使用模型 || '').trim();
-        const selectedConfigId = form.功能模型占位.世界演变使用配置ID;
-        const selectedRefConfig = selectedConfigId ? getConfigById(selectedConfigId) : null;
-        const modelDisplay = 世界演变独立开启 ? modelValue : 主剧情解析模型;
-        const selectOptions = Array.from(new Set([
-            ...modelOptions,
-            modelValue,
-            主剧情解析模型
-        ].map((item) => (item || '').trim()).filter(Boolean)));
-        const showManualInput = worldEvolutionShowManualInput;
-        const setShowManualInput = setWorldEvolutionShowManualInput;
+        if (activeSubTab === 'world_evolution') {
+            const modelValue = (form.功能模型占位.世界演变使用模型 || '').trim();
+            const selectedConfigId = form.功能模型占位.世界演变使用配置ID;
+            const selectedRefConfig = selectedConfigId ? getConfigById(selectedConfigId) : null;
+            const modelDisplay = 世界演变独立开启 ? modelValue : 主剧情解析模型;
+            const selectOptions = Array.from(new Set([
+                ...modelOptions,
+                modelValue,
+                主剧情解析模型
+            ].map((item) => (item || '').trim()).filter(Boolean)));
+            const showManualInput = worldEvolutionShowManualInput;
+            const setShowManualInput = setWorldEvolutionShowManualInput;
 
-        return (
-            <div className="space-y-4">
-                <div className="text-[11px] text-gray-400">
-                    当前启用接口配置：{activeConfig?.名称 || '未配置'}。开启独立模型后选择一个已有配置，或手动输入 API 地址和密钥。
-                </div>
+            return (
+                <div className="space-y-4">
+                    <div className="text-[11px] text-gray-400">
+                        当前启用接口配置：{activeConfig?.名称 || '未配置'}。开启独立模型后选择一个已有配置，或手动输入 API 地址和密钥。
+                    </div>
 
-                <label className="flex items-center justify-between gap-3 text-xs text-gray-300">
-                    <span>开启世界演变独立模型</span>
-                    <ToggleSwitch
-                        checked={世界演变独立开启}
-                        onChange={handleToggleWorldEvolution}
-                        ariaLabel="切换世界演变独立模型"
-                    />
-                </label>
+                    <label className="flex items-center justify-between gap-3 text-xs text-gray-300">
+                        <span>开启世界演变独立模型</span>
+                        <ToggleSwitch
+                            checked={世界演变独立开启}
+                            onChange={handleToggleWorldEvolution}
+                            ariaLabel="切换世界演变独立模型"
+                        />
+                    </label>
 
-                {世界演变独立开启 && (
-                    <>
-                        <div className="space-y-1">
-                            <label className="text-xs text-gray-300">引用接口配置</label>
-                            <InlineSelect
-                                value={selectedConfigId}
-                                options={apiConfigOptions}
-                                onChange={(configId) => {
-                                    updatePlaceholder('世界演变使用配置ID', configId);
-                                    if (configId) {
-                                        const refCfg = getConfigById(configId);
-                                        if (refCfg) {
-                                            updatePlaceholder('世界演变API地址', refCfg.baseUrl || '');
-                                            updatePlaceholder('世界演变API密钥', refCfg.apiKey || '');
-                                        }
-                                    }
-                                }}
-                                disabled={apiConfigOptions.length === 0}
-                                placeholder="请选择接口配置"
-                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
-                            />
-                        </div>
-
-                        <div className="flex gap-3 items-end">
-                            <div className="flex-1 space-y-1">
-                                <label className="text-xs text-gray-300">世界演变使用模型</label>
+                    {世界演变独立开启 && (
+                        <>
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-300">引用接口配置</label>
                                 <InlineSelect
-                                    value={modelDisplay}
-                                    options={selectOptions.map((model) => ({ value: model, label: model }))}
-                                    onChange={(model) => updatePlaceholder('世界演变使用模型', model)}
-                                    disabled={selectOptions.length === 0}
-                                    placeholder={selectOptions.length ? '请选择模型' : '请先点击获取列表'}
+                                    value={selectedConfigId}
+                                    options={apiConfigOptions}
+                                    onChange={(configId) => {
+                                        updatePlaceholder('世界演变使用配置ID', configId);
+                                        if (configId) {
+                                            const refCfg = getConfigById(configId);
+                                            if (refCfg) {
+                                                updatePlaceholder('世界演变API地址', refCfg.baseUrl || '');
+                                                updatePlaceholder('世界演变API密钥', refCfg.apiKey || '');
+                                            }
+                                        }
+                                    }}
+                                    disabled={apiConfigOptions.length === 0}
+                                    placeholder="请选择接口配置"
                                     buttonClassName="bg-black/50 border-gray-600 py-2.5"
                                 />
                             </div>
-                            <GameButton
-                                onClick={handleFetchModels}
-                                variant="secondary"
-                                className="px-4 py-2 text-xs"
-                                disabled={loadingModels}
+
+                            <div className="flex gap-3 items-end">
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs text-gray-300">世界演变使用模型</label>
+                                    <InlineSelect
+                                        value={modelDisplay}
+                                        options={selectOptions.map((model) => ({ value: model, label: model }))}
+                                        onChange={(model) => updatePlaceholder('世界演变使用模型', model)}
+                                        disabled={selectOptions.length === 0}
+                                        placeholder={selectOptions.length ? '请选择模型' : '请先点击获取列表'}
+                                        buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                                    />
+                                </div>
+                                <GameButton
+                                    onClick={handleFetchModels}
+                                    variant="secondary"
+                                    className="px-4 py-2 text-xs"
+                                    disabled={loadingModels}
+                                >
+                                    {loadingModels ? '...' : '获取列表'}
+                                </GameButton>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowManualInput(!showManualInput)}
+                                className="text-xs text-gray-500 hover:text-gray-300"
                             >
-                                {loadingModels ? '...' : '获取列表'}
-                            </GameButton>
+                                {showManualInput ? '▲ 隐藏手动输入' : '▼ 显示手动输入'}
+                            </button>
+
+                            {showManualInput && (
+                                <>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-300">世界演变独立 API 地址</label>
+                                        <input
+                                            type="text"
+                                            value={form.功能模型占位.世界演变API地址 || ''}
+                                            onChange={(e) => updatePlaceholder('世界演变API地址', e.target.value)}
+                                            placeholder={selectedRefConfig?.baseUrl || activeConfig?.baseUrl || '留空则复用主剧情 Base URL'}
+                                            className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-wuxia-gold"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-300">世界演变独立 API 密钥</label>
+                                        <input
+                                            type="password"
+                                            value={form.功能模型占位.世界演变API密钥 || ''}
+                                            onChange={(e) => updatePlaceholder('世界演变API密钥', e.target.value)}
+                                            placeholder={selectedRefConfig?.apiKey ? '留空则复用配置 Key' : 'sk-...'}
+                                            className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-wuxia-gold"
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+
+                    {!世界演变独立开启 && (
+                        <div className="text-[11px] text-gray-400">
+                            当前状态：世界演变自动更新关闭
                         </div>
+                    )}
+                </div>
+            );
+        }
 
-                        <button
-                            type="button"
-                            onClick={() => setShowManualInput(!showManualInput)}
-                            className="text-xs text-gray-500 hover:text-gray-300"
-                        >
-                            {showManualInput ? '▲ 隐藏手动输入' : '▼ 显示手动输入'}
-                        </button>
+        if (activeSubTab === 'device_message') {
+            const modelValue = (form.功能模型占位.设备消息使用模型 || '').trim();
+            const selectedConfigId = form.功能模型占位.设备消息使用配置ID;
+            const selectedRefConfig = selectedConfigId ? getConfigById(selectedConfigId) : null;
+            const modelDisplay = 设备消息独立开启 ? modelValue : 主剧情解析模型;
+            const selectOptions = Array.from(new Set([
+                ...modelOptions,
+                modelValue,
+                主剧情解析模型
+            ].map((item) => (item || '').trim()).filter(Boolean)));
+            const showManualInput = deviceMessageShowManualInput;
+            const setShowManualInput = setDeviceMessageShowManualInput;
 
-                        {showManualInput && (
-                            <>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-300">世界演变独立 API 地址</label>
-                                    <input
-                                        type="text"
-                                        value={form.功能模型占位.世界演变API地址 || ''}
-                                        onChange={(e) => updatePlaceholder('世界演变API地址', e.target.value)}
-                                        placeholder={selectedRefConfig?.baseUrl || activeConfig?.baseUrl || '留空则复用主剧情 Base URL'}
-                                        className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-wuxia-gold"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-300">世界演变独立 API 密钥</label>
-                                    <input
-                                        type="password"
-                                        value={form.功能模型占位.世界演变API密钥 || ''}
-                                        onChange={(e) => updatePlaceholder('世界演变API密钥', e.target.value)}
-                                        placeholder={selectedRefConfig?.apiKey ? '留空则复用配置 Key' : 'sk-...'}
-                                        className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-wuxia-gold"
-                                    />
-                                </div>
-                            </>
-                        )}
-                    </>
-                )}
+            return (
+                <div className="space-y-4">
+                    <div className="text-[11px] text-gray-400">当前启用接口配置：{activeConfig?.名称 || '未配置'}。开启独立模型后选择一个已有配置，或手动输入 API 地址和密钥。</div>
+                    <label className="flex items-center justify-between gap-3 text-xs text-gray-300">
+                        <span>启用设备消息独立模型</span>
+                        <ToggleSwitch checked={设备消息独立开启} onChange={handleToggleDeviceMessage} ariaLabel="切换设备消息独立模型" />
+                    </label>
 
-                {!世界演变独立开启 && (
-                    <div className="text-[11px] text-gray-400">
-                        当前状态：世界演变自动更新关闭
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    if (activeSubTab === 'device_message') {
-        const modelValue = (form.功能模型占位.设备消息使用模型 || '').trim();
-        const selectedConfigId = form.功能模型占位.设备消息使用配置ID;
-        const selectedRefConfig = selectedConfigId ? getConfigById(selectedConfigId) : null;
-        const modelDisplay = 设备消息独立开启 ? modelValue : 主剧情解析模型;
-        const selectOptions = Array.from(new Set([
-            ...modelOptions,
-            modelValue,
-            主剧情解析模型
-        ].map((item) => (item || '').trim()).filter(Boolean)));
-        const showManualInput = deviceMessageShowManualInput;
-        const setShowManualInput = setDeviceMessageShowManualInput;
-
-        return (
-            <div className="space-y-4">
-                <div className="text-[11px] text-gray-400">当前启用接口配置：{activeConfig?.名称 || '未配置'}。开启独立模型后选择一个已有配置，或手动输入 API 地址和密钥。</div>
-                <label className="flex items-center justify-between gap-3 text-xs text-gray-300">
-                    <span>启用设备消息独立模型</span>
-                    <ToggleSwitch checked={设备消息独立开启} onChange={handleToggleDeviceMessage} ariaLabel="切换设备消息独立模型" />
-                </label>
-
-                {设备消息独立开启 && (
-                    <>
-                        <div className="space-y-1">
-                            <label className="text-xs text-gray-300">引用接口配置</label>
-                            <InlineSelect
-                                value={selectedConfigId}
-                                options={apiConfigOptions}
-                                onChange={(configId) => {
-                                    updatePlaceholder('设备消息使用配置ID', configId);
-                                    if (configId) {
-                                        const refCfg = getConfigById(configId);
-                                        if (refCfg) {
-                                            updatePlaceholder('设备消息API地址', refCfg.baseUrl || '');
-                                            updatePlaceholder('设备消息API密钥', refCfg.apiKey || '');
-                                        }
-                                    }
-                                }}
-                                disabled={apiConfigOptions.length === 0}
-                                placeholder="请选择接口配置"
-                                buttonClassName="bg-black/50 border-gray-600 py-2.5"
-                            />
-                        </div>
-
-                        <div className="flex gap-3 items-end">
-                            <div className="flex-1 space-y-1">
-                                <label className="text-xs text-gray-300">设备消息使用模型</label>
+                    {设备消息独立开启 && (
+                        <>
+                            <div className="space-y-1">
+                                <label className="text-xs text-gray-300">引用接口配置</label>
                                 <InlineSelect
-                                    value={modelDisplay}
-                                    options={selectOptions.map((model) => ({ value: model, label: model }))}
-                                    onChange={(model) => updatePlaceholder('设备消息使用模型', model)}
-                                    disabled={selectOptions.length === 0}
-                                    placeholder={selectOptions.length ? '请选择模型' : '请先点击获取列表'}
+                                    value={selectedConfigId}
+                                    options={apiConfigOptions}
+                                    onChange={(configId) => {
+                                        updatePlaceholder('设备消息使用配置ID', configId);
+                                        if (configId) {
+                                            const refCfg = getConfigById(configId);
+                                            if (refCfg) {
+                                                updatePlaceholder('设备消息API地址', refCfg.baseUrl || '');
+                                                updatePlaceholder('设备消息API密钥', refCfg.apiKey || '');
+                                            }
+                                        }
+                                    }}
+                                    disabled={apiConfigOptions.length === 0}
+                                    placeholder="请选择接口配置"
                                     buttonClassName="bg-black/50 border-gray-600 py-2.5"
                                 />
                             </div>
-                            <GameButton onClick={handleFetchModels} variant="secondary" className="px-4 py-2 text-xs" disabled={loadingModels}>
-                                {loadingModels ? '...' : '获取列表'}
-                            </GameButton>
+
+                            <div className="flex gap-3 items-end">
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs text-gray-300">设备消息使用模型</label>
+                                    <InlineSelect
+                                        value={modelDisplay}
+                                        options={selectOptions.map((model) => ({ value: model, label: model }))}
+                                        onChange={(model) => updatePlaceholder('设备消息使用模型', model)}
+                                        disabled={selectOptions.length === 0}
+                                        placeholder={selectOptions.length ? '请选择模型' : '请先点击获取列表'}
+                                        buttonClassName="bg-black/50 border-gray-600 py-2.5"
+                                    />
+                                </div>
+                                <GameButton onClick={handleFetchModels} variant="secondary" className="px-4 py-2 text-xs" disabled={loadingModels}>
+                                    {loadingModels ? '...' : '获取列表'}
+                                </GameButton>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowManualInput(!showManualInput)}
+                                className="text-xs text-gray-500 hover:text-gray-300"
+                            >
+                                {showManualInput ? '▲ 隐藏手动输入' : '▼ 显示手动输入'}
+                            </button>
+
+                            {showManualInput && (
+                                <>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-300">设备消息独立 API 地址</label>
+                                        <input
+                                            type="text"
+                                            value={form.功能模型占位.设备消息API地址 || ''}
+                                            onChange={(e) => updatePlaceholder('设备消息API地址', e.target.value)}
+                                            placeholder={selectedRefConfig?.baseUrl || activeConfig?.baseUrl || '留空则复用主剧情 Base URL'}
+                                            className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-cyan-400"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs text-gray-300">设备消息独立 API 密钥</label>
+                                        <input
+                                            type="password"
+                                            value={form.功能模型占位.设备消息API密钥 || ''}
+                                            onChange={(e) => updatePlaceholder('设备消息API密钥', e.target.value)}
+                                            placeholder={selectedRefConfig?.apiKey ? '留空则复用配置 Key' : 'sk-...'}
+                                            className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-cyan-400"
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+
+                    {!设备消息独立开启 && (
+                        <div className="text-[11px] text-gray-400">
+                            当前状态：设备消息使用主剧情接口
                         </div>
-
-                        <button
-                            type="button"
-                            onClick={() => setShowManualInput(!showManualInput)}
-                            className="text-xs text-gray-500 hover:text-gray-300"
-                        >
-                            {showManualInput ? '▲ 隐藏手动输入' : '▼ 显示手动输入'}
-                        </button>
-
-                        {showManualInput && (
-                            <>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-300">设备消息独立 API 地址</label>
-                                    <input
-                                        type="text"
-                                        value={form.功能模型占位.设备消息API地址 || ''}
-                                        onChange={(e) => updatePlaceholder('设备消息API地址', e.target.value)}
-                                        placeholder={selectedRefConfig?.baseUrl || activeConfig?.baseUrl || '留空则复用主剧情 Base URL'}
-                                        className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-cyan-400"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-300">设备消息独立 API 密钥</label>
-                                    <input
-                                        type="password"
-                                        value={form.功能模型占位.设备消息API密钥 || ''}
-                                        onChange={(e) => updatePlaceholder('设备消息API密钥', e.target.value)}
-                                        placeholder={selectedRefConfig?.apiKey ? '留空则复用配置 Key' : 'sk-...'}
-                                        className="w-full border p-2 text-white rounded-md outline-none bg-black/50 border-gray-700 focus:border-cyan-400"
-                                    />
-                                </div>
-                            </>
-                        )}
-                    </>
-                )}
-
-                {!设备消息独立开启 && (
-                    <div className="text-[11px] text-gray-400">
-                        当前状态：设备消息使用主剧情接口
-                    </div>
-                )}
-            </div>
-        );
-    }
-
-    return null;
+                    )}
+                </div>
+            );
+        }
+    };
 
     return (
         <div className="space-y-6 text-sm animate-fadeIn">
