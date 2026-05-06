@@ -1,6 +1,6 @@
 # PNG 图像管线重构
 
-> **Status:** 设计中 | **最近更新:** 2026-04-28
+> **Status:** 已实现 | **最近更新:** 2026-05-07
 
 ## 目标
 
@@ -106,3 +106,25 @@
 6. **UI 入口与流程** — "导入 PNG 预设"按钮 + 草稿弹层
 7. **生图拼接策略** — Nai/SD 映射详细参数，其他仅提示词
 8. **导出/导入** — JSON 携带封面与来源元数据
+
+## 实现状态
+
+| 项目 | 状态 | 相关文件 |
+|------|------|----------|
+| 1. PNG画风预设结构 | ✅ 已完成 | `models/system.ts` |
+| 2. 元数据解析 | ✅ 已完成 | `services/ai/image/pngParser.ts` |
+| 3. 本地Artist剥离 | ✅ 已完成 | `services/ai/artistTagExtractor.ts`, `services/ai/artistTagDictionary.ts` |
+| 4. AI提炼服务 | ✅ 已完成 | `services/ai/image/anchorExtractor.ts` |
+| 5. 装配逻辑 | ✅ 已完成 | `services/ai/image/promptBuilder.ts`, `services/ai/image/backends.ts` |
+| 6. UI入口与流程 | ✅ 已完成 | `components/features/Character/CharacterModal.tsx` |
+| 7. 生图拼接策略 | ✅ 已完成 | `hooks/useGame/npcImageWorkflow.ts` |
+| 8. 导出/导入 | ✅ 已完成 | `utils/apiConfigNormalization.ts` |
+
+### 核心实现摘要
+
+- **PNG解析** (`pngParser.ts`): 支持 NovelAI / SD WebUI 格式，提取所有参数
+- **Artist剥离** (`artistTagExtractor.ts`): 规则+词库双模式，保留token顺序
+- **AI提炼** (`anchorExtractor.ts`): 风格清洗，过滤构图/角色标签
+- **提示词装配** (`promptBuilder.ts`): 前置/主体/后置分层，兼容模式独立处理
+- **NovelAI v4** (`backends.ts`): 完整v4_prompt结构支持
+- **预设消费** (`npcImageWorkflow.ts`): NPC/场景/秘档三条链路

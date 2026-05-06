@@ -1,6 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { DeviceMode, MobileApp, DeviceGameContext } from '../../../../models/mobileDevice';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { DeviceMode, MobileApp, DeviceGameContext, DeviceContact } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
+import type { ApiConfigLike } from '../../MobileHome';
+import { 生成设备联系人 } from '../../../../hooks/useGame/deviceAiWorkflow';
+import { getEraCategory } from '../eraStyles/EraStyleSelector';
 
 interface AppProps {
     eraId: string;
@@ -8,6 +11,7 @@ interface AppProps {
     appId: MobileApp;
     onBack: () => void;
     gameContext?: DeviceGameContext;
+    apiConfig?: ApiConfigLike;
 }
 
 interface Contact {
@@ -24,23 +28,96 @@ const genderEmoji: Record<string, string> = {
     '女': '👩',
 };
 
-const ContactsApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext }) => {
+const ContactsApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, apiConfig }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '通讯录';
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
     const [searchText, setSearchText] = useState('');
+    const [aiContacts, setAiContacts] = useState<DeviceContact[]>([]);
+    const [isLoadingAi, setIsLoadingAi] = useState(false);
+
+    // 当联系人不足时，自动生成 AI 联系人
+    useEffect(() => {
+        const socialContacts = gameContext?.社交?.length || 0;
+        // 如果社交联系人少于 3 个，且有 API 配置，则尝试生成
+        if (socialContacts < 3 && apiConfig && !isLoadingAi && aiContacts.length === 0) {
+            const loadAiContacts = async () => {
+                setIsLoadingAi(true);
+                try {
+                    const config = getDeviceConfig(eraId);
+                    if (!config) return;
+
+                    const apiConfigObj = apiConfig as { 接口数组?: unknown[] };
+                    if (!apiConfigObj?.接口数组?.length) {
+                        setIsLoadingAi(false);
+                        return;
+                    }
+
+                    const context = {
+                        当前场景: gameContext?.世界?.进行中事件?.[0]?.事件名 || '',
+                        角色名: gameContext?.角色?.姓名 || '',
+                        当前位置: gameContext?.世界?.当前位置?.名称 || '',
+                        世界状态: gameContext?.世界?.状态?.描述 || '',
+                    };
+
+                    const eraCategory = getEraCategory(eraId);
+                    const generatedContacts = await 生成设备联系人(
+                        eraId,
+                        mode,
+                        context,
+                        apiConfig as Parameters<typeof 生成设备联系人>[2],
+                        apiConfig as Parameters<typeof 生成设备联系人>[3],
+                        8
+                    );
+
+                    if (generatedContacts && generatedContacts.length > 0) {
+                        setAiContacts(generatedContacts);
+                    }
+                } catch (error) {
+                    console.warn('生成设备联系人失败:', error);
+                } finally {
+                    setIsLoadingAi(false);
+                }
+            };
+
+            void loadAiContacts();
+        }
+    }, [gameContext?.社交, apiConfig, eraId, mode, isLoadingAi, aiContacts.length]);
 
     const contacts: Contact[] = useMemo(() => {
-        if (!gameContext?.社交?.length) return [];
-        return gameContext.社交.map((npc) => ({
-            id: npc.id,
-            name: npc.姓名,
-            relation: npc.关系状态 || npc.身份 || '江湖中人',
-            location: npc.是否在场 ? '当前场景' : '未知',
-            description: npc.简介 || '',
-            avatar: genderEmoji[npc.性别] || '🧑',
-        }));
-    }, [gameContext?.社交]);
+        const result: Contact[] = [];
+
+        // 优先使用游戏社交数据
+        if (gameContext?.社交?.length) {
+            gameContext.社交.forEach((npc) => {
+                result.push({
+                    id: npc.id,
+                    name: npc.姓名,
+                    relation: npc.关系状态 || npc.身份 || '江湖中人',
+                    location: npc.是否在场 ? '当前场景' : '未知',
+                    description: npc.简介 || '',
+                    avatar: genderEmoji[npc.性别] || '🧑',
+                });
+            });
+        }
+
+        // 补充 AI 生成的联系人（去重）
+        const existingIds = new Set(result.map(c => c.id));
+        aiContacts.forEach((aiContact) => {
+            if (!existingIds.has(aiContact.id)) {
+                result.push({
+                    id: aiContact.id,
+                    name: aiContact.name,
+                    relation: aiContact.relation || '江湖中人',
+                    location: aiContact.location ? `${aiContact.location.x},${aiContact.location.y}` : '未知',
+                    description: aiContact.description || '',
+                    avatar: '🤖',
+                });
+            }
+        });
+
+        return result;
+    }, [gameContext?.社交, aiContacts]);
 
     const filteredContacts = contacts.filter(
         (c) =>

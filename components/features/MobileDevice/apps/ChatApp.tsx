@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import { DeviceMode, MobileApp, DeviceGameContext } from '../../../../models/mobileDevice';
+import React, { useState, useMemo, useEffect } from 'react';
+import { DeviceMode, MobileApp, DeviceGameContext, DeviceGroup } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
+import type { ApiConfigLike } from '../../MobileHome';
+import { 生成设备群组 } from '../../../../hooks/useGame/deviceAiWorkflow';
 
 interface AppProps {
     eraId: string;
@@ -8,6 +10,7 @@ interface AppProps {
     appId: MobileApp;
     onBack: () => void;
     gameContext?: DeviceGameContext;
+    apiConfig?: ApiConfigLike;
 }
 
 interface ChatGroup {
@@ -26,10 +29,64 @@ interface ChatMessage {
     time: string;
 }
 
-const ChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext }) => {
+const ChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, apiConfig }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '群聊';
     const [selectedGroup, setSelectedGroup] = useState<ChatGroup | null>(null);
+    const [aiGroups, setAiGroups] = useState<DeviceGroup[]>([]);
+    const [isLoadingAi, setIsLoadingAi] = useState(false);
+
+    // 当群组为空时，自动生成 AI 群组
+    useEffect(() => {
+        // 检查是否有基于游戏数据的群组
+        const hasGameGroups = (() => {
+            if (!gameContext) return false;
+            const hasSect = gameContext.角色?.所属门派ID && gameContext.角色.所属门派ID !== 'none';
+            const hasTeammates = gameContext.社交?.some((npc) => npc.是否队友);
+            const hasPresentNPCs = gameContext.社交?.some((npc) => npc.是否在场);
+            return hasSect || hasTeammates || hasPresentNPCs;
+        })();
+
+        // 如果没有游戏群组，且有 API 配置，则尝试生成
+        if (!hasGameGroups && apiConfig && !isLoadingAi && aiGroups.length === 0) {
+            const loadAiGroups = async () => {
+                setIsLoadingAi(true);
+                try {
+                    const apiConfigObj = apiConfig as { 接口数组?: unknown[] };
+                    if (!apiConfigObj?.接口数组?.length) {
+                        setIsLoadingAi(false);
+                        return;
+                    }
+
+                    const context = {
+                        当前场景: gameContext?.世界?.进行中事件?.[0]?.事件名 || '',
+                        角色名: gameContext?.角色?.姓名 || '',
+                        当前位置: gameContext?.世界?.当前位置?.名称 || '',
+                        世界状态: gameContext?.世界?.状态?.描述 || '',
+                    };
+
+                    const generatedGroups = await 生成设备群组(
+                        eraId,
+                        mode,
+                        context,
+                        apiConfig as Parameters<typeof 生成设备群组>[3],
+                        apiConfig as Parameters<typeof 生成设备群组>[4],
+                        5
+                    );
+
+                    if (generatedGroups && generatedGroups.length > 0) {
+                        setAiGroups(generatedGroups);
+                    }
+                } catch (error) {
+                    console.warn('生成设备群组失败:', error);
+                } finally {
+                    setIsLoadingAi(false);
+                }
+            };
+
+            void loadAiGroups();
+        }
+    }, [gameContext, apiConfig, eraId, mode, isLoadingAi, aiGroups.length]);
 
     const groups: ChatGroup[] = useMemo(() => {
         const result: ChatGroup[] = [];
@@ -74,8 +131,20 @@ const ChatApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext }
             });
         }
 
+        // 补充 AI 生成的群组
+        aiGroups.forEach((aiGroup) => {
+            result.push({
+                id: aiGroup.id,
+                name: aiGroup.name,
+                lastMessage: aiGroup.lastMessage?.content || '暂无消息',
+                lastTime: '近日',
+                unread: 0,
+                members: aiGroup.members.length,
+            });
+        });
+
         return result;
-    }, [gameContext]);
+    }, [gameContext, aiGroups]);
 
     const messages: Record<string, ChatMessage[]> = useMemo(() => {
         const result: Record<string, ChatMessage[]> = {};
