@@ -1,6 +1,5 @@
-// 校园纪元 NSFW 引擎 — 向后兼容入口
-// v1.0-v1.6 所有子系统已拆分为 campusNSFW/ 子目录
-// 原有 import 路径保持不变，此处统一 re-export
+// 校园 NSFW 引擎 — 模块化入口
+// 各子系统从原 campusNSFWEngine.ts 拆分为独立文件
 
 export {
   计算欲望阶段推进,
@@ -11,7 +10,7 @@ export {
   判定关系轨道,
   模拟流言传播,
   生成里程碑,
-} from './campusNSFW/desireStateMachine';
+} from './desireStateMachine';
 
 export {
   计算露出偏好推进,
@@ -21,7 +20,7 @@ export {
   模拟网络传播,
   计算回合衰减,
   计算露出衰减,
-} from './campusNSFW/exposureSystem';
+} from './exposureSystem';
 
 export {
   权力倾向分类,
@@ -31,7 +30,7 @@ export {
   检查契约条件,
   判定契约违约,
   计算SM后果,
-} from './campusNSFW/bdsmSystem';
+} from './bdsmSystem';
 
 export {
   判定桌游触发,
@@ -39,7 +38,7 @@ export {
   计算桌游紧张度,
   计算羁绊加成,
   判定桌游NSFW升级,
-} from './campusNSFW/boardGameSystem';
+} from './boardGameSystem';
 
 export {
   判定校园祭触发,
@@ -53,7 +52,7 @@ export {
   生成后夜祭场景,
   生成筹备期场景,
   计算校园祭总NSFW,
-} from './campusNSFW/festivalSystem';
+} from './festivalSystem';
 
 export {
   创建默认欲望档案,
@@ -64,12 +63,13 @@ export {
   创建默认服从度,
   创建默认校园祭状态,
   创建默认桌游状态,
-} from './campusNSFW/factoryFunctions';
+} from './factoryFunctions';
 
-export { 处理NSFW互动 } from './campusNSFW/convenienceFunctions';
-export { 处理BDSM论坛影响 } from './campusNSFW/forumIntegration';
-export { 处理BDSM任务影响, 判定BDSM关系阶段推进 } from './campusNSFW/bdsmTaskEngine';
+export { 处理NSFW互动 } from './convenienceFunctions';
+export { 处理BDSM论坛影响 } from './forumIntegration';
+export { 处理BDSM任务影响, 判定BDSM关系阶段推进 } from './bdsmTaskEngine';
 
+// 常量也导出供外部使用
 export {
   欲望阶段推进基础值,
   互动基础冷却,
@@ -78,4 +78,4 @@ export {
   选择系数,
   欲望阶段冷却修正,
   欲望阶段列表,
-} from './campusNSFW/constants';
+} from './constants';
