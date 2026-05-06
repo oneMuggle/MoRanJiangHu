@@ -3,7 +3,7 @@
  * 夜场/KTV NSFW 模块
  */
 
-import type { 服务人员核心状态, 服务人员类型, 服务人员级别 } from '../types';
+import type { 服务人员核心状态, 服务人员类型, 服务人员级别, 夜场类型 } from '../types';
 
 /**
  * 创建默认服务人员状态
@@ -15,6 +15,7 @@ export function 创建服务人员状态(params: {
   年龄: number;
   类型: 服务人员类型;
   所属场所: string;
+  夜场类型?: 夜场类型;
 }): 服务人员核心状态 {
   const {
     ID,
@@ -23,6 +24,7 @@ export function 创建服务人员状态(params: {
     年龄,
     类型,
     所属场所,
+    夜场类型 = '高端KTV',
   } = params;
 
   return {
@@ -37,6 +39,7 @@ export function 创建服务人员状态(params: {
 
     类型,
     所属场所,
+    夜场类型,
     入行时长: 1 + Math.floor(Math.random() * 60), // 1-60个月
     级别: '普通',
 
@@ -163,7 +166,7 @@ export const 出台风险表 = [
  * 计算被打扰概率
  */
 export function 计算被打扰概率(场所状态: { 安保水平: '弱' | '中' | '强'; 监控覆盖: number }): number {
-  if (场所状态.安伴水平 === '强') return 0.1;
-  if (场所状态.安伴水平 === '中') return 0.3;
+  if (场所状态.安保水平 === '强') return 0.1;
+  if (场所状态.安保水平 === '中') return 0.3;
   return 0.6;
 }

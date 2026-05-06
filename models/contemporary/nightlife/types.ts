@@ -390,7 +390,7 @@ export interface 夜场状态 {
   人均消费: number;
   小费水平: number;
   生意状况: '冷清' | '一般' | '火爆';
-  领队/妈咪数量: number;
+  领队妈咪数量: number;
   管理规范度: number;
   安保水平: number;
   隐私保护: number;

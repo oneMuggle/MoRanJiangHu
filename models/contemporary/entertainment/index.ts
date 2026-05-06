@@ -46,7 +46,7 @@ export type { 练习生核心状态 } from './states/练习生状态';
 
 export type { 粉丝核心状态 } from './states/粉丝状态';
 
-export type { 经纪公司核心状态 } from './states/经纪公司状态';
+export type { 经纪公司状态 } from './states/经纪公司状态';
 
 // ==================== 系统导出 ====================
 
@@ -145,7 +145,7 @@ export interface 偶像圈系统扩展 {
   艺人档案?: Record<string, import('./states/艺人状态').艺人核心状态>;
   练习生档案?: Record<string, import('./states/练习生状态').练习生核心状态>;
   粉丝档案?: Record<string, import('./states/粉丝状态').粉丝核心状态>;
-  经纪公司档案?: Record<string, import('./states/经纪公司状态').经纪公司核心状态>;
+  经纪公司档案?: Record<string, import('./states/经纪公司状态').经纪公司状态>;
   当前选秀信息?: {
     选秀名称: string;
     当前阶段: import('./types').选秀阶段;
