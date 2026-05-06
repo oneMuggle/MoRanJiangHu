@@ -133,3 +133,55 @@ All components were already fully implemented from a previous execution. Verifie
 3. Fill CNB address (e.g. `https://xxxx-8188.cnb.run`)
 4. Paste ComfyUI Workflow JSON or click "Load from CNB"
 5. Click "Test Connection" to verify
+
+---
+
+## Task: docs/plans/character-anchor-plan.md
+
+**Execution Time**: 2026-05-07 00:32 UTC
+
+### Status: 90% COMPLETE (Phase 6 UI completed)
+
+### Investigation Summary
+
+The plan describes a character anchor system for stable NPC appearance in image generation. All phases 1-5 were already completed. Phase 6 (管理 UI) was marked "未开始" but investigation revealed full implementation exists.
+
+### Completed Phases
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Data structure & storage | ✅ Complete |
+| 2 | Character anchor extraction | ✅ Complete |
+| 3 | 词组转化器 preset v2 | ✅ Complete |
+| 4 | NPC image generation integration | ✅ Complete |
+| 5 | Scene image generation integration | ✅ Complete |
+| 6 | Management UI | ✅ Complete (was marked 未开始) |
+| 7 | Verification & tuning | ⏳ Pending manual testing |
+
+### Implementation Evidence
+
+1. **Desktop UI** (`ImageManagerModal.tsx` ~3521 lines):
+   - Full anchor management with CRUD operations
+   - `onSaveCharacterAnchor`, `onDeleteCharacterAnchor`, `onExtractCharacterAnchor` callbacks connected
+   - Anchor list view, detail editor, NPC selector, extraction workflow
+
+2. **Mobile UI** (`MobileImageManagerModal.tsx` ~3097 lines):
+   - Full mobile-optimized anchor management
+   - Same callbacks connected
+   - Collapsible card layout for small screens
+
+3. **Build verification**: `npm run build` ✅ passes
+
+### Changes Made
+
+1. Updated `docs/plans/character-anchor-plan.md`:
+   - Changed "总体进度" from 60% to 90%
+   - Phase 6 status: "未开始" → "已完成（桌面端 ImageManagerModal.tsx + 移动端 MobileImageManagerModal.tsx 均已实现完整锚点管理 UI）"
+   - Phase 7 status: "未开始" → "待手动验证（npm run build 已通过，CRUD 链路已实现）"
+
+2. Committed as `8600faa`
+
+### Remaining Work
+
+- Phase 7: Manual verification of CRUD operations and UI interactions
+- No code changes required - implementation is complete
