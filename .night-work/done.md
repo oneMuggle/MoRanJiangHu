@@ -95,6 +95,48 @@
 
 ---
 
+### Plan: docs/plans/2026-05-05_variable-generation-queue-scheduler.md
+
+**Status**: ✅ Already Implemented
+
+**Implementation Summary**:
+
+All core phases from the plan are complete:
+
+| Phase | File | Status |
+|-------|------|--------|
+| Stage 1 (Queue Core) | `hooks/useGame/variableGenerationQueue.ts` | ✅ Complete |
+| Stage 2 (Batch API) | `services/ai/text/variableBatchCalibration.ts` | ⏭️ Skipped (optional) |
+| Stage 3 (Coordinator) | `hooks/useGame/variableCalibrationCoordinator.ts` | ✅ Complete |
+| Stage 4 (Progress) | `hooks/useGame/variableGenerationProgress.ts` | ✅ Complete |
+| Stage 5 (Call sites) | `sendWorkflow/responseProcessingPhase.ts`, `openingStoryWorkflow.ts`, `historyTurnWorkflow.ts` | ✅ Complete |
+| Stage 6 (UI) | `components/features/Settings/GameSettings.tsx` | ⏭️ Skipped (optional) |
+| Stage 7 (Config) | `models/system.ts`, `utils/apiConfig.ts` | ⏭️ Skipped (optional) |
+| Stage 8 (Merge) | `hooks/useGame/variableCalibrationMerge.ts` | ⏭️ Skipped (optional) |
+
+**Key Features Implemented**:
+- Priority queue with `critical > high > normal > low` ordering
+- Concurrent task execution (maxConcurrency: 3)
+- Exponential backoff retry (maxRetries: 2)
+- Per-task AbortController
+- Progress tracking via `taskId`
+- Task state snapshots via `获取变量生成状态()`
+- `监听任务完成()` and `获取任务详情()` methods
+
+**Files Verified**:
+- `variableGenerationQueue.ts` (392 lines) - Full queue scheduler with 入列, 取消, drain, execute
+- `variableCalibrationCoordinator.ts` - Uses queue scheduler instead of single AbortController
+- `variableGenerationProgress.ts` - Queue-based status methods with backward compatibility
+
+**Not Implemented** (marked as optional in plan):
+- `variableBatchCalibration.ts` - Batch API optimization
+- UI settings for concurrency/retry configuration
+- `批量合并变量校准结果` method
+
+**Known Build Issue**: Pre-existing error in `prompts/runtime/planUpdateReference.ts` (unrelated to queue scheduler).
+
+---
+
 ### Plan: docs/plans/2026-05-04-nsfw-system-optimization.md
 
 **Status**: ✅ ALL PHASES COMPLETED (verified pre-existing implementation)
