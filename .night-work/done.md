@@ -117,3 +117,59 @@ b7d3630 feat(campus): implement NPC relationship system v2.0
 ```
 feat: 现代都市纪元规则系统 Phase 1-5 数据层实现
 ```
+
+---
+
+## Task: docs/plans/2026-05-03_campus-era-gameplay-deepening.md
+
+**执行时间**: 2026-05-07 00:30 UTC
+
+### 状态: ✅ 完成（数据层实现 + Bug修复）
+
+---
+
+## 完成内容
+
+### 已有实现确认 ✅
+计划中列出的核心工作流文件均已存在：
+- `hooks/useGame/clubWorkflow.ts` - 社团CRUD + 活动 ✅
+- `hooks/useGame/academicWorkflow.ts` - 学业追踪 + 成绩判定 ✅
+- `hooks/useGame/campusRumorWorkflow.ts` - 传闻生成 + 传播 + 衰减 ✅
+- `hooks/useGame/semesterCalendarWorkflow.ts` - 学期事件触发 ✅
+- `models/campusNSFW/dormitory.ts` - 宿舍数据模型 ✅
+
+### Bug 修复 ✅
+- 修复 `semesterCalendarWorkflow.ts` 中 `uuid` import 错误：
+  - 将 `import { v4 as uuidv4 } from 'uuid'` 改为使用 `crypto.randomUUID()`
+
+### 类型定义扩展 ✅
+- 新建 `models/campusNSFW/types.ts`：
+  - 社团系统类型：`社团数据`, `社团成员`, `社团资源`, `社团活动`, `社团类型`, `社团职位`, `社团活动类型`
+  - 学业追踪类型：`学业状态`, `课程成绩`, `学期`, `成绩等级`, `课程类型`
+  - 传闻系统类型：`校园传闻`, `传播范围`, `传闻类型`, `传闻来源`
+  - 学期日历类型：`学期日历`, `学期事件`, `学期事件类型`, `事件标记`
+  - 宿舍系统类型：已从 `dormitory.ts` 重新导出
+  - 扩展状态接口：`校园纪元扩展状态`
+
+### 类型导出 ✅
+- 更新 `models/campusNSFW/index.ts`：
+  - 新增 v3.0 校园纪元玩法深度扩展类型导出
+  - 统一宿舍系统类型导出（通过 types.ts）
+
+### 未完成 ⚠️
+- **Action 处理器集成**: 需要在 `useGame.ts` 中添加 `handleJoinClub`, `handleLeaveClub`, `handleOrganizeClubActivity`, `handleRumorSpread`, `handleSemesterEvent`, `handleDormInteraction` 等动作
+- **State 集成**: 需要在 `useGameState.ts` 中添加 `社团列表`, `学业`, `传闻列表`, `日历`, `当前宿舍` 等状态
+- **Prompt 层增强**: 需要在 prompts 中添加校园场景描述增强
+
+---
+
+## 变更文件
+- `hooks/useGame/semesterCalendarWorkflow.ts` (Bug修复)
+- `models/campusNSFW/types.ts` (新建)
+- `models/campusNSFW/index.ts` (修改)
+
+## Git Commit
+```
+fix(campus): replace uuid with crypto.randomUUID and add campus types
+feat(campus): add campus-era-gameplay-deepening types v3.0
+```
