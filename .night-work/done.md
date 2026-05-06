@@ -143,9 +143,11 @@ dea6b76 feat(game): 引入里模式强度调节与 NPC 表里人格切换
 | `docs/plans/2026-05-06_streaming-nsfw-plan.md` | 直播/粉丝互动 NSFW 计划（部分相关） |
 | `docs/plans/2026-05-06_adult-industry-nsfw-plan.md` | 成人产业计划，含粉丝互动场景 |
 
-### 结论
+---
 
-**无法执行** - 计划文件不存在，可能已被删除、移动或从未创建。
+## 结论
+
+**无法执行** - 计划文件不存在，可能已被删除或从未创建。跳过此任务。
 
 ---
 
@@ -203,44 +205,11 @@ dea6b76 feat(game): 引入里模式强度调节与 NPC 表里人格切换
 3. **docs/plans/ 目录内容**: 共50+个计划文件，无此文件
 4. **Git 历史搜索**: 无 commit 记录
 
-### 结论
-
-**无法执行** - 计划文件不存在，可能已被删除、移动或从未创建。
-
----
-
-## Task: docs/plans/2026-05-02_digital-world-character-system.md
-
-**执行时间**: 2026-05-07 00:29 UTC
-
-### 状态: ⚠️ 文件不存在
-
----
-
-## 问题
-
-计划文件 `docs/plans/2026-05-02_digital-world-character-system.md` 不存在。
-
-### 检查记录
-
-1. **精确路径检查**: 文件不存在
-2. **通配符搜索** (`*digital*`, `*character*`): 无匹配文件
-3. **2026-05-02* 文件列表**: 无匹配文件
-4. **Git 历史搜索** (`--grep="digital-world"`): 无提交记录
-5. **全库搜索** (`*digital*world*character*`): 无匹配
-
-### 相近文件
-
-| 文件 | 内容相关性 |
-|------|-----------|
-| `docs/plans/2026-04-05_character-archetype-system.md` | 角色原型系统 |
-| `docs/plans/2026-05-05_campus-era-npc-relationship.md` | NPC 关系系统 |
-
 ---
 
 ## 结论
 
-**无法执行** - 计划文件从未创建或已被删除。跳过此任务。
+**无法执行** - 计划文件不存在，可能已被删除或从未创建。跳过此任务。
 
 ---
 
@@ -266,7 +235,7 @@ dea6b76 feat(game): 引入里模式强度调节与 NPC 表里人格切换
 
 ## 结论
 
-**无法执行** - 计划文件不存在，可能已被删除、移动或从未创建。
+**无法执行** - 计划文件不存在，可能已被删除或从未创建。跳过此任务。
 
 ---
 
@@ -299,38 +268,3 @@ dea6b76 feat(game): 引入里模式强度调节与 NPC 表里人格切换
 ## 结论
 
 **无法执行** - 计划文件从未创建或已被删除。
-
----
-
-## Task: docs/plans/2026-05-02_digital-world-character-system.md
-
-**执行时间**: 2026-05-07 00:29 UTC
-
-### 状态: ⚠️ 文件不存在
-
----
-
-## 问题
-
-计划文件 `docs/plans/2026-05-02_digital-world-character-system.md` 不存在。
-
-### 检查记录
-
-1. **精确路径检查**: 文件不存在
-2. **通配符搜索** (`*digital*`, `*character*`): 无匹配文件
-3. **2026-05-02* 文件列表**: 无匹配文件
-4. **Git 历史搜索** (`--grep="digital-world"`): 无提交记录
-5. **全库搜索** (`*digital*world*character*`): 无匹配
-
-### 相近文件
-
-| 文件 | 内容相关性 |
-|------|-----------|
-| `docs/plans/2026-04-05_character-archetype-system.md` | 角色原型系统 |
-| `docs/plans/2026-05-05_campus-era-npc-relationship.md` | NPC 关系系统 |
-
----
-
-## 结论
-
-**无法执行** - 计划文件从未创建或已被删除。跳过此任务。
