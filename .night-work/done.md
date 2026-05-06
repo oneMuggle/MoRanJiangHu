@@ -92,3 +92,41 @@
 - `App.tsx` - Added BDSMTaskModal import and showBDSMTask state
 
 **Note**: Pre-existing build error in `prompts/runtime/planUpdateReference.ts` (unrelated to BDSM module).
+
+---
+
+### Plan: docs/plans/2026-05-04-nsfw-system-optimization.md
+
+**Status**: ✅ ALL PHASES COMPLETED (verified pre-existing implementation)
+
+**Verification Summary**:
+
+|| Item | Description | Status |
+|------|-------|-----------|--------|
+| Phase 1.1 | `nsfwCard.ts` era-aware: `自动选择叙事约束` replaces `构建里象修行叙事约束` | ✅ Complete |
+| Phase 1.1 | `构建NPC_NSWF卡片` + `构建在场NPC_NSWF卡片组` — options param `{ 时代配置ID }` | ✅ Complete |
+| Phase 1.1 | `systemPromptBuilder.ts` passes `eraId` to `构建在场NPC_NSWF卡片组` (line 1682) | ✅ Complete |
+| Phase 1.2 | `intimacy.ts` era-aware: `是现代时代()` helper + `构建亲密度动作约束` with modern/wuxia branching | ✅ Complete |
+| Phase 1.2 | Level 5 constraints split into modern (情感升华) and wuxia (双修) paths | ✅ Complete |
+| Phase 1.3 | `worldLixiangSects.ts` has `WUXIA_ERA_IDS` guard; non-wuxia eras return empty string | ✅ Complete |
+| Phase 1.3 | `worldSetup.ts` passes `{ 时代配置ID }` to `构建双修门派世界书` (line 96) | ✅ Complete |
+| Phase 2.1 | 8 campus NSFW talents added in `data/talents/nsfw.ts` (lines 215-222) | ✅ Complete |
+| Phase 2.2 | 4 campus NSFW backgrounds added in `data/backgrounds/nsfw.ts` (lines 192-195) | ✅ Complete |
+| Phase 2.3 | 7 campus NSFW qiyun added in `data/qiyun/categories/hehuan.ts` (lines 231-237) | ✅ Complete |
+| Phase 3.1 | `MODERN_ERA_IDS` centralized in `models/eraTheme/assembly.ts` (line 44) | ✅ Complete |
+| Phase 3.2 | `GameSettings.tsx` has 0 `as any` occurrences (confirmed via grep) | ✅ Complete |
+| Cross-cutting | `自动选择叙事约束` exported from `prompts/runtime/nsfw.ts` | ✅ Complete |
+| Cross-cutting | `MODERN_ERA_IDS` imported in both `intimacy.ts` and `nsfw.ts` from `assembly.ts` | ✅ Complete |
+
+**Files Verified**:
+- `prompts/runtime/nsfwCard.ts` — imports `自动选择叙事约束` (line 5), uses eraId options (line 75)
+- `prompts/runtime/intimacy.ts` — imports `MODERN_ERA_IDS` (line 8), modern path branching (lines 51-52, 57-62, 71-76, 84-89)
+- `prompts/runtime/worldLixiangSects.ts` — `WUXIA_ERA_IDS` guard (lines 10, 24-26)
+- `prompts/runtime/worldSetup.ts` — passes eraId to `构建双修门派世界书` (line 96)
+- `hooks/useGame/systemPromptBuilder.ts` — passes `eraId` to `构建在场NPC_NSWF卡片组` (line 1682)
+- `models/eraTheme/assembly.ts` — `MODERN_ERA_IDS` exported (lines 44-49)
+- `data/talents/nsfw.ts` — 8 campus talents (lines 215-222)
+- `data/backgrounds/nsfw.ts` — 4 campus backgrounds (lines 192-195)
+- `data/qiyun/categories/hehuan.ts` — 7 campus qiyun (lines 231-237)
+
+**Known Build Issue**: Pre-existing import error in `prompts/runtime/planUpdateReference.ts` — `剧情规划变量结构提示词` not exported by `storyPlanSchema.ts`. Unrelated to this NSFW plan.
