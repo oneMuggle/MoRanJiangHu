@@ -1,5 +1,53 @@
 # Night Work - 2026-05-07 (continued)
 
+## Task: Execute docs/plans/2026-05-03_image-generation-pipeline.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-05-03
+- **Plan status**: ✅ 已实现
+- **Scope**: PNG 图像管线重构 — 导入、生图装配、画师串预设消费逻辑
+
+## Implementation Verification
+
+### Core Modules (All 6 files present in `services/ai/image/`)
+
+| Module | File | Lines | Function |
+|--------|------|-------|----------|
+| PNG 解析 | `pngParser.ts` | 332 | NovelAI/SD WebUI tEXt/iTXt/zTXt parsing, EXIF |
+| 风格提取 | `anchorExtractor.ts` | 336 | AI style extraction, character anchor extraction |
+| 提示词装配 | `promptBuilder.ts` | 731 | Pre/Main/Post prompt assembly, NovelAI v4 mapping |
+| 分词器 | `imageTokenizer.ts` | 900 | Tokenization, deduplication, weight conversion |
+| 后端执行 | `backends.ts` | 706 | NovelAI/OpenAI/SD backends |
+| 持久化 | `persistence.ts` | 61 | Local image storage |
+
+### Additional Files
+- `constants.ts` (157 lines): PNG signatures, encoders, AI role prompts
+- `imageTasks.ts` (89 lines): Entry functions
+- `imageTasksTypes.ts` (99 lines): Type definitions
+- `connectionTests.ts` (379 lines): Backend connection testing
+- `comfyuiWorkflowConverter.ts` (170 lines): ComfyUI workflow support
+- `runtime.ts` (7 lines): Runtime exports
+- `index.ts` (17 lines): Public API exports
+
+### Features Implemented (per plan)
+1. ✅ PNG 元数据解析 — NovelAI steganography, SD WebUI params, tEXt/zTXt/iTXt blocks, EXIF
+2. ✅ 本地 Artist 剥离 — Rule + dictionary dual mode, weight syntax preserved
+3. ✅ AI 风格提炼 — Post-stripping prompt cleaning, conservative deletion
+4. ✅ 提示词装配 — Pre/Main/Post layering, NovelAI v4 mapping
+5. ✅ NovelAI 映射 — `v4_prompt.caption.base_caption` support
+
+### Data Structures Verified
+- `PNG画风预设结构` — in `models/system.ts`
+- `角色锚点结构` — with `结构化特征` (外貌, 身材, 胸部, etc.)
+- `PNG解析参数结构` — model, LoRA, sampler, steps, CFG, clip skip, Hires, ADetailer
+
+### Build Verification
+- `npm run build` → ✅ SUCCESS (10.56s)
+
+---
+
 ## Task: Execute docs/plans/2026-04-27_novel-writing-assistant.md
 
 ## Status: ✅ PHASE 1 ALREADY IMPLEMENTED (1 bug fix applied)
@@ -649,3 +697,47 @@ The Multi-Agent Game Master System was already fully implemented in prior work. 
 
 ## Conclusion
 All items in the plan were already implemented in commit `a8ce8a5`. The conversation export system provides complete export functionality with three formats (TXT/JSON/Markdown), proper metadata handling, and a user-friendly panel integrated into the HistoryViewer.
+
+---
+
+## Task: Execute docs/plans/2026-05-04_qiyun-visualization.md
+
+## Status: ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-05-04
+- **Plan status**: Completed | Implementation date: 2026-05-06
+- **Scope**: Qiyun visualization enhancement - rarity colors/borders/backgrounds, ability type icons, attribute modifier display, cost warning, realm adaptation display
+
+## Verification Results
+
+### Phase 1: CharacterProfileCard.tsx - ALREADY IMPLEMENTED (commit 29422e2)
+- **File**: components/features/Character/CharacterProfileCard.tsx (+140 lines)
+- Qiyun rarity config (Legendary gold/Rare cyan/Common gray)
+- Ability type icon mapping (Combat/Survival/Social/Strategy/Special/Support)
+- Attribute icon mapping (Power/Agility/Constitution/Bone/Savvy/Luck)
+- Attribute modifier effects displayed directly with icon + value
+- Cost field red warning annotation
+- Non-full-realm qiyun shows applicable realm range
+
+### Phase 2: MobileCharacter.tsx - ALREADY IMPLEMENTED (same commit)
+- **File**: components/features/Character/MobileCharacter.tsx (+96 lines)
+- Synced all desktop qiyun display logic
+
+## Acceptance Criteria Verification
+| Criterion | Status |
+|-----------|--------|
+| Legendary qiyun shows gold border and gradient background | OK |
+| Rare qiyun shows cyan border and gradient background | OK |
+| Common qiyun shows gray border and gradient background | OK |
+| Ability type icons display correctly | OK |
+| Attribute modifier effects display values directly in qiyun card | OK |
+| Qiyun with cost shows red warning annotation | OK |
+| Non-full-realm qiyun shows applicable realm range | OK |
+| Mobile layout adapts properly | OK |
+
+## Git Commit
+- Commit 29422e2 - "night: qiyun-visualization" (2026-05-06)
+
+## Conclusion
+Qiyun visualization enhancement was fully implemented on 2026-05-06. All acceptance criteria are satisfied.
