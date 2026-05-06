@@ -163,6 +163,59 @@ export const 执行响应命令处理 = (
                     // JSON 解析失败，忽略本次更新
                 }
             }
+
+            // 解析 <关系状态更新> XML 标签，应用 NPC 关系数据更新
+            const 关系状态匹配 = rawContent.match(/<关系状态更新>\s*([\s\S]*?)\s*<\/关系状态更新>/);
+            if (关系状态匹配) {
+                try {
+                    const 解析结果 = JSON.parse(关系状态匹配[1]);
+                    // 关系变化：Array<{npcId, 好感度, 亲密度, 信任度, 感情值}>
+                    if (Array.isArray(解析结果.关系变化)) {
+                        for (const 变化 of 解析结果.关系变化) {
+                            if (!变化.npcId) continue;
+                            const idx = socialBuffer.findIndex((n: any) => n.id === 变化.npcId);
+                            if (idx >= 0) {
+                                const npc = { ...socialBuffer[idx] };
+                                if (!npc.关系数据) {
+                                    npc.关系数据 = {
+                                        npcId: npc.id,
+                                        关系类型: '陌生',
+                                        关系状态: '单恋',
+                                        好感度: 0,
+                                        亲密度: 0,
+                                        信任度: 0,
+                                        感情值: 0,
+                                        互动次数: 0,
+                                        关键事件: [],
+                                        独家标记: false,
+                                        解锁场景: [],
+                                    };
+                                }
+                                if (变化.好感度 !== undefined) npc.关系数据.好感度 = Math.max(0, Math.min(100, npc.关系数据.好感度 + 变化.好感度));
+                                if (变化.亲密度 !== undefined) npc.关系数据.亲密度 = Math.max(0, Math.min(100, npc.关系数据.亲密度 + 变化.亲密度));
+                                if (变化.信任度 !== undefined) npc.关系数据.信任度 = Math.max(0, Math.min(100, npc.关系数据.信任度 + 变化.信任度));
+                                if (变化.感情值 !== undefined) npc.关系数据.感情值 = Math.max(0, Math.min(100, npc.关系数据.感情值 + 变化.感情值));
+                                socialBuffer = [...socialBuffer];
+                                socialBuffer[idx] = npc;
+                            }
+                        }
+                    }
+                    // 阶段推进：{npcId, 原阶段, 新阶段}
+                    if (解析结果.阶段推进?.npcId) {
+                        const idx = socialBuffer.findIndex((n: any) => n.id === 解析结果.阶段推进.npcId);
+                        if (idx >= 0) {
+                            const npc = { ...socialBuffer[idx] };
+                            if (npc.关系数据) {
+                                npc.关系数据 = { ...npc.关系数据, 关系类型: 解析结果.阶段推进.新阶段 };
+                            }
+                            socialBuffer = [...socialBuffer];
+                            socialBuffer[idx] = npc;
+                        }
+                    }
+                } catch {
+                    // JSON 解析失败，忽略本次更新
+                }
+            }
         }
 
         let finalState: 响应命令处理状态 = {
