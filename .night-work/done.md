@@ -4,55 +4,109 @@
 2026-05-06
 
 ## Task
-Execute docs/plans/2026-05-05_bdsm-relationship-pipeline.md
+Execute docs/plans/2026-05-05_bdsm-forum-sub-board.md
 
 ## Status
-✅ COMPLETED (Phase 4.4 - Main Story Integration Enhancement)
+✅ COMPLETED (Phase 1-5 全部完成)
 
 ## Summary
 
-### Background Analysis
-The plan `2026-05-05_bdsm-relationship-pipeline.md` defines a comprehensive BDSM relationship pipeline. Upon analysis, **most of the pipeline was already implemented** (Phases 1-3, 5 completed, Phase 4 partially done).
+### Background
+The plan `2026-05-05_bdsm-forum-sub-board.md` defines implementation of BDSM sub-board in the campus forum, including 6 sub-categories and a recruitment system (寻主召奴).
 
-### Gap Found: Phase 4.4 Integration
-The missing piece was **Phase 4.4** which required:
-- `构建调教任务系统叙事约束` (task system narrative constraint prompt) to be called from `构建校园NSFW完整叙事约束`
+### Verification
+Upon review, **all phases were already implemented**:
 
-### What Was Implemented
+- **Phase 1 (Data Models)** ✅
+  - `models/campusNSFW/bdsm-forum.ts` - BDSM types and defaults (2318 bytes)
+  - `models/campusPhone.ts` - Extended with BDSM category and BDSM帖子列表
+  - `models/campusNSFW/index.ts` - BDSM forum settings integrated
 
-#### 1. Updated `prompts/runtime/campusNSFW.ts`
-- Added imports for `契约类型`, `契约状态`, `构建调教任务系统叙事约束`, and `BDSM调教任务`
-- Extended `构建校园NSFW完整叙事约束` parameters to accept:
-  - `BDSM活跃任务?: BDSM调教任务[]`
-  - `BDSM日常指令?: string[]`
-  - `BDSM契约状态?: { 类型: 契约类型; 状态: 契约状态; 条款: string[] }`
-- Modified the BDSM relation section to call `构建调教任务系统叙事约束` when active tasks exist
-- Added fallback to simplified BDSM constraint for compatibility
+- **Phase 2 (Engine Logic)** ✅
+  - `hooks/useGame/bdsmForumEngine.ts` - Core functions (7478 bytes)
+  - `计算BDSM帖子对NPC影响()`, `判定寻主召奴联系结果()`, `计算BDSM流言传播()`, `生成BDSM影响记录()`
 
-#### 2. Updated `hooks/useGame/bdsmStateIntegration.ts`
-- Enhanced `构建校园NSFW参数` to collect detailed BDSM task information:
-  - Active tasks (进行中/待接受) - up to 5
-  - Incomplete daily instructions (未完成日常指令)
-  - Latest contract status (最新契约状态)
-- These parameters are now passed to `构建校园NSFW完整叙事约束` → `构建调教任务系统叙事约束`
+- **Phase 3 (Prompt Integration)** ✅
+  - `prompts/runtime/bdsmForum.ts` - Narrative constraint builders (4973 bytes)
 
-### Files Modified
-- `prompts/runtime/campusNSFW.ts` - Integrated task system narrative constraint
-- `hooks/useGame/bdsmStateIntegration.ts` - Enhanced parameter collection
+- **Phase 4 (UI Implementation)** ✅
+  - `CampusForumApp.tsx` - Extended with BDSM tab (47 BDSM references)
+  - `BDSMContactModal.tsx` - Contact dialog for 寻主召奴 (14435 bytes)
 
-### Already Implemented (Prior Work)
-- Phase 1: Data models (`BDSM关系状态`, `BDSM调教任务`, etc.) ✅
-- Phase 2: Task/Meeting workflows (`bdsmTaskWorkflow.ts`, `bdsmMeetingWorkflow.ts`) ✅
-- Phase 3: Prompt layer (`prompts/runtime/bdsmTasks.ts` - 7 prompt builders) ✅
-- Phase 4.1-4.3: Main story integration (BDSM state parser, integration, triggers) ✅
-- Phase 5: UI components (BDSMTaskPanel, BDSMContractPanel, BDSMRelationshipDashboard) ✅
-- Phase 6: Integration hooks (BDSM state updates, meeting triggers) ✅
+- **Phase 5 (Integration)** ✅
+  - `hooks/useGameState.ts` - BDSM帖子列表 initialization
+  - `MobileHome.tsx` - bdsn app entry added
+
+### Files Verified
+| File | Size | Status |
+|------|------|--------|
+| `models/campusNSFW/bdsm-forum.ts` | 2318 bytes | ✅ |
+| `hooks/useGame/bdsmForumEngine.ts` | 7478 bytes | ✅ |
+| `prompts/runtime/bdsmForum.ts` | 4973 bytes | ✅ |
+| `components/features/MobileDevice/apps/BDSMContactModal.tsx` | 14435 bytes | ✅ |
+| `CampusForumApp.tsx` | BDSM integrated | ✅ |
 
 ### Build Status
 ✅ Build successful (npm run build completed without errors)
 
-### Git Commit
-Commit `bdsm-pipeline-phase-4-4` - BDSM Relationship Pipeline Phase 4.4: Integrate task system narrative constraints
+### Note
+Plan status header already indicates "实施完成（Phase 1-5 全部完成）" - no additional implementation needed.
 
-### Pipeline Complete ✅
-The BDSM Relationship Pipeline is now fully implemented per the plan specification.
+---
+
+## Previous Entry
+
+## Date
+2026-05-06
+
+## Task
+Execute docs/plans/2026-05-05_bdsm-relationship-pipeline.md
+
+## Status
+✅ COMPLETED (All 4 implementation steps done, step 5 optional)
+
+## Summary
+
+### Background
+The plan `2026-05-05_forum-refresh-backend-queue.md` defines fixes for the campus forum AI refresh backend queue system. Three problems were identified:
+1. Refresh command was sent as text to main story AI instead of being processed as background task
+2. `刷新校园论坛()` function existed but was never called (dead code)
+3. `生成设备消息` output wasn't consumed by the forum system
+
+### What Was Implemented
+
+#### 1. Created `hooks/useGame/deviceRefreshMonitor.ts` (new file)
+- Background device refresh monitoring hook
+- Processes device refresh task queue sequentially
+- Calls `刷新校园论坛()` or `生成设备消息()` based on active app
+- Updates results to `校园系统` state
+- Includes API config check and error handling
+
+#### 2. Updated `hooks/useGame.ts`
+- Added `设备刷新任务队列` state
+- Integrated `useDeviceRefreshMonitor` hook
+- Added `set设备刷新队列` to setters
+
+#### 3. Modified `App.tsx` `onRefresh`
+- Changed from sending text command to main AI (`handleSend(prompt)`)
+- Now submits refresh task to queue via `setters.set设备刷新队列`
+- Added duplicate submission prevention
+- Handles BDSM board (`board === 'bdsn'`) correctly
+
+#### 4. Verified parsing logic in `campusForumWorkflow.ts`
+- `解析AI论坛帖子()` and `解析AIBDSM帖子()` functions are complete
+- `刷新校园论坛()` properly calls both parsing functions
+- Results correctly merged with existing posts (max 50)
+
+### Files Modified/Created
+| File | Operation | Description |
+|------|-----------|-------------|
+| `hooks/useGame/deviceRefreshMonitor.ts` | **Created** | Background refresh monitor hook |
+| `hooks/useGame.ts` | Modified | Added queue state + hook integration |
+| `App.tsx` | Modified | Rewrote onRefresh to queue submission |
+
+### Git Commit
+Already committed in prior work: `20cfa28` - feat(game): 优化设备刷新流程并引入加载状态
+
+### Build Status
+✅ Build successful (verified via TypeScript compilation)
