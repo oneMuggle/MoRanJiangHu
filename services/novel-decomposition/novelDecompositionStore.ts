@@ -1173,6 +1173,7 @@ export const 导入小说拆分分享数据 = async (
     datasetCount: number;
     taskCount: number;
     snapshotCount: number;
+    validationWarnings: string[];
 }> => {
     const entries = unzipSync(new Uint8Array(await file.arrayBuffer()));
     const manifestEntry = entries[小说拆分分享清单文件];
@@ -1353,6 +1354,7 @@ export const 导入小说拆分分享数据 = async (
         importedDatasetIds,
         datasetCount: importedDatasetIds.length,
         taskCount: nextTasks.length - existingTasks.length,
-        snapshotCount: nextSnapshots.length - existingSnapshots.length
+        snapshotCount: nextSnapshots.length - existingSnapshots.length,
+        validationWarnings: allValidationErrors
     };
 };

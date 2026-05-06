@@ -1428,7 +1428,17 @@ const NovelDecompositionSettings: React.FC<Props> = ({ settings, onSave, request
             if (result.importedDatasetIds.length > 0) {
                 setSelectedDatasetId(result.importedDatasetIds[0]);
             }
-            设置状态消息(`已导入分解 ZIP：数据集 ${result.datasetCount} 个，任务 ${result.taskCount} 个，快照 ${result.snapshotCount} 个。${includeRawText ? '已同时导入原文。' : '本次未导入原文。'}`);
+            const warnCount = result.validationWarnings?.length || 0;
+            设置状态消息(
+                `已导入分解 ZIP：数据集 ${result.datasetCount} 个，任务 ${result.taskCount} 个，快照 ${result.snapshotCount} 个。${includeRawText ? '已同时导入原文。' : '本次未导入原文。'}${warnCount > 0 ? `（含 ${warnCount} 个结构兼容警告，已自动修复）` : ''}`
+            );
+            if (warnCount > 0 && onNotify) {
+                onNotify({
+                    title: '导入兼容警告',
+                    message: `检测到 ${warnCount} 个结构兼容问题，已自动修复。详情请查看浏览器控制台。`,
+                    tone: 'warning' as 'info'
+                });
+            }
         } catch (error: any) {
             推送错误提示(`导入分解 ZIP 失败：${error?.message || '未知错误'}`);
         }
@@ -1912,8 +1922,21 @@ const NovelDecompositionSettings: React.FC<Props> = ({ settings, onSave, request
                         <div className="rounded-lg border border-white/5 bg-black/30 p-4 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="text-xs text-gray-400">
                                 当前已勾选 <span className="text-wuxia-gold font-bold px-1">{selectedChapterIds.length}</span> / {previewChapters.length} 章。
+                                {chapterProgressSummary.failed > 0 && (
+                                    <span className="ml-3 text-red-400">
+                                        <span className="border border-red-500/30 bg-red-950/20 px-2 py-0.5 rounded">⚠ {chapterProgressSummary.failed} 个失败章节待重试</span>
+                                    </span>
+                                )}
                             </div>
                             <div className="flex flex-wrap gap-2">
+                                {chapterProgressSummary.failed > 0 && (
+                                    <button
+                                        onClick={() => void handleRetryFailedSegments()}
+                                        className="px-4 py-2 rounded-lg text-xs font-medium border border-red-500/30 bg-red-950/20 text-red-400 hover:bg-red-500/30 transition-all"
+                                    >
+                                        重试全部失败章节
+                                    </button>
+                                )}
                                 <button
                                     onClick={handleToggleSelectAllChapters}
                                     className="px-4 py-2 rounded-lg text-xs font-medium border border-white/10 bg-black/40 text-gray-300 hover:bg-white/10 hover:text-white transition-all"
@@ -2770,6 +2793,12 @@ const NovelDecompositionSettings: React.FC<Props> = ({ settings, onSave, request
                                                     style={{ width: `${Math.max(0, Math.min(100, task.进度.百分比))}%` }}
                                                 />
                                             </div>
+                                            {task.进度.失败分段数 > 0 && (
+                                                <div className="mt-1.5 text-[10px] text-red-400 flex items-center gap-1">
+                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    失败 {task.进度.失败分段数} 段 — 点击「继续」可重试
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5">
