@@ -289,3 +289,35 @@ All core phases from the plan are complete:
 **Files Checked**: `hooks/useGame.ts`, `hooks/useGame/bdsmTaskWorkflow.ts`, `hooks/useGame/bdsmTaskTrigger.ts`, `models/campusNSFW/bdsmConstants.ts`
 
 **Conclusion**: All BDSM module fixes from the 2026-05-06 plan are already implemented. The module is connected and functional.
+
+---
+
+### Plan: docs/plans/2026-05-04_campus-nsfw-fix-plan.md
+
+**Status**: ✅ Verified already implemented (1 blocking bug fixed)
+
+**Verification Summary**:
+
+The plan defines 8 fixes for the campus NSFW deepening system. All 8 were already implemented:
+
+| # | Fix | Status | Evidence |
+|---|-----|--------|----------|
+| 1 | 存档保存不剥离校园系统 | ✅ | `清洗导入存档` (dbService.ts:181-183) includes `校园系统`, `校规系统`, `催眠系统` |
+| 2 | 响应处理支持校园系统根路径 | ✅ | `根路径列表` (stateHelpers.ts:29) includes `校园系统`; `applyStateCommand` switch (line 355) handles it |
+| 3 | AI Prompt 增加状态输出指令 | ✅ | `构建校园NSFW完整叙事约束` (campusNSFW.ts:153-162) outputs `<欲望系统状态>` format |
+| 4 | 响应处理解析欲望系统状态更新 | ✅ | `responseCommandProcessor.ts:144-165` parses `<欲望系统状态>` XML tag |
+| 5 | 引擎函数整合 | ✅ | `sendWorkflow/index.ts:712-739` calls `计算回合衰减` per NPC per turn; `处理NSFW互动` (convenienceFunctions.ts:39-40) calls `计算露出偏好推进` |
+| 6 | 旧存档读档兼容 | ✅ | `saveLoadWorkflow.ts:247-277` reinitializes欲望系统 from social list |
+| 7 | 多NPC prompt注入 | ✅ | `bdsmStateIntegration.ts:74-79` builds 其他Npc欲望摘要 for all non-focus NPCs |
+| 8 | 校园NSFW设置纳入默认值 | ✅ | `gameSettings.ts:188` references `默认校园NSFW设置` |
+
+**Blocking Bug Found & Fixed**:
+
+- `prompts/runtime/novelDecomposition.ts` had a **duplicate export** of `小说拆分COT伪装提示词` (defined twice at lines 290 and 297), blocking esbuild. Removed the stale first definition; kept the correct alias pointing to `小说分解思考协议`.
+
+**Files Modified**:
+- `prompts/runtime/novelDecomposition.ts` - removed duplicate export
+
+**Build**: ✅ `npm run build` succeeds (10.12s)
+
+**Commit**: `f7842f6` - fix(prompts): remove duplicate export of 小说拆分COT伪装提示词
