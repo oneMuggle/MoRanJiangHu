@@ -491,6 +491,46 @@ All Phase 1, Phase 2, and Phase 3 items specified in the plan are already implem
 
 ## Status: ✅ COMPLETED
 
+---
+
+## Task: Execute docs/plans/2026-05-03_era-randomizer.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-05-03
+- **Plan status**: ✅ 已完成
+- **Scope**: Era Randomizer — random era selection button in EraSelector
+
+## Verification Results
+
+### Implementation Status (All items ✅)
+
+|| Item | Status | Details |
+||------|--------|---------|
+|| Random button in desktop EraSelector | ✅ | `EraSelector.tsx` line 88-103 — `handleRandom()` function |
+|| Random button in mobile EraSelector | ✅ | `MobileEraSelector.tsx` line 85-99 — `handleRandom()` function |
+|| Button UI (🎲 随机) | ✅ | Desktop: line 203-209, Mobile: line 247-254 |
+|| Random algorithm | ✅ | `Math.floor(Math.random() * subEraNodes.length)` filtering `depth===2` nodes |
+|| onChange callback | ✅ | Calls `handleSubEraSelect()` which triggers `onChange` |
+
+### Implementation Details
+
+1. **`handleRandom()` function**: Filters `allEraNodes` for `depth===2` (sub-era nodes), picks random index, calls `handleSubEraSelect()` and updates parent epoch/era selections
+
+2. **Both desktop and mobile**: The random button appears in the header of both `EraSelector.tsx` and `MobileEraSelector.tsx`
+
+3. **Exact match to plan**: The implementation matches every requirement in the plan:
+   - ✅ Random button in EraSelector header
+   - ✅ Filters depth===2 sub-era nodes
+   - ✅ Uses `Math.random()` algorithm
+   - ✅ Triggers onChange callback
+
+### Conclusion
+The Era Randomizer feature was already fully implemented in prior work. No new changes were required.
+
+---
+
 ## Plan Summary
 - **Plan date**: 2026-04-30
 - **Scope**: Multi-Agent Game Master System — 5 directors (Narrative, Combat, Judge, Atmosphere, Economy), dispatcher, coordinator
