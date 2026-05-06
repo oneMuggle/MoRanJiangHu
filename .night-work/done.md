@@ -1,5 +1,78 @@
 # Night Work - 2026-05-07 (continued)
 
+## Task: Execute docs/plans/2026-05-05_bdsm-forum-sub-board.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-05-05
+- **Plan status**: ✅ 已实现（Phase 1-5 全部完成）
+- **Scope**: 校园纪元 · 深夜板块 · BDSM 子论坛 + 寻主召奴招募系统
+
+## Implementation Verification
+
+### Phase 1: Data Models — ✅ COMPLETE
+| Item | File | Status |
+|------|------|--------|
+| BDSM 论坛类型定义 | `models/campusNSFW/bdsm-forum.ts` | ✅ 100 lines |
+| `论坛分类` 增加 'BDSM' | `models/campusPhone.ts` | ✅ |
+| `校园系统数据` 增加 `BDSM帖子列表` | `models/campusPhone.ts` | ✅ |
+| `校园NSFW设置` 增加 BDSM 论坛设置字段 | `models/campusNSFW/index.ts` | ✅ |
+| Re-export BDSM 论坛类型 | `models/campusNSFW/index.ts` | ✅ |
+
+### Phase 2: Engine Logic — ✅ COMPLETE
+| Item | File | Status |
+|------|------|--------|
+| BDSM 引擎核心函数 | `hooks/useGame/bdsmForumEngine.ts` | ✅ |
+| 引擎接入 campusNSFWEngine | `hooks/useGame/campusNSFW/forumIntegration.ts` | ✅ |
+
+Key engine functions present:
+- `计算BDSM帖子对NPC影响()` — 欲望阶段推进
+- `判定寻主召奴联系结果()` — 联系成功/失败/解锁 NPC
+- `计算BDSM流言传播()` — 流言等级变化
+- `生成BDSM影响记录()` — 影响记录创建
+- `从BDSM帖子创建NPC()` — NPC 发现与解锁
+
+### Phase 3: Prompt Integration — ✅ COMPLETE
+| Item | File | Status |
+|------|------|--------|
+| BDSM 叙事约束构建器 | `prompts/runtime/bdsmForum.ts` | ✅ |
+| BDSM AI 生成角色 | `hooks/useGame/deviceAiWorkflow.ts` appTypeMap | ✅ |
+| BDSM 论坛叙事约束集成 | `prompts/runtime/campusNSFW.ts` | ✅ |
+| 活跃帖子注入 | `hooks/useGame/systemPromptBuilder.ts` | ✅ |
+
+### Phase 4: UI Implementation — ✅ COMPLETE
+| Item | File | Status |
+|------|------|--------|
+| BDSM 分类标签 + 暗红样式 | `CampusForumApp.tsx` | ✅ |
+| 「联系TA」按钮 | `CampusForumApp.tsx` | ✅ |
+| BDSMContactModal | `components/features/MobileDevice/apps/BDSMContactModal.tsx` | ✅ 280 lines |
+| BDSMUnlockResult | Inline in ContactModal | ✅ (内联处理，标记为可选) |
+| BDSM 论坛设置区块 | `CampusNSFWSettings.tsx` | ✅ |
+
+### Phase 5: Integration & Wiring — ✅ COMPLETE
+| Item | File | Status |
+|------|------|--------|
+| BDSM帖子列表初始化 | `useGameState.ts` | ✅ |
+| 论坛刷新工作流接入 | `triggerDeviceMessageWorkflow.ts` | ✅ |
+| 深夜板块入口 | `MobileHome.tsx` + 🌙 图标 | ✅ |
+| 社交列表更新 | ContactModal onConfirm | ✅ |
+| 数据持久化 | 校园系统深拷贝 | ✅ |
+
+### Remaining Optional Item
+- **4.4 BDSMUnlockResult.tsx** — Marked as 已在 ContactModal 中内联处理, no separate file needed
+
+## Build Verification
+- `npm run build` → ✅ SUCCESS (10.45s)
+
+## Git Commit
+- Commit `2913e4e` — "feat(campus): 增加校园论坛BDSM深夜板块及寻主召奴系统"
+
+## Conclusion
+BDSM 论坛子板块已完整实现。所有 5 个阶段（数据模型/引擎逻辑/Prompt 集成/UI 实现/集成串联）均已完成并通过构建验证。寻主召奴功能通过 BDSMContactModal 提供 3 轮对话交互，联系成功可解锁 NPC 角色并加入社交列表。
+
+---
+
 ## Task: Execute docs/plans/2026-05-03-campus-era-li-mode.md
 
 ## Status: ✅ ALREADY IMPLEMENTED
