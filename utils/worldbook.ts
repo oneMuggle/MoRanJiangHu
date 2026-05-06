@@ -21,7 +21,7 @@ import type { 剧情风格类型, NTL后宫档位 } from '../models/system';
 import { 默认文章优化提示词 } from '../prompts/runtime/defaults';
 import { 核心_文章优化思维链 } from '../prompts/core/cotPolish';
 import { 剧情回忆检索COT提示词, 剧情回忆检索输出格式提示词 } from '../prompts/runtime/recall';
-import { 世界演变系统提示词 } from '../prompts/runtime/worldEvolution';
+import { 构建世界演变系统提示词 } from '../prompts/runtime/worldEvolution';
 import { 世界演变COT提示词 } from '../prompts/runtime/worldEvolutionCot';
 import { 变量校准COT提示词 } from '../prompts/runtime/variableCot';
 import { 核心_世界观 } from '../prompts/core/world';
@@ -656,7 +656,7 @@ export const 创建内置预设世界书 = (): 世界书结构 => {
                 内置分类: '世界演变',
                 类型: 'system_rule',
                 作用域: ['world_evolution'],
-                内容: 世界演变系统提示词
+                内容: 构建世界演变系统提示词()
             }),
             创建内置预设条目({
                 id: 'builtin_world_evolution_cot',

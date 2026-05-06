@@ -147,6 +147,7 @@ type 主剧情发送当前状态 = {
 };
 
 import { 构建校园NSFW参数, type BDSM状态更新回调 } from '../bdsmStateIntegration';
+import { 计算回合衰减 } from '../campusNSFWEngine';
 import { 构建都市网约车NSFW参数 } from '../urbanDriverNSFWIntegration';
 import { 构建写真NSFW参数 } from '../photographyNSFWIntegration';
 
@@ -701,8 +702,45 @@ export const 执行主剧情发送工作流 = async (
             force: true
         });
 
+        // ─── 回合末尾衰减计算 ─────────────────────────────────────────────
+        const 最终校园系统 = processingResult.finalState.校园系统;
+        if (最终校园系统?.欲望系统?.NPC欲望档案) {
+            const 更新后档案: Record<string, any> = {};
+            let 有任何更新 = false;
+            for (const [npcId, 档案] of Object.entries(最终校园系统.欲望系统.NPC欲望档案)) {
+                if (档案 && typeof 档案 === 'object') {
+                    const 衰减结果 = 计算回合衰减({
+                        当前暴露风险: (档案 as any).暴露风险值 ?? 0,
+                        当前流言等级: (档案 as any).流言等级 ?? 0,
+                    });
+                    const 原暴露风险 = (档案 as any).暴露风险值 ?? 0;
+                    const 原流言等级 = (档案 as any).流言等级 ?? 0;
+                    if (衰减结果.新暴露风险 !== 原暴露风险 || 衰减结果.新流言等级 !== 原流言等级) {
+                        更新后档案[npcId] = {
+                            ...(档案 as any),
+                            暴露风险值: 衰减结果.新暴露风险,
+                            流言等级: 衰减结果.新流言等级,
+                        };
+                        有任何更新 = true;
+                    }
+                }
+            }
+            if (有任何更新) {
+                deps.设置校园系统?.({
+                    ...最终校园系统,
+                    欲望系统: {
+                        ...最终校园系统.欲望系统,
+                        NPC欲望档案: {
+                            ...最终校园系统.欲望系统.NPC欲望档案,
+                            ...更新后档案,
+                        },
+                    },
+                });
+            }
+        }
+
         // ─── BDSM 任务补充阶段 ─────────────────────────────────────────
-        const 校园系统 = currentState.校园系统;
+        const 校园系统 = processingResult.finalState.校园系统;
         const apiConfig = currentState.apiConfig;
         if (校园系统?.欲望系统?.NPC欲望档案) {
             const 活跃NpcIds = Object.keys(校园系统.欲望系统.NPC欲望档案);
