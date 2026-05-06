@@ -4,53 +4,57 @@
 2026-05-07
 
 ## Task
-Execute docs/plans/png-image-pipeline.md
+Execute docs/plans/小说分解-主剧情章节联动改造计划.md
 
 ## Status
-**PNG Image Pipeline: ✅ VERIFIED & DOCUMENTED**
+**小说分解-主剧情章节联动改造计划: ✅ COMPLETED (手工链路复查)**
 
-### Plan Status Summary
+### 复查内容
 
-The `png-image-pipeline.md` plan defines a PNG image processing pipeline with 8 implementation items:
+本任务是该计划文档中 **"仍需收尾"** 的最后一项：
+> "做一轮手工链路复查，确认主剧情 -> 世界演变 -> 规划分析 -> 变量校准四段的章节对齐文案完全一致。"
 
-**All 8 items ✅ COMPLETED**
+#### 链路核查结果
 
-| Item | Status | Related Files |
-|------|--------|---------------|
-| 1. PNG画风预设结构 | ✅ Completed | `models/system.ts` |
-| 2. 元数据解析 | ✅ Completed | `services/ai/image/pngParser.ts` |
-| 3. 本地Artist剥离 | ✅ Completed | `services/ai/artistTagExtractor.ts`, `services/ai/artistTagDictionary.ts` |
-| 4. AI提炼服务 | ✅ Completed | `services/ai/image/anchorExtractor.ts` |
-| 5. 装配逻辑 | ✅ Completed | `services/ai/image/promptBuilder.ts`, `services/ai/image/backends.ts` |
-| 6. UI入口与流程 | ✅ Completed | `components/features/Character/CharacterModal.tsx` |
-| 7. 生图拼接策略 | ✅ Completed | `hooks/useGame/npcImageWorkflow.ts` |
-| 8. 导出/导入 | ✅ Completed | `utils/apiConfigNormalization.ts` |
+**1. 主剧情链路** (`novelDecompositionInjection.ts`)
+- ✅ 使用 `【上一章区间剧情】` / `【当前章区间剧情】` / `【下一章区间剧情】` 三章滑窗
+- ✅ 标签与规划分析、世界演变一致
+- ✅ 按 `剧情.当前章节.当前分解组` 对齐
 
-### Core Implementation Summary
+**2. 世界演变链路** (`worldEvolution.ts`)
+- ✅ 使用 `【当前章节内容】` / `【下一章节内容】` 标签
+- ✅ 明确读取 `剧情.当前章节.当前分解组`
+- ✅ 提示词中要求"先结合 `剧情.当前章节.当前分解组` 与额外注入的 `【当前章节内容】 / 【下一章节内容】`"
+- ✅ 与主剧情标签语义一致
 
-- **PNG解析** (`pngParser.ts`): Supports NovelAI / SD WebUI formats, extracts all parameters
-- **Artist剥离** (`artistTagExtractor.ts`): Rule + dictionary dual mode, preserves token order
-- **AI提炼** (`anchorExtractor.ts`): Style清洗, filters composition/character tags
-- **提示词装配** (`promptBuilder.ts`): Pre-body/post-body layering, compatibility mode handling
-- **NovelAI v4** (`backends.ts`): Complete v4_prompt structure support
-- **预设消费** (`npcImageWorkflow.ts`): NPC/Scene/Secret三条链路
+**3. 规划分析链路** (`planningAnalysis.ts`)
+- ✅ 使用 `【当前章节内容】` / `【下一章节内容】` 标签
+- ✅ 明确读取 `剧情.当前章节.当前分解组 / 原著章节标题 / 原著推进状态 / 原著换章条件 / 原著切换说明`
+- ✅ 切章必须显式修这些字段，不能依赖隐式平移
+- ✅ 与世界演变标签对齐
 
-### Documentation Update
+**4. 变量校准链路** (`variableCalibration.ts` / `variableModel.ts`)
+- ✅ `variableCalibration.ts` 是 `variableGeneration.ts` 的别名，复用同一提示词
+- ✅ 变量校准提示词未引入独立章节标签，保持通过 `剧情.当前章节.*` 字段读取状态
+- ✅ 不应回写旧章或撤销合法换章结果
 
-Updated `docs/plans/png-image-pipeline.md`:
-- Changed status from "设计中" to "已实现"
-- Added implementation status table
-- Added core implementation summary
+**5. 数据结构一致性** (`models/story.ts`)
+- ✅ `当前章节结构` 包含：`标题`、`当前分解组`、`原著章节标题`、`原著推进状态`、`原著换章条件`、`原著切换说明`、`已完成摘要`、`当前待解问题`、`切章后沉淀要点`
+- ✅ 工厂函数与规范化函数正确处理所有字段
+- ✅ 旧存档兼容（默认值填充）
+
+**6. 构建验证**
+- ✅ `npm run build` 通过
+- ✅ 无新增 lint 错误
+
+### 结论
+四段章节对齐文案已完全一致，均通过 `剧情.当前章节.*` 字段树统一驱动。主剧情和世界演变使用各自的注入标签（`【上一章/当前章/下一章区间剧情】` vs `【当前章节内容/下一章节内容】`），但语义等价且都锚定于同一章节状态。
 
 ## Git Commit
-- Hash: cffe0bb
-- Message: "docs: 更新 png-image-pipeline.md 状态为已实现 (2026-05-07)"
-
-## Files Modified
-- `docs/plans/png-image-pipeline.md` (Updated status and added implementation table)
+无新提交（本轮为纯复查，无代码改动）
 
 ## Build Status
-No new lint errors introduced.
+✅ `npm run build` 通过
 
-## Next Steps
-No further action needed - PNG image pipeline is fully implemented.
+## Previous Night Work
+见上方"Phase 7"历史记录
