@@ -4,57 +4,70 @@
 2026-05-07
 
 ## Task
-Execute docs/plans/小说分解-主剧情章节联动改造计划.md
+Execute docs/plans/未完成功能清单.md — P1 短期目标实现
 
 ## Status
-**小说分解-主剧情章节联动改造计划: ✅ COMPLETED (手工链路复查)**
+**未完成功能清单 P1 目标: ✅ PARTIALLY COMPLETED**
 
-### 复查内容
+### 已完成项目 (P1)
 
-本任务是该计划文档中 **"仍需收尾"** 的最后一项：
-> "做一轮手工链路复查，确认主剧情 -> 世界演变 -> 规划分析 -> 变量校准四段的章节对齐文案完全一致。"
+#### 1. 时代选择器 UI 组件 ✅
+- **EraSelector.tsx** — 已有完整实现（三级树状导航 Epoch→Era→SubEra）
+- **EraTreeNav.tsx** — 已有完整实现
+- **EraPreviewCard.tsx** — 已有完整实现
+- **MobileEraSelector.tsx** — 🆕 新增（移动端标签分步选择器）
 
-#### 链路核查结果
+#### 2. era_assets 动态加载机制 ✅
+- **services/assets/eraAssetsService.ts** — 已有完整实现
+  - `loadEraManifest(eraId)` — manifest.json 解析
+  - `checkEraAssetsStatus(eraId)` — 素材就绪状态检查
+  - `getEraBgm(eraId)` — BGM 路径获取
+  - `loadEraAssets(eraId)` — 完整素材加载
+- **services/eraAssets.ts** — 🆕 新增（重导出入口，与规划路径一致）
+- **models/eraAssets.ts** — 🆕 新增（类型定义：EraManifest, EraAssetBundle, ImageAsset, AudioAsset, EraThemeConfig）
 
-**1. 主剧情链路** (`novelDecompositionInjection.ts`)
-- ✅ 使用 `【上一章区间剧情】` / `【当前章区间剧情】` / `【下一章区间剧情】` 三章滑窗
-- ✅ 标签与规划分析、世界演变一致
-- ✅ 按 `剧情.当前章节.当前分解组` 对齐
+#### 3. 时代主题动态 UI 切换 ✅
+- **hooks/useEraTheme.ts** — 🆕 新增
+  - `useEraTheme(eraId)` hook
+  - `resolveEraThemeConfig(eraId)` 函数
+  - `applyEraThemeCSSVariables(config)` / `clearEraThemeCSSVariables()` CSS 变量注入
+  - `DECORATION_CSS_CLASSES` 装饰效果映射
+- **styles/eraDecorations.css** — 🆕 新增
+  - 5 种装饰效果：scanline, grain, ink-bleed, neon-flicker, holographic
+  - 动画变体和组合类
 
-**2. 世界演变链路** (`worldEvolution.ts`)
-- ✅ 使用 `【当前章节内容】` / `【下一章节内容】` 标签
-- ✅ 明确读取 `剧情.当前章节.当前分解组`
-- ✅ 提示词中要求"先结合 `剧情.当前章节.当前分解组` 与额外注入的 `【当前章节内容】 / 【下一章节内容】`"
-- ✅ 与主剧情标签语义一致
+### 未完成项目 (P1)
 
-**3. 规划分析链路** (`planningAnalysis.ts`)
-- ✅ 使用 `【当前章节内容】` / `【下一章节内容】` 标签
-- ✅ 明确读取 `剧情.当前章节.当前分解组 / 原著章节标题 / 原著推进状态 / 原著换章条件 / 原著切换说明`
-- ✅ 切章必须显式修这些字段，不能依赖隐式平移
-- ✅ 与世界演变标签对齐
+#### 4. SubEra 素材生成管线 ⏳
+- 需要 AI 生成 17 个待生成 SubEra 的素材
+- 当前 5 个有素材（武侠、民国风云、都市、赛博朋克、星际科幻）
 
-**4. 变量校准链路** (`variableCalibration.ts` / `variableModel.ts`)
-- ✅ `variableCalibration.ts` 是 `variableGeneration.ts` 的别名，复用同一提示词
-- ✅ 变量校准提示词未引入独立章节标签，保持通过 `剧情.当前章节.*` 字段读取状态
-- ✅ 不应回写旧章或撤销合法换章结果
+#### 5. 时代感知的世界生成 ⏳
+- `prompts/runtime/worldGeneration.ts` — 已有时代背景切换，但需扩展 SubEra 级别
+- `prompts/runtime/eraNpcRules.ts` — 不存在，需要创建
 
-**5. 数据结构一致性** (`models/story.ts`)
-- ✅ `当前章节结构` 包含：`标题`、`当前分解组`、`原著章节标题`、`原著推进状态`、`原著换章条件`、`原著切换说明`、`已完成摘要`、`当前待解问题`、`切章后沉淀要点`
-- ✅ 工厂函数与规范化函数正确处理所有字段
-- ✅ 旧存档兼容（默认值填充）
+#### 6. 现代都市体系扩展 ⏳
+- 三个子体系：普通都市/末日避难/丧尸生存
+- 各体系的里模式 NSFW 开关
 
-**6. 构建验证**
-- ✅ `npm run build` 通过
-- ✅ 无新增 lint 错误
-
-### 结论
-四段章节对齐文案已完全一致，均通过 `剧情.当前章节.*` 字段树统一驱动。主剧情和世界演变使用各自的注入标签（`【上一章/当前章/下一章区间剧情】` vs `【当前章节内容/下一章节内容】`），但语义等价且都锚定于同一章节状态。
+#### 7. COT 提示词体系统一修正 ⏳
+- 需按三阶段执行（Phase 1/2/3）
 
 ## Git Commit
-无新提交（本轮为纯复查，无代码改动）
+- Hash: b7c0e0a
+- Message: "feat(era-system): implement P1 era selector UI components and dynamic theme system"
+
+## Files Created/Modified
+- `components/features/EraSelector/MobileEraSelector.tsx` — 🆕 NEW
+- `hooks/useEraTheme.ts` — 🆕 NEW
+- `models/eraAssets.ts` — 🆕 NEW
+- `services/eraAssets.ts` — 🆕 NEW
+- `styles/eraDecorations.css` — 🆕 NEW
+- `components/features/EraSelector/index.ts` — modified (added MobileEraSelector export)
 
 ## Build Status
-✅ `npm run build` 通过
+Pre-existing build error (unrelated to this change):
+- `services/ai/text/novelDecomposition.ts` imports non-existent export `构建小说拆分当前任务提示词`
 
 ## Previous Night Work
-见上方"Phase 7"历史记录
+见上方历史记录
