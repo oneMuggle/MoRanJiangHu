@@ -490,3 +490,14 @@ export const 接口配置是否可用 = (config: 当前可用接口结构 | null
     }
     return Boolean(config.baseUrl?.trim() && config.apiKey?.trim() && config.model?.trim());
 };
+
+/**
+ * 获取变量生成并发配置
+ * @param gameConfig 游戏设置
+ * @returns 包含 maxConcurrency 和 maxRetries 的配置对象
+ */
+export const 获取变量生成并发配置 = (gameConfig: any): { maxConcurrency: number; maxRetries: number } => {
+    const maxConcurrency = Math.max(1, Math.min(5, Number(gameConfig?.变量生成并发数) || 3));
+    const maxRetries = Math.max(0, Math.min(5, Number(gameConfig?.变量生成最大重试次数) || 2));
+    return { maxConcurrency, maxRetries };
+};

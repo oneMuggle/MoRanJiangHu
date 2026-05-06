@@ -1662,6 +1662,8 @@ export interface 游戏设置结构 {
         规划分析: boolean;
         小说拆分: boolean;
     };
+    变量生成并发数?: number; // 变量生成队列并发数，默认 3，范围 1-5
+    变量生成最大重试次数?: number; // 变量生成失败重试次数，默认 2，范围 0-5
     额外提示词: string; // Custom prompt injected at the end
     启用动态难度?: boolean; // Toggle dynamic difficulty adjustment based on player performance
 }

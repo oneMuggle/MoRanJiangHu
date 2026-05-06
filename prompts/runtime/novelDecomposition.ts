@@ -258,43 +258,14 @@ export const 运行时_小说分解: 提示词结构 = {
     启用: false
 };
 
-// Backward compatibility stubs for services/ai/text/novelDecomposition.ts
-export const 小说拆分AI身份提示词 = '你是小说分解引擎，负责将原著小说文本分解为可执行的结构化数据。';
-
-export const 小说拆分其他要求提示词 = '请严格按照结构化格式输出每个关键事件，确保包含触发时间、前置条件、触发条件、阻断条件和事件结果。';
-
-export const 小说拆分结构要求提示词 = '输出必须包含：章节范围、关键事件列表、角色推进、势力推进和镜头规划。';
-
-export const 构建小说拆分当前任务提示词 = (params: {
-    groupNumber: number;
-    chapterText: string;
-    prevGroupEndStatus?: string;
-    prevGroupNextHints?: string;
-    prevGroupUnfinishedEvents?: string;
-    prevGroupTimeLine?: string;
-    nextChapterTitle?: string;
-    isFirstGroup?: boolean;
-}): string => {
-    const template = params.isFirstGroup !== false
-        ? `【当前章节原文】\n${params.chapterText}`
-        : `【前一组参考】\n- 前一组结束状态：${params.prevGroupEndStatus || '无'}\n- 前一组给下一组参考：${params.prevGroupNextHints || '无'}\n- 前一组关键事件中未结清项：${params.prevGroupUnfinishedEvents || '无'}\n\n【上一组结束时间 / 本组时间线起点参考】\n${params.prevGroupTimeLine || '无'}\n\n【当前章节原文】\n${params.chapterText}\n\n【下一章节标题参考】（可选）\n${params.nextChapterTitle || '无'}`;
-
-    return [
-        `【分解任务 - 第${params.groupNumber}组】`,
-        template,
-        '',
-        '请输出<thinking></thinking>完成小说分解思考，再输出<结果></结果>给出当前分解组的正式结构化结果。'
-    ].join('\n');
-};
-
-export const 小说拆分COT伪装提示词 = '让我先仔细阅读原文，理解当前章节的核心内容、人物关系变化和事件发展...';
+// Backward compatibility alias: was originally a string literal, now points to the COT protocol
+export const 小说拆分COT伪装提示词 = 小说分解思考协议;
 
 // Aliases for backward compatibility with services/ai/text/novelDecomposition.ts
 export const 小说拆分AI身份提示词 = '你是 WuXia 项目的"小说分解引擎"，负责将原著小说文本分解为可执行的结构化数据。';
 export const 小说拆分其他要求提示词 = '';
 export const 小说拆分结构要求提示词 = 构建小说分解系统提示词;
 export const 构建小说拆分当前任务提示词 = 构建小说分解系统提示词;
-export const 小说拆分COT伪装提示词 = 小说分解思考协议;
 
 // Backward compatibility: stub function for runtime that takes no args
 export const 构建小说拆分AI角色声明提示词 = (): string => {

@@ -77,13 +77,20 @@ const 构建基础状态 = (snapshot: 回合快照结构, 深拷贝: <T>(value: 
     女主剧情规划: 深拷贝(snapshot.回档前状态.女主剧情规划)
 });
 
-export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) => {
+type 变量校准协调器配置 = {
+    maxConcurrency?: number;
+    maxRetries?: number;
+    retryDelayMs?: number;
+    completedTaskTTL?: number;
+};
+
+export const 创建变量校准协调器 = (deps: 变量生成工作流依赖, config?: 变量校准协调器配置) => {
     // 创建队列调度器
     const 队列调度器 = 创建变量生成队列调度器({
         执行变量模型校准工作流: deps.执行变量模型校准工作流,
         apiConfig: deps.apiConfig,
         gameConfig: deps.gameConfig
-    });
+    }, config);
 
     const 构建带索引命令文本 = (commands: any[], startIndex: number): string[] => (
         (Array.isArray(commands) ? commands : [])
