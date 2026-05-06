@@ -4,8 +4,11 @@ import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
 import type { 论坛帖子 } from '../../../../models/campusPhone';
 import type { BDSM论坛帖子, BDSM帖子分类, 联系对话, 联系状态 } from '../../../../models/campusNSFW/bdsm-forum';
 import type { NPC结构 } from '../../../../models/domain/social';
+import type { 当前可用接口结构 } from '../../../../utils/apiConfig';
 import { 从BDSM帖子创建NPC } from '../../../../hooks/useGame/bdsmForumEngine';
 import BDSMContactModal from './BDSMContactModal';
+
+type ApiConfigLike = 当前可用接口结构 | Record<string, unknown>;
 
 interface AppProps {
     eraId: string;
@@ -18,6 +21,7 @@ interface AppProps {
     onUnlockNPC?: (npc: NPC结构) => void;
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
+    apiConfig?: ApiConfigLike;
 }
 
 const 论坛分类 = ['全部', '校园资讯', '学术交流', '社团活动', '情感树洞', '匿名灌水', '求助答疑'];
@@ -33,7 +37,7 @@ const 回复话术池 = [
     '感谢分享，学到了。',
 ];
 
-const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, isRefreshing, onUnlockNPC, onBDSM帖子更新, onCreateChatSession }) => {
+const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameContext, onRefresh, isRefreshing, onUnlockNPC, onBDSM帖子更新, onCreateChatSession, apiConfig }) => {
     const config = getDeviceConfig(eraId);
     const appName = config ? getAppName(config, appId, mode) : '校园论坛';
 
@@ -208,6 +212,7 @@ const CampusForumApp: React.FC<AppProps> = ({ eraId, mode, appId, onBack, gameCo
                 post={contactingPost}
                 onBack={() => setContactingPost(null)}
                 onConfirm={handleContactConfirm}
+                apiConfig={apiConfig}
             />
         );
     }

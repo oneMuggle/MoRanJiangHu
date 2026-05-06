@@ -99,13 +99,6 @@ export interface DeviceConfig {
     };
 }
 
-// 设备状态
-export interface DeviceState {
-    isOpen: boolean;
-    activeApp: MobileApp | null;
-    mode: DeviceMode;
-}
-
 // 应用定义
 export interface AppDefinition {
     id: MobileApp;

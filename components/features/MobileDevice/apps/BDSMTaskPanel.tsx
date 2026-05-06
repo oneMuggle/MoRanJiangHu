@@ -191,8 +191,8 @@ const BDSMTaskPanel: React.FC<Props> = ({ 关系状态, 日常指令, onAcceptTa
                                             : 'bg-gray-800/40 border-gray-700/30 text-gray-300'
                                     }`}
                                 >
-                                    <span className="text-[10px] text-purple-400 mr-1.5">[{指令.category}]</span>
-                                    {指令.content}
+                                    <span className="text-[10px] text-purple-400 mr-1.5">[{指令.分类}]</span>
+                                    {指令.内容}
                                 </div>
                             ))}
                         </div>

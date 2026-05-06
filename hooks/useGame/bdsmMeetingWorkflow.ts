@@ -162,12 +162,12 @@ export function 解析见面结果(rawText: string): 见面结果 {
 // ============================================================
 
 export type 日常指令 = {
-  content: string;
-  category: string;
-  duration: string;
+  内容: string;
+  分类: string;
+  持续时间: string;
   是否完成: boolean;
-  rewardHint: string;
-  punishmentHint: string;
+  奖励提示: string;
+  惩罚提示: string;
 };
 
 export function 刷新日常指令(
@@ -186,7 +186,7 @@ export function 更新指令完成状态(
   完成的内容: string
 ): 日常指令[] {
   return 指令列表.map(指令 => {
-    if (指令.content === 完成的内容 && !指令.是否完成) {
+    if (指令.内容 === 完成的内容 && !指令.是否完成) {
       return { ...指令, 是否完成: true };
     }
     return 指令;

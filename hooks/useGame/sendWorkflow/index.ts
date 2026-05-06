@@ -797,6 +797,35 @@ export const 执行主剧情发送工作流 = async (
                             phase: 'error', text: `${npcId} AI 返回格式无法解析`
                         });
                     }
+
+                    // ─── Aftercare 检测 ─────────────────────────────────
+                    try {
+                        const { 检查Aftercare需求 } = await import('../bdsmTaskTrigger');
+                        const aftercareResult = 检查Aftercare需求({
+                            关系状态: bdsM关系,
+                            完成任务: undefined,
+                            连续拒绝次数: 0,
+                            阶段是否推进: false,
+                            npcName: (档案 as any)._npcName || (档案 as any).姓名 || npcId,
+                        });
+
+                        if (aftercareResult.需要Aftercare) {
+                            options?.onBDSMTaskSupplementProgress?.({
+                                phase: 'done', text: `${npcId} 检测到 Aftercare 需求（+${aftercareResult.服从度加成} 服从度）`
+                            });
+                            if (aftercareResult.提示词) {
+                                deps.onBDSM状态更新?.({
+                                    里程碑: [{
+                                        类型: 'aftercare',
+                                        时间: new Date().toISOString(),
+                                        描述: aftercareResult.提示词,
+                                    }],
+                                });
+                            }
+                        }
+                    } catch (aftercareErr) {
+                        console.warn(`Aftercare 检测失败 (${npcId}):`, aftercareErr);
+                    }
                 } catch (err) {
                     options?.onBDSMTaskSupplementProgress?.({
                         phase: 'error', text: `${npcId} 任务生成失败: ${err instanceof Error ? err.message : String(err)}`
