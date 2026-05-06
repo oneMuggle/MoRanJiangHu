@@ -10,10 +10,10 @@ import type {
   糖关系状态完整,
   糖关系状态,
   关系模式,
-} from './types';
+} from '../types';
 import { 创建糖关系, 推进关系状态 as 推进关系, 模拟关系演化 } from '../states/关系状态';
 import { 推进关系状态 as 更新糖宝关系, 更新糖宝状态 } from '../states/糖宝状态';
-import { 推进糖爹关系状态 as 更新糖爹关系 } from '../states/糖爹状态';
+import { 推进糖爹关系状态 as 更新糖爹关系, 更新糖爹状态 } from '../states/糖爹状态';
 
 // ==================== 关系阶段特征 ====================
 
@@ -84,7 +84,7 @@ export function 建立关系(
     月零花钱,
   });
 
-  const 更新后的糖爹 = 更新糖爹关系(糖爹, {
+  const 更新后的糖爹 = 更新糖爹状态(糖爹, {
     当前糖宝ID: 糖宝.ID,
     关系状态: '筛选期',
   });
@@ -104,7 +104,7 @@ export function 进入暧昧期(
 ): { 关系: 糖关系状态完整; 糖宝: 糖宝核心状态; 糖爹: 糖爹核心状态 } {
   const newRelation = 推进关系(关系, '暧昧期');
   const newSugarBaby = 更新糖宝关系(糖宝, '暧昧期');
-  const newSugarDaddy = 更新糖爹关系(糖爹, '暧昧期');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '暧昧期');
 
   return {
     关系: newRelation,
@@ -124,7 +124,7 @@ export function 进入蜜月期(
   newSugarBaby.幸福度 = Math.min(100, 糖宝.幸福度 + 20);
   newSugarBaby.羞耻度 = Math.max(0, 糖宝.羞耻度 - 10);
 
-  const newSugarDaddy = 更新糖爹关系(糖爹, '蜜月期');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '蜜月期');
 
   return {
     关系: newRelation,
@@ -141,7 +141,7 @@ export function 进入稳定期(
 ): { 关系: 糖关系状态完整; 糖宝: 糖宝核心状态; 糖爹: 糖爹核心状态 } {
   const newRelation = 推进关系(关系, '稳定期');
   const newSugarBaby = 更新糖宝关系(糖宝, '稳定期');
-  const newSugarDaddy = 更新糖爹关系(糖爹, '稳定期');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '稳定期');
 
   return {
     关系: newRelation,
@@ -180,7 +180,7 @@ export function 推进关系时间(
   }
 
   // 更新糖爹状态
-  let newSugarDaddy = 更新糖爹关系(糖爹, newRelation.状态);
+  let newSugarDaddy = 更新糖爹状态(糖爹, newRelation.状态);
   newSugarDaddy.累计花费 = 糖爹.累计花费 + 关系.月零花钱 * 月数;
 
   return {
@@ -199,7 +199,7 @@ export function 进入冷淡期(
 ): { 关系: 糖关系状态完整; 糖宝: 糖宝核心状态; 糖爹: 糖爹核心状态 } {
   const newRelation = 推进关系(关系, '冷淡期');
   const newSugarBaby = 更新糖宝关系(糖宝, '冷淡期');
-  const newSugarDaddy = 更新糖爹关系(糖爹, '冷淡期');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '冷淡期');
 
   return {
     关系: newRelation,
@@ -219,7 +219,7 @@ export function 进入危机期(
   newSugarBaby.焦虑度 = Math.min(100, 糖宝.焦虑度 + 20);
   newSugarBaby.曝光风险 = Math.min(100, 糖宝.曝光风险 + 15);
 
-  const newSugarDaddy = 更新糖爹关系(糖爹, '危机期');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '危机期');
   newSugarDaddy.曝光风险 = Math.min(100, 糖爹.曝光风险 + 20);
 
   return {
@@ -263,7 +263,7 @@ export function 结束关系(
   }
 
   // 更新糖爹
-  const newSugarDaddy = 更新糖爹关系(糖爹, '已结束');
+  const newSugarDaddy = 更新糖爹状态(糖爹, '已结束');
   newSugarDaddy.累计花费 = 糖爹.累计花费 + fee;
 
   return {

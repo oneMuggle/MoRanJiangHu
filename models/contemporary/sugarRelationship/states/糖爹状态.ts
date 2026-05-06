@@ -8,7 +8,7 @@ import type {
   财富等级,
   糖爹动机,
   糖关系状态,
-} from './types';
+} from '../types';
 
 // 默认化名池
 const 糖爹化名池 = [
@@ -94,12 +94,11 @@ export function 根据身份创建糖爹(
       base.占有欲 = 55;
       break;
     case '暴发户':
-      base.炫耀欲 = 90;
       base.慷慨度 = 60;
       base.控制欲 = 75;
       break;
     case '外籍人士':
-      base.匿名性需求 = 70;
+      base.曝光风险 = base.曝光风险 + 10;
       break;
     case '已婚男人':
       base.曝光风险 = 30;

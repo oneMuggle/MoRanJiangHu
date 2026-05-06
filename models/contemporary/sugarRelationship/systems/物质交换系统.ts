@@ -8,7 +8,7 @@ import type {
   糖宝核心状态,
   糖爹核心状态,
   糖关系状态完整,
-} from './types';
+} from '../types';
 import { 添加礼物记录 } from '../states/关系状态';
 import { 糖宝获得收益 } from '../states/糖宝状态';
 import { 糖爹花费 } from '../states/糖爹状态';

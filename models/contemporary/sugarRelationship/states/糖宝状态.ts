@@ -10,7 +10,7 @@ import type {
   糖关系状态,
   关系模式,
   零花钱级别,
-} from './types';
+} from '../types';
 
 // 默认化名池
 const 化名池 = [
@@ -210,5 +210,5 @@ export function 获取糖宝摘要(state: 糖宝核心状态): string {
   return `${state.化名}（${state.身份类型}，${state.年龄}岁）`
     + `| 入行${state.入行时长}个月 | 经历糖爹${state.入行次数}位`
     + `| 现关系${state.关系状态} | 月零花${state.月零花钱}元`
-    + `| 累计${state.累计获得}元 | 曝光风险${state.曝光Risk}%`;
+    + `| 累计${state.累计获得}元 | 曝光风险${state.曝光风险}%`;
 }
