@@ -44,6 +44,97 @@
 - 步骤 1-4 已实现（代码已存在）
 - 步骤 5（手动验证）待人工验证
 
+---
+
+# 2026-05-04 NSFW 系统深度优化方案
+
+**执行计划**: `docs/plans/2026-05-04-nsfw-system-optimization.md`
+**执行时间**: 2026-05-04
+**状态**: ✅ 已完成（已验证）
+
+---
+
+## 实施摘要
+
+计划聚焦遗留系统性问题（Phase 1 Bug修复 + Phase 2 内容深化 + Phase 3 架构改进）。经验证，**全部成功标准已满足**。
+
+---
+
+## Phase 1: Bug 修复 ✅
+
+### 1.1 `nsfwCard.ts` 时代感知约束
+- **文件**: `prompts/runtime/nsfwCard.ts`
+- **验证结果**: 
+  - 第 5 行已导入 `自动选择叙事约束`
+  - 第 16 行 `构建NPC_NSWF卡片` 已增加 `options?: { 时代配置ID?: string }` 参数
+  - 第 75 行使用 `自动选择叙事约束(options?.时代配置ID, nsfw场景类型)` 替代原 `构建里象修行叙事约束`
+  - `构建在场NPC_NSWF卡片组` 同样透传时代配置 ID
+
+### 1.2 `intimacy.ts` 亲密度约束时代感知
+- **文件**: `prompts/runtime/intimacy.ts`
+- **验证结果**:
+  - 第 8 行导入 `MODERN_ERA_IDS`
+  - 第 12-15 行实现 `是现代时代()` 辅助函数
+  - 第 27 行 `构建亲密度动作约束` 增加 `options` 参数
+  - 第 51-96 行 Level 5 约束按现代/武侠分叉，使用不同描述框架
+
+### 1.3 `worldLixiangSects.ts` 时代守卫
+- **文件**: `prompts/runtime/worldLixiangSects.ts`
+- **验证结果**:
+  - 第 10 行定义 `WUXIA_ERA_IDS = ['ancient_martial', 'ancient_xianxia', 'ancient_zhiguai']`
+  - 第 18 行增加 `options` 参数
+  - 第 24-26 行非武侠时代返回空字符串
+
+---
+
+## Phase 2: 校园 NSFW 内容深化 ✅
+
+### 2.1 校园 NSFW 天赋（10 个）
+- **文件**: `data/talents/nsfw.ts` 第 215-226 行
+- **内容**: 深夜实验室常驻者、社团部室钥匙持有者、天台观景者、校医务室VIP、泳池晨练者、宿舍夜猫子、家教兼职达人、校园祭策划、学姐学妹缘、室友的秘密
+
+### 2.2 校园 NSFW 背景（4 个）
+- **文件**: `data/backgrounds/nsfw.ts` 第 192-195 行
+- **内容**: 校园风云人物、秘密社团成员、宿舍楼传说、跨院系交流生
+
+### 2.3 校园 NSFW 气运（7 个）
+- **文件**: `data/qiyun/categories/hehuan.ts` 第 231-237 行
+- **内容**: 青梅竹马缘、月考锦鲤、社团招福、天台邂逅运、校园祭主角、图书馆偶遇、合宿缘分
+
+---
+
+## Phase 3: 架构改进 ✅
+
+### 3.1 `MODERN_ERA_IDS` 集中管理
+- **文件**: `models/eraTheme/assembly.ts` 第 44-49 行
+- **内容**: `MODERN_ERA_IDS` 已导出，包含 11 个现代时代 ID
+- **消费方**: `prompts/runtime/intimacy.ts` 第 8 行导入使用
+
+### 3.2 消除 `as any` 类型转换
+- **文件**: `components/features/Settings/GameSettings.tsx`
+- **验证结果**: `grep -n "as any"` 返回 0 结果
+
+---
+
+## 成功标准验证
+
+| 标准 | 状态 |
+|------|------|
+| `nsfwCard.ts` 根据时代自动选择武侠/现代约束 | ✅ |
+| `intimacy.ts` 亲密度约束根据时代选择描述框架 | ✅ |
+| `worldLixiangSects.ts` 仅对武侠/修仙时代注入双修门派 | ✅ |
+| 校园纪元拥有 5+ NSFW 天赋 | ✅ (10个) |
+| 校园纪元拥有 3+ NSFW 背景 | ✅ (4个) |
+| 校园纪元拥有 5+ NSFW 气运 | ✅ (7个) |
+| `MODERN_ERA_IDS` 从时代树派生 | ✅ |
+| `GameSettings.tsx` 中无 `as any` | ✅ |
+| TypeScript 编译无新增错误 | ✅ (`npm run build` 成功) |
+
+---
+
+## 构建验证
+✅ `npm run build` 成功完成（11.03s）
+
 # 2026-05-07 天赋气运背景NSFW系统整理优化
 
 **执行计划**: `docs/plans/2026-05-04_talent-qiyun-background-nsfw-refactor.md`
