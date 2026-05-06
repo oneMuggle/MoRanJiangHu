@@ -3,11 +3,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import type { BDSM论坛帖子, 联系对话 } from '../../../../models/campusNSFW/bdsm-forum';
+import { 构建寻主召奴联系对话Prompt } from '../../../../prompts/runtime/bdsmForum';
+import { 请求模型文本 } from '../../../../services/ai/chatCompletionClient';
+import type { 当前可用接口结构 } from '../../../../utils/apiConfig';
+
+type ApiConfigLike = 当前可用接口结构 | Record<string, unknown>;
 
 interface Props {
     post: BDSM论坛帖子;
     onBack: () => void;
     onConfirm: (对话记录: 联系对话[], 结果: '建立关系' | '已拒绝' | '沟通中') => void;
+    apiConfig?: ApiConfigLike;
 }
 
 const NPC回复话术池: Record<string, string[]> = {
@@ -39,7 +45,7 @@ const 玩家回复引导: string[] = [
     '谢谢你的信任，我会认真对待的。',
 ];
 
-const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
+const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm, apiConfig }) => {
     const [messages, setMessages] = useState<联系对话[]>([]);
     const [inputText, setInputText] = useState('');
     const [npcName, setNpcName] = useState<string>(post.寻主召奴信息?.解锁NPC姓名 || '匿名');
@@ -52,10 +58,10 @@ const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
 
     // 初始消息
     useEffect(() => {
-        const 初始对话 = generateInitialMessage(招募方角色);
+        const 初始内容 = generateInitialMessage(招募方角色);
         setMessages([{
             发送者: 'NPC',
-            内容: 初始对话,
+            内容: 初始内容,
             时间: '刚刚',
         }]);
     }, [招募方角色]);
@@ -64,7 +70,7 @@ const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!inputText.trim() || isLoading || status !== '沟通中') return;
 
         const playerMsg: 联系对话 = {
@@ -73,22 +79,51 @@ const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
             时间: '刚刚',
         };
 
-        setMessages(prev => [...prev, playerMsg]);
+        const currentMessages = [...messages, playerMsg];
+        setMessages(currentMessages);
         setInputText('');
         setIsLoading(true);
 
-        // 模拟 NPC 回复
-        setTimeout(() => {
+        try {
             const newRound = round + 1;
 
-            // 判定结果
             let 新状态: '沟通中' | '已确认' | '已拒绝' = '沟通中';
             if (newRound >= 3) {
                 新状态 = Math.random() > 0.3 ? '已确认' : '已拒绝';
                 setStatus(新状态);
             }
 
-            const npcReply = generateNPCReply(招募方角色, newRound, 新状态);
+            let npcReply: string;
+
+            if (apiConfig) {
+                // 使用 AI 生成 NPC 回复
+                const systemPrompt = 构建寻主召奴联系对话Prompt({
+                    帖子内容: post.内容,
+                    帖子子分类: post.子分类,
+                    招募方角色,
+                    期望关系类型: post.寻主召奴信息?.期望关系类型 || '不限',
+                    接头暗号: post.寻主召奴信息?.接头暗号,
+                });
+
+                const conversationHistory = currentMessages.map(m => ({
+                    role: m.发送者 === '玩家' ? 'user' as const : 'assistant' as const,
+                    content: m.内容,
+                }));
+
+                npcReply = await 请求模型文本(apiConfig as 当前可用接口结构, [
+                    { role: 'system' as const, content: systemPrompt },
+                    ...conversationHistory,
+                    { role: 'user' as const, content: playerMsg.内容 },
+                ], {
+                    temperature: 0.8,
+                });
+
+                // 清理可能的 markdown 包裹
+                npcReply = npcReply.replace(/^```[\s\S]*?\n?|```$/g, '').trim();
+            } else {
+                // 回退到硬编码回复池
+                npcReply = generateNPCReply(招募方角色, newRound, 新状态);
+            }
 
             const npcMsg: 联系对话 = {
                 发送者: 'NPC',
@@ -98,13 +133,24 @@ const BDSMContactModal: React.FC<Props> = ({ post, onBack, onConfirm }) => {
 
             setMessages(prev => [...prev, npcMsg]);
             setRound(newRound);
-            setIsLoading(false);
 
             // 如果已确认且帖子有NPC信息，触发解锁
             if (新状态 === '已确认' && post.寻主召奴信息?.解锁NPC姓名) {
                 setNpcName(post.寻主召奴信息!.解锁NPC姓名);
             }
-        }, 1000);
+        } catch (error) {
+            // AI 调用失败时回退到硬编码回复
+            const newRound = round + 1;
+            const npcReply = generateNPCReply(招募方角色, newRound, '沟通中');
+            setMessages(prev => [...prev, {
+                发送者: 'NPC',
+                内容: npcReply,
+                时间: '刚刚',
+            }]);
+            setRound(newRound);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleConfirm = () => {

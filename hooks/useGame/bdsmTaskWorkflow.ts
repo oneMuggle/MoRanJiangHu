@@ -154,12 +154,12 @@ export async function 生成日常指令(
     }>;
 
     return parsed.map(item => ({
-      content: item.content,
-      category: item.category as BDSM日常指令['category'],
-      duration: item.duration,
+      内容: item.content,
+      分类: item.category as BDSM日常指令['分类'],
+      持续时间: item.duration,
       是否完成: false,
-      rewardHint: item.rewardHint,
-      punishmentHint: item.punishmentHint,
+      奖励提示: item.rewardHint,
+      惩罚提示: item.punishmentHint,
     }));
   } catch (e) {
     console.warn('AI 日常指令 JSON 解析失败:', e, rawText.slice(0, 300));

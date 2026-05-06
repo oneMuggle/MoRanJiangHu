@@ -347,6 +347,29 @@ export const CampusNSFWSettings: React.FC<Props> = ({ settings, onChange }) => {
             onChange={(v) => update('启用BDSM_流言传播', v)}
             disabled={!settings.启用BDSM论坛}
           />
+
+          {/* v1.6 BDSM 关系管线 */}
+          <SectionHeader title="BDSM 关系管线" />
+          <ToggleSwitch
+            label="启用 BDSM 关系管线"
+            description="开启后 NPC 欲望档案将追踪 BDSM 关系状态、服从度、权力天平等"
+            checked={settings.启用BDSM关系管线}
+            onChange={(v) => update('启用BDSM关系管线', v)}
+          />
+          <ToggleSwitch
+            label="启用 BDSM 调教任务"
+            description="开启后 AI 每回合生成调教任务/日常指令，玩家可接受、报告完成或放弃"
+            checked={settings.启用BDSM调教任务}
+            onChange={(v) => update('启用BDSM调教任务', v)}
+            disabled={!settings.启用BDSM关系管线}
+          />
+          <ToggleSwitch
+            label="启用 BDSM 契约系统"
+            description="开启后可与 NPC 协商并缔结 BDSM 契约，约定双方权利与义务"
+            checked={settings.启用BDSM契约系统}
+            onChange={(v) => update('启用BDSM契约系统', v)}
+            disabled={!settings.启用BDSM关系管线}
+          />
         </>
       )}
     </div>

@@ -2,6 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { getDeviceConfig, getAppName, getLiModeThemeColor } from '../../../models/eraDevice';
 import { DeviceState, MobileApp, DeviceConfig, DeviceGameContext } from '../../../models/mobileDevice';
 import { resolveEraNode } from '../../../models/eraTheme';
+import type { 当前可用接口结构 } from '../../../utils/apiConfig';
+
+type ApiConfigLike = 当前可用接口结构 | Record<string, unknown>;
 import ChatApp from './apps/ChatApp';
 import MapApp from './apps/MapApp';
 import ContactsApp from './apps/ContactsApp';
@@ -19,6 +22,7 @@ import CampusHypnosisApp from './apps/CampusHypnosisApp';
 import BDSMRelationshipDashboard from './apps/BDSMRelationshipDashboard';
 import BDSMTaskPanel from './apps/BDSMTaskPanel';
 import BDSMContractPanel from './apps/BDSMContractPanel';
+import BDSMSafetySettings from './apps/BDSMSafetySettings';
 
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../../types';
 import type { NPC结构 } from '../../../models/domain/social';
@@ -40,6 +44,8 @@ interface AppProps {
     onBDSM帖子更新?: (帖子ID: string, updater: (post: BDSM论坛帖子) => BDSM论坛帖子) => void;
     onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
     onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => void;
+    onBDSM保存安全设置?: (npcId: string, 安全词: string, 底线: string[]) => void;
+    apiConfig?: ApiConfigLike;
 }
 
 interface MobileHomeProps {
@@ -61,6 +67,8 @@ interface MobileHomeProps {
     onBDSM任务操作?: (npcId: string, 操作: '接受' | '报告完成' | '放弃', 任务ID: string, 执行描述?: string) => void;
     onCreateChatSession?: (npcId: string, npcName: string, 关系标签: string, 初始消息: string) => void;
     onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => void;
+    onBDSM保存安全设置?: (npcId: string, 安全词: string, 底线: string[]) => void;
+    apiConfig?: ApiConfigLike;
 }
 
 const appIcons: Record<MobileApp, string> = {
@@ -97,10 +105,12 @@ const MobileHome: React.FC<MobileHomeProps> = ({
     onBDSM任务操作,
     onCreateChatSession,
     onConfirmNegotiation,
+    onBDSM保存安全设置,
+    apiConfig,
 }) => {
     const [config, setConfig] = useState<DeviceConfig | null>(null);
     const [liModeName, setLiModeName] = useState<string | undefined>();
-    const [bdsmPanel, setBdsmPanel] = useState<'none' | '总览' | '任务' | '契约'>('none');
+    const [bdsmPanel, setBdsmPanel] = useState<'none' | '总览' | '任务' | '契约' | '安全设置'>('none');
 
     // 检测是否有 BDSM 关系
     const 有BDSM关系 = useMemo(() => {
@@ -146,6 +156,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
             onBDSM帖子更新,
             onCreateChatSession,
             onConfirmNegotiation,
+            apiConfig,
         };
         switch (deviceState.activeApp) {
             case 'chat': return <CampusChatApp {...appProps} />;
@@ -194,6 +205,7 @@ const MobileHome: React.FC<MobileHomeProps> = ({
                             npcName={npcName}
                             onGoToTasks={() => setBdsmPanel('任务')}
                             onGoToContract={() => setBdsmPanel('契约')}
+                            onEditSafety={() => setBdsmPanel('安全设置')}
                         />
                     )}
                     {bdsmPanel === '任务' && (
@@ -207,6 +219,17 @@ const MobileHome: React.FC<MobileHomeProps> = ({
                     )}
                     {bdsmPanel === '契约' && (
                         <BDSMContractPanel 关系状态={bRel} />
+                    )}
+                    {bdsmPanel === '安全设置' && (
+                        <BDSMSafetySettings
+                            关系状态={bRel}
+                            npcName={npcName}
+                            onSave={(安全词, 底线) => {
+                                onBDSM保存安全设置?.(目标NpcId!, 安全词, 底线);
+                                setBdsmPanel('总览');
+                            }}
+                            onCancel={() => setBdsmPanel('总览')}
+                        />
                     )}
                 </div>
             );

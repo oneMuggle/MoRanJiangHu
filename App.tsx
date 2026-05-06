@@ -43,6 +43,10 @@ const MobileBattleModal = 创建可预加载懒组件(() => import('./components
 const SocialModal = 创建可预加载懒组件(() => import('./components/features/Social/SocialModal'));
 const MobileSocial = 创建可预加载懒组件(() => import('./components/features/Social/MobileSocial'));
 const CampusDesireDashboard = 创建可预加载懒组件(() => import('./components/features/CampusDesireDashboard'));
+const BDSMRelationshipModal = 创建可预加载懒组件(() => import('./components/features/BDSMRelationshipModal'));
+const BDSMTaskModal = 创建可预加载懒组件(() => import('./components/features/BDSMTaskModal'));
+const BDSMContractModal = 创建可预加载懒组件(() => import('./components/features/BDSMContractModal'));
+const BDSMSafetyModal = 创建可预加载懒组件(() => import('./components/features/BDSMSafetyModal'));
 const MobileCampusDesireApp = 创建可预加载懒组件(() => import('./components/features/MobileCampusDesireApp'));
 const ImageManagerModal = 创建可预加载懒组件(() => import('./components/features/Social/ImageManagerModal'));
 const MobileImageManagerModal = 创建可预加载懒组件(() => import('./components/features/Social/mobile/MobileImageManagerModal'));
@@ -1893,6 +1897,30 @@ const App: React.FC = () => {
                                         actions.updateBDSMTaskStatus?.(npcId, 任务ID, '已放弃');
                                     }
                                 }}
+                                onBDSM保存安全设置={(npcId, 安全词, 底线) => {
+                                    // 更新对应 NPC 的 BDSM 关系安全设置
+                                    const campusSystem = (state as any).校园系统 || {};
+                                    const 欲望系统 = campusSystem.欲望系统 || {};
+                                    const NPC欲望档案 = 欲望系统.NPC欲望档案 || {};
+                                    const 档案 = NPC欲望档案[npcId];
+                                    if (档案?.BDSM关系) {
+                                        NPC欲望档案[npcId] = {
+                                            ...档案,
+                                            BDSM关系: {
+                                                ...档案.BDSM关系,
+                                                安全词,
+                                                底线列表: 底线,
+                                            },
+                                        };
+                                        setters.set校园系统?.({
+                                            ...campusSystem,
+                                            欲望系统: {
+                                                ...欲望系统,
+                                                NPC欲望档案,
+                                            },
+                                        });
+                                    }
+                                }}
                                 onCreateChatSession={(npcId: string, npcName: string, 关系标签: string, 初始消息: string) => {
                                     // 创建私聊会话并追加到校园系统
                                     const prev = state.校园系统 as any;
@@ -1973,6 +2001,7 @@ const App: React.FC = () => {
                                     };
                                     setters.set约定列表([...现有约定, 新约定]);
                                 }}
+                                apiConfig={state.apiConfig as any}
                             />
                         </懒加载边界>
                     )}

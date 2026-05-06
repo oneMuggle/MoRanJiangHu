@@ -20,7 +20,7 @@ export interface BDSM状态更新结果 {
     关系阶段推进?: Record<string, string>;
     契约更新?: { id: string; 违约次数?: number }[];
     里程碑?: { 类型: string; 时间: string; 描述: string }[];
-    日常指令?: { content: string; category: string; duration: string; 是否完成: boolean; rewardHint: string; punishmentHint: string }[];
+    日常指令?: { 内容: string; 分类: string; 持续时间: string; 是否完成: boolean; 奖励提示: string; 惩罚提示: string }[];
 }
 
 /**

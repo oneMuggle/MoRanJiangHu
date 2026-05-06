@@ -93,12 +93,12 @@ export interface BDSM调教任务 {
 }
 
 export interface BDSM日常指令 {
-  content: string;
-  category: '称呼' | '穿着' | '行为' | '报告' | '任务';
-  duration: string;
+  内容: string;
+  分类: '称呼' | '穿着' | '行为' | '报告' | '任务';
+  持续时间: string;
   是否完成: boolean;
-  rewardHint: string;
-  punishmentHint: string;
+  奖励提示: string;
+  惩罚提示: string;
 }
 
 export interface BDSM里程碑 {
