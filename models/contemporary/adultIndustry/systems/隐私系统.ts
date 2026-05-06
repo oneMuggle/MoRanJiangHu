@@ -3,7 +3,7 @@
  * v1.0
  */
 
-import type { 隐私层级 } from './types';
+import type { 隐私层级 } from '../types';
 
 /**
  * 隐私层级配置

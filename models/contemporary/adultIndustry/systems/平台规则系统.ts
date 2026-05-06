@@ -3,7 +3,7 @@
  * v1.0
  */
 
-import type { 审核严格度, 内容分级 } from './types';
+import type { 审核严格度, 内容分级 } from '../types';
 
 /**
  * 平台审核维度

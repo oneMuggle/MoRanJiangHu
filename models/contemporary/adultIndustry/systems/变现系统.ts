@@ -3,7 +3,7 @@
  * v1.0
  */
 
-import type { 变现模式, 内容类型 } from './types';
+import type { 变现模式, 内容类型 } from '../types';
 
 /**
  * 变现路径配置

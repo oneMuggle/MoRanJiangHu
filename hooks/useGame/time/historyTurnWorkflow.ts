@@ -41,6 +41,7 @@ type 历史回合工作流依赖 = {
     世界书列表: any[];
     loading: boolean;
     变量生成中: boolean;
+    获取变量生成状态?: () => { running: boolean; pending: number; runningCount: number };
     记忆总结阶段: 'idle' | 'remind' | 'processing' | 'review';
     社交: any[];
     visualConfig: any;
@@ -348,7 +349,9 @@ export const 创建历史回合工作流 = (deps: 历史回合工作流依赖) =
         if (index !== latestAssistantIndex) {
             return '仅最新回合支持编辑原文，较早回合仅支持查看。';
         }
-        if (deps.变量生成中) {
+        // 检查变量生成状态
+        const variableGenerationRunning = deps.获取变量生成状态?.().running ?? deps.变量生成中;
+        if (variableGenerationRunning) {
             return '变量生成进行中，请等待完成后再编辑并重解析最新回合。';
         }
         const snapshot = deps.获取最新快照();
@@ -433,7 +436,9 @@ export const 创建历史回合工作流 = (deps: 历史回合工作流依赖) =
             }
             return -1;
         })();
-        if (deps.变量生成中 && historyIndex === latestAssistantIndex) {
+        // 检查变量生成状态
+        const variableGenerationState = deps.获取变量生成状态?.() ?? { running: deps.变量生成中, pending: 0, runningCount: deps.变量生成中 ? 1 : 0 };
+        if (variableGenerationState.running && historyIndex === latestAssistantIndex) {
             return '变量生成进行中，请等待完成后再优化最新回合正文。';
         }
         const target = deps.历史记录[historyIndex];
