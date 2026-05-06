@@ -1,5 +1,69 @@
 # Night Work - 2026-05-07
 
+## Task: Execute docs/plans/2026-04-28_prompt-engine-upgrade.md
+
+## Status: ✅ ALREADY IMPLEMENTED
+
+## Plan Summary
+- **Plan date**: 2026-04-28
+- **Scope**: Prompt Engine Upgrade — modular structure, unified export format, COT fragment sharing
+- **Implementation status**: Fully implemented in prior work
+
+## Verification Results
+
+### 1. `prompts/shared/cotFragments.ts` — ✅ ALREADY EXISTS
+Contains 8 shared COT fragments (required: ≥5):
+- `共享_判定逻辑` — Judgment logic (前置条件→基础值→随机因子→难度比对→结算)
+- `共享_资源校验` — Resource validation (验证→计算→执行→审计)
+- `共享_NPC行为` — NPC behavior (人设一致性→亲密度→世界观→信息边界)
+- `共享_时间推进` — Time progression (时间推进→进位→快照追溯)
+- `共享_变量落点` — Variable placement (变化依据→自然语言说明→禁止伪命令)
+- `共享_世界观一致性` — World consistency (武力梯度→社会规范→逻辑一致性)
+- `共享_战斗判定` — Combat judgment (阶段→攻击值→防御值→对抗→伤害结算)
+- `共享_记忆管理` — Memory management (即时/短期/中期/长期记忆分层)
+
+Exported both as array (`共享COT片段库`) and individually.
+
+### 2. Core prompts use unified format — ✅ VERIFIED
+All `prompts/core/` files use consistent `提示词结构` export format with fields:
+- `id` — unique identifier (e.g., `'core_format'`)
+- `标题` — display name
+- `版本` / `更新时间` — version tracking
+- `内容` — prompt content
+- `类型` — category (`'核心设定'`)
+- `启用` — enabled flag (`true`)
+
+Files verified:
+- `core/format.ts` — `核心_输出格式` (版本: 1.2.0)
+- `core/rules.ts` — `核心_核心规则` (版本: 1.1.0)
+- `core/cot.ts` — `核心_思维链` + `核心_思维链_同人版`
+- `core/memory.ts` — `核心_记忆法则` (版本: 1.0.0)
+- `core/world.ts`, `core/realm.ts`, `core/timeProgress.ts`, `core/actionOptions.ts`
+
+### 3. `prompts/index.ts` — ✅ CORRECTLY EXPORTS ALL
+- Imports all core prompts including `核心_世界观`, `核心_思维链`, `核心_战斗思维链`, `核心_判定思维链`
+- Imports `共享COT片段库` and all individual shared fragments
+- Re-exports `默认提示词` array with all prompts in correct order
+- Re-exports `获取时代现实提示词` for dynamic loading
+
+### 4. Stress Test — ✅ PASSED
+```
+npm run stress:test
+[stress-test] passed: 10/10
+[stress-test] issues:
+  - FandomPromptCheck:planning_prompt_chain:fandomEnabled: fandomPromptBundle.enabled
+  - FandomPromptCheck:realm_generation_runtime:同人境界体系生成系统提示词,校验境界体系提示词完整性
+```
+
+## Conclusion
+The prompt engine upgrade plan was fully implemented in prior work on this codebase. All acceptance criteria are met:
+1. ✅ `cotFragments.ts` contains ≥5 shared COT fragments
+2. ✅ All `prompts/core/` files use unified export format
+3. ✅ `prompts/index.ts` correctly exports all prompts
+4. ✅ Stress test passes
+
+---
+
 ## Task: Execute docs/plans/2026-05-05_campus-era-npc-relationship.md
 
 ## Status: ✅ COMPLETED
