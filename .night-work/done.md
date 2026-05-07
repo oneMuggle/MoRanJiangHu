@@ -902,3 +902,81 @@ All plan-required exports confirmed in `services/ai/image/index.ts`:
 
 ---
 
+# 2026-04-28 记忆检索功能 — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-04-28_memory-search.md`
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### P0: 核心搜索逻辑
+
+|| Item | Status | Evidence |
+||------|--------|----------|
+| `提取检索词` 函数 | ✅ | `hooks/useGame/memory/memoryRecall.ts:53` — 中文2-4字连续词提取, 英文单词匹配 |
+| `记忆搜索结果` 类型 | ✅ | `hooks/useGame/memory/memoryRecall.ts:242-251` — id, 层, 记忆原文, 概括, 时间戳, 回合, 匹配度, 匹配片段 |
+| `搜索记忆条目` 函数 | ✅ | `hooks/useGame/memory/memoryRecall.ts:307` — 利用 `提取检索词` + 正则匹配搜索四层记忆 |
+| 匹配度计算 | ✅ | `hooks/useGame/memory/memoryRecall.ts:255-296` — 词长权重 + 命中次数 + 片段提取 |
+
+### P1: 桌面端 MemoryModal 搜索 UI
+
+|| Item | Status | Evidence |
+||------|--------|----------|
+| 搜索栏 UI | ✅ | `MemoryModal.tsx:408` — 搜索图标 + 输入框 + 清除按钮 |
+| `searchQuery` 状态 | ✅ | `MemoryModal.tsx:108` — `useState('')` |
+| `searchResults` 状态 | ✅ | `MemoryModal.tsx:109` — `useState<记忆搜索结果[]>([])` |
+| `search` 标签页 | ✅ | `MemoryModal.tsx:16` — `TabType = 'context' \| 'short' \| 'medium' \| 'long' \| 'search'` |
+| 300ms 防抖搜索 | ✅ | `MemoryModal.tsx:238-244` — `setTimeout(..., 300)` |
+| 搜索结果展示 | ✅ | `MemoryModal.tsx:182-193` — `activeTab === 'search'` 分支转换格式 |
+| 空结果提示 | ✅ | `MemoryModal.tsx:471` — `'灵台澄空，未寻得相关神念'` |
+| 清除搜索恢复原标签 | ✅ | `MemoryModal.tsx:228-232` — `清除搜索` 重置并切回 `searchTabBefore` |
+
+### P2: 移动端 MobileMemory 搜索 UI
+
+|| Item | Status | Evidence |
+||------|--------|----------|
+| 搜索栏 UI | ✅ | `MobileMemory.tsx:367` — 搜索图标 + 输入框 + 清除按钮 |
+| `searchQuery` 状态 | ✅ | `MobileMemory.tsx:107` — `useState('')` |
+| `searchResults` 状态 | ✅ | `MobileMemory.tsx:108` — `useState<记忆搜索结果[]>([])` |
+| `search` 标签页 | ✅ | `MobileMemory.tsx:15` — `TabType = 'context' \| 'short' \| 'medium' \| 'long' \| 'search'` |
+| 300ms 防抖搜索 | ✅ | `MobileMemory.tsx:232-244` — `setTimeout(..., 300)` |
+| 搜索结果展示 | ✅ | `MobileMemory.tsx:179-180` — `activeTab === 'search'` 分支 |
+| 空结果提示 | ✅ | `MobileMemory.tsx:471` — `'灵台澄空，未寻得相关神念'` |
+| 清除搜索恢复原标签 | ✅ | `MobileMemory.tsx:229-233` — `清除搜索` 重置并切回 |
+
+### 实现对应关系
+
+| 计划文件 | 计划操作 | 实际文件 | 状态 |
+|----------|----------|----------|------|
+| `MemoryModal.tsx` | 修改 | `components/features/Memory/MemoryModal.tsx` | ✅ |
+| `MobileMemory.tsx` | 修改 | `components/features/Memory/MobileMemory.tsx` | ✅ |
+| `memoryRecall.ts` | 扩展 | `hooks/useGame/memory/memoryRecall.ts` | ✅ |
+
+### 搜索覆盖的四层记忆
+
+- ✅ 即时记忆（浮光掠影）— `即时` 层
+- ✅ 短期记忆（浅层识海）— `短期` 层  
+- ✅ 中期记忆（深层识海）— `中期` 层
+- ✅ 长期记忆（神魂烙印）— `长期` 层
+
+### 搜索字段
+
+- ✅ `名称` / `概括` — 通过 `提取即时记忆可搜索文本` 解析
+- ✅ `原文`（回忆档案）— 通过 `提取即时记忆可搜索文本` 解析
+- ✅ `匹配片段` — 前后各20字符上下文
+
+### 标签页映射
+
+| 标签 | 计划说明 | 实际实现 |
+|------|----------|----------|
+| `context` | 浮光掠影（即时记忆） | ✅ |
+| `short` | 浅层识海（短期记忆） | ✅ |
+| `medium` | 深层识海（中期记忆） | ✅ |
+| `long` | 神魂烙印（长期记忆） | ✅ |
+| `search` | 检索结果（搜索结果） | ✅ |
+
+---
+
