@@ -620,3 +620,73 @@ import type { 催眠记录, 催眠App等级 } from '../../../../models/campusPho
 - `components/features/MobileDevice/apps/CampusForumApp.tsx` — 三板块数据源区分
 - `components/features/MobileDevice/apps/CampusScheduleApp.tsx` — 课程表正确格式
 - `components/features/MobileDevice/apps/CampusHypnosisApp.tsx` — 类型导入统一
+
+---
+
+## Plan Verified: `docs/plans/2026-05-03_era-randomizer.md`
+
+**计划：** 时代随机选择器 (Era Randomizer)
+**状态：** ✅ 已完成 (marked in plan header)
+**验证日期：** 2026-05-08
+
+---
+
+## 验证结果：✅ 全部完成
+
+### 核心功能实现 — ✅ Verified
+
+| 功能点 | 计划描述 | 实现位置 | 状态 |
+|--------|----------|----------|------|
+| 随机时代按钮 | EraSelector 中添加"随机选择一个"按钮 | `EraSelector.tsx:203-209` | ✅ Done |
+| 移动端随机按钮 | 🎲 按钮在移动端可见 | `MobileEraSelector.tsx:248-254` | ✅ Done |
+| 随机算法 | `Math.random() * array.length` | `EraSelector.tsx:91` | ✅ Done |
+| depth===2 筛选 | 从 allEraNodes 筛选 depth===2 的子纪元 | `EraSelector.tsx:89` | ✅ Done |
+| onChange 回调 | 随机选中后自动填充并关闭 | `EraSelector.tsx:93` — `handleSubEraSelect()` | ✅ Done |
+
+### handleRandom 实现细节 — ✅ Verified
+
+```typescript
+// EraSelector.tsx:88-99
+const handleRandom = () => {
+    const subEraNodes = allEraNodes.filter((n: EraNode) => n.depth === 2);
+    if (subEraNodes.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * subEraNodes.length);
+    const randomSubEra = subEraNodes[randomIndex];
+    handleSubEraSelect(randomSubEra.id);
+    // 桌面端设置选中的 epoch 和 era
+    const node = allEraNodes.find((n: EraNode) => n.id === randomSubEra.id);
+    if (node?.parent) {
+        const era = allEraNodes.find((n: EraNode) => n.id === node.parent);
+        if (era?.parent) {
+            setSelectedEpoch(era.parent);
+            setSelectedEra(era.id);
+        }
+    }
+};
+```
+
+### UI 验证 — ✅ Verified
+
+- 桌面端：`EraSelector.tsx:208` — "🎲 随机" 按钮在选择时代 Header 右侧
+- 移动端：`MobileEraSelector.tsx:253` — "🎲" 按钮可见
+- 按钮样式：`text-wuxia-gold hover:text-wuxia-gold/80` 与计划一致
+
+### 涉及文件 — ✅ Matches Plan
+
+| 文件 | 修改内容 | 状态 |
+|------|----------|------|
+| `components/features/EraSelector/EraSelector.tsx` | 添加随机按钮和 handleRandom 逻辑 | ✅ 计划内 |
+| `components/features/EraSelector/MobileEraSelector.tsx` | 添加移动端随机按钮 | ✅ 计划外（自然延伸） |
+
+---
+
+## 总结
+
+计划 `2026-05-03_era-randomizer.md` 全部功能已实现：
+
+1. **随机按钮**：桌面端 + 移动端均已添加
+2. **随机算法**：`Math.random() * subEraNodes.length`，筛选 depth===2 子纪元
+3. **自动联动**：选中后正确设置 epoch + era 层级
+4. **触发 onChange**：通过 `handleSubEraSelect()` 回调
+
+计划状态与实现完全一致，无需额外修改。
