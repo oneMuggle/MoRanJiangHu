@@ -155,3 +155,98 @@ Core mechanism is functional. The desktop UI can fully select and persist enviro
 ---
 
 *验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-05-05_urban-driver-nsfw-enhancement.md
+
+**Plan**: `docs/plans/2026-05-05_urban-driver-nsfw-enhancement.md`
+**Status**: ✅ VERIFIED - FULLY IMPLEMENTED
+
+---
+
+## Verification Result
+
+### Phase 1: Data Models (4 files)
+
+| File | Status | Notes |
+|------|--------|-------|
+| `models/urbanDriverNSFW/core.ts` | ✅ | Types: 乘客欲望阶段, 行程关系轨道, 权力倾向, 乘客欲望档案, 醉酒状态, 药物状态 |
+| `models/urbanDriverNSFW/scenarios.ts` | ✅ | Types: 行程NSFW类型 (8 subtypes), 乘客类型, 行程地点, presets |
+| `models/urbanDriverNSFW/consequences.ts` | ✅ | Types: 网约车后果类型 (12后果), 后果事件, 权重和叙事模板 |
+| `models/urbanDriverNSFW/index.ts` | ✅ | Interface 都市网约车NSFW设置 with all 20+ fields, 默认设置 |
+| `models/urbanDriverNSFW/normalization.ts` | ✅ | 规范化设置函数 |
+
+### Phase 2: Engine Layer
+
+| File | Status | Notes |
+|------|--------|-------|
+| `hooks/useGame/urbanDriverNSFWEngine.ts` | ✅ | Pure function engine for trip judgment, desire state updates, consequence calculation |
+
+### Phase 3: Prompt Components
+
+| File | Status | Notes |
+|------|--------|-------|
+| `prompts/runtime/urbanDriverNSFW.ts` | ✅ | Narrative constraint functions integrated via `构建都市网约车完整叙事约束` |
+
+### Phase 4: Runtime Integration (2 files modified)
+
+| File | Status | Notes |
+|------|--------|-------|
+| `prompts/runtime/nsfw.ts` | ✅ | Line 252-257: Urban driver NSFW parameter injection when `时代配置ID === 'contemporary_urban'` |
+| `models/system.ts` | ✅ | Line 1636: `都市网约车NSFW设置?` field added to 游戏设置结构 |
+
+### Phase 5: UI (3 files: 1 new + 2 modified)
+
+| File | Status | Notes |
+|------|--------|-------|
+| `components/features/Settings/UrbanDriverNSFWSettings.tsx` | ✅ | Full settings panel with all toggles (master switch, intensity, scene switches, consequence controls) |
+| `components/features/Settings/tabDefinitions.ts` | ✅ | Lines 6, 32: `{ id: 'urban_driver_nsfw', label: '都市 NSFW' }` added to both desktop and mobile tabs |
+| `components/features/Settings/SettingsPanel.tsx` | ✅ | Line 207: urban_driver_nsfw tab handler |
+
+### Phase 6: Era Theme Extension
+
+| File | Status | Notes |
+|------|--------|-------|
+| `models/eraTheme/epoch-contemporary.ts` | ✅ | urban_driver personality (line 169), 网约车禁忌 (lines 230, 234), 网约车 aiDirectives (line 243), dualPersonalities/sceneTypes with passenger archetypes (lines 183-209) |
+
+### Phase 7: New Game Presets
+
+| File | Status | Notes |
+|------|--------|-------|
+| `data/newGamePresets.ts` | ✅ | Lines 230-265: Two urban driver presets - `urban_night_driver` (夜班司机) and `urban_city_hunter` (都市猎手) |
+
+### Additional Implementation Found
+
+| File | Status | Notes |
+|------|--------|-------|
+| `modules/contemporary/urbanDriverNSFW/registration.ts` | ✅ | Module registration with 故事模块注册表 |
+| `utils/gameSettings.ts` | ✅ | Default settings and normalization (lines 8-9, 11, 193, 312-314) |
+| `models/game-settings.ts` | ✅ | Import of 都市网约车NSFW设置 (line 8) |
+| `hooks/useGame/mainStoryRequest.ts` | ✅ | Passes 都市网约车NSFW参数 to runtime prompts (lines 162, 226, 228) |
+
+---
+
+## Deliverables Checklist
+
+| Deliverable | Status |
+|-------------|--------|
+| Phase 1: 4 new model files | ✅ |
+| Phase 2: 1 engine file | ✅ |
+| Phase 3: 1 prompt file | ✅ |
+| Phase 4: 2 modified files | ✅ |
+| Phase 5: 1 new + 2 modified UI files | ✅ |
+| Phase 6: 1 modified era file | ✅ |
+| Phase 7: 1 modified presets file | ✅ |
+
+**Total: 7 new files + 5 modified files = 12 files** (matching plan specification)
+
+---
+
+## Conclusion
+
+The **都市纪元 - 网约车司机 NSFW 强化方案** plan dated 2026-05-05 is **fully implemented**. All specified files exist and the implementation matches the plan's deliverables. The system is integrated into the runtime NSFW prompt injection, settings UI, era configuration, and new game presets.
+
+---
+
+*验证时间: 2026-05-08*
