@@ -154,6 +154,142 @@ Verification time: 2026-05-08
 
 ---
 
+# 验证报告: 2026-05-03_asset-resource-plan.md
+
+> 验证时间: 2026-05-08
+> 计划文件: docs/plans/2026-05-03_asset-resource-plan.md
+
+---
+
+## 总体状态: ⚠️ 部分完成
+
+计划中 10 个主要项目，6 个已完成/验证通过，4 个存在差异或未完全实施。
+
+---
+
+## 详细验证
+
+### 2.1 数据素材 ✅
+
+| 资源 | 计划 | 实际 | 状态 |
+|------|------|------|------|
+| 天赋预设 | `data/presets.ts` (1011行) | `data/talents/` (665行) + `data/backgrounds/` (484行) | ⚠️ 已拆分重组 |
+| 气运系统 | `data/qiyun/index.ts` (1280行) | `data/qiyun/index.ts` (165行) + categories/ | ⚠️ 结构变更 |
+| 节日列表 | `data/world.ts` (125行) | `data/world.ts` (199行) | ✅ 超预期 |
+| 子纪元预设 | `data/subEraDefaultPresets.ts` (389行) | ✅ 存在 | ✅ |
+| 里象功法 | `data/cultivation/lixiang.ts` (186行) | ✅ 186行 | ✅ |
+| 妖象功法 | `data/cultivation/yaoxiang.ts` (222行) | ✅ 222行 | ✅ |
+| 志怪生物 | `data/zhiguai/creatures.ts` (428行) | ✅ 428行 | ✅ |
+| 志怪事件 | `data/zhiguai/events.ts` (204行) | ✅ 204行 | ✅ |
+
+**结论**: 核心数据文件存在且结构完整，但部分被拆分为多个子文件。
+
+---
+
+### 2.2 Prompt 模板 ✅ (部分存疑)
+
+计划称 99 文件、10,148 行。实际检查：
+- `prompts/runtime/` 存在多个运行时文件
+- Image COT 文件 (`imageAnchorExtractionCot.ts` 等) 内容非常简短（伪装提示词格式）
+
+**存疑**: 计划中提及的 stub 文件实际已实现为完整 COT 格式。
+
+---
+
+### 2.3 UI 资源 ✅
+
+| 资源 | 状态 |
+|------|------|
+| SVG 图标组件 | ✅ 存在于 `resources/images/` |
+| 主题定义 | ✅ tailwind.config.cjs 有 5 套主题 |
+| 稀有度样式 | ✅ 6 级色彩 |
+| Android 启动图标 | ❓ 未验证 |
+
+---
+
+### 2.4 音频资源 ⚠️
+
+| 资源 | 计划 | 实际 | 状态 |
+|------|------|------|------|
+| 本地 BGM | 3 首 | 3 首 (marketplace/tavern/temple) | ✅ |
+| BGM 扩充 (6首) | travel/cultivation/supernatural_night/relationship/ending/sect_training | ❌ 代码中未找到相关引用 | ❌ 未实施 |
+
+**说明**: 计划称"阶段二.4：扩充 BGM 至 20+ 首 — ✅ 已完成"，但这 6 首新增 BGM 在代码库中未找到引用或定义。
+
+---
+
+### 2.5 时代场景素材 ✅
+
+| 项目 | 状态 |
+|------|------|
+| 缺失的 6 个时代 | ✅ 全部补齐 (renaissance/school_sim/cyberpunk/space_scifi/post_human/ancient_prehistoric) |
+| 总 era 目录数 | ✅ 59 个 |
+| manifest.json | ✅ 全部时代均有 |
+
+---
+
+### 2.6 R2 CDN 图标图片 ✅
+
+| 目录 | 数量 |
+|------|------|
+| buildings/ | ✅ |
+| items/ | ✅ |
+| skills/ | ✅ |
+| 总计 | **61 张** (计划目标 50+) ✅ |
+
+---
+
+### 2.7 图片生成系统 ✅
+
+| 模块 | 状态 |
+|------|------|
+| 多后端支持 | ✅ (NAI/ComfyUI/OpenAI/Grok/Banana) |
+| 资源缓存 | ✅ wuxia-asset:// + IndexedDB |
+| CDN 集成 | ✅ R2 manifest.json |
+| 图片管理器 UI | ✅ 7 Tabs |
+
+---
+
+### 高优先级未完成项
+
+| # | 资源 | 计划状态 | 实际状态 |
+|---|------|----------|----------|
+| 2 | 开局预设方案 | 🟡 进行中 | ✅ **已填充** (13个预设方案，结构完整) |
+| 3 | AlbumApp 占位图片 | ✅ 完成 | ❓ 未验证 |
+| 4 | Prompt Stub 文件 | 🟡 进行中 | ✅ 已转为 COT 格式实现 |
+
+---
+
+## 关键差异
+
+1. **BGM 扩充未在代码中确认**: 计划称 6 首新 BGM 已完成，但 grep 搜索未找到 `bgm_travel`、`bgm_cultivation` 等引用
+2. **数据结构重组**: 原始 `data/presets.ts` (1011行) 被拆分为 `data/talents/` 和 `data/backgrounds/` 子目录
+3. **气运系统缩减**: `data/qiyun/index.ts` 从 1280 行缩减为 165 行，但通过 categories/ 子目录扩展
+
+---
+
+## 实施进度核对
+
+| 阶段 | 计划 | 验证 |
+|------|------|------|
+| 阶段一.1 补齐 6 缺失时代 | ✅ 完成 | ✅ 确认 |
+| 阶段二.4 BGM 扩充至 20+ 首 | ✅ 完成 | ❌ 未确认 |
+| 阶段二.6 图标扩充至 50+ 张 | 🟡 进行中 | ✅ 61 张 |
+| 高优-开局预设方案 | 🟡 进行中 | ✅ 13 个预设 |
+
+---
+
+## Conclusion
+
+资产资源规划 **大部分已完成**，但存在以下问题：
+- BGM 扩充声称完成但代码中未找到 6 首新增 BGM 的定义或引用
+- 数据文件结构被重组（从单文件变为多文件目录结构）
+- 开局预设方案从"空数组"变为"13个预设"（已完成）
+
+**建议**: 确认 BGM 扩充文件的实际位置，或调整计划状态为"部分完成"。
+
+---
+
 # 验证报告: 2026-05-05_forum-refresh-backend-queue.md
 
 > 验证时间: 2026-05-08
