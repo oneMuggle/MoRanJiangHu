@@ -1,3 +1,67 @@
+# 2026-05-07 动态难度调整 (Dynamic Difficulty Adjustment) — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md`
+**Status**: ⚠️ Partially Implemented (Engine Complete, UI Not Integrated)
+
+---
+
+## Verification Results
+
+### Phase 1: Data Model Extension ✅
+
+| Item | Path | Status |
+|------|------|--------|
+| `游戏统计` interface | `models/system.ts:1487-1502` | ✅ Implemented |
+| `难度调整记录` interface | `models/system.ts:1475-1485` | ✅ Implemented |
+| `启用动态难度` switch | `models/game-settings.ts:296` | ✅ Implemented |
+| `难度评估` in 世界设置 | — | ⚠️ Not found (plan item may be stale) |
+
+### Phase 2: Statistics Tracking ⚠️
+
+| Item | Path | Status |
+|------|------|--------|
+| `更新战斗统计()` | `difficultyAdjustmentWorkflow.ts:237-271` | ⚠️ Defined but not wired to sendWorkflow |
+| `更新任务统计()` | `difficultyAdjustmentWorkflow.ts:276-290` | ⚠️ Defined but not wired to sendWorkflow |
+| `更新濒死统计()` | `difficultyAdjustmentWorkflow.ts:295-300` | ⚠️ Defined but not wired |
+| Death count on death | — | ⚠️ Not integrated |
+
+### Phase 3: Evaluation & Adjustment Engine ✅
+
+| Function | Path | Status |
+|----------|------|--------|
+| `计算战斗胜率()` | `difficultyAdjustmentWorkflow.ts:55-58` | ✅ Implemented |
+| `计算任务完成率()` | `difficultyAdjustmentWorkflow.ts:63-67` | ✅ Implemented |
+| `计算越级成功率()` | `difficultyAdjustmentWorkflow.ts:72-75` | ✅ Implemented |
+| `计算综合评级()` | `difficultyAdjustmentWorkflow.ts:80-95` | ✅ Implemented |
+| `评级转难度()` | `difficultyAdjustmentWorkflow.ts:100-106` | ✅ Implemented |
+| `评估玩家表现()` | `difficultyAdjustmentWorkflow.ts:118-199` | ✅ Implemented |
+| `执行难度调整()` | `difficultyAdjustmentWorkflow.ts:305-335` | ✅ Implemented |
+
+### Phase 4: UI Integration ❌
+
+| Item | Status |
+|------|--------|
+| Difficulty rating display in settings | ❌ Not found |
+| Dynamic difficulty toggle display | ❌ Not found |
+| Player performance dashboard | ❌ Not found |
+
+---
+
+## Summary
+
+**Core engine is complete** (342 lines in `difficultyAdjustmentWorkflow.ts`):
+- Full type definitions for stats and adjustment records
+- Evaluation functions with weighted scoring (30% win rate, 20% quest completion, 25% survival, 15% cross-level success)
+- Adjustment logic with cooldown (10 turns) and step limits (1 level per adjustment)
+- Threshold configuration matching plan specs
+
+**Missing integration**:
+- Statistics tracking functions are exported but not called from `sendWorkflow.ts`
+- UI components for displaying/enabling dynamic difficulty not created
+
+---
+
 # 2026-05-07 现代纪元NSFW模块扩展方案 — Verification
 
 **Date**: 2026-05-07
@@ -1072,3 +1136,73 @@ All plan-required exports confirmed in `services/ai/image/index.ts`:
 
 ✅ All 15 checklist items verified as implemented. NovelAI image generation backend is fully integrated.
 
+
+---
+
+# 2026-04-15 时代继承系统 (Era Inheritance System) — Verification
+
+**Date**: 2026-05-07  
+**Plan**: `docs/plans/2026-04-15_era-inheritance-system.md`  
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Data Model (`models/eraTheme/`) — Verified
+
+| Component | Path | Status |
+|-----------|------|--------|
+| Types | `models/eraTheme/types.ts` | ✅ `EraNode`, `EraColors`, `EraTypography`, `EraUIStyle`, `EraPromptVars`, `EraRealmConfig` |
+| Assembly | `models/eraTheme/assembly.ts` | ✅ `resolveEraNode(id)` with `getFirstDefined()`, `getNodeOnly()`, `sources[]` tracking |
+| Epoch files | `models/eraTheme/epoch-*.ts` (7 files) | ✅ epoch-primordial, epoch-ancient, epoch-modern, epoch-contemporary, epoch-near-future, epoch-far-future, epoch-post-human |
+| Tests | `models/eraTheme/assembly.test.ts` | ✅ 39 tests covering tree integrity, field validation, inheritance |
+
+### Test Results
+
+```
+npx vitest run models/eraTheme/assembly.test.ts
+✓ 39 tests passed (48ms)
+```
+
+### Inheritance Field Classification — Verified
+
+| Field | Inheritance | Verified |
+|-------|-------------|----------|
+| `colors`, `typography`, `uiStyle`, `bgmTags`, `artStyle`, `promptVars`, `conflictTypes`, `liMode`, `realm` | Nearest-wins (Epoch → Era → SubEra) | ✅ |
+| `openingScenes`, `characterArchetypes`, `writingSamples`, `uiCopy` | Node-only (no inheritance) | ✅ |
+
+### Consumers (6 integrations) — All Verified
+
+| Consumer | Path | Uses |
+|----------|------|------|
+| 时代主题注入 | `prompts/runtime/eraTheme.ts` | `resolveEraNode` |
+| 时代角色原型注入 | `prompts/runtime/eraTheme.ts` | `resolveEraNode` |
+| 时代文风注入 | `prompts/runtime/eraTheme.ts` | `resolveEraNode` |
+| 里模式 | `prompts/runtime/eraLiMode.ts` | `resolveEraNode` |
+| 开局场景 | `prompts/runtime/eraOpeningScene.ts` | `resolveEraNode` |
+| 新建游戏向导 | `components/features/NewGame/useNewGameWizardState.ts` | `resolveEraNode` |
+| 游戏设置 | `utils/gameSettings.ts` | `resolveEraNode` |
+
+### Backward Compatibility — Verified
+
+- `getEraById()` contains legacy ID mapping (`era_ancient_wuxia` → `ancient_eastern_wuxia` etc.)
+- Old interfaces `时代主题方案列表` and `获取时代主题方案()` still functional
+
+### Build Status
+
+- ❌ Full project build fails due to unrelated issue: missing `./hooks/useGame/timeUtils` import in `App.tsx`
+- ✅ Era theme module itself is valid — 39 tests pass
+
+---
+
+## Summary
+
+- **Plan claims**: Complete era inheritance system with 3-layer hierarchy (Epoch → Era → SubEra)
+- **Implementation**: ✅ All components verified
+  - 7 epoch files with full era tree data
+  - `resolveEraNode()` with proper upward inheritance and `sources[]` tracking
+  - 39 passing tests covering all inheritance scenarios
+  - 6 consumer integrations across prompts and components
+  - Legacy ID mapping for backward compatibility
+- **Note**: Build failure is pre-existing and unrelated to era inheritance system (missing timeUtils module)
