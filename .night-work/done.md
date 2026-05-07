@@ -1472,3 +1472,61 @@ npx vitest run models/eraTheme/assembly.test.ts
 - **Mobile/Desktop parity**: 23 tabs on both platforms with device-appropriate layouts
 - **SaveLoad**: Intentionally separate implementations for optimal UX on each device
 - **Documentation**: Accurate and matches actual implementation
+
+---
+
+# 2026-05-05 Campus × Urban Era Fusion — Verification
+
+**Date**: 2026-05-07  
+**Plan**: `docs/plans/2026-05-05_campus-era-urban-era-fusion.md`  
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Phase 1: Data Model Extension ✅
+
+| Item | Path | Status |
+|------|------|--------|
+| `contemporary_campus_urban` node | `models/eraTheme/epoch-contemporary.ts:583-690` | ✅ Implemented |
+| SubEra presets (3x) | `data/subEraDefaultPresets.ts:172-196` | ✅ Implemented |
+| New game presets (3x) | `data/newGamePresets.ts:170-233` | ✅ Implemented |
+
+### Phase 2: Scene & Character ✅
+
+| Item | Path | Status |
+|------|------|--------|
+| 6 cross-scene openings | `epoch-contemporary.ts:666-672` | ✅ Implemented (plan specified 5, implemented 6) |
+| 4 character archetypes | `epoch-contemporary.ts:674-678` | ✅ Implemented (plan specified 3, implemented 4) |
+| `MODERN_ERA_IDS` updated | `models/eraTheme/assembly.ts:46` | ✅ Includes `contemporary_campus_urban` |
+
+### Phase 3: NSFW Fusion ✅
+
+| Item | Path | Status |
+|------|------|--------|
+| Unified modern era framework | Uses existing `MODERN_ERA_IDS` | ✅ `contemporary_campus_urban` inherits from `contemporary_eastern` |
+| NSFW欲望框架 | Inherited via epoch hierarchy | ✅ Uses shared modern欲望 system |
+
+### File Changes
+
+| File | Change |
+|------|--------|
+| `models/eraTheme/epoch-contemporary.ts` | Added `contemporary_campus_urban` node with full config (colors, typography, uiStyle, bgmTags, artStyle, uiCopy, 6 opening scenes, 4 character archetypes, 2 writing samples, promptVars) |
+| `data/subEraDefaultPresets.ts` | Added 3 fusion presets: 通勤学生, 校外房东, 咖啡店兼职生 |
+| `data/newGamePresets.ts` | Added 3 new game presets: campus_urban_commuter, campus_urban_landlord, campus_urban_barista |
+| `models/eraTheme/assembly.ts` | `MODERN_ERA_IDS` includes `contemporary_campus_urban` |
+
+---
+
+## Summary
+
+**Plan fully implemented** — all specified features found in codebase:
+
+1. **New sub-era node** (`contemporary_campus_urban`) with complete theme configuration including colors, typography, UI copy, BGM tags, art style, opening scenes (6), character archetypes (4), and writing samples (2)
+2. **3 fusion presets** in `subEraDefaultPresets.ts`: 通勤学生, 校外房东, 咖啡店兼职生
+3. **3 new game presets** in `newGamePresets.ts`: campus_urban_commuter, campus_urban_landlord, campus_urban_barista
+4. **`MODERN_ERA_IDS` updated** to include `contemporary_campus_urban`
+5. **Exceeds plan spec**: 6 scenes implemented (vs. 5 planned), 4 archetypes (vs. 3 planned), plus 2 writing samples
+
+**Git commit**: `verify 2026-05-05 campus-era-urban-era-fusion plan — fully implemented`"
