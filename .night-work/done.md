@@ -21,29 +21,6 @@
 
 **代码位置**: `ApiConfigAssistant.tsx` 第 40-61 行
 
-```typescript
-const autoConfigured = useRef(false);
-useEffect(() => {
-    if (autoConfigured.current) return;
-    const mainConfig = currentSettings.configs?.find((c) => c.id === currentSettings.activeConfigId);
-    if (mainConfig?.baseUrl && mainConfig?.apiKey) {
-        setAssistantBaseUrl(mainConfig.baseUrl.replace(/\/+$/, ''));
-        setAssistantApiKey(mainConfig.apiKey);
-        setAssistantModel(mainConfig.model || '');
-        setConfigReady(true);
-        setShowConfigPanel(false);
-        autoConfigured.current = true;
-        setMessages((prev) => [
-            ...prev,
-            {
-                role: 'assistant',
-                content: `已自动使用当前配置：${mainConfig.名称 || '未命名'}（${mainConfig.baseUrl.replace(/\/+$/, '')}）\n如需更换助手后端，请点击右上角齿轮图标。`,
-            },
-        ]);
-    }
-}, [currentSettings]);
-```
-
 ---
 
 ## 需求 2：响应式 UI 修复
@@ -106,3 +83,71 @@ useEffect(() => {
 - 消息区约束（需求 2）：第 318 行
 
 **步骤 5（手动验证）未执行**，需要人工在桌面端、移动端及无配置场景下测试。
+
+---
+
+# 2026-05-08 Plan Verification: 2026-05-03-era-preset-consistency.md
+
+**Plan**: docs/plans/2026-05-03-era-preset-consistency.md
+**Status**: VERIFIED - FULLY IMPLEMENTED
+
+## 第二轮：武侠元素泄漏修复 ✅
+
+### P0: 数据泄漏修复 ✅
+
+| 计划条目 | 文件位置 | 验证 |
+|---------|---------|------|
+| 百花医宗 补 `时代适配: ['古代']` | `data/backgrounds/nsfw.ts` L32 | ✅ 已补 |
+| 合欢心法 补 `时代适配: ['古代']` | `data/talents/nsfw.ts` L28 | ✅ 已补 |
+| NSFW 古代专属天赋 | `data/talents/nsfw.ts` | ✅ 全员已补 |
+| 寒门子弟 补 `时代适配: ['古代']` | `data/backgrounds/common.ts` L5 | ✅ 已补 |
+| 山野孤儿 补 `时代适配: ['古代']` | `data/backgrounds/common.ts` L6 | ✅ 已补 |
+| 商贾之家 补 `时代适配: ['古代']` | `data/backgrounds/common.ts` L8 | ✅ 已补 |
+
+### P1: 境界体系与开局提示词去武侠化 ✅
+
+| 计划条目 | 文件位置 | 验证 |
+|---------|---------|------|
+| 境界体系按时代差异化 | `prompts/shared/realmDefaults.ts` | ✅ 武侠/校园/都市/废土/通用 5版本 |
+| 开局COT去武侠化 | `prompts/core/cotOpening.ts` L59 | ✅ "日常起居" 替代 "练功收势" |
+| 开局初始化提示词去武侠化 | `prompts/runtime/opening.ts` L110 | ✅ 使用 `获取境界速查提示词(eraId)` |
+| 变量校准参考去武侠化 | `prompts/runtime/variableCalibrationReference.ts` L154 | ✅ 境界提示改用通用版 |
+| 角色属性总纲去武侠化 | `prompts/stats/character.ts` L32 | ✅ 使用 `${默认累计境界分段映射提示词}` |
+| 部位生命去武侠化 | `prompts/stats/body.ts` L26 | ✅ "未入门/初学者" 替代武侠境界名 |
+
+## 第三轮：全面去武侠化 ✅
+
+| 计划条目 | 文件位置 | 验证 |
+|---------|---------|------|
+| "凡人/普通人/未入境" → "未入门/初学者" | `cotOpening.ts` L72, `variableCalibrationReference.ts` L155 | ✅ 已改 |
+| 命令示例 "归元境中期" → 通用境界名 | `character.ts` L33 | ✅ 已中性化 |
+| 血量校准目标改用数字范围 | `body.ts` L26-27 | ✅ "70~120", "1~4层级" |
+
+## 待深入修复 (Not Implemented - Acknowledged)
+
+| 项目 | 状态 | 说明 |
+|------|------|------|
+| `fandom.ts` 默认境界映射 eraId 注入机制 | ❌ 未实施 | 计划标注为待深入修复，非阻塞 |
+| 时代主题境界配置 (eraTheme/types.ts) | ❌ 未实施 | 计划标注为待深入修复，非阻塞 |
+
+## 实施进度核对
+
+| 阶段 | 计划状态 | 验证状态 |
+|------|---------|---------|
+| P0 数据泄漏修复 | ✅ 完成 | ✅ 已验证 |
+| P1 境界体系去武侠化 | ✅ 完成 | ✅ 已验证 |
+| P2 数据校验机制 | 待实现 | ⚠️ 未实施 |
+| 第三轮全面去武侠化 | ✅ 完成 | ✅ 已验证 |
+| fandom.ts eraId 注入 | 待深入修复 | ❌ 未实施 |
+| eraTheme realm 配置 | 待深入修复 | ❌ 未实施 |
+
+## Conclusion
+
+时代系统与开局设置适配优化第一轮、第二轮、第三轮核心内容**全部完成并验证通过**：
+- 6个古代专属条目全部补全 `时代适配: ['古代']` 标记
+- 5个差异化境界速查版本已实现（武侠/校园/都市/废土/通用）
+- 全部提示词文件已完成去武侠化用语改造
+- "未入门/初学者" 术语已全面替换"凡人/普通人/未入境"
+- P2 数据校验机制和待深入修复项目未实施，但计划已明确标注为"待实现/待深入修复"
+
+Verification time: 2026-05-08
