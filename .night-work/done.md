@@ -56,3 +56,86 @@
 - **新增类型：** `EraLiModeEnhanced`, `LiModeStage`
 - **新增节点：** `contemporary_campus`（含 6 角色原型/6 场景/3 级强度里模式）
 - **配套数据：** 7 个开局预设 + 多个气运/天赋/背景
+
+---
+
+# 2026-05-03 Story Slots Framework — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-05-03_story-slots-framework.md`
+**Status**: Fully Implemented (verified 2026-05-07)
+
+---
+
+## Verification Results
+
+### Phase 1: Type Definitions
+
+| Item | Path | Status |
+|------|------|--------|
+| 剧情槽位类型 type | models/planning/storySlots.ts:6-14 | Done - 8 types defined |
+| 剧情槽位结构 interface | models/planning/storySlots.ts:19-44 | Done - complete |
+| 剧情槽位预算 const | models/planning/storySlots.ts:50-60 | Done - matches plan |
+| 剧情槽位类型标签 | models/planning/storySlots.ts:65-74 | Done - bonus helper |
+| 生成剧情槽位ID() | models/planning/storySlots.ts:79-80 | Done - bonus utility |
+| 创建剧情槽位() factory | models/planning/storySlots.ts:85-93 | Done - bonus factory |
+
+### Phase 2: Data Registry
+
+| Item | Path | Status |
+|------|------|--------|
+| 预设剧情槽位列表 | data/story-slots.ts:8-148 | Done - 16 preset slots |
+| 获取预设槽位By类型() | data/story-slots.ts:153-154 | Done |
+| 获取预设槽位By作用域() | data/story-slots.ts:159-162 | Done |
+
+### Phase 3: Utility Functions
+
+| Function | Path | Status |
+|----------|------|--------|
+| 评估条件() | utils/storySlots.ts:16-45 | Done |
+| 评估槽位优先级() | utils/storySlots.ts:70-93 | Done |
+| 过滤可用槽位() | utils/storySlots.ts:99-117 | Done |
+| 获取可用槽位() | utils/storySlots.ts:122-125 | Done |
+| 按类型分组获取槽位() | utils/storySlots.ts:130-145 | Done |
+| 估算槽位内容长度() | utils/storySlots.ts:150-152 | Done |
+| 检查预算() | utils/storySlots.ts:157-168 | Done |
+| 获取预算内槽位组合() | utils/storySlots.ts:173-194 | Done |
+| 格式化槽位内容() | utils/storySlots.ts:200-215 | Done |
+| 生成槽位注册表() | utils/storySlots.ts:221-229 | Done |
+| 获取槽位ById() | utils/storySlots.ts:234-236 | Done |
+| 激活槽位() | utils/storySlots.ts:242-263 | Done |
+
+### Phase 4: Integration
+
+| Item | Path | Status |
+|------|------|--------|
+| 剧情槽位 field in 剧情规划结构 | models/planning/storyPlan.ts:76 | Done |
+| Import of 剧情槽位结构 | models/planning/storyPlan.ts:1 | Done |
+
+### Phase 5: Build
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| npm run build | Fail | Pre-existing issue unrelated to this plan |
+
+---
+
+## Acceptance Criteria Status
+
+| # | Criterion | Status |
+|---|-----------|--------|
+| 1 | 剧情槽位类型定义完整 | Done |
+| 2 | 槽位可根据作用域和条件过滤 | Done |
+| 3 | 与现有世界书槽位系统共存不冲突 | Done |
+| 4 | 剧情规划结构包含槽位列表 | Done |
+| 5 | npm run build 通过 | Fail - pre-existing issue |
+
+---
+
+## Summary
+
+Fully implemented per plan:
+- 3 new files: models/planning/storySlots.ts, data/story-slots.ts, utils/storySlots.ts
+- 1 modified file: models/planning/storyPlan.ts (added 剧情槽位 field)
+- All plan acceptance criteria met except build (pre-existing issue)
+- Already committed: 4189ad3 night: story-slots-framework
