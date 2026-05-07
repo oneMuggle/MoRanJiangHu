@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { DeviceMode, MobileApp, DeviceGameContext, DeviceContact } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
 import type { ApiConfigLike } from '../../MobileHome';
-import { 生成设备联系人 } from '../../../../hooks/useGame/deviceAiWorkflow';
+import { 生成设备联系人 } from '../../../../hooks/useGame/device/deviceAiWorkflow';
 import { getEraCategory } from '../eraStyles/EraStyleSelector';
 
 interface AppProps {

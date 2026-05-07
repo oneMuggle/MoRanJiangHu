@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { DeviceMode, MobileApp, DeviceGameContext, DeviceGroup } from '../../../../models/mobileDevice';
 import { getDeviceConfig, getAppName } from '../../../../models/eraDevice';
 import type { ApiConfigLike } from '../../MobileHome';
-import { 生成设备群组 } from '../../../../hooks/useGame/deviceAiWorkflow';
+import { 生成设备群组 } from '../../../../hooks/useGame/device/deviceAiWorkflow';
 
 interface AppProps {
     eraId: string;

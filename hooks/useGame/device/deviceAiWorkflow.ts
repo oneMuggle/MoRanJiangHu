@@ -1,13 +1,13 @@
-import type { 当前可用接口结构 } from '../../utils/apiConfig';
-import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../models/mobileDevice';
-import { getDeviceConfig, getAppName } from '../../models/eraDevice';
-import { getEraCategory } from '../../components/features/MobileDevice/eraStyles/EraStyleSelector';
-import { 构建子纪元里模式注入, LiModeIntensity } from '../../prompts/runtime/eraLiMode';
+import type { 当前可用接口结构 } from '../../../utils/apiConfig';
+import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../../models/mobileDevice';
+import { getDeviceConfig, getAppName } from '../../../models/eraDevice';
+import { getEraCategory } from '../../../components/features/MobileDevice/eraStyles/EraStyleSelector';
+import { 构建子纪元里模式注入, LiModeIntensity } from '../../../prompts/runtime/eraLiMode';
 import {
     type 通用消息,
     规范化文本补全消息链,
     请求模型文本,
-} from '../../services/ai/chatCompletionClient';
+} from '../../../services/ai/chatCompletionClient';
 
 // ============================================================
 // 设备消息 AI 生成工作流
@@ -319,8 +319,8 @@ export async function 生成设备联系人(
 // 校园内容解析辅助函数
 // ============================================================
 
-import type { 论坛帖子, 论坛分类, 聊天消息, 课程, 消费记录, 社团活动 } from '../../models/campusPhone';
-import type { BDSM论坛帖子, BDSM帖子分类, 招募方角色, 影响等级, 联系状态 } from '../../models/campusNSFW/bdsm-forum';
+import type { 论坛帖子, 论坛分类, 聊天消息, 课程, 消费记录, 社团活动 } from '../../../models/campusPhone';
+import type { BDSM论坛帖子, BDSM帖子分类, 招募方角色, 影响等级, 联系状态 } from '../../../models/campusNSFW/bdsm-forum';
 
 const 取文本 = (v: unknown, fallback = ''): string =>
     typeof v === 'string' ? v : fallback;

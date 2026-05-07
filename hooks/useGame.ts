@@ -35,8 +35,8 @@ import {
     战斗状态结构,
     时代信息结构
 } from '../types';
-import { 地图结构, 建筑结构 } from '../models/game/world';
-import { 游戏物品 } from '../models/domain/item';
+import { 地图结构, 建筑结构 } from '../models/world';
+import { 游戏物品 } from '../models/item';
 import { 旅行事件, 评估旅行可行性, 执行旅行, 执行探索, 推进游戏时间 } from './useGame/travel/travelWorkflow';
 import { 执行购买, 执行出售, 计算购买价格, 计算出售价格, 出售结果 } from './useGame/travel/tradeWorkflow';
 import { 执行锻造, 计算锻造成功率, 检查锻造材料, 锻造配方库, 锻造结果, 预览配方需求, 获取可锻造配方, 材料检查结果, 锻造配方 } from './useGame/forgeWorkflow';
@@ -59,11 +59,11 @@ import {
     构建手动记忆压缩任务,
     应用记忆压缩结果,
     记忆压缩任务结构
-} from './useGame/memoryUtils';
+} from './useGame/memory/memoryUtils';
 import { 执行主剧情发送工作流 } from './useGame/sendWorkflow';
-import { 执行正文润色 as 执行正文润色工作流 } from './useGame/bodyPolish';
-import { 构建上下文快照数据 } from './useGame/contextSnapshot';
-import { 执行响应命令处理 } from './useGame/responseCommandProcessor';
+import { 执行正文润色 as 执行正文润色工作流 } from './useGame/opening/bodyPolish';
+import { 构建上下文快照数据 } from './useGame/ui/contextSnapshot';
+import { 执行响应命令处理 } from './useGame/npc/responseCommandProcessor';
 import { 创建会话生命周期工作流 } from './useGame/sessionLifecycleWorkflow';
 import {
     构建系统提示词 as 构建系统提示词工作流,
@@ -97,24 +97,24 @@ import {
     按回合窗口裁剪历史
 } from './useGame/storyState';
 import type { 开场命令基态 } from './useGame/storyState';
-import { 执行世界演变更新工作流 } from './useGame/worldEvolutionWorkflow';
-import { 创建图片预设工作流, 提取NPC生图基础数据附带私密描述 } from './useGame/imagePresetWorkflow';
+import { 执行世界演变更新工作流 } from './useGame/world/worldEvolutionWorkflow';
+import { 创建图片预设工作流, 提取NPC生图基础数据附带私密描述 } from './useGame/image/imagePresetWorkflow';
 import { 创建设置持久化工作流 } from './useGame/config/settingsPersistenceWorkflow';
-import { 创建历史回合工作流 } from './useGame/historyTurnWorkflow';
+import { 创建历史回合工作流 } from './useGame/time/historyTurnWorkflow';
 import { 创建存读档工作流 } from './useGame/saveLoad/saveLoadWorkflow';
-import { 创建规划更新工作流 } from './useGame/planningUpdateWorkflow';
-import { 创建NPC图片状态工作流, 合并NPC图片档案, 生成NPC生图记录ID } from './useGame/npcImageStateWorkflow';
-import { 创建场景图片档案工作流, 按场景图上限裁剪档案, 生成场景生图记录ID, 规范化场景图片档案 } from './useGame/sceneImageArchiveWorkflow';
-import { 创建场景生图触发工作流 } from './useGame/sceneImageTriggerWorkflow';
+import { 创建规划更新工作流 } from './useGame/planning/planningUpdateWorkflow';
+import { 创建NPC图片状态工作流, 合并NPC图片档案, 生成NPC生图记录ID } from './useGame/image/npcImageStateWorkflow';
+import { 创建场景图片档案工作流, 按场景图上限裁剪档案, 生成场景生图记录ID, 规范化场景图片档案 } from './useGame/image/sceneImageArchiveWorkflow';
+import { 创建场景生图触发工作流 } from './useGame/image/sceneImageTriggerWorkflow';
 import { 创建手动图片动作工作流 } from './useGame/image/manualImageActionsWorkflow';
-import { 创建手动NPC工作流 } from './useGame/manualNpcWorkflow';
-import { 创建主角图片工作流 } from './useGame/playerImageWorkflow';
+import { 创建手动NPC工作流 } from './useGame/npc/manualNpcWorkflow';
+import { 创建主角图片工作流 } from './useGame/image/playerImageWorkflow';
 import { 创建运行时变量工作流 } from './useGame/runtimeVariableWorkflow';
-import { 创建变量校准协调器 as 创建变量生成协调器 } from './useGame/variableCalibrationCoordinator';
-import { useWorldEvolutionControl } from './useGame/worldEvolutionControl';
-import { normalizeCanonicalGameTime, 环境时间转标准串, 提取环境月日 } from './useGame/timeUtils';
+import { 创建变量校准协调器 as 创建变量生成协调器 } from './useGame/planning/variableCalibrationCoordinator';
+import { useWorldEvolutionControl } from './useGame/world/worldEvolutionControl';
+import { normalizeCanonicalGameTime, 环境时间转标准串, 提取环境月日 } from './useGame/time/timeUtils';
 import { 提取NPC生图基础数据, 提取NPC香闺秘档部位生图数据, 提取主角生图基础数据 } from './useGame/npcContext';
-import { 应用NPC记忆总结, 构建手动NPC记忆总结候选, 构建自动NPC记忆总结候选, 构建NPC记忆总结回退文案 } from './useGame/npcMemorySummary';
+import { 应用NPC记忆总结, 构建手动NPC记忆总结候选, 构建自动NPC记忆总结候选, 构建NPC记忆总结回退文案 } from './useGame/memory/npcMemorySummary';
 import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
@@ -131,16 +131,16 @@ import {
     规范化角色物品容器映射,
     规范化社交列表
 } from './useGame/stateTransforms';
-import { 按世界演变分流净化响应 } from './useGame/storyResponseGuards';
-import { 执行变量自动校准 } from './useGame/variableCalibration';
-import { 执行变量模型校准工作流 } from './useGame/variableModelWorkflow';
-import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from './useGame/variableCalibrationMerge';
+import { 按世界演变分流净化响应 } from './useGame/response/storyResponseGuards';
+import { 执行变量自动校准 } from './useGame/planning/variableCalibration';
+import { 执行变量模型校准工作流 } from './useGame/planning/variableModelWorkflow';
+import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from './useGame/planning/variableCalibrationMerge';
 import { 获取图片展示地址, 压缩图片资源字段 } from '../utils/imageAssets';
 import { 设置键 } from '../utils/settingsSchema';
 import { countOpenAIChatMessagesTokens, countOpenAITextTokens } from '../utils/tokenEstimate';
 
 // 提取的子系统
-import { 提取原始报错详情, 格式化错误详情, 提取解析失败原始信息 } from './useGame/errorFormatting';
+import { 提取原始报错详情, 格式化错误详情, 提取解析失败原始信息 } from './useGame/quality/errorFormatting';
 import {
     获取原始AI消息,
     计算回复耗时秒,
@@ -152,16 +152,17 @@ import {
     提取响应完整正文文本,
     收集最近完整正文回合,
     构建最近完整正文上下文
-} from './useGame/responseTextHelpers';
-import { 自动重试最大次数, 替换流式草稿为失败提示, 更新流式草稿为自动重试提示, 游戏设置启用自动重试, 提取自动重试原因, 是否可自动重试错误, 执行带自动重试的生成请求 } from './useGame/autoRetry';
-import { 去重文本数组, 收集剧情规划时间触发原因, 收集女主规划时间触发原因, 收集剧情正文命中原因, 收集女主正文命中原因, 过滤规划补丁命令 } from './useGame/planningReasonCollector';
-import { 创建回档快照系统, type 回合快照结构 } from './useGame/rollbackSnapshot';
-import { 创建通知系统, type 右下角提示结构 } from './useGame/notificationSystem';
-import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记忆总结阶段类型 } from './useGame/memorySummaryHandlers';
-import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/variableGenerationProgress';
-import { useBackgroundImageMonitor } from './useGame/backgroundImageMonitor';
-import { 触发设备消息生成 } from './useGame/triggerDeviceMessageWorkflow';
-import { useDeviceRefreshMonitor, type 设备刷新任务 } from './useGame/deviceRefreshMonitor';
+} from './useGame/response/responseTextHelpers';
+import { 自动重试最大次数, 替换流式草稿为失败提示, 更新流式草稿为自动重试提示, 游戏设置启用自动重试, 提取自动重试原因, 是否可自动重试错误, 执行带自动重试的生成请求 } from './useGame/quality/autoRetry';
+import { 去重文本数组, 收集剧情规划时间触发原因, 收集女主规划时间触发原因, 收集剧情正文命中原因, 收集女主正文命中原因, 过滤规划补丁命令 } from './useGame/planning/planningReasonCollector';
+import { 创建回档快照系统, type 回合快照结构 } from './useGame/ui/rollbackSnapshot';
+import { 创建通知系统, type 右下角提示结构 } from './useGame/ui/notificationSystem';
+import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记忆总结阶段类型 } from './useGame/memory/memorySummaryHandlers';
+import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/planning/variableGenerationProgress';
+import { 创建变量生成队列调度器 } from './useGame/planning/variableGenerationQueue';
+import { useBackgroundImageMonitor } from './useGame/quality/backgroundImageMonitor';
+import { 触发设备消息生成 } from './useGame/device/triggerDeviceMessageWorkflow';
+import { useDeviceRefreshMonitor, type 设备刷新任务 } from './useGame/device/deviceRefreshMonitor';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -214,9 +215,9 @@ type 发送选项 = {
 };
 
 const 加载图片AI服务 = () => import('../services/ai/image/runtime');
-const 加载NPC生图工作流 = () => import('./useGame/npcImageWorkflow');
-const 加载NPC香闺秘档生图工作流 = () => import('./useGame/npcSecretImageWorkflow');
-const 加载场景生图工作流 = () => import('./useGame/sceneImageWorkflow');
+const 加载NPC生图工作流 = () => import('./useGame/image/npcImageWorkflow');
+const 加载NPC香闺秘档生图工作流 = () => import('./useGame/image/npcSecretImageWorkflow');
+const 加载场景生图工作流 = () => import('./useGame/image/sceneImageWorkflow');
 
 
 type 最近开局配置结构 = {
@@ -575,6 +576,11 @@ export const useGame = () => {
     });
     const { 同步重Roll计数, 清空重Roll快照, 推入重Roll快照, 弹出重Roll快照, 回档到快照, 重置自动存档状态, 删除最近自动存档并重置状态 } = 回档快照系统;
 
+    const 变量生成队列调度器 = 创建变量生成队列调度器({
+        执行变量模型校准工作流,
+        apiConfig,
+        gameConfig
+    });
     const 变量生成进度系统 = 创建变量生成进度系统({
         最近变量生成上下文Ref,
         变量生成中,
@@ -1854,8 +1860,7 @@ export const useGame = () => {
     const {
         后台执行变量校准: 后台执行变量生成,
         执行变量校准并合并响应: 执行变量生成并合并响应,
-        执行重解析变量校准: 执行重解析变量生成,
-        队列调度器: 变量生成队列调度器
+        执行重解析变量校准: 执行重解析变量生成
     } = 创建变量生成协调器({
         apiConfig,
         gameConfig,

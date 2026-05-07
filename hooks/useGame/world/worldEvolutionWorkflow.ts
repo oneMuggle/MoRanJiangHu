@@ -1,20 +1,20 @@
-import * as textAIService from '../../services/ai/text';
-import type { GameResponse, OpeningConfig, 接口设置结构, 提示词结构, 剧情系统结构, 女主剧情规划结构, 记忆系统结构, 聊天记录结构, 环境信息结构, 世界数据结构, 世界书结构 } from '../../types';
-import type { 当前可用接口结构 } from '../../utils/apiConfig';
-import { 获取世界演变接口配置, 接口配置是否可用 } from '../../utils/apiConfig';
-import { 规范化游戏设置 } from '../../utils/gameSettings';
-import { 构建世界书注入文本 } from '../../utils/worldbook';
-import { 数值_世界演化 } from '../../prompts/stats/world';
-import { 规范化记忆系统 } from './memoryUtils';
-import { formatHistoryToScript } from './historyUtils';
-import { 构建世界演变COT提示词, 世界演变COT伪装历史消息提示词 } from '../../prompts/runtime/worldEvolutionCot';
-import { 环境时间转标准串 } from './timeUtils';
+import * as textAIService from '../../../services/ai/text';
+import type { GameResponse, OpeningConfig, 接口设置结构, 提示词结构, 剧情系统结构, 女主剧情规划结构, 记忆系统结构, 聊天记录结构, 环境信息结构, 世界数据结构, 世界书结构 } from '../../../types';
+import type { 当前可用接口结构 } from '../../../utils/apiConfig';
+import { 获取世界演变接口配置, 接口配置是否可用 } from '../../../utils/apiConfig';
+import { 规范化游戏设置 } from '../../../utils/gameSettings';
+import { 构建世界书注入文本 } from '../../../utils/worldbook';
+import { 数值_世界演化 } from '../../../prompts/stats/world';
+import { 规范化记忆系统 } from '../memory/memoryUtils';
+import { formatHistoryToScript } from '../time/historyUtils';
+import { 构建世界演变COT提示词, 世界演变COT伪装历史消息提示词 } from '../../../prompts/runtime/worldEvolutionCot';
+import { 环境时间转标准串 } from '../time/timeUtils';
 import { 构建世界演变上下文文本, 规范化世界演变命令列表 } from './worldEvolutionUtils';
-import type { 响应命令处理状态 } from './responseCommandProcessor';
-import { 构建同人运行时提示词包 } from '../../prompts/runtime/fandom';
-import { 获取激活小说拆分注入文本 } from '../../services/novel-decomposition/novelDecompositionInjection';
-import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../utils/promptFeatureToggles';
-import { 提取响应规划文本 } from './thinkingContext';
+import type { 响应命令处理状态 } from '../npc/responseCommandProcessor';
+import { 构建同人运行时提示词包 } from '../../../prompts/runtime/fandom';
+import { 获取激活小说拆分注入文本 } from '../../../services/novel-decomposition/novelDecompositionInjection';
+import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../../utils/promptFeatureToggles';
+import { 提取响应规划文本 } from '../quality/thinkingContext';
 import { 校验并修复世界状态 } from './worldStateIntegrity';
 
 export type 世界演变触发参数 = {
