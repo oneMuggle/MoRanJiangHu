@@ -2,7 +2,7 @@
  * 医美中介状态管理
  */
 
-import type { 医美中介状态 } from './types';
+import type { 医美中介状态 } from '../types';
 
 // 创建默认中介状态
 export function 创建默认中介状态(partial?: Partial<医美中介状态>): 医美中介状态 {

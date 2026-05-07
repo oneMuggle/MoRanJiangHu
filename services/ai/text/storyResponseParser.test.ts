@@ -179,9 +179,10 @@ describe('收集多行命令值', () => {
     it('多行对象括号平衡后停止', () => {
         const lines = ['set 数据', '{"a": 1}', '其他行'];
         const result = 收集多行命令值(lines, 0, '{');
-        // {"a": 1} 自身平衡，balance=0，不进入 while 循环，consumedUntil 停在 startIndex
-        expect(result.consumedUntil).toBe(0);
-        expect(result.valueText).toBe('{');
+        // 初始值 '{' 不平衡（balance=1），进入 while 循环消费下一行
+        // 下一行 '{"a": 1}' 使总 balance 变为 0，退出循环
+        expect(result.consumedUntil).toBe(1);
+        expect(result.valueText).toBe('{\n{"a": 1}');
     });
 
     it('数组嵌套对象正确处理', () => {

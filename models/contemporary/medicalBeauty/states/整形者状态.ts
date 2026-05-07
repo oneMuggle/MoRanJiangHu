@@ -60,7 +60,7 @@ export function 创建默认整形者状态(partial?: Partial<整形者核心状
     家人知道: partial?.家人知道 || false,
     朋友知道: partial?.朋友知道 || false,
     同事知道: partial?.同事知道 || false,
-    男朋友/老公知道: partial?.['男朋友/老公知道'] || false,
+      男朋友知道: partial?.['男朋友知道'] || false,
   };
 }
 

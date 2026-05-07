@@ -148,7 +148,7 @@ export interface 整形者核心状态 {
   家人知道: boolean;
   朋友知道: boolean;
   同事知道: boolean;
-  男朋友/老公知道: boolean;
+  男朋友知道: boolean;
 }
 
 // 医美机构状态
