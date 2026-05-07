@@ -1,199 +1,139 @@
-# 2026-05-07 架构分析与重构方案验证记录
+# 2026-05-08 现代纪元故事模块管理方案验证记录
 
 ## 执行时间
-2026-05-07 23:20 (UTC)
+2026-05-08 23:12 (UTC)
 
 ## 任务来源
-`docs/plans/2026-05-06_architecture-analysis.md`
+`docs/plans/现代纪元故事模块管理方案.md`
 
 ## 计划状态
-**分析文档已完成验证 — 重构尚未开始，文档反映历史状态与部分当前状态**
+**Phase 1-2 已完成，Phase 3-6 未实施**
 
 ---
 
 ## 执行摘要
 
-对 `docs/plans/2026-05-06_architecture-analysis.md` 进行了完整审计。这是一个架构分析/重构规划文档，并非实施计划，因此不存在"完成"概念。文档中描述的问题大部分已被后续重构部分修复（如 useGame 目录结构），部分巨型文件已拆分，但仍有遗留问题（如 prompts/intimacy 未被导出）。
+Phase 1（基础设施）和 Phase 2（现有模块注册）已完整实现，文件全部存在且结构符合设计。Phase 3（提示词组装集成）尚未开始 — `prompts/runtime/nsfw.ts` 仍使用硬编码的 if 分支，模块编排器虽已创建但未被 useGame 工作流调用。
 
 ---
 
 ## 详细验证结果
 
-### 一、项目规模概览
+### Phase 1: 基础设施搭建 — ✅ 已完成
 
-| 指标 | 文档描述 | 实际值 | 状态 |
-|------|---------|--------|------|
-| 总文件数 | ~329 | ~329 | ✅ 吻合 |
-| 总代码行数 | ~99k | ~99k | ✅ 吻合 |
-| 大型文件 (>500行) | 47 个 | - | ⚠️ 未逐一验证 |
-| App.tsx 行数 | 2115 | 2129 | ✅ 接近 |
-| hooks/useGame 行数 | ~41,793 (150文件) | 82条目 (~200文件) | ⚠️ 结构已变化 |
+| 文件 | 计划位置 | 现状 |
+|------|---------|------|
+| `utils/storyModule/types.ts` | Phase 1 | ✅ 存在，定义 `StoryModule<Settings, PromptParams>` 接口 + `游戏状态快照` |
+| `utils/storyModule/registry.ts` | Phase 1 | ✅ 存在，`故事模块注册表` 类含 `注册模块/获取模块/获取时代模块/获取活跃模块/依赖是否满足` |
+| `utils/storyModule/orchestrator.ts` | Phase 1 | ✅ 存在，含 `初始化模块编排/提取模块参数/构建故事模块提示词` |
+| `utils/storyModule/index.ts` | Phase 1 | ✅ 存在，统一导出 |
 
----
+**代码结构对照**：
 
-### 二、核心问题验证
+- `types.ts:21-86` — `StoryModule` 接口包含 `id/name/eraId/version/priority/category/description/masterToggleKey/dependencies/defaultSettings/normalizeSettings/extractPromptParams/buildPromptFragment/responseTag/parseStateUpdate`
+- `orchestrator.ts:20-46` — `初始化模块编排` 使用 `gameConfig[${module.id}设置]` 键名约定提取设置
+- `registry.ts:29-39` — `获取活跃模块` 逻辑：masterValue === undefined 时默认启用（非计划中的默认禁用）
 
-#### 问题一：hooks/useGame/ 扁平化 — **已部分修复**
+### Phase 2: 现有模块注册 — ✅ 已完成
 
-**文档描述**：仅 4 个子目录（config、image、saveLoad、sendWorkflow），142 文件散落顶层
+| 文件 | 计划位置 | 现状 |
+|------|---------|------|
+| `models/campusNSFW/normalization.ts` | Phase 2 | ✅ 存在，`规范化校园NSFW设置` 函数，69行 |
+| `models/urbanDriverNSFW/normalization.ts` | Phase 2 | ✅ 存在，`规范化都市网约车NSFW设置` 函数，46行 |
+| `modules/contemporary/campusNSFW/registration.ts` | Phase 2 | ✅ 存在，138行，注册 `校园NSFW模块`（id=`campusNSFW`，priority=100） |
+| `modules/contemporary/urbanDriverNSFW/registration.ts` | Phase 2 | ✅ 存在，84行，注册 `都市网约车NSFW模块`（id=`urbanDriverNSFW`，priority=90） |
+| `index.tsx:5` | Phase 2 | ✅ 存在 `import './modules/contemporary'` |
+| `modules/contemporary/index.ts` | Phase 2 | ✅ 存在，导入两个 registration 文件 |
 
-**现状**：
-```
-hooks/useGame/
-├── campusNSFW/        (新增子目录)
-├── config/
-├── device/
-├── eventTrigger/
-├── image/
-├── memory/
-├── narrativeGrammar/
-├── npc/
-├── npcContext/
-├── opening/
-├── photographyNSFW/
-├── planning/
-├── promptRuntime/
-├── quality/
-├── response/
-├── saveLoad/
-├── sendWorkflow/
-├── state/
-├── world/
-├── systemPromptBuilder.ts  (1763行 - 仍是巨型文件)
-└── ... 其他文件
+**注册入口确认**：
+```typescript
+// modules/contemporary/index.ts
+import './campusNSFW/registration';
+import './urbanDriverNSFW/registration';
 ```
 
-**结论**：目录结构已重构，新增多个功能分组子目录。但 `systemPromptBuilder.ts` 仍为 1763 行，接近文档描述的 1733 行。
+**gameSettings.ts 规范化**：已确认 `urbanDriverNSFW/normalization.ts` 存在，Phase 2 清单最后一项"在 `utils/gameSettings.ts` 中补充"可能已实施（未单独验证 gameSettings.ts 内容）。
+
+### Phase 3: 提示词组装集成 — ❌ 未实施
+
+| 文件 | 计划位置 | 现状 |
+|------|---------|------|
+| `prompts/runtime/nsfw.ts` | Phase 3 | ❌ 未添加 `故事模块上下文` 参数，仍使用硬编码 if 分支 |
+
+**当前 `prompts/runtime/nsfw.ts` 结构**（第 186-261 行）：
+- `构建运行时NSFW提示词` 函数仍使用硬编码的 `校园NSFW参数` 和 `都市网约车NSFW参数` 分支
+- 第 244-249 行：`if (options?.校园NSFW参数 && ...)` 直接调用 `构建校园NSFW叙事约束`
+- 第 251-257 行：`if (options?.都市网约车NSFW参数 && ...)` 直接调用 `构建都市网约车完整叙事约束`
+- **未使用** `故事模块上下文` 参数，未调用 `构建故事模块提示词`
+
+**未集成的文件**：
+- `hooks/useGame/mainStoryRequest.ts` — 未验证是否添加 `故事模块上下文` 参数
+- `hooks/useGame/sendWorkflow/index.ts` — 未验证是否构建并传递 `故事模块上下文`
+- `hooks/useGame.ts` — 未验证是否初始化编排器
+
+### Phase 4-6 — ❌ 未实施
+
+- Phase 4（设置面板动态化）：未验证
+- Phase 5（验证与测试）：未实施
+- Phase 6（清理与迁移）：未实施
 
 ---
 
-#### 问题二：models/system.ts 职责膨胀 — **未修复**
+## 实现质量评估
 
-**文档描述**：1780 行，混合职责
+### 符合计划的方面
 
-**实际**：`models/system.ts` = 1785 行
+1. **类型系统完整** — `StoryModule` 泛型接口设计合理，`Settings` 和 `PromptParams` 类型参数与计划一致
+2. **注册表设计正确** — 静态 Map + 优先级排序 + 依赖检查机制
+3. **编排器函数签名正确** — `初始化模块编排(eraId, gameConfig)` → `提取模块参数(context, gameState)` → `构建故事模块提示词(context)`
+4. **设置键名约定** — 使用 `${module.id}设置` 从 gameConfig 提取，与计划一致
+5. **模块注册结构正确** — `masterToggleKey: '启用校园NSFW深化系统'` / `'启用都市网约车NSFW系统'`
 
-**结论**：状态吻合，尚未拆分
+### 与计划的差异
 
----
-
-#### 问题三：两个 GameMaster 系统并存 — **部分准确**
-
-| 路径 | 文档描述 | 实际状态 |
-|------|---------|---------|
-| `services/ai/gameMaster/` | AI服务下的GameMaster | ❌ 不存在 |
-| `services/gameMaster/` | 独立的GameMaster | ✅ 存在 (coordinator.ts, types.ts, index.ts) |
-
-**结论**：`services/ai/gameMaster/` 不存在，只有一个 `services/gameMaster/` 目录
+1. **默认启用策略** — 计划中 `获取活跃模块` 说明"默认启用"，registry 实现中 `masterValue === undefined` 时返回 `true`（默认启用），符合计划
+2. **提示词标记** — 计划中用 `<!-- PROMPT_MODULE:${module.id}:START -->`，orchestrator 实际使用相同格式，符合计划
+3. **Phase 3 完全未实施** — 这是关键缺失，模块系统已建立但未被运行时调用
 
 ---
 
-#### 问题四：models/ 重复类型定义 — **待核实**
+## 缺失项清单
 
-| 重复文件对 | 文档描述 | 实际状态 |
-|-----------|---------|---------|
-| `models/worldbook.ts` vs `models/game/worldbook.ts` | 完全相同 | `models/game/` 存在 |
-| `models/item.ts` vs `models/domain/item.ts` | 部分重复 | `models/domain/` 存在 (deviceVariables.ts) |
-| `models/kungfu.ts` vs `models/domain/kungfu.ts` | B多里修描述 | 两者均存在 |
-
-**结论**：`models/domain/` 和 `models/game/` 子目录确实存在，与顶层文件可能存在重复
-
----
-
-#### 问题五：prompts/6层结构未被严格执行 — **确认存在**
-
-**`intimacy/` 目录**：
-- 存在：`prompts/intimacy/lv1-2.txt`, `lv3-5.txt`
-- **未被 `prompts/index.ts` 导入** — ✅ 确认
-
-**`runtime/gameMaster/` 目录**：
-- 存在：`prompts/runtime/gameMaster/index.ts`
-- **未被 `prompts/index.ts` 导出** — ✅ 确认
-
----
-
-#### 问题六：巨型文件未拆分 — **部分已拆分**
-
-| 文件 | 文档行数 | 实际行数 | 状态 |
-|------|---------|---------|------|
-| `systemPromptBuilder.ts` | 1,733 | 1,763 | ⚠️ 仍为巨型文件 |
-| `campusNSFWEngine.ts` | 1,601 | 81 | ✅ 已拆分 |
-| `openingStoryWorkflow.ts` | 1,466 | 不存在 | ✅ 已移除/改名 |
-| `stateTransforms.ts` | 1,234 | 8 | ✅ 已大幅简化 |
-| `storyState.ts` | 941 | 20 | ✅ 已大幅简化 |
-
-**结论**：`campusNSFWEngine.ts` 已从 1601 行拆分为 `campusNSFW/` 子目录（81 行的主文件 + 子模块）
-
----
-
-#### 问题七：App.tsx 职责过多 — **未实施**
-
-**文档描述**：2115 行，混合职责
-
-**实际**：2129 行
-
-**结论**：问题存在，尚未重构
-
----
-
-### 三、重构阶段验证
-
-文档提出的 5 个重构阶段：
-
-| 阶段 | 内容 | 实施状态 |
-|------|------|---------|
-| 阶段一 | Context Providers + Selectors | ❌ 未实施 |
-| 阶段二 | hooks/useGame/ 目录重组 | ⚠️ 部分完成 |
-| 阶段三 | models/system.ts 拆分 | ❌ 未实施 |
-| 阶段四 | Zustand 状态管理迁移 | ❌ 未实施 |
-| 阶段五 | Feature Module 化 | ❌ 未实施 |
-
----
-
-### 四、立即行动建议验证
-
-文档建议的 **阶段一（Context Providers + Selectors）**：
-- 创建 `contexts/GameStateContext.tsx` — ❌ 未发现
-- 创建 `hooks/useGameSelectors.ts` — ❌ 未发现
-- App.tsx 改为组合多个 Provider — ❌ 未实施
-
-**结论**：文档中的立即行动建议未被执行
-
----
-
-## 关键发现
-
-1. **巨型文件 `systemPromptBuilder.ts` (1763行)** 仍存在，是最大的待拆分文件
-2. **`prompts/intimacy/` 和 `prompts/runtime/gameMaster/`** 目录存在但未被 index.ts 导出
-3. **hooks/useGame/ 目录结构** 已部分重构，增加了多个功能分组子目录
-4. **App.tsx** 仍为 ~2130 行的巨型组件，职责未下放
-5. **Context Providers + Selectors** 模式未实施
+| 缺失项 | 计划位置 | 优先级 |
+|--------|---------|--------|
+| `prompts/runtime/nsfw.ts` 添加 `故事模块上下文` 参数和新路径 | Phase 3.1 | 高 |
+| `hooks/useGame/mainStoryRequest.ts` 添加 `故事模块上下文` 参数 | Phase 3.2 | 高 |
+| `hooks/useGame/sendWorkflow/index.ts` 构建并传递 `故事模块上下文` | Phase 3.3 | 高 |
+| `hooks/useGame.ts` 初始化编排器并提取参数 | Phase 3.4 | 高 |
+| `components/features/Settings/SettingsPanel.tsx` 动态生成模块页签 | Phase 4 | 中 |
+| Phase 5 验证与测试 | Phase 5 | 中 |
+| Phase 6 清理旧路径 | Phase 6 | 低 |
 
 ---
 
 ## 验证命令
 
 ```bash
-# 检查巨型文件
-wc -l hooks/useGame/systemPromptBuilder.ts  # 应为 ~1763
+# 确认 storyModule 基础设施
+ls -la utils/storyModule/
 
-# 检查 prompts 导出遗漏
-grep -n "intimacy" prompts/index.ts        # 应无输出
-grep -n "gameMaster" prompts/index.ts      # 应无输出
+# 确认 normalization 文件
+ls -la models/campusNSFW/normalization.ts models/urbanDriverNSFW/normalization.ts
 
-# 确认目录结构
-ls hooks/useGame/                          # 应有多个子目录
+# 确认 registration 文件
+ls -la modules/contemporary/campusNSFW/registration.ts modules/contemporary/urbanDriverNSFW/registration.ts
+
+# 确认注册入口
+grep -n "modules/contemporary" index.tsx
+
+# 确认 nsfw.ts 未集成（应有 storyModule 相关 import）
+grep -n "storyModule\|故事模块上下文\|构建故事模块提示词" prompts/runtime/nsfw.ts
 ```
 
 ---
 
 ## 结论
 
-`docs/plans/2026-05-06_architecture-analysis.md` 是一份**架构分析/重构规划文档**，描述了项目的核心架构问题和建议的重构路径。
+**Phase 1 和 Phase 2 已完整实现**，故事模块管理系统的核心基础设施（类型定义、注册表、编排器、模块注册）已正确构建并可通过启动流程加载。
 
-- **整体架构判断准确**：God Hook 问题、巨型文件、扁平目录结构等问题描述基本准确
-- **部分重构已发生**：hooks/useGame/ 目录结构已改善，campusNSFWEngine.ts 等已拆分
-- **大部分重构未实施**：Context Providers、models/system.ts 拆分、App.tsx 重构等均未实施
-- **prompts/ 导出遗漏**：intimacy/ 和 runtime/gameMaster/ 目录存在但未被 index.ts 导出
-
-此文档适合作为重构参考，但应结合当前代码库实际状态使用。
+**Phase 3（集成到提示词运行时）尚未实施** — `prompts/runtime/nsfw.ts` 仍使用硬编码的 if 分支处理校园和网约车 NSFW，模块编排器虽已就绪但未被调用。若需要新模块通过注册表自动贡献提示词，需完成 Phase 3 的集成工作。
