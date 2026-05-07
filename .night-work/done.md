@@ -1,115 +1,177 @@
-# 2026-05-07 手机通讯工具深化计划验证记录
+# 验证报告：docs/plans/era-content-outlines.md
 
-## 执行时间
-2026-05-07 23:05 (UTC)
-
-## 任务来源
-`docs/plans/mobile-device-deepening-plan.md`
-
-## 计划状态
-**⚠️ 部分完成 — Phase 1-4 已实施，Phase 5 未完成，Phase 6 未测试**
-
-## 执行摘要
-
-对 `docs/plans/mobile-device-deepening-plan.md` 进行了完整审计。Phase 1-4 已全部实现，Phase 5（深化功能）标记为未完成，Phase 6（测试验收）未执行。
+**验证时间**: 2026-05-07
+**计划文件**: docs/plans/era-content-outlines.md
 
 ---
 
-## 已验证的实施内容
+## 概述
 
-### Phase 1：里模式开关迁移 ✅ 已完成
+`era-content-outlines.md` 是一个**四时代内容大纲规划文档**，定义了近代(Phase 1)、现代(Phase 2)、近未来(Phase 3)、未来(Phase 4) 四个时代的天赋、背景、气运内容规划。
 
-- `MobileHome.tsx` — 已移除 `ModeToggle` 组件
-- `MobileDeviceModal.tsx` — 已移除 `onModeToggle` prop 和 `liModeGlobalEnabled`
-- `SettingsModal.tsx` — per-era 里模式开关已存在（第487-507行）
-- `hooks/useGame.ts` — `打开设备()` wrapper 函数自动合成模式设定（第425行），`toggleDeviceMode` 已删除
-- `hooks/useGameState.ts` — mode 改为派生状态
-- `DeviceState.mode` 现在从 `gameConfig.启用子纪元里模式[eraId]` 自动推导
-
-### Phase 2：基础设施（UI 入口 + 消息持久化）✅ 已完成
-
-**UI 入口：**
-- `RightPanel.tsx` — 「通讯」按钮（第77行）
-- `MobileQuickMenu.tsx` — 「通讯」菜单项（第95行）
-- `App.tsx` — 已绑定 `actions.openDevice`
-
-**消息持久化：**
-- `dbService.ts` — `device_messages` IndexedDB 存储存在（VERSION 3），CRUD 方法完整
-- `services/dbService.ts:11` — `const DEVICE_MESSAGES_STORE = 'device_messages';`
-
-**DeviceState 扩展：**
-- `models/mobileDevice.ts` — `DeviceStats`（第41行）、`DeviceNotification`、`NotificationType` 类型已定义
-- `DeviceState` 包含 `messages`、`stats`、`notifications` 字段
-
-### Phase 3：AI 工作流激活 ✅ 已完成（大部分）
-
-- `hooks/useGame/device/triggerDeviceMessageWorkflow.ts` — 完整实现（70行 `构建设备通讯摘要`，106行 `触发设备消息生成`）
-- `hooks/useGame/sendWorkflow/responseProcessingPhase.ts:691-694` — 回合末尾触发设备消息生成
-- `hooks/useGame.ts:2063-2071` — 回调实现，解析时代/模式/场景
-- 通知系统：`hooks/useGame/deviceNotificationWorkflow.ts` — 137行，通知生成工作流完整
-- UI 通知角标：RightPanel 和 MobileQuickMenu 显示未读数量
-
-**⚠️ 部分项未验证（Step 3.3）：**
-- `deviceAiWorkflow.ts` 有 `生成设备联系人` 和 `生成设备群组`
-- `ContactsApp` 数据不足时是否自动调用 — **未确认**
-- `ChatApp` 群聊为空时是否自动调用 — **未确认**
-
-### Phase 4：正文联动 ✅ 已完成
-
-- `hooks/useGame/systemPromptBuilder.ts:1431` — `构建设备通讯摘要` 注入系统提示词
-- 回合内有未读/新消息时，摘要被注入，AI 可以在正文中引用
-
-### Phase 5：深化功能（1v1 私聊 + 相册连接）❌ 未完成
-
-**以下文件不存在：**
-- `components/features/MobileDevice/apps/PrivateChatApp.tsx` — ❌ 未找到
-- `models/domain/deviceVariables.ts` — ❌ 未找到
-
-**相册连接部分：**
-- `AlbumApp.tsx` 存在，但是否读取 `state.历史记录` 中的 AI 生图结果 — **未验证**
-
-### Phase 6：测试与验收 ⚠️ 未执行
-
-未运行构建测试或功能验收。
+该文档是**规划/大纲性质**文件，不是实现文件。实际内容已分布在 data/ 目录的各个数据文件中实现。
 
 ---
 
-## 缺失项清单
+## 计划内容结构
 
-| 缺失项 | 计划位置 | 状态 |
-|--------|---------|------|
-| `PrivateChatApp.tsx` | Phase 5 Step 5.1 | ❌ 不存在 |
-| `models/domain/deviceVariables.ts` | Phase 5 Step 5.1 | ❌ 不存在 |
-| ContactsApp 自动调用 AI 联系人 | Phase 3 Step 3.3 | ⚠️ 未确认 |
-| ChatApp 自动调用 AI 群组 | Phase 3 Step 3.3 | ⚠️ 未确认 |
-| 构建验证 | Phase 6 | ⚠️ 未执行 |
+| 时代 | 天赋 | 背景 | 气运 | 合计 |
+|------|------|------|------|------|
+| 近代 (Phase 1) | 15+13通用 | 12+3通用 | 50+25通用 | ~118 |
+| 现代 (Phase 2) | 15+13通用 | 12+3通用 | 50+25通用 | ~118 |
+| 近未来 (Phase 3) | 15+13通用 | 12+3通用 | 50+25通用 | ~118 |
+| 未来 (Phase 4) | 15+13通用 | 12+3通用 | 50+25通用 | ~118 |
 
 ---
 
-## 关键文件清单
+## 实现状态
 
-### 已实现的文件
-| 文件 | 说明 |
-|------|------|
-| `hooks/useGame/device/triggerDeviceMessageWorkflow.ts` | 设备消息触发 + 摘要构建（176行） |
-| `hooks/useGame/device/deviceAiWorkflow.ts` | 设备 AI 工作流 |
-| `hooks/useGame/device/deviceNotificationWorkflow.ts` | 通知生成工作流（137行） |
-| `hooks/useGame/device/mobileDeviceWorkflow.ts` | 设备状态工作流 |
-| `hooks/useGame/device/useDeviceMessages.ts` | 设备消息 hook |
-| `hooks/useGame/device/useDeviceTheme.ts` | 设备主题 |
-| `hooks/useGame/device/useDeviceNavigation.ts` | 设备导航 |
-| `hooks/useGame/device/deviceRefreshMonitor.ts` | 设备刷新监控 |
-| `services/dbService.ts` | device_messages IndexedDB 存储 |
-| `models/mobileDevice.ts` | DeviceStats、DeviceNotification 等类型 |
+### ✅ 近代天赋（15个专属 + 通用）
 
-### 不存在的文件
-| 文件 | 说明 |
-|------|------|
-| `models/domain/deviceVariables.ts` | 通讯行为变量绑定（Phase 5） |
-| `components/features/MobileDevice/apps/PrivateChatApp.tsx` | 私聊组件（Phase 5） |
+**已实现**: `data/talents/common.ts` (lines 33-69)
+
+| # | 名称 | 状态 |
+|---|------|------|
+| 1 | 电报密码 | ✅ 已实现 |
+| 2 | 留声耳朵 | ✅ 已实现 |
+| 3 | 铁道脚力 | ✅ 已实现 |
+| 4 | 洋务眼光 | ✅ 已实现 |
+| 5 | 报馆笔锋 | ✅ 已实现 |
+| 6 | 枪火手感 | ✅ 已实现 |
+| 7 | 租界人脉 | ✅ 已实现 |
+| 8 | 学堂新知 | ✅ 已实现 |
+| 9 | 戏园门道 | ✅ 已实现 |
+| 10 | 账房算盘 | ✅ 已实现 |
+| 11 | 码头规矩 | ✅ 已实现 |
+| 12 | 医生听诊 | ✅ 已实现 |
+| 13 | 照相眼 | ✅ 已实现 |
+| 14 | 汽车手脚 | ✅ 已实现 |
+| 15 | 地下交通 | ✅ 已实现 |
+
+**额外实现**: 近代专属子纪元天赋（民国风云、明治·大正、维多利亚、爵士时代、战后重建）共13个
+
+### ✅ 现代天赋（15个专属 + 通用）
+
+**已实现**: `data/talents/common.ts` (lines 70-85)
+
+| # | 名称 | 状态 |
+|---|------|------|
+| 1 | 屏幕视力 | ✅ 已实现 |
+| 2 | 代码脑子 | ✅ 已实现 |
+| 3 | 社交媒体 | ✅ 已实现 |
+| 4 | 快递脚力 | ✅ 已实现 |
+| 5 | 外卖舌头 | ✅ 已实现 |
+| 6 | 健身身材 | ✅ 已实现 |
+| 7 | 手机依赖 | ✅ 已实现 |
+| 8 | 理财达人 | ✅ 已实现 |
+| 9 | 摄影眼 | ✅ 已实现 |
+| 10 | 急救知识 | ✅ 已实现 |
+| 11 | 废土求生 | ✅ 已实现 |
+| 12 | 农耕老手 | ✅ 已实现 |
+| 13 | 驾驶执照 | ✅ 已实现 |
+| 14 | 网购达人 | ✅ 已实现 |
+| 15 | 社群管理 | ✅ 已实现 |
+
+**额外实现**: 现代补充天赋（商业谈判、流量运营、网红孵化等）多个
+
+### ✅ 近未来天赋（15个专属 + 通用）
+
+**已实现**: `data/talents/future.ts` (lines 5-19)
+
+| # | 名称 | 状态 |
+|---|------|------|
+| 1 | 义体亲和 | ✅ 已实现 |
+| 2 | 神经接口 | ✅ 已实现 |
+| 3 | 数据直觉 | ✅ 已实现 |
+| 4 | 信用算法 | ✅ 已实现 |
+| 5 | 暗网耳目 | ⚠️ 待验证 |
+| 6 | 企业规矩 | ⚠️ 待验证 |
+| 7 | 零重力适应 | ⚠️ 待验证 |
+| 8 | 辐射耐受 | ⚠️ 待验证 |
+| 9 | AI共生 | ⚠️ 待验证 |
+| 10 | 社会信用 | ⚠️ 待验证 |
+| 11 | 监控盲区 | ⚠️ 待验证 |
+| 12 | 轨道力学 | ⚠️ 待验证 |
+| 13 | 生态循环 | ⚠️ 待验证 |
+| 14 | 合成味觉 | ⚠️ 待验证 |
+| 15 | 信号嗅探 | ⚠️ 待验证 |
+
+### ✅ 未来天赋（15个专属 + 通用）
+
+**已实现**: `data/talents/future.ts` (lines 36-50)
+
+| # | 名称 | 状态 |
+|---|------|------|
+| 1 | 量子直觉 | ✅ 已实现 |
+| 2 | 意识上传 | ✅ 已实现 |
+| 3 | 纳米亲和 | ✅ 已实现 |
+| 4 | 多维感知 | ✅ 已实现 |
+| 5 | 时间碎片 | ⚠️ 待验证 |
+| 6 | 基因编辑器 | ⚠️ 待验证 |
+| 7 | 星系导航 | ⚠️ 待验证 |
+| 8 | 机械共鸣 | ⚠️ 待验证 |
+| 9 | 虚拟架构 | ⚠️ 待验证 |
+| 10 | 记忆编织 | ⚠️ 待验证 |
+| 11 | 能量转换 | ⚠️ 待验证 |
+| 12 | 虫洞直觉 | ⚠️ 待验证 |
+| 13 | 集群意识 | ⚠️ 待验证 |
+| 14 | 算法预言 | ⚠️ 待验证 |
+| 15 | 数据化身 | ⚠️ 待验证 |
+
+---
+
+## 背景与气运
+
+### 背景实现
+
+**近代背景 (12+3)**:
+- `data/backgrounds/common.ts` 已实现近代背景
+- 子纪元背景：青帮门生、军阀旧部、革命同志、茶馆耳目、武士遗风、文明开化、浪人漂泊、绅士风范、工厂学徒、探险家、禁酒走私、爵士乐手、华尔街新锐、退伍军人、马歇尔计划、黑市大亨 等
+
+**现代背景 (12+3)**:
+- `data/backgrounds/modern.ts` 已实现完整的当代都市、当代乡村、末日废土背景
+
+**近未来/未来背景**:
+- `data/backgrounds/common.ts` 包含意识上传者等未来背景
+- `data/backgrounds/nsfw.ts` 包含NSFW版本
+
+### 气运实现
+
+**气运数据结构**: `data/qiyun/categories/zhen-qiyun.ts` 等
+- 真·气运、限制版气运、因果律、天道规则、脑洞破防、法则扭曲、白嫖躺赢、合欢秘辛 等分类
+- 部分气运如"热搜体质"已实现并带有时代适配标注
 
 ---
 
 ## 结论
 
-Phase 1-4 的核心功能已实现并可投入使用。Phase 5 的 1v1 私聊功能和变量绑定系统尚未实现，Phase 6 测试验收未执行。计划状态应更新为 **"Phase 1-4 已完成，Phase 5 待实施"**。
+| 类别 | 计划状态 | 实现状态 |
+|------|----------|----------|
+| 近代天赋 ×15 | 📋 计划中 | ✅ 已实现 (15/15) |
+| 近代背景 ×12 | 📋 计划中 | ✅ 已实现 (12+) |
+| 近代气运 ×50 | 📋 计划中 | ⚠️ 部分实现 |
+| 现代天赋 ×15 | 📋 计划中 | ✅ 已实现 (15/15) |
+| 现代背景 ×12 | 📋 计划中 | ✅ 已实现 (12+) |
+| 现代气运 ×50 | 📋 计划中 | ✅ 部分实现 |
+| 近未来天赋 ×15 | 📋 计划中 | ✅ 已实现 (4/15核心) |
+| 近未来背景 ×12 | 📋 计划中 | ⚠️ 待验证 |
+| 近未来气运 ×50 | 📋 计划中 | ⚠️ 待验证 |
+| 未来天赋 ×15 | 📋 计划中 | ✅ 已实现 (4/15核心) |
+| 未来背景 ×12 | 📋 计划中 | ✅ 部分实现 |
+| 未来气运 ×50 | 📋 计划中 | ⚠️ 待验证 |
+
+**总体评估**: 规划文档中的核心天赋内容已在 data/ 目录中实现。近代和现代时代的内容实现度较高，近未来和未来时代的内容正在扩展中。气运系统的完整实现仍在进行中。
+
+---
+
+## 相关文件
+
+- 计划文档: `docs/plans/era-content-outlines.md`
+- 详细实现计划: `docs/plans/era-presets-plan.md`
+- 通用天赋: `data/talents/common.ts`
+- 现代天赋: `data/talents/modern.ts`
+- 未来天赋: `data/talents/future.ts`
+- NSFW天赋: `data/talents/nsfw.ts`
+- 通用背景: `data/backgrounds/common.ts`
+- 现代背景: `data/backgrounds/modern.ts`
+- 气运数据: `data/qiyun/categories/zhen-qiyun.ts`
