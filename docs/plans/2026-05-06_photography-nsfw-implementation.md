@@ -1021,13 +1021,51 @@ export interface 写真NSFW设置 {
 
 ## 成功标准
 
-- [ ] 所有类型编译通过，零TypeScript错误
-- [ ] 设置面板正确渲染并持久化开关
-- [ ] 现代纪元游戏启动时模块正确初始化
-- [ ] AI提示词注入包含写真上下文（激活时）
-- [ ] `<写真系统状态>` 标签被正确解析和应用
-- [ ] 泄露风险计算产出合理值（0-100）
-- [ ] 尺度递进遵循定义的阈值（G → PG-13 → R → NC-17 → XXX）
-- [ ] 现有NSFW模块无回归（校园、网约车）
-- [ ] 状态在存档/读档间正确持久化
-- [ ] 所有新文件遵循项目约定（中文命名、不可变模式、错误处理）
+- [x] 所有类型编译通过，零TypeScript错误
+- [x] 设置面板正确渲染并持久化开关
+- [x] 现代纪元游戏启动时模块正确初始化
+- [x] AI提示词注入包含写真上下文（激活时）
+- [x] `<写真系统状态>` 标签被正确解析和应用（需对接 responseCommandProcessor）
+- [x] 泄露风险计算产出合理值（0-100）
+- [x] 尺度递进遵循定义的阈值（G → PG-13 → R → NC-17 → XXX）
+- [x] 现有NSFW模块无回归（校园、网约车）
+- [ ] 状态在存档/读档间正确持久化（需验证存档系统兼容性）
+- [x] 所有新文件遵循项目约定（中文命名、不可变模式、错误处理）
+
+## 实施状态（2026-05-07）
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| Phase 1: 核心框架 | ✅ 完成 | types.ts, states.ts, index.ts, engine.ts, normalization.ts |
+| Phase 2: 状态接入+AI桥接 | ✅ 完成 | registration.ts, gameSettings.ts, contemporary/index.ts, game-settings.ts |
+| Phase 3: AI工作流+提示词 | ✅ 完成 | photographyNSFW.ts, shootWorkflow.ts, leakWorkflow.ts |
+| Phase 4: UI设置注册 | ✅ 完成 | tabDefinitions.ts, SettingsPanel.tsx |
+| Phase 4: UI仪表盘 | ✅ 完成 | PhotographyDashboard.tsx, MobilePhotographyDashboard.tsx 已创建并接入App.tsx |
+| Phase 4: BDSM跨模块联动 | ⏸ 待实施 | 可选字段交叉引用（低优先级） |
+| 状态标签解析 | ✅ 完成 | `<写真系统状态>` 标签解析已对接 responseCommandProcessor.ts |
+
+## 已创建文件清单
+
+| 文件 | 行数 | 说明 |
+|------|------|------|
+| `models/photographyNSFW/types.ts` | ~120 | 所有枚举类型和玩法配置 |
+| `models/photographyNSFW/states.ts` | ~160 | 状态接口（模特/摄影师/项目/泄露） |
+| `models/photographyNSFW/index.ts` | ~60 | 桶导出+设置接口+默认值+系统扩展 |
+| `models/photographyNSFW/normalization.ts` | ~40 | 设置规范化函数 |
+| `hooks/useGame/photographyNSFWEngine.ts` | ~315 | 纯计算引擎（风险评估/尺度递进/越界/泄露） |
+| `prompts/runtime/photographyNSFW.ts` | ~300 | 运行时提示词模板（10个构建函数） |
+| `hooks/useGame/photographyShootWorkflow.ts` | ~160 | 拍摄生命周期工作流 |
+| `hooks/useGame/photographyLeakWorkflow.ts` | ~140 | 泄露事件生命周期工作流 |
+| `components/features/Settings/PhotographyNSFWSettings.tsx` | ~185 | 设置面板UI组件 |
+| `modules/contemporary/photographyNSFW/registration.ts` | ~190 | 故事模块注册（参数提取+提示词构建） |
+| `components/features/PhotographyDashboard.tsx` | ~340 | 桌面端写真仪表盘UI |
+| `components/features/MobilePhotographyDashboard.tsx` | ~210 | 移动端写真仪表盘UI |
+| **修改文件** | | |
+| `models/game-settings.ts` | +5 | 添加写真设置+状态类型引用 |
+| `utils/gameSettings.ts` | +8 | 添加写真设置默认值和规范化 |
+| `modules/contemporary/index.ts` | +1 | 添加写真模块注册导入 |
+| `components/features/Settings/tabDefinitions.ts` | +2 | 添加写真NSFW标签 |
+| `components/features/Settings/SettingsPanel.tsx` | +13 | 添加写真NSFW设置渲染 |
+| `components/features/lazyComponents.tsx` | +2 | 添加写真仪表盘懒加载注册 |
+| `App.tsx` | +30 | 添加写真仪表盘渲染（desktop+mobile） |
+| `hooks/useGame/npc/responseCommandProcessor.ts` | +38 | 添加`<写真系统状态>`标签解析 |

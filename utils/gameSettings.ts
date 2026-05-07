@@ -7,8 +7,11 @@ import type { 校园NSFW设置 } from '../models/campusNSFW';
 import { 默认校园NSFW设置 } from '../models/campusNSFW';
 import type { 都市网约车NSFW设置 } from '../models/urbanDriverNSFW';
 import { 默认都市网约车NSFW设置 } from '../models/urbanDriverNSFW';
+import type { 写真NSFW设置 } from '../models/photographyNSFW';
+import { 默认写真NSFW设置 } from '../models/photographyNSFW';
 import { 规范化校园NSFW设置 } from '../models/campusNSFW/normalization';
 import { 规范化都市网约车NSFW设置 } from '../models/urbanDriverNSFW/normalization';
+import { 规范化写真NSFW设置 } from '../models/photographyNSFW/normalization';
 
 const 最低字数要求 = 50;
 
@@ -190,7 +193,8 @@ export const 默认游戏设置: 游戏设置结构 = {
     独立APIGPT模式: 默认独立APIGPT模式设置,
     额外提示词: 默认额外系统提示词,
     校园NSFW设置: 默认校园NSFW设置,
-    都市网约车NSFW设置: 默认都市网约车NSFW设置
+    都市网约车NSFW设置: 默认都市网约车NSFW设置,
+    写真NSFW设置: 默认写真NSFW设置
 };
 
 export const 解析酒馆预设角色ID = (
@@ -311,6 +315,9 @@ export const 规范化游戏设置 = (
             : fallback.校园NSFW设置,
         都市网约车NSFW设置: (source.都市网约车NSFW设置 && typeof source.都市网约车NSFW设置 === 'object')
             ? 规范化都市网约车NSFW设置(source.都市网约车NSFW设置 as Partial<都市网约车NSFW设置>)
-            : fallback.都市网约车NSFW设置
+            : fallback.都市网约车NSFW设置,
+        写真NSFW设置: (source.写真NSFW设置 && typeof source.写真NSFW设置 === 'object')
+            ? 规范化写真NSFW设置(source.写真NSFW设置 as Partial<写真NSFW设置>)
+            : fallback.写真NSFW设置
     };
 };

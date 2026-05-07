@@ -6,6 +6,7 @@ import { 角色数据结构 } from './character';
 import { 环境信息结构 } from './environment';
 import type { 校园NSFW设置 } from './campusNSFW';
 import type { 都市网约车NSFW设置 } from './urbanDriverNSFW';
+import type { 写真NSFW设置, 写真系统扩展 } from './photographyNSFW';
 import { 场景图片档案 } from './imageGeneration';
 import { NPC结构 } from './social';
 import { 世界数据结构 } from './world';
@@ -265,6 +266,7 @@ export interface 游戏设置结构 {
     成人内容?: boolean;
     校园NSFW设置?: 校园NSFW设置;
     都市网约车NSFW设置?: 都市网约车NSFW设置;
+    写真NSFW设置?: 写真NSFW设置; // 写真约拍NSFW子系统（仅现代纪元）
     启用饱腹口渴系统: boolean;
     启用修炼体系: boolean;
     启用里武侠模式: boolean;
@@ -387,6 +389,7 @@ export interface 存档结构 {
     校规系统?: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] };
     催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
     校园系统?: 校园系统数据;
+    写真系统?: 写真系统扩展; // 写真约拍系统（现代纪元NSFW模块）
 }
 
 // === 提示词与节日 ===

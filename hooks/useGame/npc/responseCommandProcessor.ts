@@ -13,6 +13,7 @@ import {
 } from '../../../types';
 import type { 校园系统数据 } from '../../../models/campusPhone';
 import type { 校园NSFW系统扩展 } from '../../../models/campusNSFW';
+import type { 写真系统扩展 } from '../../../models/photographyNSFW';
 import { applyStateCommand } from '../../../utils/stateHelpers';
 
 const 深拷贝 = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -300,6 +301,46 @@ export const 执行响应命令处理 = (
 
     // 更新 finalState 中的校园系统
     finalState.校园系统 = campusBuffer;
+
+    // 解析 <写真系统状态> XML 标签，应用 AI 返回的写真系统更新
+    if (typeof rawContent === 'string') {
+        const 写真系统状态匹配 = rawContent.match(/<写真系统状态>\s*([\s\S]*?)\s*<\/写真系统状态>/);
+        if (写真系统状态匹配) {
+            try {
+                const 写真解析结果 = JSON.parse(写真系统状态匹配[1]) as {
+                    更新模特档案?: Record<string, Partial<import('../../../models/photographyNSFW').模特核心状态>>;
+                    更新拍摄项目?: Partial<import('../../../models/photographyNSFW').拍摄项目状态>[];
+                    新泄露事件?: import('../../../models/photographyNSFW').泄露事件状态[];
+                };
+                const 写真系统 = (finalState as any).写真系统 || {} as 写真系统扩展;
+                const 更新后模特档案 = { ...(写真系统.模特档案 || {}) };
+                if (写真解析结果.更新模特档案) {
+                    for (const [id, 更新] of Object.entries(写真解析结果.更新模特档案)) {
+                        更新后模特档案[id] = { ...(更新后模特档案[id] || {}), ...更新 } as any;
+                    }
+                }
+                const 更新后项目 = [...(写真系统.进行中的拍摄项目 || [])];
+                if (写真解析结果.更新拍摄项目) {
+                    for (const 更新 of 写真解析结果.更新拍摄项目) {
+                        if (更新.id) {
+                            const idx = 更新后项目.findIndex(p => p.id === 更新.id);
+                            if (idx >= 0) 更新后项目[idx] = { ...更新后项目[idx], ...更新 } as any;
+                        }
+                    }
+                }
+                const 更新后泄露 = [...(写真系统.泄露事件列表 || [])];
+                if (写真解析结果.新泄露事件) {
+                    更新后泄露.push(...写真解析结果.新泄露事件);
+                }
+                (finalState as any).写真系统 = {
+                    ...写真系统,
+                    模特档案: 更新后模特档案,
+                    进行中的拍摄项目: 更新后项目,
+                    泄露事件列表: 更新后泄露,
+                } as 写真系统扩展;
+            } catch { /* JSON 解析失败，忽略 */ }
+        }
+    }
 
     const calibrated = deps.命令后校准?.(finalState);
     if (calibrated) {

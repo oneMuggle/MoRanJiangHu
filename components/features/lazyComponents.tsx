@@ -58,6 +58,8 @@ export const MobileImageManagerModal = 创建可预加载懒组件(() => import(
 
 // Campus & BDSM
 export const CampusDesireDashboard = 创建可预加载懒组件(() => import('./CampusDesireDashboard'));
+export const PhotographyDashboard = 创建可预加载懒组件(() => import('./PhotographyDashboard'));
+export const MobilePhotographyDashboard = 创建可预加载懒组件(() => import('./MobilePhotographyDashboard'));
 export const BDSMRelationshipModal = 创建可预加载懒组件(() => import('./BDSMRelationshipModal'));
 export const BDSMContractModal = 创建可预加载懒组件(() => import('./BDSMContractModal'));
 export const BDSMSafetyModal = 创建可预加载懒组件(() => import('./BDSMSafetyModal'));

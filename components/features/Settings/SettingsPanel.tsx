@@ -6,7 +6,6 @@ import {
     游戏设置结构, 记忆配置结构, 记忆系统结构, NPC结构, TavernCommand, OpeningConfig, 剧情系统结构,
     时代配置, 时代信息结构
 } from '../../../types';
-import { 性能监控配置结构 } from '../../../models/system';
 
 const ApiSettings = React.lazy(() => import('./ApiSettings'));
 const ImageGenerationSettings = React.lazy(() => import('./ImageGenerationSettings'));
@@ -28,13 +27,15 @@ const CurrentNovelDecompositionInjectionSettings = React.lazy(() => import('./Cu
 const MusicSettings = React.lazy(() => import('./MusicSettings'));
 const NpcManager = React.lazy(() => import('./NpcManager'));
 const VariableManager = React.lazy(() => import('./VariableManager'));
-const PerformanceMonitorSettings = React.lazy(() => import('./PerformanceMonitorSettings'));
 const CampusNSFWSettings = React.lazy(() => import('./CampusNSFWSettings'));
 const UrbanDriverNSFWSettings = React.lazy(() => import('./UrbanDriverNSFWSettings'));
+const PhotographyNSFWSettings = React.lazy(() => import('./PhotographyNSFWSettings'));
 import { 默认校园NSFW设置 } from '../../../models/campusNSFW';
 import type { 校园NSFW设置 } from '../../../models/campusNSFW';
 import { 默认都市网约车NSFW设置 } from '../../../models/urbanDriverNSFW';
 import type { 都市网约车NSFW设置 } from '../../../models/urbanDriverNSFW';
+import { 默认写真NSFW设置 } from '../../../models/photographyNSFW';
+import type { 写真NSFW设置 } from '../../../models/photographyNSFW';
 
 type RuntimeStateSections = Record<'角色' | '环境' | '社交' | '世界' | '战斗' | '剧情' | '女主剧情规划' | '玩家门派' | '任务列表' | '约定列表' | '记忆系统', unknown>;
 
@@ -63,7 +64,7 @@ export type SettingsTabId =
     | 'api' | 'image_generation' | 'integrated_models'
     | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime'
     | 'prompt' | 'storage' | 'theme' | 'visual' | 'world'
-    | 'game' | 'campus_nsfw' | 'urban_driver_nsfw' | 'reality' | 'tavern_preset' | 'memory'
+    | 'game' | 'campus_nsfw' | 'urban_driver_nsfw' | 'photography_nsfw' | 'reality' | 'tavern_preset' | 'memory'
     | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager' | 'performance';
 
 export interface SettingsTabItem {
@@ -100,8 +101,6 @@ export interface SettingsPanelProps {
     onSaveVisual: (config: 视觉设置结构) => void;
     onSaveGame?: (config: 游戏设置结构) => void;
     onSaveMemory?: (config: 记忆配置结构) => void;
-    performanceConfig?: 性能监控配置结构;
-    onSavePerformance?: (config: 性能监控配置结构) => void;
     onCreateNpc: (seed?: Partial<NPC结构>) => NPC结构 | void;
     onSaveNpc: (npcId: string, npc: NPC结构) => void;
     onDeleteNpc: (npcId: string) => void;
@@ -128,8 +127,8 @@ const 设置加载占位 = (
 
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
     activeTab, onTabChange, onClose,
-    apiConfig, visualConfig, gameConfig, memoryConfig, performanceConfig, prompts, festivals, currentTheme, currentEra, eraInfo, eraTheme, availableEras, onEraChange, history, memorySystem, socialList, runtimeState, currentStory, openingConfig, contextSnapshot,
-    onSaveApi, onSaveVisual, onSaveGame, onSaveMemory, onSavePerformance, onCreateNpc, onSaveNpc, onDeleteNpc, onStartNpcMemorySummary, onUploadNpcImage, onReplaceVariableSection, onApplyVariableCommand, onUpdatePrompts, onUpdateFestivals, onThemeChange, onEraChange: onEraChangeProp,
+    apiConfig, visualConfig, gameConfig, memoryConfig, prompts, festivals, currentTheme, currentEra, eraInfo, eraTheme, availableEras, onEraChange, history, memorySystem, socialList, runtimeState, currentStory, openingConfig, contextSnapshot,
+    onSaveApi, onSaveVisual, onSaveGame, onSaveMemory, onCreateNpc, onSaveNpc, onDeleteNpc, onStartNpcMemorySummary, onUploadNpcImage, onReplaceVariableSection, onApplyVariableCommand, onUpdatePrompts, onUpdateFestivals, onThemeChange, onEraChange: onEraChangeProp,
     onReturnToHome, isHome, requestConfirm,
     navMode, tabs,
 }) => {
@@ -213,10 +212,18 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 />
             );
         }
+        if (activeTab === 'photography_nsfw' && gameConfig && onSaveGame) {
+            const photoSettings = gameConfig.写真NSFW设置 ?? 默认写真NSFW设置;
+            return (
+                <PhotographyNSFWSettings
+                    settings={photoSettings}
+                    onChange={(s: 写真NSFW设置) => onSaveGame({ ...gameConfig, 写真NSFW设置: s })}
+                />
+            );
+        }
         if (activeTab === 'reality' && gameConfig && onSaveGame) return <RealitySettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'tavern_preset' && gameConfig && onSaveGame) return <TavernPresetSettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'memory' && memoryConfig && onSaveMemory) return <MemorySettings settings={memoryConfig} onSave={onSaveMemory} />;
-        if (activeTab === 'performance' && performanceConfig && onSavePerformance) return <PerformanceMonitorSettings settings={performanceConfig} onSave={onSavePerformance} />;
         return null;
     };
 
