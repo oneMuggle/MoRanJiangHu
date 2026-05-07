@@ -14,9 +14,13 @@ import type {
   后夜祭状态,
   桌游类型,
   密室主题,
+  契约类型,
+  契约状态,
 } from '../../models/campusNSFW';
 import { 构建BDSM论坛叙事约束 } from './bdsmForum';
+import { 构建调教任务系统叙事约束 } from './bdsmTasks';
 import type { 校园亲密互动类型 } from '../../models/intimacy';
+import type { BDSM调教任务 } from './bdsmTasks';
 
 // ==================== 核心配置注入 ====================
 
@@ -47,6 +51,10 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
   BDSM内容强度?: '关闭' | '轻度' | '中度' | '深度';
   论坛活跃帖子数?: number;
   寻主召奴未联系帖数?: number;
+  // v1.6 BDSM 关系管线
+  BDSM活跃任务?: BDSM调教任务[];
+  BDSM日常指令?: string[];
+  BDSM契约状态?: { 类型: 契约类型; 状态: 契约状态; 条款: string[] };
 }): string => {
   const {
     欲望阶段,
@@ -70,6 +78,9 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
     BDSM内容强度,
     论坛活跃帖子数,
     寻主召奴未联系帖数,
+    BDSM活跃任务,
+    BDSM日常指令,
+    BDSM契约状态,
   } = 参数;
 
   const 组件: string[] = [];
@@ -117,13 +128,20 @@ export const 构建校园NSFW完整叙事约束 = (参数: {
   }
 
   // v1.6 BDSM 关系管线叙事约束
-  if (其他Npc欲望摘要?.includes('BDSM 关系阶段')) {
+  // 调用构建调教任务系统叙事约束生成详细的活跃任务、日常指令、契约状态约束
+  if (BDSM活跃任务 && BDSM活跃任务.length > 0) {
+    const 任务约束 = 构建调教任务系统叙事约束({
+      活跃任务: BDSM活跃任务,
+      日常指令: BDSM日常指令,
+      契约状态: BDSM契约状态,
+    });
+    if (任务约束) 组件.push(任务约束);
+  } else if (其他Npc欲望摘要?.includes('BDSM 关系阶段')) {
+    // 兼容：仅有BDSM关系阶段标记但无详细任务时，使用简化约束
     组件.push(`【BDSM 关系管线】
 当前存在 BDSM 关系。叙事时需注意：
 - 根据关系阶段（初识→试探→确立→深入→固化）调整 NPC 的服从程度和互动方式
 - 服从度影响 NPC 对指令的执行意愿和态度
-- 如有活跃任务，NPC 可能在剧情中主动提及或执行相关任务
-- 日常指令会在 NPC 的称呼、穿着、行为中有所体现
 - 契约条款是双方必须遵守的约定，叙事中不可违背
 - 安全词是关系中的底线，一旦触发必须立即停止 BDSM 相关内容`);
   }

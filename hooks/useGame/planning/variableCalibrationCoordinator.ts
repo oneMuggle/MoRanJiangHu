@@ -9,7 +9,8 @@ import type {
     环境信息结构,
     聊天记录结构,
     角色数据结构
-} from '../../../types';
+} from '../../types';
+import { 创建变量生成队列调度器, type 变量生成队列调度器, type 变量生成进度 } from './variableGenerationQueue';
 
 type 回合快照结构 = {
     玩家输入: string;
@@ -32,13 +33,6 @@ type 回合快照结构 = {
         场景图片档案?: any;
     };
     回档前历史: 聊天记录结构[];
-};
-
-type 变量生成进度 = {
-    phase: 'start' | 'done' | 'error' | 'cancelled';
-    text?: string;
-    rawText?: string;
-    commandTexts?: string[];
 };
 
 type 变量生成工作流依赖 = {
@@ -64,6 +58,12 @@ type 变量生成工作流依赖 = {
     使用快照重建解析回合: (snapshot: any, parsed: GameResponse, rawText: string, options?: any) => Promise<void>;
 };
 
+type 变量校准合并结果 = {
+    mergedParsed: GameResponse;
+    mergedDisplayResponse: GameResponse;
+    variableCalibration: any;
+};
+
 const 构建基础状态 = (snapshot: 回合快照结构, 深拷贝: <T>(value: T) => T) => ({
     角色: 深拷贝(snapshot.回档前状态.角色),
     环境: 深拷贝(snapshot.回档前状态.环境),
@@ -78,6 +78,13 @@ const 构建基础状态 = (snapshot: 回合快照结构, 深拷贝: <T>(value: 
 });
 
 export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) => {
+    // 创建队列调度器
+    const 队列调度器 = 创建变量生成队列调度器({
+        执行变量模型校准工作流: deps.执行变量模型校准工作流,
+        apiConfig: deps.apiConfig,
+        gameConfig: deps.gameConfig
+    });
+
     const 构建带索引命令文本 = (commands: any[], startIndex: number): string[] => (
         (Array.isArray(commands) ? commands : [])
             .map((cmd, index) => {
@@ -99,7 +106,7 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         worldEvolutionUpdated?: boolean;
         extraPromptAppend?: string;
         onProgress?: (progress: 变量生成进度) => void;
-    }) => {
+    }): Promise<变量校准合并结果 | null> => {
         if (!deps.变量生成功能已启用(deps.apiConfig)) {
             return null;
         }
@@ -107,61 +114,60 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         if (!deps.接口配置是否可用(variableApi)) {
             return null;
         }
-        if (deps.variableGenerationAbortControllerRef.current) {
-            deps.variableGenerationAbortControllerRef.current.abort();
+
+        // 如果有正在运行的任务，先取消
+        if (队列调度器.有运行中任务()) {
+            队列调度器.取消全部();
         }
-        const controller = new AbortController();
-        deps.variableGenerationAbortControllerRef.current = controller;
-        deps.set变量生成中(true);
-        params.onProgress?.({ phase: 'start', text: '正在执行独立变量生成...' });
+
+        const worldEvolutionEnabled = deps.世界演变功能已开启();
+        const calibrationResponse = params.parsedResponse;
+        const mergeTargetResponse = params.mergeTargetResponse || params.parsedResponse;
+        const displayResponse = params.displayResponse || mergeTargetResponse;
+        const recentRounds = deps.收集最近变量生成上下文(
+            Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史 : [],
+            2
+        );
+        const isOpeningRound = (Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史.length : 0) <= 1;
+
+        // 包装进度回调，添加 taskId 信息
+        const wrappedProgressCallback = (progress: 变量生成进度) => {
+            params.onProgress?.({ ...progress });
+        };
+
+        // 构建任务参数
+        const taskParams = {
+            playerInput: params.playerInput,
+            parsedResponse: calibrationResponse,
+            baseState: 构建基础状态(params.snapshot, deps.深拷贝),
+            promptPool: deps.prompts,
+            worldEvolutionEnabled,
+            builtinPromptEntries: deps.内置提示词列表,
+            worldEvolutionUpdated: params.worldEvolutionUpdated === true,
+            worldbooks: deps.世界书列表,
+            openingConfig: deps.开局配置,
+            extraPromptAppend: params.extraPromptAppend,
+            recentRounds,
+            isOpeningRound
+        };
+
+        // 入列并等待结果
+        const { taskId, resultPromise } = 队列调度器.入列(taskParams, {
+            type: 'turn',
+            priority: 'normal',
+            onProgress: wrappedProgressCallback
+        });
+
+        params.onProgress?.({ phase: 'start', text: '正在执行独立变量生成...', taskId });
+
         try {
-            if (deps.世界演变进行中Ref.current) {
-                params.onProgress?.({ phase: 'start', text: '等待世界演变完成后再开始变量生成...' });
-                await deps.等待世界演变空闲(controller.signal);
-            }
-            const worldEvolutionEnabled = deps.世界演变功能已开启();
-            const calibrationResponse = params.parsedResponse;
-            const mergeTargetResponse = params.mergeTargetResponse || params.parsedResponse;
-            const displayResponse = params.displayResponse || mergeTargetResponse;
-            const recentRounds = deps.收集最近变量生成上下文(
-                Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史 : [],
-                2
-            );
-            const isOpeningRound = (Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史.length : 0) <= 1;
-            const variableCalibration = await deps.执行变量模型校准工作流(
-                {
-                    playerInput: params.playerInput,
-                    parsedResponse: calibrationResponse,
-                    baseState: 构建基础状态(params.snapshot, deps.深拷贝),
-                    promptPool: deps.prompts,
-                    worldEvolutionEnabled,
-                    builtinPromptEntries: deps.内置提示词列表,
-                    worldEvolutionUpdated: params.worldEvolutionUpdated === true,
-                    worldbooks: deps.世界书列表,
-                    openingConfig: deps.开局配置,
-                    signal: controller.signal,
-                    extraPromptAppend: params.extraPromptAppend,
-                    recentRounds,
-                    isOpeningRound,
-                    onStreamDelta: (_delta: string, accumulated: string) => {
-                        if (controller.signal.aborted) return;
-                        params.onProgress?.({ phase: 'start', text: accumulated });
-                    }
-                },
-                {
-                    apiConfig: deps.apiConfig,
-                    gameConfig: deps.gameConfig
-                }
-            );
-            if (controller.signal.aborted) {
-                params.onProgress?.({ phase: 'cancelled', text: '已取消本次变量生成。' });
-                return null;
-            }
+            const variableCalibration = await resultPromise;
+
             if (!variableCalibration || (
                 variableCalibration.commands.length === 0
                 && variableCalibration.reports.length === 0
             )) {
-                params.onProgress?.({ phase: 'done', text: '当前回合未产出额外变量命令，沿用现有变量结果。', rawText: variableCalibration?.rawText });
+                params.onProgress?.({ phase: 'done', text: '当前回合未产出额外变量命令，沿用现有变量结果。', rawText: variableCalibration?.rawText, taskId });
                 return {
                     mergedParsed: mergeTargetResponse,
                     mergedDisplayResponse: displayResponse,
@@ -177,10 +183,7 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
                 variable_calibration_commands: mergedParsed.variable_calibration_commands,
                 variable_calibration_model: mergedParsed.variable_calibration_model
             };
-            if (controller.signal.aborted) {
-                params.onProgress?.({ phase: 'cancelled', text: '已取消本次变量生成。' });
-                return null;
-            }
+
             return {
                 mergedParsed,
                 mergedDisplayResponse,
@@ -188,15 +191,10 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
             };
         } catch (error: any) {
             if (error?.name === 'AbortError') {
-                params.onProgress?.({ phase: 'cancelled', text: '已取消本次变量生成。' });
+                params.onProgress?.({ phase: 'cancelled', text: '已取消本次变量生成。', taskId });
                 return null;
             }
             throw error;
-        } finally {
-            if (deps.variableGenerationAbortControllerRef.current === controller) {
-                deps.variableGenerationAbortControllerRef.current = null;
-            }
-            deps.set变量生成中(false);
         }
     };
 
@@ -213,13 +211,69 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         extraPromptAppend?: string;
         onProgress?: (progress: 变量生成进度) => void;
     }) => {
-        const calibration = await 执行变量校准并合并响应(params);
-        if (!calibration?.mergedParsed || !calibration.variableCalibration) {
+        if (!deps.变量生成功能已启用(deps.apiConfig)) {
             return;
         }
-        await deps.使用快照重建解析回合(params.snapshot, calibration.mergedParsed, params.rawText, {
+        const variableApi = deps.获取变量计算接口配置(deps.apiConfig);
+        if (!deps.接口配置是否可用(variableApi)) {
+            return;
+        }
+
+        const worldEvolutionEnabled = deps.世界演变功能已开启();
+        const calibrationResponse = params.parsedResponse;
+        const mergeTargetResponse = params.mergeTargetResponse || params.parsedResponse;
+        const recentRounds = deps.收集最近变量生成上下文(
+            Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史 : [],
+            2
+        );
+        const isOpeningRound = (Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史.length : 0) <= 1;
+
+        // 包装进度回调
+        const wrappedProgressCallback = (progress: 变量生成进度) => {
+            params.onProgress?.({ ...progress });
+        };
+
+        const taskParams = {
             playerInput: params.playerInput,
-            displayResponse: calibration.mergedDisplayResponse,
+            parsedResponse: calibrationResponse,
+            baseState: 构建基础状态(params.snapshot, deps.深拷贝),
+            promptPool: deps.prompts,
+            worldEvolutionEnabled,
+            builtinPromptEntries: deps.内置提示词列表,
+            worldEvolutionUpdated: params.worldEvolutionUpdated === true,
+            worldbooks: deps.世界书列表,
+            openingConfig: deps.开局配置,
+            extraPromptAppend: params.extraPromptAppend,
+            recentRounds,
+            isOpeningRound
+        };
+
+        // 低优先级入列（后台执行）
+        const { taskId, resultPromise } = 队列调度器.入列(taskParams, {
+            type: 'background',
+            priority: 'low',
+            onProgress: wrappedProgressCallback
+        });
+
+        // 等待结果
+        const variableCalibration = await resultPromise;
+        if (!variableCalibration || (variableCalibration.commands.length === 0 && variableCalibration.reports.length === 0)) {
+            return;
+        }
+
+        // 执行合并
+        const mergedParsed = deps.合并变量生成结果到响应(mergeTargetResponse, variableCalibration);
+        const mergedDisplayResponse: GameResponse = {
+            ...(params.displayResponse || mergeTargetResponse),
+            tavern_commands: Array.isArray(mergedParsed.tavern_commands) ? mergedParsed.tavern_commands : [],
+            variable_calibration_report: mergedParsed.variable_calibration_report,
+            variable_calibration_commands: mergedParsed.variable_calibration_commands,
+            variable_calibration_model: mergedParsed.variable_calibration_model
+        };
+
+        await deps.使用快照重建解析回合(params.snapshot, mergedParsed, params.rawText, {
+            playerInput: params.playerInput,
+            displayResponse: mergedDisplayResponse,
             preserveSnapshot: true,
             inputTokens: params.inputTokens,
             responseDurationSec: params.responseDurationSec,
@@ -229,14 +283,15 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         });
         params.onProgress?.({
             phase: 'done',
-            text: `已补充 ${calibration.variableCalibration.commands.length} 条变量命令${calibration.variableCalibration.model ? `（${calibration.variableCalibration.model}）` : ''}`,
-            rawText: calibration.variableCalibration.rawText,
+            text: `已补充 ${variableCalibration.commands.length} 条变量命令${variableCalibration.model ? `（${variableCalibration.model}）` : ''}`,
+            rawText: variableCalibration.rawText,
             commandTexts: 构建带索引命令文本(
-                calibration.variableCalibration.commands,
+                variableCalibration.commands,
                 (Array.isArray((params.mergeTargetResponse || params.parsedResponse)?.tavern_commands)
                     ? (params.mergeTargetResponse || params.parsedResponse).tavern_commands.length
                     : 0) + 1
-            )
+            ),
+            taskId
         });
     };
 
@@ -245,30 +300,41 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         playerInput: string;
         parsedResponse: GameResponse;
     }): Promise<GameResponse> => {
+        if (!deps.变量生成功能已启用(deps.apiConfig)) {
+            return params.parsedResponse;
+        }
+        const variableApi = deps.获取变量计算接口配置(deps.apiConfig);
+        if (!deps.接口配置是否可用(variableApi)) {
+            return params.parsedResponse;
+        }
+
         const worldEvolutionEnabled = deps.世界演变功能已开启();
         const recentRounds = deps.收集最近变量生成上下文(
             Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史 : [],
             2
         );
         const isOpeningRound = (Array.isArray(params.snapshot?.回档前历史) ? params.snapshot.回档前历史.length : 0) <= 1;
-        const variableCalibration = await deps.执行变量模型校准工作流(
-            {
-                playerInput: params.playerInput,
-                parsedResponse: params.parsedResponse,
-                baseState: 构建基础状态(params.snapshot, deps.深拷贝),
-                promptPool: deps.prompts,
-                worldEvolutionEnabled,
-                builtinPromptEntries: deps.内置提示词列表,
-                worldbooks: deps.世界书列表,
-                openingConfig: deps.开局配置,
-                recentRounds,
-                isOpeningRound
-            },
-            {
-                apiConfig: deps.apiConfig,
-                gameConfig: deps.gameConfig
-            }
-        );
+
+        const taskParams = {
+            playerInput: params.playerInput,
+            parsedResponse: params.parsedResponse,
+            baseState: 构建基础状态(params.snapshot, deps.深拷贝),
+            promptPool: deps.prompts,
+            worldEvolutionEnabled,
+            builtinPromptEntries: deps.内置提示词列表,
+            worldbooks: deps.世界书列表,
+            openingConfig: deps.开局配置,
+            recentRounds,
+            isOpeningRound
+        };
+
+        // 关键任务，高优先级入列
+        const { resultPromise } = 队列调度器.入列(taskParams, {
+            type: 'reparse',
+            priority: 'critical'
+        });
+
+        const variableCalibration = await resultPromise;
         if (variableCalibration && (
             variableCalibration.commands.length > 0
             || variableCalibration.reports.length > 0
@@ -278,9 +344,11 @@ export const 创建变量校准协调器 = (deps: 变量生成工作流依赖) =
         return params.parsedResponse;
     };
 
+    // 导出队列调度器供外部使用（如取消全部）
     return {
         后台执行变量校准,
         执行变量校准并合并响应,
-        执行重解析变量校准
+        执行重解析变量校准,
+        队列调度器
     };
 };

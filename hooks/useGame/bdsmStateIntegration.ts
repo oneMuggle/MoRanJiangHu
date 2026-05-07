@@ -79,8 +79,12 @@ export const 构建校园NSFW参数 = (state: {
         其他Npc摘要.push(`${id}: ${档案.当前阶段}/${档案.关系轨道}(进度${档案.阶段进度}/${档案.轨道进度}) 暴露${档案.暴露风险值}`);
     }
 
-    // 收集 BDSM 关系摘要
+    // 收集 BDSM 关系摘要和详细任务信息（用于构建调教任务系统叙事约束）
     const bdsm关系摘要: string[] = [];
+    let BDSM活跃任务: any[] = [];
+    let BDSM日常指令: string[] = [];
+    let BDSM契约状态: { 类型: string; 状态: string; 条款: string[] } | undefined;
+
     for (const id of npcIds) {
         const 档案 = 欲望系统.NPC欲望档案![id];
         const bdsM关系 = 档案?.BDSM关系;
@@ -88,6 +92,32 @@ export const 构建校园NSFW参数 = (state: {
             bdsm关系摘要.push(
                 `${档案._npcName || id}: ${bdsM关系.阶段} 服从度${bdsM关系.服从度} 天平${bdsM关系.权力天平}`
             );
+            // 收集焦点 NPC 的详细 BDSM 任务信息
+            if (id === 焦点NpcId) {
+                // 活跃任务：进行中 + 待接受
+                const 活跃任务 = (bdsM关系.任务历史 || []).filter(
+                    (t: any) => t.状态 === '进行中' || t.状态 === '待接受'
+                );
+                if (活跃任务.length > 0) {
+                    BDSM活跃任务 = 活跃任务.slice(0, 5); // 最多5个
+                }
+                // 日常指令
+                const 未完成指令 = (bdsM关系.日常指令 || []).filter(
+                    (i: any) => !i.是否完成
+                );
+                if (未完成指令.length > 0) {
+                    BDSM日常指令 = 未完成指令.map((i: any) => i.内容);
+                }
+                // 契约状态
+                if (bdsM关系.契约记录 && bdsM关系.契约记录.length > 0) {
+                    const 最新契约 = bdsM关系.契约记录[bdsM关系.契约记录.length - 1];
+                    BDSM契约状态 = {
+                        类型: 最新契约.类型,
+                        状态: 最新契约.状态,
+                        条款: 最新契约.条款列表 || [],
+                    };
+                }
+            }
         }
     }
 
@@ -103,5 +133,9 @@ export const 构建校园NSFW参数 = (state: {
         内容强度: state.gameConfig?.校园NSFW设置?.NSFW内容强度,
         其他Npc欲望摘要: 其他Npc摘要.length > 0 ? 其他Npc摘要.join('；') : undefined,
         BDSM关系摘要: bdsm关系摘要.length > 0 ? bdsm关系摘要.join('；') : undefined,
+        // v1.6 BDSM 关系管线详细参数
+        BDSM活跃任务: BDSM活跃任务.length > 0 ? BDSM活跃任务 : undefined,
+        BDSM日常指令: BDSM日常指令.length > 0 ? BDSM日常指令 : undefined,
+        BDSM契约状态,
     };
 };

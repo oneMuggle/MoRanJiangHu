@@ -1,5 +1,7 @@
 /** 变量生成进度系统 */
 
+import type { 变量生成队列调度器 } from './variableGenerationQueue';
+
 export type 变量生成上下文缓存项 = {
     回合: number;
     玩家输入: string;
@@ -18,6 +20,7 @@ export const 创建变量生成进度系统 = (deps: {
     世界演变进行中Ref: React.RefObject<boolean>;
     variableGenerationAbortControllerRef: React.RefObject<AbortController | null>;
     深拷贝: <T,>(data: T) => T;
+    队列调度器?: 变量生成队列调度器;
 }) => {
     const 序列化变量校准命令 = (cmd: any): string => {
         const action = typeof cmd?.action === 'string' ? cmd.action : 'set';
@@ -131,7 +134,46 @@ export const 创建变量生成进度系统 = (deps: {
         }
     };
 
+    // 获取变量生成状态 - 通过队列调度器或旧的 boolean 方式
+    const 获取变量生成状态 = (): { running: boolean; pending: number; runningCount: number } => {
+        if (deps.队列调度器) {
+            return {
+                running: deps.队列调度器.有运行中任务(),
+                pending: deps.队列调度器.获取等待中数量(),
+                runningCount: deps.队列调度器.获取运行中数量()
+            };
+        }
+        // 兼容旧方式
+        return {
+            running: deps.变量生成中,
+            pending: 0,
+            runningCount: deps.变量生成中 ? 1 : 0
+        };
+    };
+
+    // 获取任务详情
+    const 获取任务详情 = (taskId: string) => {
+        if (deps.队列调度器) {
+            return deps.队列调度器.获取任务详情(taskId);
+        }
+        return undefined;
+    };
+
+    // 监听任务完成
+    const 监听任务完成 = (taskId: string) => {
+        if (deps.队列调度器) {
+            return deps.队列调度器.监听任务完成(taskId);
+        }
+        return Promise.reject(new Error('Queue scheduler not available'));
+    };
+
     const handleCancelVariableGeneration = () => {
+        if (deps.队列调度器) {
+            deps.队列调度器.取消全部();
+            deps.set变量生成中(false);
+            return;
+        }
+        // 兼容旧方式
         if (deps.variableGenerationAbortControllerRef.current) {
             deps.variableGenerationAbortControllerRef.current.abort();
         }
@@ -143,6 +185,9 @@ export const 创建变量生成进度系统 = (deps: {
         记录变量生成上下文,
         收集最近变量生成上下文,
         等待世界演变空闲,
-        handleCancelVariableGeneration
+        handleCancelVariableGeneration,
+        获取变量生成状态,
+        获取任务详情,
+        监听任务完成
     };
 };
