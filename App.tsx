@@ -20,7 +20,7 @@ import { MusicProvider } from './components/features/Music/MusicProvider';
 import { 小说拆分后台调度服务 } from './services/novel-decomposition/novelDecompositionScheduler';
 import { desktopTabs, mobileTabs } from './components/features/Settings/tabDefinitions';
 
-import { 懒加载边界, CharacterModal, MobileCharacter, NewGameWizard, MobileNewGameWizard, SettingsPanel, InventoryModal, MobileInventoryModal, EquipmentModal, MobileEquipmentModal, BattleModal, MobileBattleModal, SocialModal, MobileSocial, CampusDesireDashboard, PhotographyDashboard, MobilePhotographyDashboard, BDSMRelationshipModal, BDSMContractModal, BDSMSafetyModal, MobileCampusDesireApp, ImageManagerModal, MobileImageManagerModal, WorldbookManagerModal, MobileWorldbookManagerModal, TeamModal, MobileTeamModal, KungfuModal, MobileKungfuModal, WorldModal, MobileWorldModal, MapModal, MobileMapModal, SectModal, MobileSect, TaskModal, MobileTask, AgreementModal, MobileAgreementModal, StoryModal, MobileStory, HeroinePlanModal, MobileHeroinePlanModal, MemoryModal, MobileMemory, MemorySummaryFlowModal, MemorySummaryFlowMobileModal, NpcMemorySummaryFlowModal, NpcMemorySummaryFlowMobileModal, SaveLoadModal, MobileSaveLoadModal, MobileMusicPlayer, NovelDecompositionWorkbenchModal, MobileNovelDecompositionWorkbenchModal, NovelWritingWorkbenchModal, MobileNovelWritingWorkbenchModal, MobileDeviceModal } from './components/features/lazyComponents';
+import { 懒加载边界, CharacterModal, MobileCharacter, NewGameWizard, MobileNewGameWizard, SettingsPanel, InventoryModal, MobileInventoryModal, EquipmentModal, MobileEquipmentModal, BattleModal, MobileBattleModal, SocialModal, MobileSocial, CampusDesireDashboard, PhotographyDashboard, MobilePhotographyDashboard, BDSMRelationshipModal, BDSMContractModal, BDSMSafetyModal, MobileCampusDesireApp, NsfwControlCenter, ImageManagerModal, MobileImageManagerModal, WorldbookManagerModal, MobileWorldbookManagerModal, TeamModal, MobileTeamModal, KungfuModal, MobileKungfuModal, WorldModal, MobileWorldModal, MapModal, MobileMapModal, SectModal, MobileSect, TaskModal, MobileTask, AgreementModal, MobileAgreementModal, StoryModal, MobileStory, HeroinePlanModal, MobileHeroinePlanModal, MemoryModal, MobileMemory, MemorySummaryFlowModal, MemorySummaryFlowMobileModal, NpcMemorySummaryFlowModal, NpcMemorySummaryFlowMobileModal, SaveLoadModal, MobileSaveLoadModal, MobileMusicPlayer, NovelDecompositionWorkbenchModal, MobileNovelDecompositionWorkbenchModal, NovelWritingWorkbenchModal, MobileNovelWritingWorkbenchModal, MobileDeviceModal } from './components/features/lazyComponents';
 
 const App: React.FC = () => {
     const { state, meta, setters, actions } = useGame();
@@ -32,6 +32,7 @@ const App: React.FC = () => {
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
     const [showCampusDesire, setShowCampusDesire] = React.useState(false);
     const [showPhotography, setShowPhotography] = React.useState(false);
+    const [showNsfwCenter, setShowNsfwCenter] = React.useState(false);
     const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
@@ -536,6 +537,16 @@ const App: React.FC = () => {
                                 actions.saveGameSettings({ ...state.gameConfig, 子纪元里模式强度: { ...prev, [eraId]: intensity } } as any);
                             }}
                         />
+                        {/* NSFW 管理中心入口 */}
+                        <button
+                            type="button"
+                            onClick={() => setShowNsfwCenter(true)}
+                            className="absolute top-2 right-2 z-50 w-8 h-8 flex items-center justify-center rounded-full border border-red-900/50 bg-red-950/60 text-red-400 hover:bg-red-900/40 hover:text-red-300 transition-colors text-[10px]"
+                            title="NSFW 管理中心"
+                            aria-label="NSFW 管理中心"
+                        >
+                            NSFW
+                        </button>
                     </div>
 
                     {/* 中间主要互动区域 */}
@@ -1361,6 +1372,21 @@ const App: React.FC = () => {
                                     onClose={() => setShowPhotography(false)}
                                 />
                             )}
+                        </懒加载边界>
+                    )}
+
+                    {showNsfwCenter && (
+                        <懒加载边界>
+                            <NsfwControlCenter
+                                gameConfig={state.gameConfig as unknown as Record<string, unknown>}
+                                onSaveGame={(config) => actions.saveGameSettings(config as any)}
+                                onClose={() => setShowNsfwCenter(false)}
+                                onOpenDashboard={(moduleId) => {
+                                    setShowNsfwCenter(false);
+                                    if (moduleId === 'campusNSFW') setShowCampusDesire(true);
+                                    else if (moduleId === 'photographyNSFW') setShowPhotography(true);
+                                }}
+                            />
                         </懒加载边界>
                     )}
 

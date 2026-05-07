@@ -65,6 +65,9 @@ export const BDSMContractModal = 创建可预加载懒组件(() => import('./BDS
 export const BDSMSafetyModal = 创建可预加载懒组件(() => import('./BDSMSafetyModal'));
 export const MobileCampusDesireApp = 创建可预加载懒组件(() => import('./MobileCampusDesireApp'));
 
+// NSFW Center
+export const NsfwControlCenter = 创建可预加载懒组件(() => import('./NSFWCenter/NsfwControlCenter'));
+
 // Worldbook
 export const WorldbookManagerModal = 创建可预加载懒组件(() => import('./Worldbook/WorldbookManagerModal'));
 export const MobileWorldbookManagerModal = 创建可预加载懒组件(() => import('./Worldbook/MobileWorldbookManagerModal'));
