@@ -40,6 +40,47 @@ No action needed. The requested plan file does not exist. No implementation veri
 
 ---
 
+# 2026-05-08 Plan Verification: 2026-04-11_conversation-memory-system.md
+
+**Plan**: `docs/plans/2026-04-11_conversation-memory-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-11_conversation-memory-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-11_conversation-memory-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-25_conversation-memory-import-export.md` | ✅ Exists (related) |
+| `docs/plans/2026-04-28_memory-search.md` | ✅ Exists (related) |
+| `docs/plans/2026-04-10_event-trigger-system.md` | ✅ Exists (closest date before) |
+| `docs/plans/2026-04-15_era-inheritance-system.md` | ✅ Exists (closest date after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-11` or `conversation-memory-system`.
+
+### Related Conversation/Memory Files in Codebase
+
+| File | Description |
+|------|-------------|
+| `hooks/useGame/memoryUtils.ts` | Memory utility functions |
+| `hooks/useGame/memory/memorySummaryHandlers.ts` | Memory summary handling |
+| `hooks/useGame/conversationUtils.ts` | Conversation utilities |
+| `services/dbService.ts` | IndexedDB storage for conversations |
+
+### Conclusion
+
+No action needed. The requested plan file `docs/plans/2026-04-11_conversation-memory-system.md` does not exist. No implementation verification possible.
+
+---
+*验证时间: 2026-05-08*
+
 # 2026-05-08 Plan Verification: story-state-schema
 
 **Plan**: `docs/plans/2026-04-27_story-state-schema.md`
@@ -119,6 +160,45 @@ No action needed. The requested plan file `docs/plans/2026-04-20_image-generatio
 
 ---
 *验证时间: 2026-05-08*
+
+---
+
+# 2026-05-07 Plan Verification: 2026-04-13_clue-hunting-system.md
+
+**Plan**: `docs/plans/2026-04-13_clue-hunting-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-13_clue-hunting-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-13_clue-hunting-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-10_event-trigger-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-15_era-inheritance-system.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-13`, `clue-hunting`, or `clue hunting system`.
+
+### Codebase Search
+
+No "clue" or "hunting" related implementation found. The only "hunting" hit was:
+- `38afaa7 feat(outdoorNSFW): add P4 outdoor/extreme sports NSFW module` — unrelated.
+
+The term "证据" (evidence) appears extensively in prompts (COT constraints about evidence-based reasoning), but no dedicated "clue hunting system" module exists.
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. No implementation verification possible.
+
+---
+*验证时间: 2026-05-07*
 
 ---
 
