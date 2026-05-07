@@ -103,6 +103,8 @@ const 归一化标签括号符号 = (text: string): string => (
         .replace(/\r\n/g, '\n')
         .replace(/[＜〈《]/g, '<')
         .replace(/[＞〉》]/g, '>')
+        // LLM 有时会把【旁白】误写成【旁-白】/【旁_白】/【旁 白】等，统一修复
+        .replace(/【\s*旁\s*[-_ 　]+\s*白\s*】/g, '【旁白】')
 );
 
 const 归一化标签名键 = (tagName: string): string => (
@@ -887,6 +889,8 @@ export const 解析命令块 = (commandBlock: string): Array<{ action: 'add' | '
     return commands;
 };
 
+const 速度档位标题正则 = /^[\[【]\s*(缓慢|正常|快速|跳过至关键节点)\s*[\]】]$/;
+
 const 解析行动选项块 = (optionsBlock: string): string[] => {
     const text = (optionsBlock || '').trim();
     if (!text) return [];
@@ -895,6 +899,7 @@ const 解析行动选项块 = (optionsBlock: string): string[] => {
         .split('\n')
         .map(line => line.trim())
         .filter(Boolean)
+        .filter(line => !速度档位标题正则.test(line))
         .map(line => line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '').trim())
         .filter(Boolean);
 };
