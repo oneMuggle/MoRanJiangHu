@@ -980,3 +980,95 @@ All plan-required exports confirmed in `services/ai/image/index.ts`:
 
 ---
 
+# 2026-04-30 NovelAI 图片生成集成 — Verification
+
+**Date**: 2026-05-08
+**Plan**: `docs/plans/2026-04-30_novelai-image-integration.md`
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Phase 1: 类型系统 (3/3) ✅
+
+|| Item | Path | Status |
+||------|------|--------|
+| 1 | `接口供应商类型` 包含 `'novelai'` | `models/system.ts:37` | ✅ Verified |
+| 2 | `文生图后端类型` 包含 `'novelai'` | `models/system.ts:44` | ✅ Verified |
+| 3 | `文生图预设接口路径类型` 包含 `'novelai_generate'` | `models/system.ts:46` | ✅ Verified |
+
+### Phase 2: API 配置 (3/3) ✅
+
+|| Item | Path | Status |
+||------|------|--------|
+| 1 | NovelAI 后端识别 | `utils/apiConfig.ts:325,326` | ✅ Verified |
+| 2 | NovelAI 默认端点 `/ai/generate-image` | `utils/apiConfig.ts:332,358,398` | ✅ Verified |
+| 3 | 需要鉴权处理 | `utils/apiConfig.ts:326,340,361` | ✅ Verified |
+
+### Phase 3: 核心实现 (5/5) ✅
+
+|| Item | Path | Status |
+||------|------|--------|
+| 1 | `构建NovelAI请求体` 函数 | `services/ai/image/backends.ts:226` | ✅ Verified |
+| 2 | `执行NovelAI生图` 函数 | `services/ai/image/backends.ts:455` | ✅ Verified |
+| 3 | `解析NovelAI图片响应` 函数 | `services/ai/image/backends.ts:362` | ✅ Verified |
+| 4 | V4 模型支持 (`nai-diffusion-4*`) | `backends.ts:271` | ✅ Verified |
+| 5 | V4 Prompt Structure (use_coords, use_order, legacy_uc) | `backends.ts:327-344` | ✅ Verified |
+
+**Advanced Parameters Verified**:
+- SMEA (`sm`, `sm_dyn`) ✅
+- Dynamic Thresholding (`dynamic_thresholding`, `dynamic_thresholding_percentile`, `dynamic_thresholding_mimic_scale`) ✅
+- CFG Rescale (`cfg_rescale`, `skip_cfg_above_sigma`, `skip_cfg_below_sigma`) ✅
+- Special samplers (`prefer_brownian`, `deliberate_euler_ancestral_bug`, `explike_fine_detail`, `minimize_sigma_inf`) ✅
+
+### Phase 4: 开发代理 (2/2) ✅
+
+|| Item | Path | Status |
+||------|------|--------|
+| 1 | Vite NovelAI dev proxy 中间件 | `vite.config.ts:91-119` | ✅ Verified |
+| 2 | PowerShell 代理脚本 | `scripts/novelai-proxy.ps1` | ✅ Verified (2841 bytes) |
+
+### Phase 5: 设置界面 (2/2) ✅
+
+|| Item | Path | Status |
+||------|------|--------|
+| 1 | NovelAI 后端选项 | `ImageGenerationSettings.tsx:145,532,960` | ✅ Verified |
+| 2 | 预设接口路径 `/ai/generate-image` | `ImageGenerationSettings.tsx:92,1014,2020` | ✅ Verified |
+
+---
+
+## Key Implementation Details
+
+**API Endpoint**: `POST /ai/generate-image`
+**Auth**: Bearer token via `Authorization` header
+**Models**: `nai-diffusion-4-5-full`, `nai-diffusion-4-5-curated`, `nai-diffusion-4-full`
+**Dev Proxy**: `/api/novelai` → `https://image.novelai.net`
+
+**Request Body Structure**:
+```typescript
+{
+  input: prompt,
+  model: "nai-diffusion-4-5-full",
+  action: "generate",
+  parameters: {
+    params_version: 3,
+    width, height, scale, sampler, steps,
+    n_samples: 1, ucPreset: 0, qualityToggle: true,
+    sm, sm_dyn, dynamic_thresholding,
+    prompt, negative_prompt,
+    noise_schedule: "karras",
+    // V4 only:
+    v4_prompt: { use_coords, use_order, caption: { base_caption, char_captions }, legacy_uc }
+  }
+}
+```
+
+**Response Handling**: ZIP with PNG/JPEG or direct image via `fflate` unzip
+
+---
+
+## Conclusion
+
+✅ All 15 checklist items verified as implemented. NovelAI image generation backend is fully integrated.
+
