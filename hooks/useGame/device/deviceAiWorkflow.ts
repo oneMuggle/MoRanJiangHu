@@ -1,14 +1,13 @@
-import type { 当前可用接口结构 } from '../../../utils/apiConfig';
-import type { 接口设置结构 } from '../../../models/system';
-import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../../models/mobileDevice';
-import { getDeviceConfig, getAppName } from '../../../models/eraDevice';
-import { getEraCategory } from '../../../components/features/MobileDevice/eraStyles/EraStyleSelector';
-import { 构建子纪元里模式注入, LiModeIntensity } from '../../../prompts/runtime/eraLiMode';
+import type { 当前可用接口结构 } from '../../utils/apiConfig';
+import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../models/mobileDevice';
+import { getDeviceConfig, getAppName } from '../../models/eraDevice';
+import { getEraCategory } from '../../components/features/MobileDevice/eraStyles/EraStyleSelector';
+import { 构建子纪元里模式注入, LiModeIntensity } from '../../prompts/runtime/eraLiMode';
 import {
     type 通用消息,
     规范化文本补全消息链,
     请求模型文本,
-} from '../../../services/ai/chatCompletionClient';
+} from '../../services/ai/chatCompletionClient';
 
 // ============================================================
 // 设备消息 AI 生成工作流
@@ -164,7 +163,7 @@ export function 构建设备消息用户提示词(
 }
 
 // ============================================================
-// AI 消息生成
+// AI 消息生成（共享核心逻辑）
 // ============================================================
 
 function 解析JSON数组(text: string): unknown[] | null {
@@ -178,17 +177,14 @@ function 解析JSON数组(text: string): unknown[] | null {
     }
 }
 
-/** 生成原始 JSON 数组对象（不映射为 DeviceMessage，供论坛/BDSM 等需要完整字段的应用使用） */
-export async function 生成设备原始消息(
+/** 共享 AI 调用核心逻辑 — 构建提示词并请求模型返回原始文本 */
+async function 请求设备内容原始文本(
     options: DeviceMessageOptions,
     apiConfig: 当前可用接口结构,
-    _settings: 当前可用接口结构,
-    count?: number
-): Promise<unknown[]> {
-    const messageCount = count ?? options.count ?? 5;
-
+    count: number
+): Promise<string> {
     const systemPrompt = 构建设备消息系统提示词(options.eraId, options.mode, options.appType, options.liIntensity);
-    const userPrompt = 构建设备消息用户提示词(options, messageCount);
+    const userPrompt = 构建设备消息用户提示词(options, count);
 
     const messages: 通用消息[] = [
         { role: 'system', content: systemPrompt },
@@ -197,11 +193,22 @@ export async function 生成设备原始消息(
 
     const normalizedMessages = 规范化文本补全消息链(messages);
 
-    const rawText = await 请求模型文本(
+    return 请求模型文本(
         apiConfig,
         normalizedMessages,
         { temperature: 0.7, responseFormat: 'json_object', signal: options.signal }
     );
+}
+
+/** 生成原始 JSON 数组对象（不映射为 DeviceMessage，供论坛/BDSM 等需要完整字段的应用使用） */
+export async function 生成设备原始消息(
+    options: DeviceMessageOptions,
+    apiConfig: 当前可用接口结构,
+    _settings: 当前可用接口结构,
+    count?: number
+): Promise<unknown[]> {
+    const messageCount = count ?? options.count ?? 5;
+    const rawText = await 请求设备内容原始文本(options, apiConfig, messageCount);
 
     const items = 解析JSON数组(rawText);
     if (!items) {
@@ -218,22 +225,8 @@ export async function 生成设备消息(
 ): Promise<DeviceMessageGenerationResult> {
     const messageCount = count ?? options.count ?? 5;
 
-    const systemPrompt = 构建设备消息系统提示词(options.eraId, options.mode, options.appType, options.liIntensity);
-    const userPrompt = 构建设备消息用户提示词(options, messageCount);
-
-    const messages: 通用消息[] = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-    ];
-
-    const normalizedMessages = 规范化文本补全消息链(messages);
-
     try {
-        const rawText = await 请求模型文本(
-            apiConfig,
-            normalizedMessages,
-            { temperature: 0.7, responseFormat: 'json_object', signal: options.signal }
-        );
+        const rawText = await 请求设备内容原始文本(options, apiConfig, messageCount);
 
         const items = 解析JSON数组(rawText);
         if (items) {
@@ -326,8 +319,8 @@ export async function 生成设备联系人(
 // 校园内容解析辅助函数
 // ============================================================
 
-import type { 论坛帖子, 论坛分类, 聊天消息, 课程, 消费记录, 社团活动 } from '../../../models/campusPhone';
-import type { BDSM论坛帖子, BDSM帖子分类, 招募方角色, 影响等级, 联系状态 } from '../../../models/campusNSFW/bdsm-forum';
+import type { 论坛帖子, 论坛分类, 聊天消息, 课程, 消费记录, 社团活动 } from '../../models/campusPhone';
+import type { BDSM论坛帖子, BDSM帖子分类, 招募方角色, 影响等级, 联系状态 } from '../../models/campusNSFW/bdsm-forum';
 
 const 取文本 = (v: unknown, fallback = ''): string =>
     typeof v === 'string' ? v : fallback;

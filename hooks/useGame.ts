@@ -1758,7 +1758,7 @@ export const useGame = () => {
                 },
                 onBDSM状态更新: (bdsmResult) => {
                     // 解析 AI 响应中的 BDSM 状态更新并应用到校园系统
-                    const 校园NSFW已启用 = (gameConfig as any)?.校园NSFW设置?.启用校园NSFW深化系统;
+                    const 校园NSFW已启用 = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统 ?? false;
                     if (!校园NSFW已启用) return;
 
                     设置校园系统(prev => {
