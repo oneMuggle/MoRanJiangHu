@@ -1761,6 +1761,7 @@ export interface 存档结构 {
     催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
     校园系统?: 校园系统数据;
     写真系统?: 写真系统扩展; // 写真约拍系统（现代纪元NSFW模块）
+    都市网约车系统?: Record<string, unknown>; // 都市网约车NSFW系统
 }
 
 export type PromptCategory = '核心设定' | '数值设定' | '难度设定' | '写作设定' | '自定义';

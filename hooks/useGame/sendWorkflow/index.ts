@@ -699,6 +699,7 @@ export const 执行主剧情发送工作流 = async (
             fandomStoryPlan: processingResult.finalState.同人剧情规划,
             fandomHeroinePlan: processingResult.finalState.同人女主剧情规划,
             memory: processingResult.nextMemory,
+            都市网约车系统: (currentState as any).都市网约车系统,
             force: true
         });
 

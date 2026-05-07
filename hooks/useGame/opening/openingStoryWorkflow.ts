@@ -82,6 +82,7 @@ type 开场命令基态 = {
     女主剧情规划?: 女主剧情规划结构;
     同人剧情规划?: 同人剧情规划结构;
     同人女主剧情规划?: 同人女主剧情规划结构;
+    都市网约车系统?: Record<string, unknown>;
 };
 
 type 自动存档快照结构 = {
@@ -99,6 +100,7 @@ type 自动存档快照结构 = {
     heroinePlan?: 女主剧情规划结构;
     fandomStoryPlan?: 同人剧情规划结构;
     fandomHeroinePlan?: 同人女主剧情规划结构;
+    都市网约车系统?: Record<string, unknown>;
     memory?: 记忆系统结构;
     openingConfig?: OpeningConfig;
     force?: boolean;
@@ -795,7 +797,26 @@ export const 执行开场剧情生成工作流 = async (
             剧情规划: deps.规范化剧情规划状态((contextData as any).剧情规划 ?? deps.剧情规划),
             女主剧情规划: deps.规范化女主剧情规划状态(contextData.女主剧情规划 ?? deps.女主剧情规划),
             同人剧情规划: deps.规范化同人剧情规划状态((contextData as any).同人剧情规划 ?? deps.同人剧情规划),
-            同人女主剧情规划: deps.规范化同人女主剧情规划状态((contextData as any).同人女主剧情规划 ?? deps.同人女主剧情规划)
+            同人女主剧情规划: deps.规范化同人女主剧情规划状态((contextData as any).同人女主剧情规划 ?? deps.同人女主剧情规划),
+            都市网约车系统: (() => {
+                // 仅在 contemporary_urban 时代 + 司机背景时初始化
+                const 司机背景列表 = ['网约车司机', '网约车夜司机', '代驾司机', '网约车队长'];
+                const eraId = options?.eraId || (contextData.环境 as any)?.时代配置ID;
+                const 背景 = (contextData.角色 as any)?.出身背景?.名称;
+                if (eraId === 'contemporary_urban' && 背景 && 司机背景列表.includes(背景)) {
+                    return {
+                        行程系统: {
+                            乘客欲望档案: {} as Record<string, unknown>,
+                            当前行程类型: null,
+                            当前地点: null,
+                            行车记录仪状态: '关闭',
+                            后果列表: [],
+                            常客记录: [],
+                        }
+                    };
+                }
+                return undefined;
+            })()
         };
         const openingBodyText = 提取响应完整正文文本(aiData);
         const openingVariablePlanText = typeof aiData?.t_var_plan === 'string' ? aiData.t_var_plan.trim() : '';
@@ -1369,13 +1390,15 @@ export const 执行开场剧情生成工作流 = async (
             sect: opening玩家门派,
             tasks: opening任务列表,
             agreements: opening约定列表,
-            story: openingStoryAfterCalibration,
+            story: openingStateAfterCommands.剧情,
             storyPlan: openingStateAfterCommands.剧情规划,
             heroinePlan: openingStateAfterCommands.女主剧情规划,
-            fandomStoryPlan: openingStateAfterCommands.同人剧情规划,
-            fandomHeroinePlan: openingStateAfterCommands.同人女主剧情规划,
-            memory: openingMemoryAfterWrite,
-            openingConfig: options?.开局配置
+            fandomStoryPlan: (openingStateAfterCommands as any).同人剧情规划,
+            fandomHeroinePlan: (openingStateAfterCommands as any).同人女主剧情规划,
+            都市网约车系统: (openingStateAfterCommands as any).都市网约车系统,
+            memory: openingMem,
+            openingConfig: options?.开局配置,
+            force: true
         });
     } catch (e: any) {
         if (openingStreamHeartbeat) clearInterval(openingStreamHeartbeat);

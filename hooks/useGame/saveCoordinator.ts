@@ -47,6 +47,7 @@ export type 自动存档快照结构 = {
     openingConfig?: OpeningConfig;
     visualConfig?: 视觉设置结构;
     sceneImageArchive?: 场景图片档案;
+    都市网约车系统?: Record<string, unknown>;
     force?: boolean;
 };
 
@@ -243,6 +244,9 @@ export const 创建存档数据 = (
     const sceneImageArchiveSource = snapshot?.sceneImageArchive
         ? snapshot.sceneImageArchive
         : currentState.sceneImageArchive;
+    const 都市网约车系统Source = snapshot?.都市网约车系统
+        ? snapshot.都市网约车系统
+        : (currentState as any).都市网约车系统;
     const coreWorldPrompt = 读取核心提示词内容(currentState.提示词池, 'core_world');
     const coreRealmPrompt = 读取核心提示词内容(currentState.提示词池, 'core_realm');
     const 核心提示词快照 = (coreWorldPrompt || coreRealmPrompt)
@@ -292,7 +296,8 @@ export const 创建存档数据 = (
         时代信息: currentState.时代信息 ? deps.深拷贝(currentState.时代信息) : undefined,
         校规系统: currentState.校规系统 ? deps.深拷贝(currentState.校规系统) : undefined,
         催眠系统: currentState.催眠系统 ? deps.深拷贝(currentState.催眠系统) : undefined,
-        校园系统: currentState.校园系统 ? deps.深拷贝(currentState.校园系统) : undefined
+        校园系统: currentState.校园系统 ? deps.深拷贝(currentState.校园系统) : undefined,
+        都市网约车系统: 都市网约车系统Source ? deps.深拷贝(都市网约车系统Source) : undefined
     };
 };
 

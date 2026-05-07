@@ -165,6 +165,7 @@ export type 响应处理阶段输入 = {
         同人剧情规划?: any;
         同人女主剧情规划?: any;
         开局配置?: any;
+        都市网约车系统?: Record<string, unknown>;
     };
     requestMeta: {
         sendInput: string;
@@ -260,6 +261,83 @@ export const 执行响应处理阶段 = async (
         const 更新结果 = 解析见面预约更新(rawAiText);
         if (更新结果) {
             deps.onBDSM见面预约更新(更新结果);
+        }
+    }
+
+    // ─── 都市网约车 NSFW 状态解析与应用 ────────────────────────────────
+    const { 解析都市网约车系统状态更新, 移除都市网约车系统状态标签, 应用都市网约车状态更新 } =
+        await import('../urbanDriverNSFWIntegration');
+    const nsfwUpdate = 解析都市网约车系统状态更新(rawAiText);
+    if (nsfwUpdate) {
+        currentState.都市网约车系统 = 应用都市网约车状态更新(
+            currentState.都市网约车系统,
+            nsfwUpdate
+        );
+        rawAiText = 移除都市网约车系统状态标签(rawAiText);
+    }
+
+    // ─── 都市网约车 NSFW 引擎层激活 ──────────────────────────────────
+    const 行程系统 = (currentState.都市网约车系统 as { 行程系统?: Record<string, unknown> } | undefined)?.行程系统;
+    if (行程系统 && typeof 行程系统 === 'object') {
+        try {
+            const { 判定行程NSFW类型, 生成后果事件 } = await import('../urbanDriverNSFWEngine');
+            const nsfw设置 = (currentState.gameConfig as any)?.都市网约车NSFW设置;
+            const 时代ID = (currentState.环境 as any)?.时代配置ID;
+
+            if (nsfw设置?.启用都市网约车NSFW系统 && 时代ID === 'contemporary_urban') {
+                const 乘客欲望档案 = (行程系统 as any).乘客欲望档案 || {};
+                const npcIds = Object.keys(乘客欲望档案);
+                if (npcIds.length > 0) {
+                    const 焦点NpcId = (() => {
+                        const 阶段权重: Record<string, number> = { '克制': 0, '试探': 1, '渴望': 2, '沉沦': 3, '支配': 4 };
+                        return npcIds.reduce((best, id) => {
+                            const a = 乘客欲望档案[id];
+                            const b = 乘客欲望档案[best];
+                            return (阶段权重[a?.当前阶段] || 0) > (阶段权重[b?.当前阶段] || 0) ? id : best;
+                        });
+                    })();
+                    const 焦点档案 = 乘客欲望档案[焦点NpcId];
+
+                    if (焦点档案) {
+                        const 当前地点 = (行程系统 as any).当前地点 || '城市主干道';
+                        const 当前小时 = (() => {
+                            const 时间串 = (currentState.环境 as any)?.时间 || '';
+                            const parts = 时间串.split(':');
+                            return parts.length >= 4 ? parseInt(parts[3], 10) || 12 : 12;
+                        })();
+
+                        const 下一行程类型 = 判定行程NSFW类型(
+                            当前地点,
+                            当前小时,
+                            焦点档案,
+                            nsfw设置,
+                            {
+                                乘客数量: 1,
+                                到达后未离开: false,
+                                常客搭乘次数: 0,
+                                行车记录仪开启: (行程系统 as any).行车记录仪状态 === '录制中',
+                            }
+                        );
+
+                        if (下一行程类型 && 焦点档案.暴露风险值 >= 0) {
+                            const 后果 = 生成后果事件(
+                                下一行程类型,
+                                焦点档案.暴露风险值,
+                                nsfw设置,
+                                [焦点NpcId]
+                            );
+                            if (后果) {
+                                const 现有后果 = Array.isArray((行程系统 as any).后果列表)
+                                    ? (行程系统 as any).后果列表
+                                    : [];
+                                (行程系统 as any).后果列表 = [...现有后果, 后果];
+                            }
+                        }
+                    }
+                }
+            }
+        } catch {
+            // 引擎层激活失败不影响主流程，静默跳过
         }
     }
 

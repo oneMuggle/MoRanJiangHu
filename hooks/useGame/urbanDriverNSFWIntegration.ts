@@ -69,6 +69,55 @@ export const 移除都市网约车系统状态标签 = (rawText: string): string
 };
 
 /**
+ * 应用都市网约车系统状态更新
+ * 将 AI 输出的状态变更合并到当前游戏状态中
+ */
+export const 应用都市网约车状态更新 = (
+  current: { 行程系统?: Record<string, unknown> } | undefined,
+  update: {
+    更新档案: Record<string, {
+      当前阶段?: 乘客欲望阶段;
+      阶段进度?: number;
+      关系轨道?: 行程关系轨道;
+      轨道进度?: number;
+      暴露风险值?: number;
+      紧张度?: number;
+    }>;
+  }
+): { 行程系统?: Record<string, unknown> } | undefined => {
+  if (!current?.行程系统) return current;
+
+  const 行程系统 = current.行程系统 as {
+    乘客欲望档案: Record<string, Record<string, unknown>>;
+    当前行程类型: string | null;
+    当前地点: string | null;
+    行车记录仪状态: string;
+    后果列表: unknown[];
+    常客记录: unknown[];
+  };
+
+  // 确保乘客欲望档案存在
+  if (!行程系统.乘客欲望档案) {
+    行程系统.乘客欲望档案 = {};
+  }
+
+  for (const [npcId, partialUpdate] of Object.entries(update.更新档案)) {
+    const existing = 行程系统.乘客欲望档案[npcId];
+    if (existing) {
+      // 合并更新：只更新提供的字段
+      for (const [key, value] of Object.entries(partialUpdate)) {
+        if (value !== undefined) {
+          (existing as Record<string, unknown>)[key] = value;
+        }
+      }
+      行程系统.乘客欲望档案[npcId] = existing;
+    }
+  }
+
+  return { ...current, 行程系统 };
+};
+
+/**
  * 构建都市网约车 NSFW 运行时参数（供主剧情请求使用）
  */
 export const 构建都市网约车NSFW参数 = (state: {
