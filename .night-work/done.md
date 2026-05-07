@@ -778,3 +778,65 @@ The implementation follows the planned architecture closely. The `NovelWritingPr
 
 ---
 
+# 2026-05-03 图片生成管线 — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-05-03_image-generation-pipeline.md`
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Core Modules (6/6)
+
+| Module | File | Status |
+|--------|------|--------|
+| PNG 解析 | `pngParser.ts` | ✅ 23300 bytes, `解析PNG文件元数据` exported |
+| 风格提取 | `anchorExtractor.ts` | ✅ 19597 bytes, `提炼PNG画风标签`, `提取角色锚点提示词` exported |
+| 提示词装配 | `promptBuilder.ts` | ✅ 48507 bytes, `构建最终图片提示词` exported |
+| 分词器 | `imageTokenizer.ts` | ✅ 38660 bytes, tokenization/weight conversion |
+| 后端执行 | `backends.ts` | ✅ 30564 bytes, `generateImageByPrompt` exported |
+| 持久化 | `persistence.ts` | ✅ 2407 bytes, local storage |
+
+### Exports Verification
+
+All plan-required exports confirmed in `services/ai/image/index.ts`:
+- `解析PNG文件元数据` ✅
+- `提炼PNG画风标签` ✅
+- `提取角色锚点提示词` ✅
+- `构建最终图片提示词` ✅
+- `generateImageByPrompt` ✅
+
+### Key Implementation Details
+
+**PNG Parser** (`pngParser.ts`):
+- NovelAI alpha channel steganography extraction
+- SD WebUI parameter text parsing
+- tEXt/zTXt/iTXt chunk traversal
+- EXIF metadata reading
+
+**Artist Stripping** (`imageTokenizer.ts` + `anchorExtractor.ts`):
+- Rule + lexicon dual-mode recognition
+- Weight syntax preserved: `::weight::`, `()`, `[]`, `{}`, `<>`
+- Artist hits saved independently
+
+**AI Style Extraction** (`anchorExtractor.ts`):
+- Post-stripping positive prompts cleaned by AI
+- Conservative subject contamination removal
+- Fallback mechanism
+
+**Prompt Assembly** (`promptBuilder.ts` 48507 bytes):
+- Pre-positive = artist + style
+- Body positive = character/scene subject
+- Post-positive = composition, ratio, lens
+- Final positive = pre + body + post
+- Final negative = merged negative prompts
+
+**NovelAI Mapping** (`promptBuilder.ts`):
+- `prompt = pre + body + post`
+- `negative_prompt = final negative`
+- `v4_prompt.caption.base_caption` aligned with final positive
+
+---
+
