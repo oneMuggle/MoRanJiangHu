@@ -62,3 +62,33 @@
 - `models/social.ts` - NPC `里模式阶段` field
 - `hooks/useGame/systemPromptBuilder.ts` - Stage + intensity injection
 - `hooks/useGame/npcContext/contextBuilder.ts` - NPC individual stage injection
+
+---
+
+### Plan: docs/plans/2026-05-06_bdsm-analysis-optimization.md
+
+**Status**: ✅ Partially Implemented
+
+**Analysis Summary**: The plan identified several issues with the BDSM module. Most were already properly implemented:
+
+| Issue | Status |
+|-------|--------|
+| 无桌面端UI | ✅ Desktop BDSM modals exist (BDSMRelationshipModal, BDSMTaskModal, BDSMContractModal, BDSMSafetyModal) |
+| ContactModal硬编码回复 | ✅ Already uses AI when apiConfig available, fallback to hardcoded |
+| SafetySettings未接入 | ✅ Already integrated via MobileHome bdsmPanel state |
+| v1.6设置项未暴露 | ⚠️ Missing `启用BDSM见面预约` |
+| DeviceState重复定义 | ✅ Only one definition exists |
+| 任务评价触发路径 | ✅ Already integrated in BDSMRelationshipModal |
+| Aftercare注入时机 | ✅ Already integrated in sendWorkflow |
+
+**Implemented Fix**:
+1. Added `启用BDSM见面预约` to `校园NSFW设置` interface and default settings (`models/campusNSFW/index.ts`)
+2. Added the toggle UI in `CampusNSFWSettings.tsx`
+3. Added `BDSMTaskModal` lazy component import and `showBDSMTask` state to `App.tsx`
+
+**Files Modified**:
+- `models/campusNSFW/index.ts` - Added `启用BDSM见面预约` field
+- `components/features/Settings/CampusNSFWSettings.tsx` - Added toggle for BDSM meeting appointment
+- `App.tsx` - Added BDSMTaskModal import and showBDSMTask state
+
+**Note**: Pre-existing build error in `prompts/runtime/planUpdateReference.ts` (unrelated to BDSM module).

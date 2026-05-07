@@ -2,6 +2,14 @@ import { NSFW场景类型 } from '../../models/system';
 import { MODERN_ERA_IDS } from '../../models/eraTheme/assembly';
 import { 构建校园NSFW完整叙事约束 } from './campusNSFW';
 import { 构建都市网约车完整叙事约束 } from './urbanDriverNSFW';
+import { 
+  构建夜场NSFW叙事约束,
+  构建夜场NSFW完整叙事约束,
+  生成夜场场景提示词,
+  夜场NSFW场景类型,
+  夜场场景上下文,
+  整合夜场NSFW提示词,
+} from './nightlife';
 import type {
   欲望阶段,
   关系轨道,

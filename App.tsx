@@ -6,12 +6,9 @@ import MobileQuickMenu from './components/layout/MobileQuickMenu';
 import ChatList from './components/features/Chat/ChatList';
 import InputArea from './components/features/Chat/InputArea';
 import LandingPage from './components/layout/LandingPage';
-import { ConfirmOptions } from './components/ui/InAppConfirmModal';
+import InAppConfirmModal, { ConfirmOptions } from './components/ui/InAppConfirmModal';
 import { useGame } from './hooks/useGame';
-import { useResponsive } from './hooks/useResponsive';
-import { useModalOpeners } from './hooks/useModalOpeners';
-import { useConfirmSystem } from './hooks/useConfirmSystem';
-import { 环境时间转标准串, normalizeCanonicalGameTime, 结构化时间转标准串 } from './hooks/useGame/time/timeUtils';
+import { 环境时间转标准串, normalizeCanonicalGameTime, 结构化时间转标准串 } from './hooks/useGame/timeUtils';
 import { 获取文生图接口配置, 获取生图词组转化器接口配置, 接口配置是否可用 } from './utils/apiConfig';
 import { 构建字体注入样式文本, 构建UI文字CSS变量 } from './utils/visualSettings';
 import { 获取图片资源文本地址 } from './utils/imageAssets';
@@ -20,7 +17,86 @@ import { MusicProvider } from './components/features/Music/MusicProvider';
 import { 小说拆分后台调度服务 } from './services/novel-decomposition/novelDecompositionScheduler';
 import { desktopTabs, mobileTabs } from './components/features/Settings/tabDefinitions';
 
-import { 懒加载边界, CharacterModal, MobileCharacter, NewGameWizard, MobileNewGameWizard, SettingsPanel, InventoryModal, MobileInventoryModal, EquipmentModal, MobileEquipmentModal, BattleModal, MobileBattleModal, SocialModal, MobileSocial, CampusDesireDashboard, BDSMRelationshipModal, BDSMContractModal, BDSMSafetyModal, MobileCampusDesireApp, ImageManagerModal, MobileImageManagerModal, WorldbookManagerModal, MobileWorldbookManagerModal, TeamModal, MobileTeamModal, KungfuModal, MobileKungfuModal, WorldModal, MobileWorldModal, MapModal, MobileMapModal, SectModal, MobileSect, TaskModal, MobileTask, AgreementModal, MobileAgreementModal, StoryModal, MobileStory, HeroinePlanModal, MobileHeroinePlanModal, MemoryModal, MobileMemory, MemorySummaryFlowModal, MemorySummaryFlowMobileModal, NpcMemorySummaryFlowModal, NpcMemorySummaryFlowMobileModal, SaveLoadModal, MobileSaveLoadModal, MobileMusicPlayer, NovelDecompositionWorkbenchModal, MobileNovelDecompositionWorkbenchModal, NovelWritingWorkbenchModal, MobileNovelWritingWorkbenchModal, MobileDeviceModal } from './components/features/lazyComponents';
+type 可预加载组件<T extends React.ComponentType<any>> = React.LazyExoticComponent<T> & {
+    preload?: () => Promise<unknown>;
+};
+
+const 创建可预加载懒组件 = <T extends React.ComponentType<any>>(
+    loader: () => Promise<{ default: T }>
+): 可预加载组件<T> => {
+    const Component = React.lazy(loader) as 可预加载组件<T>;
+    Component.preload = loader;
+    return Component;
+};
+
+const CharacterModal = 创建可预加载懒组件(() => import('./components/features/Character/CharacterModal'));
+const MobileCharacter = 创建可预加载懒组件(() => import('./components/features/Character/MobileCharacter'));
+const NewGameWizard = 创建可预加载懒组件(() => import('./components/features/NewGame/NewGameWizard'));
+const MobileNewGameWizard = 创建可预加载懒组件(() => import('./components/features/NewGame/mobile/MobileNewGameWizard'));
+const SettingsPanel = 创建可预加载懒组件(() => import('./components/features/Settings/SettingsPanel'));
+const InventoryModal = 创建可预加载懒组件(() => import('./components/features/Inventory/InventoryModal'));
+const MobileInventoryModal = 创建可预加载懒组件(() => import('./components/features/Inventory/MobileInventoryModal'));
+const EquipmentModal = 创建可预加载懒组件(() => import('./components/features/Equipment/EquipmentModal'));
+const MobileEquipmentModal = 创建可预加载懒组件(() => import('./components/features/Equipment/MobileEquipmentModal'));
+const BattleModal = 创建可预加载懒组件(() => import('./components/features/Battle/BattleModal'));
+const MobileBattleModal = 创建可预加载懒组件(() => import('./components/features/Battle/MobileBattleModal'));
+const SocialModal = 创建可预加载懒组件(() => import('./components/features/Social/SocialModal'));
+const MobileSocial = 创建可预加载懒组件(() => import('./components/features/Social/MobileSocial'));
+const CampusDesireDashboard = 创建可预加载懒组件(() => import('./components/features/CampusDesireDashboard'));
+const BDSMRelationshipModal = 创建可预加载懒组件(() => import('./components/features/BDSMRelationshipModal'));
+const BDSMTaskModal = 创建可预加载懒组件(() => import('./components/features/BDSMTaskModal'));
+const BDSMContractModal = 创建可预加载懒组件(() => import('./components/features/BDSMContractModal'));
+const BDSMSafetyModal = 创建可预加载懒组件(() => import('./components/features/BDSMSafetyModal'));
+const MobileCampusDesireApp = 创建可预加载懒组件(() => import('./components/features/MobileCampusDesireApp'));
+const ImageManagerModal = 创建可预加载懒组件(() => import('./components/features/Social/ImageManagerModal'));
+const MobileImageManagerModal = 创建可预加载懒组件(() => import('./components/features/Social/mobile/MobileImageManagerModal'));
+const WorldbookManagerModal = 创建可预加载懒组件(() => import('./components/features/Worldbook/WorldbookManagerModal'));
+const MobileWorldbookManagerModal = 创建可预加载懒组件(() => import('./components/features/Worldbook/MobileWorldbookManagerModal'));
+const TeamModal = 创建可预加载懒组件(() => import('./components/features/Team/TeamModal'));
+const MobileTeamModal = 创建可预加载懒组件(() => import('./components/features/Team/MobileTeamModal'));
+const KungfuModal = 创建可预加载懒组件(() => import('./components/features/Kungfu/KungfuModal'));
+const MobileKungfuModal = 创建可预加载懒组件(() => import('./components/features/Kungfu/MobileKungfuModal'));
+const WorldModal = 创建可预加载懒组件(() => import('./components/features/World/WorldModal'));
+const MobileWorldModal = 创建可预加载懒组件(() => import('./components/features/World/MobileWorldModal'));
+const MapModal = 创建可预加载懒组件(() => import('./components/features/Map/MapModal'));
+const MobileMapModal = 创建可预加载懒组件(() => import('./components/features/Map/MobileMapModal'));
+const SectModal = 创建可预加载懒组件(() => import('./components/features/Sect/SectModal'));
+const MobileSect = 创建可预加载懒组件(() => import('./components/features/Sect/MobileSect'));
+const TaskModal = 创建可预加载懒组件(() => import('./components/features/Task/TaskModal'));
+const MobileTask = 创建可预加载懒组件(() => import('./components/features/Task/MobileTask'));
+const AgreementModal = 创建可预加载懒组件(() => import('./components/features/Agreement/AgreementModal'));
+const MobileAgreementModal = 创建可预加载懒组件(() => import('./components/features/Agreement/MobileAgreementModal'));
+const StoryModal = 创建可预加载懒组件(() => import('./components/features/Story/StoryModal'));
+const MobileStory = 创建可预加载懒组件(() => import('./components/features/Story/MobileStory'));
+const HeroinePlanModal = 创建可预加载懒组件(() => import('./components/features/Story/HeroinePlanModal'));
+const MobileHeroinePlanModal = 创建可预加载懒组件(() => import('./components/features/Story/MobileHeroinePlanModal'));
+const MemoryModal = 创建可预加载懒组件(() => import('./components/features/Memory/MemoryModal'));
+const MobileMemory = 创建可预加载懒组件(() => import('./components/features/Memory/MobileMemory'));
+const MemorySummaryFlowModal = 创建可预加载懒组件(() => import('./components/features/Memory/MemorySummaryFlowModal'));
+const MemorySummaryFlowMobileModal = 创建可预加载懒组件(() => import('./components/features/Memory/MemorySummaryFlowMobileModal'));
+const NpcMemorySummaryFlowModal = 创建可预加载懒组件(() => import('./components/features/Memory/NpcMemorySummaryFlowModal'));
+const NpcMemorySummaryFlowMobileModal = 创建可预加载懒组件(() => import('./components/features/Memory/NpcMemorySummaryFlowMobileModal'));
+const SaveLoadModal = 创建可预加载懒组件(() => import('./components/features/SaveLoad/SaveLoadModal'));
+const MobileSaveLoadModal = 创建可预加载懒组件(() => import('./components/features/SaveLoad/MobileSaveLoadModal'));
+const MobileMusicPlayer = 创建可预加载懒组件(() => import('./components/features/Music/mobile/MobileMusicPlayer'));
+const NovelDecompositionWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelDecomposition/NovelDecompositionWorkbenchModal'));
+const MobileNovelDecompositionWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelDecomposition/MobileNovelDecompositionWorkbenchModal'));
+const NovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/NovelWritingWorkbenchModal'));
+const MobileNovelWritingWorkbenchModal = 创建可预加载懒组件(() => import('./components/features/NovelWriting/MobileNovelWritingWorkbenchModal'));
+const MobileDeviceModal = 创建可预加载懒组件(() => import('./components/features/MobileDevice/MobileDeviceModal'));
+
+const 懒加载占位: React.FC = () => (
+    <div className="fixed inset-0 z-[260] flex items-center justify-center bg-black/45 px-6 py-10 text-center backdrop-blur-[2px]">
+        <div className="rounded-2xl border border-wuxia-gold/25 bg-black/78 px-6 py-5 text-xs tracking-[0.22em] text-wuxia-gold/85 shadow-[0_0_36px_rgba(0,0,0,0.52)]">
+            卷轴展开中…
+        </div>
+    </div>
+);
+
+const 懒加载边界: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <React.Suspense fallback={<懒加载占位 />}>{children}</React.Suspense>
+);
+
 
 const App: React.FC = () => {
     const { state, meta, setters, actions } = useGame();
@@ -32,13 +108,17 @@ const App: React.FC = () => {
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
     const [showCampusDesire, setShowCampusDesire] = React.useState(false);
     const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
+    const [showBDSMTask, setShowBDSMTask] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [chatContentHidden, setChatContentHidden] = React.useState(false);
     const [sceneQuickGenHint, setSceneQuickGenHint] = React.useState(false);
     const [sceneQuickGenToastVisible, setSceneQuickGenToastVisible] = React.useState(false);
     const [contextSnapshot, setContextSnapshot] = React.useState<Awaited<ReturnType<typeof actions.getContextSnapshot>> | undefined>(undefined);
-    const { isMobile } = useResponsive();
+    const [isMobile, setIsMobile] = React.useState<boolean>(() => {
+        if (typeof window === 'undefined') return false;
+        return window.matchMedia('(max-width: 767px)').matches;
+    });
     React.useEffect(() => {
         const shouldBuildSnapshot = state.showSettings
             && (state.activeTab === 'context' || state.activeTab === 'prompt');
@@ -110,7 +190,44 @@ const App: React.FC = () => {
     ]);
     const confirmResolverRef = React.useRef<((value: boolean) => void) | null>(null);
     const 最近小说分解报错提示IDRef = React.useRef('');
-    const { confirmState, requestConfirm, resolveConfirm, ConfirmModal } = useConfirmSystem();
+    const [confirmState, setConfirmState] = React.useState<(ConfirmOptions & { open: boolean })>({
+        open: false,
+        title: '请确认',
+        message: '',
+        confirmText: '确认',
+        cancelText: '取消',
+        danger: false
+    });
+
+    const requestConfirm = React.useCallback((options: ConfirmOptions) => {
+        return new Promise<boolean>((resolve) => {
+            confirmResolverRef.current = resolve;
+            setConfirmState({
+                open: true,
+                title: options.title || '请确认',
+                message: options.message,
+                confirmText: options.confirmText || '确认',
+                cancelText: options.cancelText || '取消',
+                danger: options.danger || false
+            });
+        });
+    }, []);
+
+    const resolveConfirm = React.useCallback((accepted: boolean) => {
+        if (confirmResolverRef.current) {
+            confirmResolverRef.current(accepted);
+            confirmResolverRef.current = null;
+        }
+        setConfirmState((prev) => ({ ...prev, open: false }));
+    }, []);
+
+    React.useEffect(() => {
+        const mq = window.matchMedia('(max-width: 767px)');
+        const update = () => setIsMobile(mq.matches);
+        update();
+        mq.addEventListener('change', update);
+        return () => mq.removeEventListener('change', update);
+    }, []);
 
     React.useEffect(() => {
         const unsubscribe = 小说拆分后台调度服务.subscribe((schedulerState) => {
@@ -379,40 +496,212 @@ const App: React.FC = () => {
         showMobileMusic ? '音乐' :
         null;
 
+    const closeAllPanels = React.useCallback(() => {
+        setShowCharacter(false);
+        setters.setShowBattle(false);
+        setters.setShowInventory(false);
+        setters.setShowEquipment(false);
+        setters.setShowTeam(false);
+        setters.setShowSocial(false);
+        setters.setShowKungfu(false);
+        setters.setShowWorld(false);
+        setters.setShowMap(false);
+        setters.setShowSect(false);
+        setters.setShowTask(false);
+        setters.setShowAgreement(false);
+        setters.setShowStory(false);
+        setters.setShowHeroinePlan(false);
+        setters.setShowMemory(false);
+        setShowImageManager(false);
+        setShowNovelDecompositionWorkbench(false);
+        setters.setShowSaveLoad({ show: false, mode: 'save' });
+        setters.setShowSettings(false);
+        setShowMobileMusic(false);
+    }, [setters]);
 
-    // Modal openers — extracted to hooks/useModalOpeners.ts
-    const modalStates = {
-        showCharacter, setShowCharacter,
-        showImageManager, setShowImageManager,
-        showWorldbookManager, setShowWorldbookManager,
-        showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench,
-        showNovelWritingWorkbench, setShowNovelWritingWorkbench,
-        showMobileMusic, setShowMobileMusic,
-        showCampusDesire, setShowCampusDesire,
-        showBDSMRelationship, setShowBDSMRelationship,
-        showBDSMContract, setShowBDSMContract,
-        showBDSMSafety, setShowBDSMSafety,
-    };
-    const {
-        closeAllPanels, openCharacter, openSettings, openInventory, openEquipment,
-        openBattle, openTeam, openSocial, openKungfu,
-        openWorld, openMap, openSect, openTask,
-        openAgreement, openStory, openHeroinePlan, openMemory,
-        openSave, openLoad,
-        closeSettings, closeNovelDecompositionWorkbench, closeNovelWritingWorkbench,
-        closeSaveLoad, closeMobileMusic,
-        openWorldbookManager, openNovelDecompositionWorkbench,
-        openImageManagerWithCheck, handleMobileMenuClick, handleStartFromLanding,
-        handleReturnToHomeFromSettings,
-    } = useModalOpeners({
-        setters,
-        actions,
-        states: modalStates,
-        requestConfirm,
-        启用修炼体系,
-        activeMobileWindow,
-        apiConfig: state.apiConfig,
-    });
+    const openCharacter = React.useCallback(() => setShowCharacter(true), []);
+    const openSettings = React.useCallback(() => setters.setShowSettings(true), [setters]);
+    const openInventory = React.useCallback(() => setters.setShowInventory(true), [setters]);
+    const openEquipment = React.useCallback(() => setters.setShowEquipment(true), [setters]);
+    const openBattle = React.useCallback(() => setters.setShowBattle(true), [setters]);
+    const openTeam = React.useCallback(() => setters.setShowTeam(true), [setters]);
+    const openSocial = React.useCallback(() => setters.setShowSocial(true), [setters]);
+    const openKungfu = React.useCallback(() => {
+        if (!启用修炼体系) return;
+        setters.setShowKungfu(true);
+    }, [setters, 启用修炼体系]);
+    const openWorld = React.useCallback(() => setters.setShowWorld(true), [setters]);
+    const openMap = React.useCallback(() => setters.setShowMap(true), [setters]);
+    const openSect = React.useCallback(() => setters.setShowSect(true), [setters]);
+    const openTask = React.useCallback(() => setters.setShowTask(true), [setters]);
+    const openAgreement = React.useCallback(() => setters.setShowAgreement(true), [setters]);
+    const openStory = React.useCallback(() => setters.setShowStory(true), [setters]);
+    const openHeroinePlan = React.useCallback(() => setters.setShowHeroinePlan(true), [setters]);
+    const openMemory = React.useCallback(() => setters.setShowMemory(true), [setters]);
+    const openSave = React.useCallback(() => setters.setShowSaveLoad({ show: true, mode: 'save' }), [setters]);
+    const openLoad = React.useCallback(() => setters.setShowSaveLoad({ show: true, mode: 'load' }), [setters]);
+    const closeSettings = React.useCallback(() => setters.setShowSettings(false), [setters]);
+    const closeNovelDecompositionWorkbench = React.useCallback(() => setShowNovelDecompositionWorkbench(false), []);
+    const closeNovelWritingWorkbench = React.useCallback(() => setShowNovelWritingWorkbench(false), []);
+    const closeSaveLoad = React.useCallback(() => setters.setShowSaveLoad({ show: false, mode: 'save' }), [setters]);
+    const closeMobileMusic = React.useCallback(() => setShowMobileMusic(false), []);
+    const openWorldbookManager = React.useCallback(() => setShowWorldbookManager(true), []);
+    const openNovelDecompositionWorkbench = React.useCallback(async () => {
+        const feature = state.apiConfig?.功能模型占位;
+        const 独立接口已配置 = Boolean(
+            feature?.小说拆分功能启用
+            && feature?.小说拆分独立模型开关
+            && (feature?.小说拆分使用模型 || '').trim()
+            && (feature?.小说拆分API地址 || '').trim()
+            && (feature?.小说拆分API密钥 || '').trim()
+        );
+
+        if (!独立接口已配置) {
+            const accepted = await requestConfirm({
+                title: '先配置小说分解独立 API',
+                message: '小说分解现在从首页独立打开。\n\n使用前请先在“设置 -> 小说分解接口”中启用并填写独立模型、API 地址和密钥。\n\n是否现在前往设置？',
+                confirmText: '前往设置',
+                cancelText: '取消'
+            });
+            if (accepted) {
+                closeAllPanels();
+                setters.setActiveTab('novel_decomposition');
+                setters.setShowSettings(true);
+            }
+            return;
+        }
+
+        setShowNovelDecompositionWorkbench(true);
+    }, [closeAllPanels, requestConfirm, setters, state.apiConfig]);
+    const handleStartFromLanding = React.useCallback(() => actions.handleStartNewGameWizard(), [actions]);
+    const handleReturnToHomeFromSettings = React.useCallback(async () => {
+        const ok = await requestConfirm({
+            title: '返回首页',
+            message: '确定要返回首页吗？未保存的进度将会丢失。',
+            confirmText: '返回',
+            danger: true
+        });
+        if (!ok) return;
+        actions.handleReturnToHome();
+        setters.setShowSettings(false);
+    }, [actions, requestConfirm, setters]);
+
+    const openImageManagerWithCheck = React.useCallback(async () => {
+        const imageApi = 获取文生图接口配置(state.apiConfig);
+        if (!接口配置是否可用(imageApi)) {
+            const accepted = await requestConfirm({
+                title: '未配置文生图接口',
+                message: '图片管理依赖可用的文生图接口。是否立即跳转到“文生图”设置页？',
+                confirmText: '前往设置',
+                cancelText: '稍后再说'
+            });
+            if (accepted) {
+                closeAllPanels();
+                setters.setActiveTab('image_generation');
+                setters.setShowSettings(true);
+            }
+            return;
+        }
+
+        if (imageApi.图片后端类型 === 'novelai') {
+            const promptApi = 获取生图词组转化器接口配置(state.apiConfig);
+            if (!接口配置是否可用(promptApi)) {
+                const accepted = await requestConfirm({
+                    title: 'NovelAI 缺少词组转化器',
+                    message: 'NovelAI 模式必须绑定可用的词组转化器接口。是否立即跳转到“文生图”设置页？',
+                    confirmText: '前往设置',
+                    cancelText: '稍后再说'
+                });
+                if (accepted) {
+                    closeAllPanels();
+                    setters.setActiveTab('image_generation');
+                    setters.setShowSettings(true);
+                }
+                return;
+            }
+        }
+
+        setShowImageManager(true);
+    }, [closeAllPanels, requestConfirm, setters, state.apiConfig]);
+
+    const handleMobileMenuClick = React.useCallback((menu: string) => {
+        const isActive = activeMobileWindow === menu;
+        closeAllPanels();
+        if (isActive) return;
+
+        switch (menu) {
+            case '角色':
+                setShowCharacter(true);
+                break;
+            case '装备':
+                setters.setShowEquipment(true);
+                break;
+            case '战斗':
+                setters.setShowBattle(true);
+                break;
+            case '背包':
+                setters.setShowInventory(true);
+                break;
+            case '社交':
+                setters.setShowSocial(true);
+                break;
+            case '功法':
+                if (启用修炼体系) {
+                    setters.setShowKungfu(true);
+                }
+                break;
+            case '世界':
+                setters.setShowWorld(true);
+                break;
+            case '地图':
+                setters.setShowMap(true);
+                break;
+            case '队伍':
+                setters.setShowTeam(true);
+                break;
+            case '门派':
+                setters.setShowSect(true);
+                break;
+            case '任务':
+                setters.setShowTask(true);
+                break;
+            case '约定':
+                setters.setShowAgreement(true);
+                break;
+            case '剧情':
+                setters.setShowStory(true);
+                break;
+            case '规划':
+                setters.setShowHeroinePlan(true);
+                break;
+            case '记忆':
+                setters.setShowMemory(true);
+                break;
+            case '图册':
+                void openImageManagerWithCheck();
+                break;
+            case '小说分解':
+                void openNovelDecompositionWorkbench();
+                break;
+            case '保存':
+                setters.setShowSaveLoad({ show: true, mode: 'save' });
+                break;
+            case '读取':
+                setters.setShowSaveLoad({ show: true, mode: 'load' });
+                break;
+            case '设置':
+                setters.setShowSettings(true);
+                break;
+            case '通讯':
+                actions.openDevice();
+                break;
+            case '音乐':
+                setShowMobileMusic(true);
+                break;
+            default:
+                break;
+        }
+    }, [activeMobileWindow, closeAllPanels, openImageManagerWithCheck, openNovelDecompositionWorkbench, setters, 启用修炼体系, actions]);
 
     React.useEffect(() => {
         if (!启用修炼体系 && state.showKungfu) {
@@ -968,7 +1257,16 @@ const App: React.FC = () => {
                 </懒加载边界>
             )}
 
-            {ConfirmModal}
+            <InAppConfirmModal
+                open={confirmState.open}
+                title={confirmState.title}
+                message={confirmState.message}
+                confirmText={confirmState.confirmText}
+                cancelText={confirmState.cancelText}
+                danger={confirmState.danger}
+                onConfirm={() => resolveConfirm(true)}
+                onCancel={() => resolveConfirm(false)}
+            />
 
             {state.view === 'game' && meta.memorySummaryOpen && (
                 <懒加载边界>

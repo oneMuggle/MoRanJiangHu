@@ -198,6 +198,7 @@ export interface 校园NSFW设置 {
   启用BDSM关系管线: boolean;
   启用BDSM调教任务: boolean;
   启用BDSM契约系统: boolean;
+  启用BDSM见面预约: boolean;
 }
 
 export const 默认校园NSFW设置: 校园NSFW设置 = {
@@ -238,6 +239,7 @@ export const 默认校园NSFW设置: 校园NSFW设置 = {
   启用BDSM关系管线: true,
   启用BDSM调教任务: true,
   启用BDSM契约系统: true,
+  启用BDSM见面预约: true,
 };
 
 // 挂载点接口
