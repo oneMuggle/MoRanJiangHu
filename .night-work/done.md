@@ -453,6 +453,81 @@ All new exports correctly included:
 
 ---
 
+# 2026-04-25 对话记忆导入导出系统 — Verification
+
+**Date**: 2026-05-08
+**Plan**: `docs/plans/2026-04-25_conversation-memory-import-export.md`
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Planned Files vs Actual
+
+| Planned Path | Status | Actual Lines |
+|--------------|--------|--------------|
+| `services/memoryImportExportService.ts` | ✅ | 352 lines |
+| `utils/memoryImportExport.ts` | ✅ | 122 lines |
+| `components/features/Memory/MemoryImportExportPanel.tsx` | ✅ | 334 lines |
+| `components/features/Memory/MemoryModal.tsx` (modified) | ✅ | Integration confirmed |
+
+---
+
+### Key Implementation Details
+
+#### 1. MemoryImportExportService (`services/memoryImportExportService.ts`) — ✅
+- Types: `记忆导出格式`, `记忆导出选项`, `记忆导出元数据`
+- Functions: `导出记忆系统`, `下载记忆系统`, `处理记忆文件导入`, `合并记忆系统`, `规范化记忆系统`
+- Supports JSON and TXT export formats
+- Includes metadata (标题, 角色, 导出时间, 版本)
+- Per-layer memory selection (回忆档案, 即时记忆, 短期记忆, 中期记忆, 长期记忆)
+
+#### 2. Utility Functions (`utils/memoryImportExport.ts`) — ✅
+- `快速导出记忆JSON()` — Full export as JSON
+- `快速导出记忆Txt()` — Full export as plain text
+- `仅导出回忆档案()` — Export archives only
+- `导出短中期记忆()` — Export short/mid-term memory
+- `仅导出长期记忆()` — Export long-term memory only
+- `导入记忆文件()` — Import from file
+- `合并记忆系统()` — Merge imported memory
+
+#### 3. Import/Export Panel (`MemoryImportExportPanel.tsx`) — ✅
+- Tab switching: Export / Import
+- Export presets: full, archives only, short+mid, long-term only
+- Format selection: JSON / TXT
+- File picker for import
+- Import status feedback
+- Merge import functionality
+
+#### 4. MemoryModal Integration — ✅
+- `MemoryModal.tsx` imports `MemoryImportExportPanel` (Line 5)
+- Integration at Line 677 confirms UI button opens the panel
+
+---
+
+### Acceptance Criteria Verification
+
+| Criterion | Status | Evidence |
+|-----------|--------|----------|
+| JSON export support | ✅ | `记忆导出格式 = 'json' | 'txt'`, `导出记忆系统` function |
+| TXT export support | ✅ | Same as above |
+| Selective layer export | ✅ | 5 boolean options in `记忆导出选项` |
+| JSON import with validation | ✅ | `处理记忆文件导入` with `规范化记忆系统` |
+| Merge import functionality | ✅ | `合并记忆系统` function |
+| UI panel in MemoryModal | ✅ | `MemoryImportExportPanel` imported and rendered at Line 677 |
+
+---
+
+## Summary
+
+**Plan**: ✅ Fully Implemented
+**Files**: 3 new files + 1 modified file
+**Verification**: ✅ Confirmed — all acceptance criteria met
+**Git Commit**: Already completed per plan's implementation record (2026-05-06)
+
+---
+
 ## Verification Results
 
 ### Planned Files vs Actual
