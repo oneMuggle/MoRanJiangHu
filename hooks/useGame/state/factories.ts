@@ -1,4 +1,5 @@
 import type { 世界数据结构, 战斗状态结构, 详细门派结构, 剧情系统结构, 剧情规划结构, 环境信息结构, 角色数据结构 } from '../../../types';
+import { 校验并修复世界状态 } from '../worldStateIntegrity';
 
 const 取文本 = (value: any, fallback = ''): string => (typeof value === 'string' ? value.trim() : fallback);
 const 取数字 = (value: any, fallback = 0): number => { const n = Number(value); return Number.isFinite(n) ? n : fallback; };
@@ -78,7 +79,7 @@ export function 创建开场空白世界(): 世界数据结构 {
 
 export function 规范化世界状态(raw?: any): 世界数据结构 {
   const world = raw && typeof raw === 'object' ? raw : {};
-  return {
+  const normalized = {
     活跃NPC列表: Array.isArray(world?.活跃NPC列表) ? world.活跃NPC列表.map((item: any) => ({
       姓名: 取文本(item?.姓名), 所属势力: 取文本(item?.所属势力), 当前位置: 取文本(item?.当前位置),
       当前状态: 取文本(item?.当前状态), 当前行动: 取文本(item?.当前行动),
@@ -129,6 +130,9 @@ export function 规范化世界状态(raw?: any): 世界数据结构 {
       名称: 取文本(item?.名称), 描述: 取文本(item?.描述), 归属: 规范化地点归属(item?.归属)
     })).filter((item) => item.名称 || item.描述) : []
   };
+  // 规范化后自动修复孤立引用、时间悖论等小问题
+  const { world: fixedWorld } = 校验并修复世界状态(normalized);
+  return fixedWorld as unknown as 世界数据结构;
 }
 
 export function 创建开场空白战斗(): 战斗状态结构 { return { 是否战斗中: false, 敌方: [] }; }
