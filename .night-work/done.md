@@ -122,3 +122,98 @@ No action needed. The requested plan file `2026-04-04_era-content-audit.md` does
 ---
 
 *验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-04-05_character-archetype-system.md
+
+**Plan**: `docs/plans/2026-04-05_character-archetype-system.md`
+**Status**: ✅ VERIFIED - FULLY IMPLEMENTED
+
+---
+
+## Verification Result
+
+### 1. Type Definition (`models/eraTheme/types.ts`)
+
+| Expected | Found |
+|----------|-------|
+| `EraCharacterArchetype` interface | ✅ Lines 50-60: `id`, `name`, `description`, `appearance`, `abilities`, `表人格?`, `里人格?` |
+
+### 2. Era Data Files
+
+All epoch files contain `characterArchetypes` field:
+
+| File | Status |
+|------|--------|
+| `models/eraTheme/epoch-ancient.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-modern.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-contemporary.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-near-future.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-far-future.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-post-human.ts` | ✅ Multiple `characterArchetypes` arrays |
+| `models/eraTheme/epoch-primordial.ts` | ✅ Multiple `characterArchetypes` arrays |
+
+**Example data (武侠, ancient_eastern_wuxia):**
+```typescript
+characterArchetypes: [
+    { id: 'wuxia_wandering_swordsman', name: '流浪剑客', description: '江湖独行侠，剑术高超却不求名利', appearance: '一袭青衫，腰间佩剑，面容冷峻', abilities: ['快剑', '轻功', '酒量过人'] },
+    { id: 'wuxia_sect_leader', name: '掌门人', description: '名门正派的领袖，德高望重', appearance: '身着门派服饰，手持拂尘，仙风道骨', abilities: ['镇派绝学', '门派威望', '内力深厚'] },
+    { id: 'wuxia_poison_master', name: '毒医双修', description: '精通毒药与医术的神秘人物', appearance: '面色苍白，手指常年染着药草之色', abilities: ['毒术', '医术', '药物辨识'] }
+]
+```
+
+### 3. Prompt Integration (`prompts/runtime/eraTheme.ts`)
+
+| Expected | Found |
+|----------|-------|
+| `构建时代角色原型注入()` function | ✅ Lines 86-102 |
+
+Function correctly:
+- Resolves era node via `resolveEraNode(eraId)`
+- Maps `inherited.characterArchetypes` to formatted prompt text
+- Returns empty string if no archetypes
+
+**Used in:** `prompts/runtime/opening.ts` line 197:
+```typescript
+const archetypeBlock = 构建时代角色原型注入(eraId);
+```
+
+### 4. UI Integration
+
+| Expected | Found |
+|----------|-------|
+| `NewGameWizardContent.tsx` - display archetypes | ✅ Line 1334, 1366-1390 |
+| `useNewGameWizardState.ts` - get archetype list | ✅ Lines 543, 547 |
+
+### 5. Era Assembly Inheritance (`assembly.ts`)
+
+| Expected | Found |
+|----------|-------|
+| `characterArchetypes` merged in `resolveEraNode` | ✅ Lines 105, 144, 163 |
+
+Sub-erasis inherit `characterArchetypes` from parent epochs.
+
+### 6. Test Coverage
+
+`prompts/runtime/__tests__/eraPromptInjection.test.ts` line 86-99 tests `构建时代角色原型注入()`.
+
+---
+
+## Extension Plans (未完成项)
+
+The plan lists three extension items that remain unimplemented:
+
+- [ ] 为角色原型添加更多维度（背景故事、人物关系）
+- [ ] 实现角色原型选择对 NPC 生成的影响
+- [ ] 添加角色原型搜索和筛选功能
+
+---
+
+## Conclusion
+
+The **Character Archetype System (角色原型系统)** is **fully implemented** as specified in the plan dated 2026-04-05. All documented implementation points exist and function correctly in the codebase. The three extension items are noted but were not committed scope for this plan.
+
+---
+
+*验证时间: 2026-05-08*
