@@ -1626,3 +1626,42 @@ All 7 phases of the character anchor plan are fully implemented:
 5. **Exceeds plan spec**: 6 scenes implemented (vs. 5 planned), 4 archetypes (vs. 3 planned), plus 2 writing samples
 
 **Git commit**: `verify 2026-05-05 campus-era-urban-era-fusion plan — fully implemented`"
+
+---
+
+## 2026-05-07 PNG 图像管线重构 (PNG Image Pipeline Refactoring) — Verification
+
+**Date**: 2026-05-07  
+**Plan**: `docs/plans/png-image-pipeline.md`  
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Implementation Checklist ✅
+
+|| Item | Status | File(s) |
+||------|--------|---------|
+| 1. PNG画风预设结构 | ✅ | `models/system.ts:189+`, `models/api-config.ts:158+` |
+| 2. 元数据解析 | ✅ | `services/ai/image/pngParser.ts` (332 lines) |
+| 3. 本地Artist剥离 | ✅ | `services/ai/artistTagExtractor.ts` (195 lines), `services/ai/artistTagDictionary.ts` |
+| 4. AI提炼服务 | ✅ | `services/ai/image/anchorExtractor.ts` |
+| 5. 装配逻辑 | ✅ | `services/ai/image/promptBuilder.ts` (前置/主体/后置正向分层) |
+| 6. UI入口与流程 | ✅ | `components/features/Character/CharacterModal.tsx` (PNG画风预设下拉) |
+| 7. 生图拼接策略 | ✅ | `hooks/useGame/image/npcImageWorkflow.ts`, sceneImageWorkflow, npcSecretImageWorkflow |
+| 8. 导出/导入 | ✅ | `utils/apiConfigNormalization.ts` |
+
+### Key Implementation Details
+
+- **PNG解析**: NovelAI + SD WebUI tEXt/iTXt/zTXt support, extracts prompt/negative/Model/LoRA/采样器/CFG/Clip skip/Hires/ADetailer
+- **Artist剥离**: 规则+词库双模式, 保留token顺序和权重符号 `() [] {} <>`
+- **AI提炼**: 风格清洗, 过滤构图/角色标签, 失败回退到剥离后提示词
+- **分层装配**: 前置正向(画师串+风格词) / 主体正向(人物场景) / 后置正向(构图比例)
+- **NovelAI v4**: 完整 v4_prompt 结构支持 via `backends.ts`
+- **预设消费**: NPC/场景/秘档三条链路 via npcImageWorkflow
+
+### Git Status
+
+- Working tree clean (ahead of origin/main by 31 commits)
+- All implementation files present and properly structured
