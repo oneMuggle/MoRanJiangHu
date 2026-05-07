@@ -303,3 +303,50 @@ No action needed. The plan file `2026-03-05_character-card-system.md` does not e
 ---
 
 *验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-05-06_time-utils-refactor-plan.md
+
+**Plan**: `docs/plans/2026-05-06_time-utils-refactor-plan.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-05-06_time-utils-refactor-plan.md` does **not exist** in the repository.
+
+### Search Results
+
+| Search | Result |
+|--------|--------|
+| `docs/plans/2026-05-06_time-utils-refactor-plan.md` | ❌ NOT FOUND |
+| Git history for this file | No commits found |
+
+### Related Time System Implementation
+
+The `hooks/useGame/time/` directory exists and contains the time utilities as specified in the **related** plan `docs/plans/2026-05-06-architecture-refactor-plan.md`:
+
+**Files in `hooks/useGame/time/`:**
+- `timeUtils.ts` ✅ Exists (94 lines, exports `normalizeCanonicalGameTime`, `环境时间转标准串`, `结构化时间转标准串`, `标准时间串转结构化`, etc.)
+- `timeUtils.test.ts` ✅ Exists (test coverage)
+- `historyTurnWorkflow.ts` ✅ Exists (491 lines)
+- `historyTurnWorkflow.test.ts` ✅ Exists (test coverage)
+- `historyUtils.ts` ✅ Exists (44 lines)
+- `historyUtils.test.ts` ✅ Exists (test coverage)
+
+**Referenced by 28+ modules** across the codebase.
+
+### Conclusion
+
+The specific `time-utils-refactor-plan.md` plan file does not exist. However, the time/ directory reorganization described in the **related** architecture refactor plan (`2026-05-06-architecture-refactor-plan.md`, Phase 1) has already been implemented:
+- `timeUtils.ts` ✅
+- `historyTurnWorkflow.ts` ✅
+- `historyUtils.ts` ✅
+
+No action needed — time system utilities are already organized under `hooks/useGame/time/`.
+
+---
+
+*验证时间: 2026-05-08*
