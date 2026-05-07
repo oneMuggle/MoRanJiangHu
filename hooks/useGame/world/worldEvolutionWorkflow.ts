@@ -1,20 +1,21 @@
-import * as textAIService from '../../../services/ai/text';
-import type { GameResponse, OpeningConfig, 接口设置结构, 提示词结构, 剧情系统结构, 女主剧情规划结构, 记忆系统结构, 聊天记录结构, 环境信息结构, 世界数据结构, 世界书结构 } from '../../../types';
-import type { 当前可用接口结构 } from '../../../utils/apiConfig';
-import { 获取世界演变接口配置, 接口配置是否可用 } from '../../../utils/apiConfig';
-import { 规范化游戏设置 } from '../../../utils/gameSettings';
-import { 构建世界书注入文本 } from '../../../utils/worldbook';
-import { 数值_世界演化 } from '../../../prompts/stats/world';
-import { 规范化记忆系统 } from '../memory/memoryUtils';
-import { formatHistoryToScript } from '../time/historyUtils';
-import { 构建世界演变COT提示词, 世界演变COT伪装历史消息提示词 } from '../../../prompts/runtime/worldEvolutionCot';
-import { 环境时间转标准串 } from '../time/timeUtils';
+import * as textAIService from '../../services/ai/text';
+import type { GameResponse, OpeningConfig, 接口设置结构, 提示词结构, 剧情系统结构, 女主剧情规划结构, 记忆系统结构, 聊天记录结构, 环境信息结构, 世界数据结构, 世界书结构 } from '../../types';
+import type { 当前可用接口结构 } from '../../utils/apiConfig';
+import { 获取世界演变接口配置, 接口配置是否可用 } from '../../utils/apiConfig';
+import { 规范化游戏设置 } from '../../utils/gameSettings';
+import { 构建世界书注入文本 } from '../../utils/worldbook';
+import { 数值_世界演化 } from '../../prompts/stats/world';
+import { 规范化记忆系统 } from './memoryUtils';
+import { formatHistoryToScript } from './historyUtils';
+import { 构建世界演变COT提示词, 世界演变COT伪装历史消息提示词 } from '../../prompts/runtime/worldEvolutionCot';
+import { 环境时间转标准串 } from './timeUtils';
 import { 构建世界演变上下文文本, 规范化世界演变命令列表 } from './worldEvolutionUtils';
-import type { 响应命令处理状态 } from '../npc/responseCommandProcessor';
-import { 构建同人运行时提示词包 } from '../../../prompts/runtime/fandom';
-import { 获取激活小说拆分注入文本 } from '../../../services/novel-decomposition/novelDecompositionInjection';
-import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../../utils/promptFeatureToggles';
-import { 提取响应规划文本 } from '../quality/thinkingContext';
+import type { 响应命令处理状态 } from './responseCommandProcessor';
+import { 构建同人运行时提示词包 } from '../../prompts/runtime/fandom';
+import { 获取激活小说拆分注入文本 } from '../../services/novel-decomposition/novelDecompositionInjection';
+import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../utils/promptFeatureToggles';
+import { 提取响应规划文本 } from './thinkingContext';
+import { 校验并修复世界状态 } from './worldStateIntegrity';
 
 export type 世界演变触发参数 = {
     来源?: 'manual' | 'auto_due' | 'story_dynamic' | 'story_dynamic_and_due';
@@ -131,6 +132,14 @@ export const 执行世界演变更新工作流 = async (
             deps.规范化世界状态(worldStateBase?.世界 || deps.世界),
             worldRuntimeGameConfig
         );
+        // 世界演变前校验：确保世界状态基线无孤立引用等问题
+        const { result: preValidation } = 校验并修复世界状态(worldState as any);
+        if (!preValidation.有效) {
+            const errorSummary = preValidation.问题列表.filter(i => i.严重程度 === 'error').map(i => i.描述).join('；');
+            if (errorSummary) {
+                deps.set世界演变状态文本(`世界状态异常（演变前）：${errorSummary}`);
+            }
+        }
         const rawWorldStory = deps.规范化剧情状态(worldStateBase?.剧情 || deps.剧情, worldEnv);
         const worldPrompt = (() => {
             const hit = deps.prompts.find(item => item.id === 'core_world');
