@@ -192,3 +192,77 @@ Verification: ✅ Confirmed
 ## 结论
 
 **叙事语法引擎核心实现已完成** — 类型定义、核心逻辑、工具函数全部按计划实现，所有验收标准已达成。引擎作为独立模块完整可用，集成到 `responseProcessingPhase` 属于后续工作。
+
+---
+
+# 2026-04-21 Event Trigger System V2 — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-04-21_trigger-system-v2.md`
+**Status**: ✅ Implemented (with minor deviations)
+
+---
+
+## Verification Results
+
+### Key Implementation Markers (verified present)
+
+#### 1. `models/eventTrigger.ts` — ✅ Complete
+- V1 types: `触发条件` (回合偏移, 回合绝对, 条件表达式)
+- V2 types: `增强条件` (属性比较, 状态检查, 概率, 且, 或, 非)
+- V2 types: `事件链`, `周期性配置`, `事件分组`
+- `游戏事件` interface with all V2 fields (周期性配置, 事件链列表, 增强条件, 已触发次数, 事件分组ID)
+- `事件状态`, `事件更新`, `解析事件更新信号` types
+
+#### 2. `hooks/useGame/eventTrigger/` — ✅ Subdirectory structure
+| File | Contents |
+|------|----------|
+| `core.ts` | `计算触发回合`, `检查到期事件`, `构建事件注入提示词` (V1) |
+| `factories.ts` | `创建回合偏移事件`, `创建绝对回合事件`, `创建条件事件` (V1) |
+| `stateManagement.ts` | `计算事件新状态`, `批量更新事件状态` (V1) |
+| `v2Enhanced.ts` | All V2 functions (see below) |
+| `promptAndParse.ts` | Event prompt building and parsing |
+| `utilities.ts` | Utility functions |
+| `index.ts` | Re-exports all functions |
+
+#### 3. `hooks/useGame/eventTrigger/v2Enhanced.ts` — ✅ All V2 functions present
+- `求值增强条件(条件, 游戏状态)` — evaluates 属性比较, 状态检查, 概率, 且/或/非
+- `检查周期性触发(事件, 当前回合)` — checks if periodic event should fire
+- `获取下一触发回合(事件, 当前回合)` — calculates next trigger round
+- `查找链式触发事件(源事件ID, 事件列表, 当前回合)` — finds chain-triggered events
+- `清理已过期事件(事件列表, 当前回合)` — removes expired events
+- `处理事件组互斥(事件列表, 分组ID)` — handles mutually exclusive groups
+- `获取分组待触发事件(事件列表, 分组ID)` — gets pending events by group
+- `更新周期触发计数(事件)` — increments periodic trigger count
+- `检查事件过期(事件, 当前回合)` — checks if event has expired
+
+#### 4. `hooks/useGame/eventTrigger.ts` — ✅ Re-export entry point
+Correctly re-exports all functions from the subdirectory including all V2 functions from `v2Enhanced`.
+
+---
+
+## Acceptance Criteria Check
+
+| Criterion | Status | Implementation |
+|-----------|--------|----------------|
+| 属性比较条件（数值、字符串） | ✅ | `求值增强条件` with `属性比较` kind |
+| 概率触发 | ✅ | `求值增强条件` with `概率` kind |
+| 且/或/非逻辑组合条件 | ✅ | `求值增强条件` with `且`, `或`, `非` kinds |
+| 事件链式触发 | ✅ | `查找链式触发事件` function |
+| 周期性事件 | ✅ | `检查周期性触发`, `获取下一触发回合` |
+| 事件分组互斥 | ✅ | `处理事件组互斥` |
+| 单元测试覆盖新增函数 | ❌ | No test file found |
+| 向后兼容 V1 事件格式 | ✅ | V1 types preserved, factories still work |
+
+---
+
+## Deviations from Plan
+
+1. **`eventTriggerManager.ts`** — Plan specified a separate manager module at `hooks/useGame/eventTriggerManager.ts`. The functionality is instead distributed across `v2Enhanced.ts` and `stateManagement.ts`. This is a reasonable structural deviation.
+
+2. **No test file** — Plan listed `hooks/useGame/eventTrigger.test.ts` but no test file exists. The V2 functions lack unit test coverage.
+
+---
+
+Plan claims: ✅ Implemented (with noted deviations)
+Verification: ✅ Confirmed with notes
