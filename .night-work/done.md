@@ -778,6 +778,68 @@ The implementation follows the planned architecture closely. The `NovelWritingPr
 
 ---
 
+# 2026-05-04 对话导出系统 — Verification
+
+**Date**: 2026-05-07  
+**Plan**: `docs/plans/2026-05-04_conversation-export-system.md`  
+**Status**: ✅ Fully Implemented
+
+---
+
+## Verification Results
+
+### Implementation Checklist
+
+| # | Item | Planned | Actual | Status |
+|---|------|---------|--------|--------|
+| 1 | Plan document created | ✅ | `docs/plans/2026-05-04_conversation-export-system.md` | ✅ |
+| 2 | Export service | `services/conversationExportService.ts` (~150行) | `services/conversationExportService.ts` (199行) | ✅ |
+| 3 | Utility functions | `utils/conversationExport.ts` (~60行) | `utils/conversationExport.ts` (64行) | ✅ |
+| 4 | Export panel | `ConversationExportPanel.tsx` (~150行) | `components/features/Chat/ConversationExportPanel.tsx` (119行) | ✅ |
+| 5 | HistoryViewer integration | Modified | `components/features/Settings/HistoryViewer.tsx` - added export buttons | ✅ |
+
+### Implementation Details
+
+**services/conversationExportService.ts** (199 lines):
+- `导出格式` type: `'txt' | 'json' | 'md'`
+- `导出选项` interface with metadata, timestamps, role name, title
+- `转换为纯文本()` - TXT format with metadata header
+- `转换为JSON()` - JSON with metadata + conversation records
+- `转换为Markdown()` - Markdown with metadata header
+- `导出对话记录()` - Creates Blob with correct MIME type
+- `下载对话记录()` - Auto-download with sanitized filename
+
+**utils/conversationExport.ts** (64 lines):
+- `快速导出为Txt()` - Quick export shortcut
+- `快速导出为Json()` - Quick export shortcut
+- `快速导出为Md()` - Quick export shortcut
+- `导出对话` alias and type re-exports
+
+**ConversationExportPanel.tsx** (119 lines):
+- Format selector (Markdown/纯文本/JSON)
+- Export button with state feedback
+- Shows record count
+- Error handling with user feedback
+
+**HistoryViewer.tsx** integration:
+- Line 3: `import { 快速导出为Md } from '../../../utils/conversationExport'`
+- Line 4: `import ConversationExportPanel from '../Chat/ConversationExportPanel'`
+- Lines 39-47: `showExportPanel` state + `handleQuickExport()` function
+- Lines 119-132: Export buttons (快速导出 + 更多格式)
+- Lines 136-143: Conditional export panel rendering
+
+### Features Verified
+
+- ✅ Three export formats: TXT, JSON, Markdown
+- ✅ Metadata includes: title, role, export time, message count
+- ✅ Timestamps included in exports
+- ✅ Auto-download with sanitized filename
+- ✅ Quick export button in HistoryViewer
+- ✅ Full format selector panel (ConversationExportPanel)
+- ✅ HistoryViewer integration complete
+
+---
+
 # 2026-05-03 图片生成管线 — Verification
 
 **Date**: 2026-05-07
