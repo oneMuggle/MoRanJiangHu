@@ -24,6 +24,10 @@ interface 写真运行时参数 {
   启用泄露事件: boolean;
   泄露事件频率: '低' | '中' | '高';
   启用道德选择: boolean;
+  // BDSM 模块联动
+  涉及BDSM: boolean;
+  BDSM关系阶段?: string;
+  照片把柄摘要?: string;
 }
 
 // ==================== 参数提取 ====================
@@ -92,6 +96,39 @@ function 提取写真参数(
     }
   }
 
+  // BDSM 模块联动数据提取
+  const 校园系统 = gameState.校园系统 as Record<string, unknown> | undefined;
+  const 欲望系统 = 校园系统?.欲望系统 as Record<string, unknown> | undefined;
+  const NPC欲望档案 = 欲望系统?.NPC欲望档案 as Record<string, any> | undefined;
+
+  const BDSM项目摘要条目: { 阶段: string; 把柄: string[] }[] = [];
+  if (进行中的拍摄项目) {
+    for (const p of 进行中的拍摄项目) {
+      if (p.涉及BDSM === true) {
+        // 从NPC欲望档案中查找对应的BDSM关系阶段
+        const 模特BDSM = NPC欲望档案?.[p.模特Id]?.BDSM关系 as Record<string, unknown> | undefined;
+        const 关系阶段 = (模特BDSM?.阶段 as string) ?? '初识';
+
+        // 收集照片把柄
+        const 照片把柄 = (p.照片把柄 as { 照片Id: string; 是否已用于威胁: boolean }[] | undefined)
+          ?.filter(pb => !pb.是否已用于威胁)
+          .map(pb => pb.照片Id) ?? [];
+
+        BDSM项目摘要条目.push({ 阶段: 关系阶段, 把柄: 照片把柄 });
+      }
+    }
+  }
+
+  // 取第一个活跃BDSM项目的阶段（多个项目时取最深入的）
+  const 阶段优先级 = ['初识', '试探', '确立', '深入', '固化'];
+  const 最深入阶段 = BDSM项目摘要条目.length > 0
+    ? BDSM项目摘要条目
+      .map(e => 阶段优先级.indexOf(e.阶段))
+      .reduce((max, idx) => Math.max(max, idx), 0)
+    : -1;
+
+  const 所有把柄 = BDSM项目摘要条目.flatMap(e => e.把柄);
+
   return {
     进行中的项目摘要: 项目摘要条目.length > 0 ? 项目摘要条目.join('；') : '无进行中项目',
     模特状态摘要: 模特摘要条目.length > 0 ? 模特摘要条目.join('；') : '无活跃模特',
@@ -106,6 +143,10 @@ function 提取写真参数(
     启用泄露事件: settings.启用泄露事件,
     泄露事件频率: settings.泄露事件频率,
     启用道德选择: settings.启用道德选择,
+    // BDSM 模块联动
+    涉及BDSM: settings.涉及BDSM模块 ?? false,
+    BDSM关系阶段: 最深入阶段 >= 0 ? 阶段优先级[最深入阶段] : undefined,
+    照片把柄摘要: 所有把柄.length > 0 ? 所有把柄.join(', ') : undefined,
   };
 }
 
@@ -123,6 +164,10 @@ function 构建写真NSFW叙事约束(params: 写真运行时参数): string {
     泄露事件频率: params.泄露事件频率,
     启用道德选择: params.启用道德选择,
     活跃泄露事件摘要: params.泄露事件摘要 !== '无活跃泄露事件' ? params.泄露事件摘要 : undefined,
+    // BDSM 模块联动
+    涉及BDSM: params.涉及BDSM,
+    BDSM关系阶段: params.BDSM关系阶段,
+    照片把柄: params.照片把柄摘要 ? params.照片把柄摘要.split(',').map(s => s.trim()) : undefined,
   });
 }
 

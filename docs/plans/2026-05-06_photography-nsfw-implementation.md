@@ -354,12 +354,15 @@ import type { 写真NSFW设置, 写真系统扩展 } from './photographyNSFW';
 
 ---
 
-### Step 15: 连接BDSM模块
+### Step 15: 连接BDSM模块 ✅
 
 **修改文件**：
-- `models/photographyNSFW/states.ts` — 在 `拍摄项目状态` 中添加可选字段 `涉及BDSM?: boolean`
+- `models/photographyNSFW/states.ts` — 在 `拍摄项目状态` 中添加可选字段 `涉及BDSM?: boolean`、`照片把柄?: { 照片Id: string; 是否已用于威胁: boolean }[]`
 - `models/campusNSFW/sm.ts` — 在BDSM关系状态中添加可选字段 `照片把柄?: string[]`
-- `prompts/runtime/photographyNSFW.ts` — 当两个模块都激活时，添加BDSM感知提示词变体
+- `models/photographyNSFW/index.ts` — 在 `写真NSFW设置` 中添加 `涉及BDSM模块: boolean`
+- `models/photographyNSFW/normalization.ts` — 规范化 `涉及BDSM模块` 字段
+- `prompts/runtime/photographyNSFW.ts` — 当两个模块都激活时，添加BDSM感知提示词变体（`构建BDSM联动约束`）
+- `modules/contemporary/photographyNSFW/registration.ts` — 运行时数据提取：从 `gameState.校园系统.欲望系统.NPC欲望档案` 读取BDSM关系阶段，从 `进行中的拍摄项目` 收集未使用的照片把柄
 
 跨模块联动：情趣写真可触发BDSM叙事，泄露照片可成为BDSM关系中的把柄。仅使用可选字段——不硬耦合。
 
@@ -1041,7 +1044,7 @@ export interface 写真NSFW设置 {
 | Phase 3: AI工作流+提示词 | ✅ 完成 | photographyNSFW.ts, shootWorkflow.ts, leakWorkflow.ts |
 | Phase 4: UI设置注册 | ✅ 完成 | tabDefinitions.ts, SettingsPanel.tsx |
 | Phase 4: UI仪表盘 | ✅ 完成 | PhotographyDashboard.tsx, MobilePhotographyDashboard.tsx 已创建并接入App.tsx |
-| Phase 4: BDSM跨模块联动 | ⏸ 待实施 | 可选字段交叉引用（低优先级） |
+| Phase 4: BDSM跨模块联动 | ✅ 已完成 | 可选字段交叉引用 + 运行时数据提取 |
 | 状态标签解析 | ✅ 完成 | `<写真系统状态>` 标签解析已对接 responseCommandProcessor.ts |
 
 ## 已创建文件清单

@@ -117,4 +117,7 @@ export interface BDSM关系状态 {
   里程碑: BDSM里程碑[];
   安全词: string;
   底线列表: string[];
+
+  // 与写真模块联动（可选）
+  照片把柄?: string[];       // 写真照片ID列表，可作为威胁把柄
 }

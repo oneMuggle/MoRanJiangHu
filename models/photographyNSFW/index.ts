@@ -31,6 +31,7 @@ export interface 写真NSFW设置 {
   启用照片交付: boolean;
   启用泄露事件: boolean;
   泄露事件频率: '低' | '中' | '高';
+  涉及BDSM模块: boolean;
 }
 
 export const 默认写真NSFW设置: 写真NSFW设置 = {
@@ -46,6 +47,7 @@ export const 默认写真NSFW设置: 写真NSFW设置 = {
   启用照片交付: false,
   启用泄露事件: false,
   泄露事件频率: '低',
+  涉及BDSM模块: false,
 };
 
 // ==================== 系统扩展接口（state mount） ====================
