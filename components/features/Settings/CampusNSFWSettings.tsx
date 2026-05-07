@@ -370,6 +370,13 @@ export const CampusNSFWSettings: React.FC<Props> = ({ settings, onChange }) => {
             onChange={(v) => update('启用BDSM契约系统', v)}
             disabled={!settings.启用BDSM关系管线}
           />
+          <ToggleSwitch
+            label="启用 BDSM 见面预约"
+            description="开启后可与 NPC 预约见面时间与地点，系统将生成对应场景"
+            checked={settings.启用BDSM见面预约}
+            onChange={(v) => update('启用BDSM见面预约', v)}
+            disabled={!settings.启用BDSM关系管线}
+          />
         </>
       )}
     </div>
