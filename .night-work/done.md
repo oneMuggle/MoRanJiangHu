@@ -40,6 +40,50 @@ No action needed. The requested plan file does not exist. No implementation veri
 
 ---
 
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
+
+---
+
+*验证时间: 2026-05-08*
+
+---
+
 # 2026-05-08 Plan Verification: 2026-05-06_bdsm-analysis-optimization.md
 
 **Plan**: `docs/plans/2026-05-06_bdsm-analysis-optimization.md`
@@ -103,6 +147,50 @@ The plan file exists and all 4 optimization phases are confirmed implemented.
 All 4 phases of the `bdsm-analysis-optimization` plan are fully implemented. Phase 3 (desktop UI) was completed after the plan was created, adding 4 desktop modal components. Phase 4.1 added state validation in a dedicated 303-line file.
 
 ---
+*验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
+
+---
+
 *验证时间: 2026-05-08*
 
 ---
@@ -179,6 +267,50 @@ No action needed. The requested plan file does not exist. The storyState module 
 
 ---
 
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
+
+---
+
+*验证时间: 2026-05-08*
+
+---
+
 # 2026-05-08 Plan Verification: 2026-04-20_image-generation-system.md
 
 **Plan**: `docs/plans/2026-04-20_image-generation-system.md`
@@ -226,6 +358,50 @@ The `services/ai/image/` directory contains 13 files implementing the image gene
 No action needed. The requested plan file `docs/plans/2026-04-20_image-generation-system.md` does not exist. The image generation system is implemented via other plan files (NovelAI integration on 2026-04-30, image pipeline on 2026-05-03).
 
 ---
+*验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
+
+---
+
 *验证时间: 2026-05-08*
 
 ---
@@ -333,6 +509,50 @@ No action needed. The plan file does not exist, but the intimacy state machine s
 
 ---
 
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
+
+---
+
+*验证时间: 2026-05-08*
+
+---
+
 # 2026-05-08 Plan Verification: 2026-04-16_world-evolution-system.md
 
 **Plan**: `docs/plans/2026-04-16_world-evolution-system.md`
@@ -399,6 +619,50 @@ No action needed. The requested plan file does not exist, but the **world evolut
 - `f670ca0` refactor: reorganized useGame modules to subdirectories
 - `a581b8e` merge: resolved conflicts for world/ subdir
 - Multiple other commits for world book and evolution integration
+
+---
+
+*验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-04-07_faction-reputation-system.md
+
+**Plan**: `docs/plans/2026-04-07_faction-reputation-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-07_faction-reputation-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-07_faction-reputation-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists (closest before) |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists (closest after) |
+
+### Git History Check
+
+No commits found referencing `2026-04-07` or `faction-reputation-system`.
+
+### Codebase Search: "门派" (Sect/Faction) References
+
+The codebase has **sect/faction-related data** but **no dedicated faction reputation system**:
+
+| File | Content |
+|------|---------|
+| `data/cultivation/yaoxiang.ts` | Contains `妖象功法门派` type with values: '狐仙一脉' \| '冥府传承' \| '妖族自修' \| '散修自创'; `getYaoxiangBySect()` function |
+| `App.tsx:458,462` | References `state.玩家门派` (player's sect) in state |
+| `App.tsx:489,665` | UI branch for sect panel (`showSect ? '门派' : ...`) |
+| `App.tsx:1809,1815` | Renders sect data in UI |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. The codebase contains sect/faction data structures (`玩家门派`, `妖象功法门派`) for cultivation purposes, but no standalone "faction reputation system" as a game mechanic.
 
 ---
 
@@ -489,6 +753,49 @@ No action needed. The requested plan file does not exist. No implementation veri
 ### Conclusion
 
 Event Trigger System (2026-04-10) is **fully implemented**. All files exist, all acceptance criteria met. The implementation includes V2 enhanced features beyond the original plan specification.
+
+---
+
+*验证时间: 2026-05-08*
+
+---
+
+# 2026-05-08 Plan Verification: 2026-04-06_npc-daily-schedule-system.md
+
+**Plan**: `docs/plans/2026-04-06_npc-daily-schedule-system.md`
+**Status**: ❌ FILE NOT FOUND
+
+---
+
+## Verification Result
+
+The requested plan file `docs/plans/2026-04-06_npc-daily-schedule-system.md` does **not exist** in the repository.
+
+### Search Results
+
+| File | Status |
+|------|--------|
+| `docs/plans/2026-04-06_npc-daily-schedule-system.md` | ❌ NOT FOUND |
+| `docs/plans/2026-04-05_character-archetype-system.md` | ✅ Exists |
+| `docs/plans/2026-04-08_dynamic-difficulty-adjustment.md` | ✅ Exists |
+
+No plan file for April 6th found. The date sequence jumps from April 5 directly to April 8.
+
+### Git History Check
+
+No commits found referencing `2026-04-06` or `npc-daily-schedule-system`.
+
+### Related NPC Schedule Files in Codebase
+
+| File | Description |
+|------|-------------|
+| `hooks/useGame/scheduleWorkflow.ts` | Schedule/time workflow (exists, referenced in git history) |
+| `docs/plans/2026-05-04_urban-era-daily-life.md` | Contains daily life + schedule system design (line 65, 107) |
+| `docs/plans/gameplay-expansion-plan.md` | References "时间/日程系统" as D4 - marked ✅ completed |
+
+### Conclusion
+
+No action needed. The requested plan file does not exist. No implementation verification possible.
 
 ---
 
