@@ -375,3 +375,64 @@ All Phase 1, Phase 2, and Phase 3 items specified in the plan are already implem
 
 ### Build Verification
 - No new changes required — already implemented and committed
+
+---
+
+## Task: Execute docs/plans/2026-04-28_memory-search.md
+
+## Status: ✅ COMPLETED
+
+## Plan Summary
+- **Plan date**: 2026-04-28
+- **Plan status**: 设计中
+- **Implementation date**: 2026-05-07
+- **Scope**: Memory system full-text search across four memory layers
+
+## Implementation Status
+
+### P0: Core search logic (搜索记忆条目 function) — ✅ ALREADY IMPLEMENTED
+- **File**: `hooks/useGame/memoryRecall.ts` (lines 240-406)
+- **Function**: `搜索记忆条目` — already implemented with:
+  - `提取检索词` for Chinese word segmentation (2-4 char n-grams)
+  - `计算搜索匹配度` scoring algorithm (term length weighting + frequency boost + recency)
+  - `提取即时记忆可搜索文本` for immediate memory parsing
+  - Support for all 4 memory layers: 即时/短期/中期/长期
+  - Returns `记忆搜索结果[]` with id, 层, 记忆原文, 概括, 时间戳, 回合, 匹配度, 匹配片段
+
+### P1: Desktop MemoryModal search UI — ✅ ALREADY IMPLEMENTED
+- **File**: `components/features/Memory/MemoryModal.tsx`
+- Search bar with icon + input + clear button (line 404-426)
+- 'search' tab in tab bar (line 432, 451)
+- Search state management: searchQuery, searchResults, searchTabBefore (lines 108-110)
+- Search functions: 执行记忆搜索, 切换到搜索标签, 清除搜索, 处理搜索输入 (lines 211-249)
+- 300ms debounce for real-time search
+- Search results display with match score and fragments
+- Empty state: "灵台澄空，未寻得相关神念"
+
+### P2: Mobile MobileMemory search UI — ✅ COMPLETED (THIS TASK)
+- **File**: `components/features/Memory/MobileMemory.tsx`
+- Added 'search' to TabType union
+- Added search state: searchQuery, searchResults, searchTabBefore
+- Added search bar with search icon and clear button in tab bar area
+- Added '检索' tab button
+- Added search functions: 执行记忆搜索, 切换到搜索标签, 清除搜索, 处理搜索输入
+- 300ms debounce for real-time search
+- Search results display with match score (匹配度) and layer indicator (层记忆)
+- Empty state: "灵台澄空，未寻得相关神念"
+- Search result items hide edit button
+
+## Changes Made
+
+### `components/features/Memory/MobileMemory.tsx` (96 lines added, 8 modified)
+1. Added 'search' to TabType (line 15)
+2. Added search state hooks: searchQuery, searchResults, searchTabBefore
+3. Added search tab support in currentData useMemo
+4. Added search functions: 执行记忆搜索, 切换到搜索标签, 清除搜索, 处理搜索输入
+5. Added search bar UI in tab bar area
+6. Added '检索' tab button
+7. Added match score display for search results
+8. Added special empty state message for search tab
+
+## Verification
+- Git commit: `65d31f9` — "feat(Memory): 实现移动端记忆搜索功能 (P2)"
+- Build: `npm run build` → ✅ SUCCESS
