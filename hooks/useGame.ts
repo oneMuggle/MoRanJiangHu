@@ -37,8 +37,8 @@ import {
 } from '../types';
 import { 地图结构, 建筑结构 } from '../models/game/world';
 import { 游戏物品 } from '../models/domain/item';
-import { 旅行事件, 评估旅行可行性, 执行旅行, 执行探索, 推进游戏时间 } from './useGame/travelWorkflow';
-import { 执行购买, 执行出售, 计算购买价格, 计算出售价格, 出售结果 } from './useGame/tradeWorkflow';
+import { 旅行事件, 评估旅行可行性, 执行旅行, 执行探索, 推进游戏时间 } from './useGame/travel/travelWorkflow';
+import { 执行购买, 执行出售, 计算购买价格, 计算出售价格, 出售结果 } from './useGame/travel/tradeWorkflow';
 import { 执行锻造, 计算锻造成功率, 检查锻造材料, 锻造配方库, 锻造结果, 预览配方需求, 获取可锻造配方, 材料检查结果, 锻造配方 } from './useGame/forgeWorkflow';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as dbService from '../services/dbService';
