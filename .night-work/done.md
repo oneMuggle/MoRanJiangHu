@@ -596,3 +596,110 @@ This is a design document only — no code has been written against this plan.
 
 ---
 
+# 2026-04-27 小说写作助手 — Verification
+
+**Date**: 2026-05-07
+**Plan**: `docs/plans/2026-04-27_novel-writing-assistant.md`
+**Status**: ✅ Phase 1-2 Implemented
+
+---
+
+## Verification Results
+
+### Phase 1: 基础骨架 ✅ IMPLEMENTED
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| 新增小说写作任务与数据集类型 | ✅ | `models/novelWriting.ts` — `小说写作数据集结构`, `小说写作任务结构`, `小说写作章节结构`, `小说写作角色结构` |
+| 新增功能配置字段与默认值 | ✅ | `小说写作数据集结构` includes `schemaVersion`, `文风配置` with defaults in `novelWritingService.ts` |
+| 新增首页小说写作独立工作台入口 | ✅ | `LandingPage.tsx:138` — `{文案.小说写作按钮}` with `onNovelWriting` handler |
+| 新增写作任务状态管理 | ✅ | `小说写作任务状态类型` in `models/novelWriting.ts` — draft/in_progress/completed status |
+
+### Phase 2: 大纲生成 ✅ IMPLEMENTED
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| 设计小说大纲生成提示词 | ✅ | `prompts/runtime/novelWriting.ts` — `小说写作_大纲生成_系统提示词`, `小说写作_大纲生成_用户提示词模板` |
+| 支持基于用户输入的灵感生成大纲 | ✅ | `NovelWritingWorkbenchModal.tsx` — prompt for theme input |
+| 支持大纲编辑与调整 | ✅ | `novelWritingService.ts` — `updateOutline()` method |
+| 支持保存/加载大纲 | ✅ | `novelWritingService.ts` — `getProject()`, `updateProject()`, IndexedDB persistence |
+
+### Phase 3: 章节撰写 ⚠️ PARTIAL
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| 设计章节撰写辅助提示词 | ✅ | `prompts/runtime/novelWritingChapter.ts` — `小说写作_章节撰写_系统提示词`, `小说写作_章节续写_提示词模板`, `小说写作_章节润色_提示词模板` |
+| 支持基于大纲的章节续写 | ⚠️ | UI component exists but actual AI generation workflow not verified |
+| 支持润色、重写、扩展等写作辅助 | ⚠️ | Prompt templates exist, UI workflow not verified |
+| 支持章节进度跟踪 | ✅ | `小说写作章节结构` has `状态` and `字数` fields |
+
+### Phase 4: 文风与角色一致性 ⚠️ PARTIAL
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| 接入 prompts/writing/ 文风系统 | ⚠️ | `文风配置` in data model, but integration not verified in UI |
+| 支持角色设定卡管理 | ✅ | `小说写作角色结构`, `addCharacter()`, `updateCharacter()`, `deleteCharacter()` |
+| 支持人设一致性检查 | ❌ | Not implemented |
+| 支持文风指导与建议 | ❌ | Not implemented |
+
+### Phase 5: 导出与联动 ✅ PARTIAL
+
+| Item | Status | Evidence |
+|------|--------|----------|
+| 支持导出为 TXT 格式 | ✅ | `novelWritingService.ts` — `exportToTXT()` method |
+| 支持导出为 JSON 格式 | ✅ | `novelWritingService.ts` — `exportToJSON()` method |
+| 支持将写作内容注入游戏世界书 | ❌ | Not implemented |
+| 支持从游戏世界书导入设定 | ❌ | Not implemented |
+
+---
+
+## Implementation Summary
+
+### Files Created/Modified
+
+| File | Purpose |
+|------|---------|
+| `models/novelWriting.ts` | Data types and interfaces |
+| `services/novelWriting/novelWritingService.ts` | Core service with CRUD operations |
+| `components/features/NovelWriting/NovelWritingWorkbenchModal.tsx` | Desktop UI (486 lines) |
+| `components/features/NovelWriting/MobileNovelWritingWorkbenchModal.tsx` | Mobile UI (449 lines) |
+| `prompts/runtime/novelWriting.ts` | Outline generation prompts |
+| `prompts/runtime/novelWritingChapter.ts` | Chapter writing prompts |
+| `prompts/runtime/index.ts` | Exports for above prompts |
+| `components/layout/LandingPage.tsx` | Entry button on homepage |
+| `components/features/lazyComponents.tsx` | Lazy-loaded component exports |
+| `utils/eraUIText.ts` | UI text configuration |
+
+### Missing Components (Not Yet Implemented)
+
+- `prompts/runtime/novelWritingCharacter.ts` — Character card prompts (planned but not found)
+- Writing task workflow (actual AI generation during writing)
+- Character consistency checking
+- Writing style guidance
+- Game worldbook integration (export to/import from)
+- Task status management UI (`小说写作任务结构` not actively used in UI)
+
+---
+
+## Conclusion
+
+**Status**: ⚠️ Phase 1-2 Fully Implemented, Phase 3-5 Partially Implemented
+
+The core infrastructure for the Novel Writing Assistant is in place:
+- Data models and types ✅
+- Service layer with IndexedDB persistence ✅  
+- Desktop and Mobile UI components ✅
+- Outline generation prompts ✅
+- Chapter writing prompts ✅
+- Export functionality (TXT/JSON) ✅
+
+However, several planned features remain unimplemented:
+- Character consistency checking
+- Style guidance system
+- Game worldbook integration
+- Active task workflow management
+
+The implementation follows the planned architecture closely. The `NovelWritingProject` interface in the plan maps well to the actual `小说写作数据集结构` implementation.
+
+---
+
