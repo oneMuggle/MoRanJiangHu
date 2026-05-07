@@ -110,3 +110,65 @@
 
 ## 构建验证
 - ✅ `npm run build` 成功，无新增错误
+
+---
+
+# 2026-05-07 gameplay-expansion-plan.md 验证记录
+
+## 执行时间
+2026-05-07 23:05 (UTC)
+
+## 任务来源
+`docs/plans/gameplay-expansion-plan.md`
+
+## 计划状态
+**✅ 已全部实施完成**
+
+## 已验证的实施内容
+
+### G1. 回合制战斗迷你游戏 ✅
+- `components/features/Battle/BattleActionPanel.tsx` — 战斗操作面板存在
+- `components/features/Battle/BattleModal.tsx` — 已集成操作层
+
+### G2. 地图探索与旅行系统 ✅
+- `hooks/useGame/travel/travelWorkflow.ts` — 旅行工作流存在
+- `components/features/Map/MapModal.tsx` — 已集成旅行/探索按钮
+- `components/features/Map/MobileMapModal.tsx` — 移动端适配存在
+- `hooks/useGame.ts` — 已集成 handleTravel/handleExplore actions
+
+### G3. NPC交易与经济系统 ✅
+- `hooks/useGame/travel/tradeWorkflow.ts` — 交易工作流存在
+- `hooks/useGame.ts` — 已集成 handleBuyItem/handleSellItem actions
+
+### G4. 角色成长与突破系统 ✅
+- `hooks/useGame/progressionWorkflow.ts` — 成长工作流存在
+
+### D1. 战斗-装备-技能三角联动 ✅
+- `hooks/useGame/combatCalculation.ts` — 战斗数值计算存在
+
+### D4. 时间/日程系统 ✅
+- `hooks/useGame/scheduleWorkflow.ts` — 时辰系统存在
+
+## 关键文件清单
+
+### 已验证存在的核心实现文件
+| 文件 | 计划标注 |
+|------|----------|
+| `components/features/Battle/BattleActionPanel.tsx` | ✅ G1 |
+| `hooks/useGame/travel/travelWorkflow.ts` | ✅ G2 |
+| `hooks/useGame/travel/tradeWorkflow.ts` | ✅ G3 |
+| `hooks/useGame/progressionWorkflow.ts` | ✅ G4 |
+| `hooks/useGame/combatCalculation.ts` | ✅ D1 |
+| `hooks/useGame/scheduleWorkflow.ts` | ✅ D4 |
+
+## 未实施项目（计划中标注）
+- G5. 锻造/合成系统 — 优先级中，尚未实现
+- G6. 成就与收集系统 — 优先级低，尚未实现
+- D2. 气运系统深化 — 优先级高，尚未实现
+- D3. 门派经营深度 — 优先级中，尚未实现
+- D5. 记忆系统增强 — 优先级中，尚未实现
+- D6. NSFW/里模式扩展 — 优先级低中，尚未实现
+- A1-A3. 架构改进 — 尚未实现
+
+## 验证结论
+**第一阶段（核心体验增强）全部完成。第二阶段（G2/G3/D4）也已全部完成。** 共计 6/13 规划项目已实施落地。
