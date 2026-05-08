@@ -23,10 +23,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          # Verify vitest is installed
+          npx vitest --version
 
       - name: Run Vitest
-        run: npm run test:run -- --reporter=verbose
+        run: npx vitest run --reporter=verbose
 
       - name: Upload test results
         if: failure()
