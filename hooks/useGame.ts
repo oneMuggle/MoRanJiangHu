@@ -1,20 +1,16 @@
 
 import {
     角色数据结构,
-    聊天记录结构,
     视觉设置结构,
-    游戏设置结构,
     记忆系统结构,
     WorldGenConfig,
     女主剧情规划结构,
     同人剧情规划结构,
     同人女主剧情规划结构,
     OpeningConfig,
-    NPC结构,
     场景图片档案,
     场景生图任务记录,
     NPC生图任务记录,
-    生图任务来源类型,
     香闺秘档部位类型,
     图片管理设置结构,
     内置提示词条目结构,
@@ -26,11 +22,11 @@ import {
     提示词结构,
     详细门派结构
 } from '../types';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as dbService from '../services/dbService';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
-import { 规范化接口设置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 获取主剧情接口配置, 获取设备消息接口配置, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用, 获取变量生成并发配置 } from '../utils/apiConfig';
+import { 规范化接口设置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 获取主剧情接口配置, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用, 获取变量生成并发配置 } from '../utils/apiConfig';
 import type { 当前可用接口结构 } from '../utils/apiConfig';
 import {
     规范化记忆系统,
@@ -40,7 +36,6 @@ import {
     写入四段记忆,
     记忆压缩任务结构
 } from './useGame/memory/memoryUtils';
-import { 执行主剧情发送工作流 } from './useGame/sendWorkflow';
 import { 构建上下文快照数据 } from './useGame/ui/contextSnapshot';
 import { 执行响应命令处理 } from './useGame/npc/responseCommandProcessor';
 import { 创建会话生命周期工作流 } from './useGame/sessionLifecycleWorkflow';
@@ -48,12 +43,10 @@ import {
     构建系统提示词 as 构建系统提示词工作流,
     type 运行时提示词状态
 } from './useGame/systemPromptBuilder';
-import { 从NPC创建欲望档案 } from './useGame/campusNSFWEngine';
-import { 创建乘客欲望档案 } from './useGame/urbanDriverNSFWEngine';
-import { 构建见面场景提示词, 解析见面结果, 生成任务摘要, type 日常指令 } from './useGame/bdsmMeetingWorkflow';
-import type { BDSM调教任务, BDSM任务状态, BDSM评价等级, 契约记录, 关系阶段, BDSM日常指令 } from '../models/campusNSFW';
-import { 生成调教任务, 生成日常指令, 评价任务完成, 生成契约条款, 判定关系阶段推进 } from './useGame/bdsmTaskWorkflow';
-import { 触发任务生成, 触发日常指令刷新 } from './useGame/bdsmTaskTrigger';
+import { 构建见面场景提示词, 解析见面结果, 生成任务摘要 } from './useGame/bdsmMeetingWorkflow';
+import type { 关系阶段 } from '../models/campusNSFW/sm';
+import { useNSFW系统初始化 } from './useGame/nsfw/nsfwSystemInitialization';
+
 import {
     创建开场基础状态,
     创建开场命令基态,
@@ -82,9 +75,8 @@ import { 创建设置持久化工作流 } from './useGame/config/settingsPersist
 import { 创建历史回合工作流 } from './useGame/time/historyTurnWorkflow';
 import { 创建存读档工作流 } from './useGame/saveLoad/saveLoadWorkflow';
 import { 创建规划更新工作流 } from './useGame/planning/planningUpdateWorkflow';
-import { 创建NPC图片状态工作流, 合并NPC图片档案, 生成NPC生图记录ID } from './useGame/image/npcImageStateWorkflow';
+import { 合并NPC图片档案, 生成NPC生图记录ID } from './useGame/image/npcImageStateWorkflow';
 import { 创建场景图片档案工作流, 生成场景生图记录ID, 规范化场景图片档案 } from './useGame/image/sceneImageArchiveWorkflow';
-import { 创建场景生图触发工作流 } from './useGame/image/sceneImageTriggerWorkflow';
 import { 创建手动图片动作工作流 } from './useGame/image/manualImageActionsWorkflow';
 import { 创建手动NPC工作流 } from './useGame/npc/manualNpcWorkflow';
 import { 创建主角图片工作流 } from './useGame/image/playerImageWorkflow';
@@ -92,6 +84,7 @@ import { 创建运行时变量工作流 } from './useGame/runtimeVariableWorkflo
 import { 创建变量校准协调器 as 创建变量生成协调器 } from './useGame/planning/variableCalibrationCoordinator';
 import { useWorldEvolutionControl } from './useGame/world/worldEvolutionControl';
 import { normalizeCanonicalGameTime, 环境时间转标准串, 提取环境月日 } from './useGame/time/timeUtils';
+import { use时间初始化, 构建标签解析选项, 创建追加系统消息 } from './useGame/time/timeInitialization';
 import { 提取NPC生图基础数据, 提取NPC香闺秘档部位生图数据, 提取主角生图基础数据 } from './useGame/npcContext';
 import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
@@ -112,9 +105,7 @@ import { 按世界演变分流净化响应 } from './useGame/response/storyRespo
 import { 执行变量自动校准 } from './useGame/planning/variableCalibration';
 import { 执行变量模型校准工作流 } from './useGame/planning/variableModelWorkflow';
 import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from './useGame/planning/variableCalibrationMerge';
-import { 获取图片展示地址, 压缩图片资源字段 } from '../utils/imageAssets';
 import { 设置键 } from '../utils/settingsSchema';
-import { countOpenAIChatMessagesTokens, countOpenAITextTokens } from '../utils/tokenEstimate';
 
 // 提取的子系统
 import { useSettingsActions } from './useGame/useSettingsActions';
@@ -148,9 +139,11 @@ import { 创建记忆总结处理器, type NPC记忆总结任务结构, type 记
 import { 创建变量生成进度系统, type 变量生成上下文缓存项 } from './useGame/planning/variableGenerationProgress';
 import { 创建变量生成队列调度器 } from './useGame/planning/variableGenerationQueue';
 import { useBackgroundImageMonitor } from './useGame/quality/backgroundImageMonitor';
-import { 触发设备消息生成 } from './useGame/device/triggerDeviceMessageWorkflow';
 import type { 设备刷新任务 } from './useGame/device/deviceRefreshMonitor';
 import { useDevice } from './useGame/useDevice';
+import { 创建BDSM关系操作工作流 } from './useGame/bdsmRelationshipOperations';
+import { 创建主剧情发送工作流 } from './useGame/useSend';
+import { 创建图片生成协调器 } from './useGame/image/imageGenerationCoordinator';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -191,15 +184,6 @@ type 世界演变进度 = {
     text?: string;
     rawText?: string;
     commandTexts?: string[];
-};
-
-type 发送选项 = {
-    onRecallProgress?: (progress: 回忆检索进度) => void;
-    onPolishProgress?: (progress: 正文润色进度) => void;
-    onWorldEvolutionProgress?: (progress: 世界演变进度) => void;
-    onPlanningProgress?: (progress: 规划分析进度) => void;
-    onVariableGenerationProgress?: (progress: 变量生成进度) => void;
-    onStageFailureDecision?: (params: 独立阶段失败决策参数) => Promise<独立阶段失败决策> | 独立阶段失败决策;
 };
 
 const 加载图片AI服务 = () => import('../services/ai/image/runtime');
@@ -243,19 +227,6 @@ type 上下文快照 = {
     fullText: string;
     uploadTokens: number;
     runtimePromptStates: Record<string, 运行时提示词状态>;
-};
-
-type 发送结果 = {
-    cancelled?: boolean;
-    attachedRecallPreview?: string;
-    preparedRecallTag?: string;
-    needRecallConfirm?: boolean;
-    needRerollConfirm?: boolean;
-    parseErrorMessage?: string;
-    parseErrorDetail?: string;
-    parseErrorRawText?: string;
-    errorDetail?: string;
-    errorTitle?: string;
 };
 
 
@@ -435,6 +406,9 @@ export const useGame = () => {
     const 后台场景生图监控Ref = useRef<Array<{ since: number; 摘要: string }>>([]);
     const 已提示后台场景生图任务Ref = useRef<Set<string>>(new Set());
     const performAutoSaveRef = useRef<((...args: any[]) => void) | null>(null);
+    const 按NPC读取角色锚点Ref = useRef<((npcId: string) => any) | null>(null);
+    const 提取场景角色锚点Ref = useRef<((ctx: unknown) => any) | null>(null);
+    const 获取当前PNG画风预设摘要Ref = useRef<((presetId?: string, type?: 'scene' | 'npc') => any) | null>(null);
 
     // --- useSettingsActions ---
     const settingsActions = useSettingsActions({
@@ -643,107 +617,10 @@ export const useGame = () => {
         刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: NPC记忆总结阶段 === 'processing' || NPC记忆总结阶段 === 'review' });
     }, [社交, memoryConfig]);
 
-    // --- useTravelAndTrade ---
+    // 时间初始化（已提取到独立 hook）
+    use时间初始化({ 环境, 游戏初始时间, 记忆系统, festivals, 设置环境, 设置游戏初始时间 });
 
-    // Frontend联动：当游戏时间命中节日设定时，自动同步"名称/简介/效果"到环境
-    useEffect(() => {
-        const md = 提取环境月日(环境);
-        const matched = md ? festivals.find(f => f.月 === md.month && f.日 === md.day) : undefined;
-        const nextFestival = matched
-            ? {
-                名称: matched.名称?.trim() || '',
-                简介: matched.描述?.trim() || '',
-                效果: matched.效果?.trim() || ''
-            }
-            : null;
-
-        const currentFestival = 环境?.节日 || null;
-        const sameFestival = !!(
-            (!currentFestival && !nextFestival) ||
-            (
-                currentFestival &&
-                nextFestival &&
-                (currentFestival.名称 || '') === (nextFestival.名称 || '') &&
-                (currentFestival.简介 || '') === (nextFestival.简介 || '') &&
-                (currentFestival.效果 || '') === (nextFestival.效果 || '')
-            )
-        );
-
-        if (sameFestival) return;
-        设置环境(prev => ({
-            ...prev,
-            节日: nextFestival
-        }));
-    }, [环境?.时间, 环境?.节日, festivals, 设置环境]);
-
-    useEffect(() => {
-        if (游戏初始时间) return;
-        const 占位开局时间 = '1:01:01:00:00';
-        const 规范化可用起始时间 = (value?: string | null): string | null => {
-            const canonical = normalizeCanonicalGameTime((value || '').trim());
-            if (!canonical || canonical === 占位开局时间) return null;
-            return canonical;
-        };
-
-        const currentTime = 规范化可用起始时间(环境时间转标准串(环境));
-        if (currentTime) {
-            设置游戏初始时间(currentTime);
-            return;
-        }
-
-        const 回忆档案 = Array.isArray(记忆系统?.回忆档案) ? 记忆系统.回忆档案 : [];
-        const 开局回忆 = 回忆档案.find((item) => item?.回合 === 1 || item?.名称 === '【回忆001】') || 回忆档案[0];
-        const 回忆开局时间 = 规范化可用起始时间(开局回忆?.记录时间)
-            || 规范化可用起始时间(开局回忆?.时间戳);
-        if (!回忆开局时间) return;
-        设置游戏初始时间(回忆开局时间);
-    }, [环境, 游戏初始时间, 记忆系统, 设置游戏初始时间]);
-
-    const 构建标签解析选项 = (config: 游戏设置结构) => ({
-        validateTagCompleteness: config?.启用标签检测完整性 === true,
-        enableTagRepair: config?.启用标签修复 !== false,
-        requireActionOptionsTag: config?.启用行动选项 !== false
-    });
-
-    const 追加系统消息 = (content: string, options?: { position?: 'tail' | 'after_last_turn' }) => {
-        const text = (content || '').trim();
-        if (!text) return;
-        const position = options?.position || 'tail';
-        const now = Date.now();
-        const systemMsg: 聊天记录结构 = {
-            role: 'system',
-            content: text,
-            timestamp: now
-        };
-
-        设置历史记录((prev) => {
-            const history = Array.isArray(prev) ? [...prev] : [];
-            if (position !== 'after_last_turn') {
-                return [...history, systemMsg];
-            }
-
-            // 插入到“最近一个已完成回合（assistant structuredResponse）”的下方，避免落在玩家输入下方。
-            let lastTurnIndex = -1;
-            for (let i = history.length - 1; i >= 0; i -= 1) {
-                const item = history[i];
-                if (item?.role === 'assistant' && item?.structuredResponse) {
-                    lastTurnIndex = i;
-                    break;
-                }
-            }
-            if (lastTurnIndex < 0) {
-                return [...history, systemMsg];
-            }
-
-            // 放在该回合之后、下一条 user 消息之前。
-            let insertAt = lastTurnIndex + 1;
-            while (insertAt < history.length && history[insertAt]?.role !== 'user') {
-                insertAt += 1;
-            }
-            history.splice(insertAt, 0, systemMsg);
-            return history;
-        });
-    };
+    const 追加系统消息 = 创建追加系统消息(设置历史记录);
 
     const 获取场景图历史上限 = (): number => (
         规范化图片管理设置(imageManagerConfigRef.current || imageManagerConfig || 默认图片管理设置).场景图历史上限
@@ -827,141 +704,18 @@ export const useGame = () => {
         void 加载场景图片档案();
     }, []);
 
-    // 校园 NSFW 欲望系统初始化：当主开关打开且尚未初始化时，为所有主要角色 NPC 创建默认欲望档案
-    useEffect(() => {
-        const nsfwEnabled = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统;
-        const 欲望系统已存在 = 校园系统?.欲望系统;
-        const 游戏已开始 = 角色?.姓名;
-        const 有主要角色 = 社交?.some((n: NPC结构) => n.是否主要角色);
-
-        if (nsfwEnabled && !欲望系统已存在 && 游戏已开始 && 有主要角色) {
-            const NPC欲望档案: Record<string, any> = {};
-            社交.forEach((npc: NPC结构) => {
-                if (npc.是否主要角色) {
-                    NPC欲望档案[npc.id] = 从NPC创建欲望档案(npc);
-                }
-            });
-
-            if (Object.keys(NPC欲望档案).length > 0) {
-                设置校园系统(prev => ({
-                    ...prev,
-                    欲望系统: {
-                        NPC欲望档案,
-                        里程碑列表: [],
-                        后果列表: [],
-                        已解锁地点: [],
-                        露出场景解锁: [],
-                        旁观者记录: [],
-                        活动专属回忆: [],
-                        SM场景池: [],
-                        契约列表: [],
-                        指令队列: [],
-                    }
-                }));
-            }
-        }
-    }, [gameConfig?.校园NSFW设置?.启用校园NSFW深化系统, 校园系统?.欲望系统, 角色?.姓名, 社交, 设置校园系统]);
-
-    // 新增主要角色 NPC 时自动补全欲望档案
-    useEffect(() => {
-        const nsfwEnabled = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统;
-        const 欲望系统 = 校园系统?.欲望系统;
-        if (!nsfwEnabled || !欲望系统) return;
-
-        const 缺失档案的主要角色 = 社交.filter((npc: NPC结构) =>
-            npc.是否主要角色 && !欲望系统.NPC欲望档案?.[npc.id]
-        );
-        if (缺失档案的主要角色.length === 0) return;
-
-        const 新档案: Record<string, any> = {};
-        缺失档案的主要角色.forEach(npc => {
-            新档案[npc.id] = 从NPC创建欲望档案(npc);
-        });
-
-        设置校园系统(prev => ({
-            ...prev,
-            欲望系统: {
-                ...欲望系统,
-                NPC欲望档案: { ...欲望系统.NPC欲望档案, ...新档案 }
-            }
-        }));
-    }, [社交, gameConfig?.校园NSFW设置?.启用校园NSFW深化系统, 校园系统?.欲望系统?.NPC欲望档案, 设置校园系统]);
-
-    // 都市网约车 NSFW 乘客档案初始化
-    useEffect(() => {
-        const nsfw设置 = gameConfig?.都市网约车NSFW设置;
-        const 行程系统 = (都市网约车系统 as any)?.行程系统;
-        const 游戏已开始 = 角色?.姓名;
-        const 是司机背景 = 角色?.出身背景?.名称 &&
-            ['网约车司机', '网约车夜司机', '代驾司机', '网约车队长'].includes(角色.出身背景.名称);
-
-        if (nsfw设置?.启用都市网约车NSFW系统 && 行程系统 && 游戏已开始 && 是司机背景) {
-            const 已有档案 = 行程系统.乘客欲望档案 || {};
-            if (Object.keys(已有档案).length === 0 && 社交?.length > 0) {
-                const 新档案: Record<string, any> = {};
-                社交.forEach((npc: NPC结构) => {
-                    if (npc.是否主要角色) {
-                        新档案[npc.id] = 创建乘客欲望档案();
-                    }
-                });
-                if (Object.keys(新档案).length > 0) {
-                    设置都市网约车系统(prev => ({
-                        ...prev,
-                        行程系统: { ...行程系统, 乘客欲望档案: { ...已有档案, ...新档案 } }
-                    }));
-                }
-            }
-        }
-    }, [gameConfig?.都市网约车NSFW设置?.启用都市网约车NSFW系统, 都市网约车系统, 角色?.姓名, 角色?.出身背景?.名称, 社交, 设置都市网约车系统]);
-
-    // 新增主要角色 NPC 时自动补全都市网约车乘客档案
-    useEffect(() => {
-        const nsfw设置 = gameConfig?.都市网约车NSFW设置;
-        const 行程系统 = (都市网约车系统 as any)?.行程系统;
-        if (!nsfw设置?.启用都市网约车NSFW系统 || !行程系统) return;
-
-        const 乘客档案 = 行程系统.乘客欲望档案 || {};
-        const 缺失档案的角色 = 社交.filter((npc: NPC结构) => !乘客档案[npc.id]);
-        if (缺失档案的角色.length === 0) return;
-
-        const 新档案: Record<string, any> = {};
-        缺失档案的角色.forEach(npc => {
-            新档案[npc.id] = 创建乘客欲望档案();
-        });
-
-        设置都市网约车系统(prev => {
-            const 当前行程 = (prev as any)?.行程系统 || 行程系统;
-            return {
-                ...prev,
-                行程系统: { ...当前行程, 乘客欲望档案: { ...乘客档案, ...新档案 } }
-            };
-        });
-    }, [社交, gameConfig?.都市网约车NSFW设置?.启用都市网约车NSFW系统, 都市网约车系统, 设置都市网约车系统]);
-
-    // 写真约拍 NSFW 系统初始化
-    useEffect(() => {
-        const nsfw设置 = gameConfig?.写真NSFW设置;
-        const 游戏已开始 = 角色?.姓名;
-        const 是写真相关背景 = 角色?.出身背景?.名称 &&
-            ['写真模特', '摄影师', '自由摄影师', '平面模特', 'Cosplay模特'].includes(角色.出身背景.名称);
-        const 写真系统已存在 = (写真系统 as any)?.模特档案 || (写真系统 as any)?.摄影师档案;
-
-        if (nsfw设置?.启用写真NSFW系统 && 游戏已开始 && 是写真相关背景 && !写真系统已存在) {
-            const { 创建默认模特, 创建默认摄影师 } = require('./useGame/photographyNSFWEngine');
-            const 模特Id = `model_${Date.now()}`;
-            const 摄影师Id = `photographer_${Date.now()}`;
-
-            const 写真系统初始值 = {
-                模特档案: { [模特Id]: 创建默认模特(模特Id, 角色?.姓名 ?? '未知模特', '素人模特', '新人') },
-                摄影师档案: { [摄影师Id]: 创建默认摄影师(摄影师Id, '独立摄影师', '独立摄影师', '纯艺术') },
-                进行中的拍摄项目: [],
-                历史拍摄记录: [],
-                泄露事件列表: [],
-            };
-
-            设置写真系统(写真系统初始值);
-        }
-    }, [gameConfig?.写真NSFW设置?.启用写真NSFW系统, 写真系统, 角色?.姓名, 角色?.出身背景?.名称, 设置写真系统]);
+    // NSFW 系统初始化（已提取到独立 hook）
+    useNSFW系统初始化({
+        gameConfig,
+        校园系统,
+        都市网约车系统,
+        写真系统,
+        角色,
+        社交,
+        设置校园系统,
+        设置都市网约车系统,
+        设置写真系统,
+    });
 
     useEffect(() => {
         void loadBuiltinPromptEntries();
@@ -975,70 +729,58 @@ export const useGame = () => {
         void loadWorldbookPresetGroups();
     }, []);
 
-    const 场景模式已开启 = (): boolean => {
-        const feature = 规范化接口设置(apiConfig).功能模型占位;
-        return Boolean(
-            feature?.文生图功能启用
-            && feature?.场景生图启用
-        );
-    };
-
-    const 创建场景生图任务 = (params: {
-        source: 生图任务来源类型;
-        modelName: string;
-        画风?: 当前可用接口结构['画风'];
-        画师串?: string;
-        来源回合?: number;
-        摘要?: string;
-    }): 场景生图任务记录 => ({
-        id: `scene_image_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        目标类型: 'scene',
-        来源: params.source,
-        状态: 'queued',
-        创建时间: Date.now(),
-        使用模型: params.modelName,
-        构图: '场景',
-        画风: params.画风,
-        画师串: params.画师串,
-        进度阶段: 'queued',
-        进度文本: '任务已入队，等待生成场景壁纸。',
-        来源回合: params.来源回合,
-        摘要: params.摘要,
-        已应用为壁纸: false
+    // ==================== 图片生成协调器 ====================
+    const imageGen = 创建图片生成协调器({
+        apiConfig,
+        gameConfig,
+        环境,
+        角色,
+        社交,
+        历史记录,
+        set场景生图任务队列,
+        setNPC生图任务队列,
+        设置社交,
+        规范化社交列表安全,
+        规范化环境信息,
+        深拷贝,
+        环境时间转标准串,
+        构建完整地点文本,
+        提取NPC生图基础数据: (npc) => 提取NPC生图基础数据(npc, {
+            cultivationSystemEnabled: gameConfig?.启用修炼体系 !== false
+        }),
+        提取NPC生图基础数据附带私密描述,
+        提取NPC香闺秘档部位生图数据,
+        按NPC读取角色锚点: (npcId) => 按NPC读取角色锚点Ref.current?.(npcId) ?? null,
+        提取场景角色锚点: (ctx) => 提取场景角色锚点Ref.current?.(ctx) ?? [],
+        获取文生图接口配置,
+        获取生图词组转化器接口配置,
+        获取生图画师串预设,
+        获取当前PNG画风预设摘要: (presetId?: string, type?: 'scene' | 'npc') => 获取当前PNG画风预设摘要Ref.current?.(presetId, type) ?? null,
+        获取词组转化器预设提示词,
+        接口配置是否可用,
+        加载NPC生图工作流,
+        加载NPC香闺秘档生图工作流,
+        加载场景生图工作流,
+        获取场景文生图接口配置,
+        生成场景生图记录ID,
+        生成NPC生图记录ID,
+        应用场景图片为壁纸,
+        场景生图自动应用任务Ref,
+        后台场景生图监控Ref,
+        NPC生图进行中Ref,
+        NPC香闺秘档生图进行中Ref,
+        推送右下角提示,
+        写入场景图片档案,
+        performAutoSave: (...args) => performAutoSaveRef.current?.(...args)
     });
-
-    const 追加场景生图任务 = (task: 场景生图任务记录) => {
-        set场景生图任务队列(prev => [task, ...(Array.isArray(prev) ? prev : [])].slice(0, 100));
-    };
-
-    const 更新场景生图任务 = (taskId: string, updater: (task: 场景生图任务记录) => 场景生图任务记录) => {
-        set场景生图任务队列(prev => (Array.isArray(prev) ? prev : []).map((task) => (
-            task.id === taskId ? updater(task) : task
-        )));
-    };
-
-    const 删除场景生图任务 = (taskId: string) => {
-        if (!taskId) return;
-        set场景生图任务队列(prev => (Array.isArray(prev) ? prev : []).filter((task) => task?.id !== taskId));
-    };
-
-    const 清空场景生图任务队列 = (mode: 'all' | 'completed' = 'all') => {
-        set场景生图任务队列(prev => {
-            const baseList = Array.isArray(prev) ? prev : [];
-            if (mode === 'all') return [];
-            return baseList.filter((task) => task?.状态 === 'queued' || task?.状态 === 'running');
-        });
-    };
-
-    const 获取NPC唯一标识 = (npc: any, index?: number): string => {
-        const id = typeof npc?.id === 'string' ? npc.id.trim() : '';
-        if (id) return `id:${id}`;
-        const name = typeof npc?.姓名 === 'string' ? npc.姓名.trim() : '';
-        if (name) return `name:${name}`;
-        return `index:${index ?? -1}`;
-    };
-
     const {
+        场景模式已开启,
+        创建场景生图任务,
+        追加场景生图任务,
+        更新场景生图任务,
+        删除场景生图任务,
+        清空场景生图任务队列,
+        获取NPC唯一标识,
         更新NPC最近生图结果,
         写入NPC图片历史记录,
         更新NPC香闺秘档部位结果,
@@ -1056,458 +798,39 @@ export const useGame = () => {
         清除NPC立绘图片,
         选择NPC背景图片,
         清除NPC背景图片,
-        保存NPC图片本地副本
-    } = 创建NPC图片状态工作流({
-        设置社交,
-        规范化社交列表: 规范化社交列表安全,
-        执行社交自动存档: (socialSnapshot) => {
-            void performAutoSave({ social: socialSnapshot, history: 历史记录, force: true });
-        },
-        获取社交列表: () => 社交,
-        获取NPC唯一标识,
-        设置NPC生图任务队列: setNPC生图任务队列,
-        加载图片AI服务
-    });
+        保存NPC图片本地副本,
+        读取文生图功能配置,
+        NPC符合自动生图条件,
+        提取新增NPC列表,
+        读取修炼体系开关,
+        构建文生图额外要求,
+        触发场景自动生图,
+        生成场景壁纸,
+        执行单个NPC生图,
+        执行NPC香闺秘档部位生图,
+        触发新增NPC自动生图
+    } = imageGen;
 
     // ==================== BDSM 关系管线操作 ====================
-
-    const 更新BDSM关系状态 = useCallback((npcId: string, updater: (state: any) => any) => {
-        设置校园系统(prev => {
-            if (!prev?.欲望系统?.NPC欲望档案?.[npcId]?.BDSM关系) return prev;
-            const 档案 = prev.欲望系统.NPC欲望档案[npcId];
-            return {
-                ...prev,
-                欲望系统: {
-                    ...prev.欲望系统,
-                    NPC欲望档案: {
-                        ...prev.欲望系统.NPC欲望档案,
-                        [npcId]: {
-                            ...档案,
-                            BDSM关系: updater(档案.BDSM关系),
-                        },
-                    },
-                },
-            };
-        });
-    }, [设置校园系统]);
-
-    const 添加BDSM任务 = useCallback((npcId: string, 任务: Omit<BDSM调教任务, 'id' | '状态' | '发布时间'>) => {
-        const 新任务: BDSM调教任务 = {
-            ...任务,
-            id: `bdsm_task_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            状态: '待接受' as const,
-            发布时间: new Date().toISOString(),
-        };
-        更新BDSM关系状态(npcId, prev => ({
-            ...prev,
-            任务历史: [...prev.任务历史, 新任务],
-        }));
-        return 新任务;
-    }, [更新BDSM关系状态]);
-
-    const 更新BDSM任务状态 = useCallback((npcId: string, 任务ID: string, 新状态: BDSM任务状态, 评价?: BDSM评价等级) => {
-        更新BDSM关系状态(npcId, prev => ({
-            ...prev,
-            任务历史: prev.任务历史.map(t =>
-                t.id === 任务ID
-                    ? { ...t, 状态: 新状态, 评价, 完成时间: 新状态 === '已完成' ? new Date().toISOString() : t.完成时间 }
-                    : t
-            ),
-        }));
-    }, [更新BDSM关系状态]);
-
-    const 更新契约状态 = useCallback((npcId: string, 新契约: 契约记录) => {
-        更新BDSM关系状态(npcId, prev => ({
-            ...prev,
-            契约记录: [...prev.契约记录, 新契约],
-        }));
-    }, [更新BDSM关系状态]);
-
-    const 添加BDSM里程碑 = useCallback((npcId: string, 类型: string, 描述: string) => {
-        更新BDSM关系状态(npcId, prev => ({
-            ...prev,
-            里程碑: [...prev.里程碑, { 类型, 时间: new Date().toISOString(), 描述 }],
-        }));
-    }, [更新BDSM关系状态]);
-
-    const 设置日常指令 = useCallback((npcId: string, 指令: 日常指令[]) => {
-        更新BDSM关系状态(npcId, prev => ({
-            ...prev,
-            日常指令: 指令,
-        }));
-    }, [更新BDSM关系状态]);
-
-    // ==================== BDSM 异步 AI 操作 ====================
-
-    const 请求生成BDSM任务 = useCallback(async (npcId: string, npcName: string): Promise<{ success: boolean; 任务数: number; error?: string }> => {
-        const 档案 = 校园系统?.欲望系统?.NPC欲望档案?.[npcId];
-        if (!档案?.BDSM关系) return { success: false, 任务数: 0, error: '未找到BDSM关系' };
-        const 关系 = 档案.BDSM关系;
-        const 活跃任务 = (关系.任务历史 || []).filter((t: any) => t.状态 === '待接受' || t.状态 === '进行中');
-
-        const 触发结果 = 触发任务生成({ 活跃任务, 关系状态: 关系, npcName });
-        if (!触发结果.需要生成) return { success: false, 任务数: 0, error: '当前任务充足，无需生成' };
-
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-        if (!主剧情Api || !主剧情Api.apiKey) return { success: false, 任务数: 0, error: 'AI 未配置' };
-
-        try {
-            const 新任务 = await 生成调教任务({
-                契约类型: 关系.契约记录.length > 0 ? 关系.契约记录[关系.契约记录.length - 1].类型 : '口头约定',
-                契约状态: 关系.契约记录.length > 0 ? 关系.契约记录[关系.契约记录.length - 1].状态 : '口头约定',
-                服从度: 关系.服从度,
-                权力倾向: 关系.权力天平 > 0 ? '支配' : '服从',
-                关系阶段: 关系.阶段,
-                已解锁场景: [],
-                历史任务数量: 关系.任务历史.length,
-                NPC性格特征: npcName,
-            }, 主剧情Api);
-
-            if (新任务.length === 0) return { success: false, 任务数: 0, error: 'AI 未返回有效任务' };
-
-            for (const 任务 of 新任务) {
-                添加BDSM任务(npcId, 任务 as any);
-            }
-            return { success: true, 任务数: 新任务.length };
-        } catch (err) {
-            console.warn('[BDSM] 任务生成失败:', err);
-            return { success: false, 任务数: 0, error: String(err) };
-        }
-    }, [校园系统, apiConfig, 添加BDSM任务]);
-
-    const 请求生成BDSM日常指令 = useCallback(async (npcId: string, npcName: string): Promise<{ success: boolean; 指令数: number; error?: string }> => {
-        const 档案 = 校园系统?.欲望系统?.NPC欲望档案?.[npcId];
-        if (!档案?.BDSM关系) return { success: false, 指令数: 0, error: '未找到BDSM关系' };
-        const 关系 = 档案.BDSM关系;
-        const 现有指令 = 关系.日常指令 || [];
-
-        const 触发结果 = 触发日常指令刷新({ 日常指令: 现有指令, 关系状态: 关系, npcName });
-        if (!触发结果.需要刷新) return { success: false, 指令数: 0, error: '指令无需刷新' };
-
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-        if (!主剧情Api || !主剧情Api.apiKey) return { success: false, 指令数: 0, error: 'AI 未配置' };
-
-        try {
-            const 新指令 = await 生成日常指令({
-                服从度: 关系.服从度,
-                契约状态: 关系.契约记录.length > 0 ? 关系.契约记录[关系.契约记录.length - 1].状态 : '口头约定',
-                关系阶段: 关系.阶段,
-                已发布指令数: 现有指令.length,
-                NPC性格特征: npcName,
-            }, 主剧情Api);
-
-            if (新指令.length === 0) return { success: false, 指令数: 0, error: 'AI 未返回有效指令' };
-
-            设置日常指令(npcId, 新指令);
-            return { success: true, 指令数: 新指令.length };
-        } catch (err) {
-            console.warn('[BDSM] 日常指令生成失败:', err);
-            return { success: false, 指令数: 0, error: String(err) };
-        }
-    }, [校园系统, apiConfig, 设置日常指令]);
-
-    const 请求评价BDSM任务 = useCallback(async (
-        npcId: string,
-        任务ID: string,
-        执行情况: string
-    ): Promise<{ success: boolean; 评价: string; 服从度变化: number; error?: string }> => {
-        const 档案 = 校园系统?.欲望系统?.NPC欲望档案?.[npcId];
-        if (!档案?.BDSM关系) return { success: false, 评价: '', 服从度变化: 0, error: '未找到BDSM关系' };
-        const 关系 = 档案.BDSM关系;
-        const 任务 = (关系.任务历史 || []).find((t: any) => t.id === 任务ID);
-        if (!任务) return { success: false, 评价: '', 服从度变化: 0, error: '未找到任务' };
-
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-
-        try {
-            const 评价结果 = await 评价任务完成(
-                { 类型: 任务.类型, 难度: 任务.难度, 描述: 任务.描述 },
-                执行情况,
-                关系.服从度,
-                undefined,
-                主剧情Api
-            );
-
-            // 更新任务状态和评价
-            更新BDSM任务状态(npcId, 任务ID, '已完成', 评价结果.评价);
-
-            // 应用服从度变化
-            更新BDSM关系状态(npcId, prev => {
-                const 新服从度 = Math.max(0, Math.min(100, (prev.服从度 || 50) + 评价结果.服从度变化));
-                return { ...prev, 服从度: 新服从度 };
-            });
-
-            return { success: true, 评价: 评价结果.反馈, 服从度变化: 评价结果.服从度变化 };
-        } catch (err) {
-            console.warn('[BDSM] 任务评价失败:', err);
-            return { success: false, 评价: '', 服从度变化: 0, error: String(err) };
-        }
-    }, [校园系统, apiConfig, 更新BDSM任务状态, 更新BDSM关系状态]);
-
-    const 请求生成BDSM契约 = useCallback(async (
-        npcId: string,
-        契约类型: '口头约定' | '书面契约' | '信物交换'
-    ): Promise<{ success: boolean; error?: string }> => {
-        const 档案 = 校园系统?.欲望系统?.NPC欲望档案?.[npcId];
-        if (!档案?.BDSM关系) return { success: false, error: '未找到BDSM关系' };
-        const 关系 = 档案.BDSM关系;
-
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-        if (!主剧情Api || !主剧情Api.apiKey) return { success: false, error: 'AI 未配置' };
-
-        try {
-            const 契约结果 = await 生成契约条款(
-                契约类型,
-                关系.阶段,
-                关系.服从度,
-                关系.权力天平 > 0 ? '支配' : '服从',
-                关系.底线列表,
-                主剧情Api
-            );
-
-            const 新契约: 契约记录 = {
-                id: `bdsm_contract_${Date.now()}`,
-                类型: 契约类型,
-                状态: (契约类型 === '口头约定' ? '口头约定' : '书面契约') as '口头约定' | '书面契约',
-                条款列表: 契约结果.条款,
-                缔结时间: new Date().toISOString(),
-                违约次数: 0,
-            };
-
-            更新契约状态(npcId, 新契约);
-            添加BDSM里程碑(npcId, '契约', `达成${契约类型}：${契约结果.条款.slice(0, 2).join('、')}`);
-
-            return { success: true };
-        } catch (err) {
-            console.warn('[BDSM] 契约生成失败:', err);
-            return { success: false, error: String(err) };
-        }
-    }, [校园系统, apiConfig, 更新契约状态, 添加BDSM里程碑]);
-
-    const 请求判定BDSM阶段推进 = useCallback(async (npcId: string, npcName: string): Promise<{ advanced: boolean; 新阶段?: string; 理由?: string }> => {
-        const 档案 = 校园系统?.欲望系统?.NPC欲望档案?.[npcId];
-        if (!档案?.BDSM关系) return { advanced: false };
-        const 关系 = 档案.BDSM关系;
-
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-        const 已完成任务数 = (关系.任务历史 || []).filter((t: any) => t.状态 === '已完成').length;
-        const 完美服从数 = (关系.任务历史 || []).filter((t: any) => t.评价 === '完美服从').length;
-        const 违约次数 = (关系.契约记录 || []).reduce((sum: number, c: any) => sum + (c.违约次数 || 0), 0);
-
-        try {
-            const 结果 = await 判定关系阶段推进(
-                关系.阶段,
-                关系.服从度,
-                已完成任务数,
-                完美服从数,
-                违约次数,
-                关系.契约记录.length > 0 ? 关系.契约记录[关系.契约记录.length - 1].类型 : '口头约定',
-                '',
-                主剧情Api
-            );
-
-            if (结果.是否推进 && 结果.下一阶段) {
-                更新BDSM关系状态(npcId, prev => ({
-                    ...prev,
-                    阶段: 结果.下一阶段 as any,
-                }));
-                添加BDSM里程碑(npcId, '阶段推进', `${关系.阶段}→${结果.下一阶段}：${结果.理由}`);
-                return { advanced: true, 新阶段: 结果.下一阶段, 理由: 结果.理由 };
-            }
-            return { advanced: false, 理由: 结果.理由 };
-        } catch (err) {
-            console.warn('[BDSM] 阶段判定失败:', err);
-            return { advanced: false };
-        }
-    }, [校园系统, apiConfig, 更新BDSM关系状态, 添加BDSM里程碑]);
-
-    const 读取文生图功能配置 = () => {
-        const feature = 规范化接口设置(apiConfig).功能模型占位;
-        const 当前后端 = feature?.文生图后端类型 === 'novelai' ? 'novelai' : 'other';
-        const 场景横竖屏 = feature?.自动场景生图横竖屏 === '竖屏' ? '竖屏' : '横屏';
-        const 场景尺寸 = typeof feature?.自动场景生图分辨率 === 'string' && feature.自动场景生图分辨率.trim()
-            ? feature.自动场景生图分辨率.trim()
-            : (场景横竖屏 === '竖屏' ? '576x1024' : '1024x576');
-        return {
-            总开关: Boolean(feature?.文生图功能启用),
-            NPC开关: Boolean(feature?.NPC生图启用),
-            使用词组转化器: 当前后端 === 'novelai' ? true : feature?.NPC生图使用词组转化器 !== false,
-            性别筛选: feature?.NPC生图性别筛选 === '男' || feature?.NPC生图性别筛选 === '女' || feature?.NPC生图性别筛选 === '全部'
-                ? feature.NPC生图性别筛选
-                : '全部',
-            重要性筛选: feature?.NPC生图重要性筛选 === '仅重要' || feature?.NPC生图重要性筛选 === '全部'
-                ? feature.NPC生图重要性筛选
-                : '全部',
-            NPC画风: feature?.自动NPC生图画风 === '二次元' || feature?.自动NPC生图画风 === '写实' || feature?.自动NPC生图画风 === '国风'
-                ? feature.自动NPC生图画风
-                : '通用',
-            场景画风: feature?.自动场景生图画风 === '二次元' || feature?.自动场景生图画风 === '写实' || feature?.自动场景生图画风 === '国风'
-                ? feature.自动场景生图画风
-                : '通用',
-            场景构图要求: feature?.自动场景生图构图要求 === '故事快照' ? '故事快照' : '纯场景',
-            场景横竖屏,
-            场景尺寸
-        } as const;
-    };
-
-    const NPC符合自动生图条件 = (npc: any): boolean => {
-        const config = 读取文生图功能配置();
-        if (!config.总开关 || !config.NPC开关) return false;
-        if (config.性别筛选 !== '全部') {
-            const gender = typeof npc?.性别 === 'string' ? npc.性别.trim() : '';
-            if (gender !== config.性别筛选) return false;
-        }
-        if (config.重要性筛选 === '仅重要' && npc?.是否主要角色 !== true) {
-            return false;
-        }
-        return true;
-    };
-
-    const 提取新增NPC列表 = (beforeList: any[], afterList: any[]): any[] => {
-        const beforeIdentitySet = new Set(
-            (Array.isArray(beforeList) ? beforeList : []).map((npc) => {
-                const id = typeof npc?.id === 'string' ? npc.id.trim() : '';
-                const name = typeof npc?.姓名 === 'string' ? npc.姓名.trim() : '';
-                return `${id}::${name}`;
-            })
-        );
-        return (Array.isArray(afterList) ? afterList : []).filter((npc, index) => {
-            const id = typeof npc?.id === 'string' ? npc.id.trim() : '';
-            const name = typeof npc?.姓名 === 'string' ? npc.姓名.trim() : '';
-            const identity = `${id}::${name}`;
-            if (id || name) {
-                return !beforeIdentitySet.has(identity);
-            }
-            return !Array.isArray(beforeList) || index >= beforeList.length;
-        });
-    };
-
-    const 读取修炼体系开关 = (): boolean => gameConfig?.启用修炼体系 !== false;
-
-    const 构建文生图额外要求 = (extra?: string): string => {
-        const runtimeGameConfig = 规范化游戏设置(gameConfig);
-        const runtimeImageExtraPrompt = 构建文生图运行时额外提示词(runtimeGameConfig.额外提示词 || '', runtimeGameConfig);
-        return [(extra || '').trim(), runtimeImageExtraPrompt].filter(Boolean).join('\n\n').trim();
-    };
+    const bdsm = 创建BDSM关系操作工作流({ 校园系统, apiConfig, 设置校园系统 });
     const {
-        触发场景自动生图,
-        生成场景壁纸
-    } = 创建场景生图触发工作流({
-        获取环境: () => 环境,
-        获取角色: () => 角色,
-        获取社交列表: () => 社交,
-        获取历史记录: () => 历史记录,
-        获取接口配置: () => apiConfig,
-        规范化环境信息,
-        深拷贝,
-        环境时间转标准串,
-        构建完整地点文本,
-        修炼体系已启用: 读取修炼体系开关,
-        提取NPC生图基础数据: (npc) => 提取NPC生图基础数据(npc, {
-            cultivationSystemEnabled: 读取修炼体系开关()
-        }),
-        读取文生图功能配置,
-        场景模式已开启,
-        构建文生图额外要求,
-        加载场景生图工作流,
-        获取场景文生图接口配置,
-        获取生图词组转化器接口配置,
-        获取生图画师串预设,
-        获取当前PNG画风预设: (presetId?: string) => 获取当前PNG画风预设摘要(presetId, 'scene'),
-        获取场景角色锚点: (...args) => 提取场景角色锚点(...args),
-        获取词组转化器预设提示词,
-        接口配置是否可用,
-        创建场景生图任务,
-        生成场景生图记录ID,
-        追加场景生图任务,
-        更新场景生图任务,
-        更新场景图片档案: 写入场景图片档案,
-        应用场景图片为壁纸,
-        获取当前自动应用任务ID: () => 场景生图自动应用任务Ref.current,
-        设置当前自动应用任务ID: (requestId) => {
-            场景生图自动应用任务Ref.current = requestId;
-        },
-        记录后台场景监控: (item) => {
-            后台场景生图监控Ref.current.push(item);
-        },
-        推送右下角提示
-    });
+        更新BDSM关系状态,
+        添加BDSM任务,
+        更新BDSM任务状态,
+        更新契约状态,
+        添加BDSM里程碑,
+        设置日常指令,
+        请求生成BDSM任务,
+        请求生成BDSM日常指令,
+        请求评价BDSM任务,
+        请求生成BDSM契约,
+        请求判定BDSM阶段推进,
+        构建BDSM状态更新回调,
+        构建BDSM见面预约更新回调,
+        请求报告任务完成,
+        请求阶段推进,
+    } = bdsm;
 
-
-    const 执行单个NPC生图 = async (npc: any, options?: { force?: boolean; source?: 生图任务来源类型; 构图?: '头像' | '半身' | '立绘'; 画风?: 当前可用接口结构['画风']; 画师串?: string; 画师串预设ID?: string; PNG画风预设ID?: string; 额外要求?: string; 尺寸?: string; 复用提示词?: { 生图词组: string; 最终正向提示词: string; 最终负向提示词: string } }) => {
-        const { 执行NPC生图工作流 } = await 加载NPC生图工作流();
-        return 执行NPC生图工作流(npc, {
-            ...options,
-            额外要求: 构建文生图额外要求(options?.额外要求)
-        }, {
-            apiConfig,
-            获取NPC唯一标识,
-            获取文生图接口配置,
-            获取生图词组转化器接口配置,
-            获取生图画师串预设,
-            获取当前PNG画风预设: (presetId?: string) => 获取当前PNG画风预设摘要(presetId, 'npc'),
-            获取NPC角色锚点: (npcId: string) => {
-                const anchor = 按NPC读取角色锚点(npcId);
-                // “生成时默认附加”关闭时：NPC 单图（含自动/手动）不应自动注入锚点。
-                if (!anchor || anchor.生成时默认附加 !== true) return null;
-                return anchor;
-            },
-            获取词组转化器预设提示词,
-            接口配置是否可用,
-            读取文生图功能配置,
-            NPC符合自动生图条件,
-            NPC生图进行中集合: NPC生图进行中Ref.current,
-            提取NPC生图基础数据: (targetNpc) => 提取NPC生图基础数据附带私密描述(targetNpc, {
-                cultivationSystemEnabled: 读取修炼体系开关()
-            }),
-            创建NPC生图任务,
-            生成NPC生图记录ID,
-            追加NPC生图任务,
-            更新NPC生图任务,
-            更新NPC最近生图结果
-        });
-    };
-
-    const 执行NPC香闺秘档部位生图 = async (
-        npc: any,
-        part: 香闺秘档部位类型,
-        options?: { 画风?: 当前可用接口结构['画风']; 画师串?: string; 画师串预设ID?: string; PNG画风预设ID?: string; 额外要求?: string; 尺寸?: string }
-    ) => {
-        const { 执行NPC香闺秘档部位生图工作流 } = await 加载NPC香闺秘档生图工作流();
-        return 执行NPC香闺秘档部位生图工作流(npc, part, {
-            ...options,
-            额外要求: 构建文生图额外要求(options?.额外要求)
-        }, {
-            apiConfig,
-            获取NPC唯一标识,
-            获取文生图接口配置,
-            获取生图词组转化器接口配置,
-            获取生图画师串预设,
-            获取当前PNG画风预设: (presetId?: string) => 获取当前PNG画风预设摘要(presetId, 'npc'),
-            获取NPC角色锚点: 按NPC读取角色锚点,
-            获取词组转化器预设提示词,
-            接口配置是否可用,
-            读取文生图功能配置,
-            NPC私密部位生图进行中集合: NPC香闺秘档生图进行中Ref.current,
-            提取NPC香闺秘档部位生图数据: (targetNpc, targetPart) => 提取NPC香闺秘档部位生图数据(targetNpc, targetPart, {
-                cultivationSystemEnabled: 读取修炼体系开关()
-            }),
-            创建NPC生图任务,
-            生成NPC生图记录ID,
-            追加NPC生图任务,
-            更新NPC生图任务,
-            写入NPC图片历史记录,
-            更新NPC香闺秘档部位结果
-        });
-    };
-
-    const 触发新增NPC自动生图 = (newNpcList: any[]) => {
-        const npcList = Array.isArray(newNpcList) ? newNpcList : [];
-        if (npcList.length === 0) return;
-        npcList.forEach((npc) => {
-            void 执行单个NPC生图(npc).catch(() => undefined);
-        });
-    };
 
     const 构建系统提示词 = (
         promptPool: 提示词结构[],
@@ -1945,244 +1268,88 @@ export const useGame = () => {
         return nextSnapshot;
     };
 
-    // --- Core Send Logic ---
-    const handleSend = async (
-        content: string,
-        isStreaming: boolean = true,
-        options?: 发送选项
-    ): Promise<发送结果> => {
-        set开局变量生成进度(null);
-        set开局世界演变进度(null);
-        set开局规划进度(null);
-        if (variableGenerationAbortControllerRef.current) {
-            variableGenerationAbortControllerRef.current.abort();
-        }
-        const promptPool = (Array.isArray(prompts) && prompts.length > 0) ? prompts : await ensurePromptsLoaded();
-        return 执行主剧情发送工作流(
-            content,
-            isStreaming,
-            {
-                历史记录,
-                记忆系统,
-                角色,
-                环境,
-                社交,
-                世界,
-                战斗,
-                玩家门派,
-                任务列表,
-                约定列表,
-                剧情,
-                剧情规划,
-                女主剧情规划,
-                同人剧情规划,
-                同人女主剧情规划,
-                开局配置,
-                校规系统,
-                催眠系统,
-                校园系统,
-                时代配置ID: currentEra,
-                loading,
-                gameConfig,
-                apiConfig,
-                memoryConfig,
-                visualConfig,
-                sceneImageArchive: 场景图片档案,
-                prompts: promptPool,
-                内置提示词列表,
-                世界书列表,
-                设备状态: {
-                    messages: 设备状态.messages.map(m => {
-                        const notif = 设备状态.notifications.find(n => n.relatedMessageId === m.id);
-                        return { app: m.type, title: m.title, content: m.content, timestamp: m.timestamp, read: notif ? notif.read : true };
-                    })
-                }
-            },
-            {
-                abortControllerRef,
-                setLoading,
-                setShowSettings,
-                设置剧情,
-                设置历史记录,
-                应用并同步记忆系统,
-                构建系统提示词,
-                processResponseCommands,
-                performAutoSave,
-                执行正文润色,
-                执行世界演变更新,
-                触发新增NPC自动生图,
-                触发场景自动生图,
-                应用常驻壁纸为背景,
-                提取新增NPC列表,
-                推入重Roll快照,
-                弹出重Roll快照: () => 弹出重Roll快照() || undefined,
-                回档到快照,
-                深拷贝,
-                按回合窗口裁剪历史,
-                规范化环境信息,
-                规范化剧情状态,
-                规范化剧情规划状态,
-                规范化女主剧情规划状态,
-                规范化同人剧情规划状态,
-                规范化同人女主剧情规划状态,
-                规范化世界状态,
-                游戏设置启用自动重试,
-                执行带自动重试的生成请求,
-                更新流式草稿为自动重试提示,
-                提取解析失败原始信息,
-                提取原始报错详情,
-                格式化错误详情,
-                获取原始AI消息,
-                估算消息Token,
-                估算AI输出Token,
-                计算回复耗时秒,
-                文章优化功能已开启,
-                后台执行统一规划分析,
-                执行变量生成并合并响应: 执行变量生成并合并响应,
-                触发设备消息生成: async ({ finalState, signal }) => {
-                    try {
-                        const 当前时代 = currentEra;
-                        if (!当前时代) return;
-                        const mode = device.派生设备模式();
-                        const 设备消息接口 = 获取设备消息接口配置(apiConfig);
-                        if (!设备消息接口?.baseUrl || !设备消息接口?.apiKey) return;
-                        const liIntensity = gameConfig?.子纪元里模式强度?.[当前时代];
-                        const result = await 触发设备消息生成({
-                            eraId: 当前时代,
-                            mode,
-                            apiConfig: 设备消息接口,
-                            apiSettings: apiConfig,
-                            context: {
-                                角色名: 角色.姓名 || '无名',
-                                当前场景: finalState.环境?.具体地点 || finalState.环境?.小地点 || '未知场景',
-                                当前位置: `${finalState.环境?.大地点 || ''}${finalState.环境?.中地点 || ''}`,
-                                世界状态: '',
-                            },
-                            liIntensity,
-                            signal,
-                        });
-                        const allMessages = Object.values(result.generatedMessages || {}).flat();
-                        return {
-                            summary: allMessages.length > 0
-                                ? `生成 ${allMessages.length} 条设备消息`
-                                : '设备消息生成完成',
-                            rawText: result.errors?.join('; ') || '',
-                        };
-                    } catch (err) {
-                        console.warn('[设备消息生成] 失败:', err);
-                        throw err;
-                    }
-                },
-                onBDSM状态更新: (bdsmResult) => {
-                    // 解析 AI 响应中的 BDSM 状态更新并应用到校园系统
-                    const 校园NSFW已启用 = gameConfig?.校园NSFW设置?.启用校园NSFW深化系统 ?? false;
-                    if (!校园NSFW已启用) return;
-
-                    设置校园系统(prev => {
-                        const 欲望系统 = prev?.欲望系统;
-                        if (!欲望系统?.NPC欲望档案) return prev;
-
-                        const 更新后档案 = { ...欲望系统.NPC欲望档案 };
-
-                        // 任务更新
-                        if (bdsmResult.任务更新 && bdsmResult.任务更新.length > 0) {
-                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
-                                const 档案Any = 档案 as any;
-                                if (!档案Any.BDSM关系) continue;
-                                const 任务列表 = 档案Any.BDSM关系.任务历史 || [];
-                                const 更新 = bdsmResult.任务更新!.filter(t =>
-                                    任务列表.some((t2: any) => t2.id === t.id)
-                                );
-                                for (const t of 更新) {
-                                    const idx = 任务列表.findIndex((x: any) => x.id === t.id);
-                                    if (idx >= 0) {
-                                        if (t.状态) 任务列表[idx].状态 = t.状态;
-                                        if (t.评价) 任务列表[idx].评价 = t.评价;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 服从度变化
-                        if (bdsmResult.服从度变化) {
-                            for (const [npcId, delta] of Object.entries(bdsmResult.服从度变化)) {
-                                if (更新后档案[npcId]?.BDSM关系) {
-                                    更新后档案[npcId].BDSM关系.服从度 =
-                                        Math.max(0, Math.min(100,
-                                            (更新后档案[npcId].BDSM关系.服从度 || 50) + delta
-                                        ));
-                                }
-                            }
-                        }
-
-                        // 关系阶段推进
-                        if (bdsmResult.关系阶段推进) {
-                            for (const [npcId, 新阶段] of Object.entries(bdsmResult.关系阶段推进)) {
-                                if (更新后档案[npcId]?.BDSM关系) {
-                                    更新后档案[npcId].BDSM关系.阶段 = 新阶段 as 关系阶段;
-                                }
-                            }
-                        }
-
-                        // 契约更新
-                        if (bdsmResult.契约更新 && bdsmResult.契约更新.length > 0) {
-                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
-                                const 档案Any = 档案 as any;
-                                if (!档案Any.BDSM关系) continue;
-                                const 契约列表 = 档案Any.BDSM关系.契约记录 || [];
-                                for (const c of bdsmResult.契约更新!) {
-                                    const idx = 契约列表.findIndex((x: any) => x.id === c.id);
-                                    if (idx >= 0 && c.违约次数 !== undefined) {
-                                        契约列表[idx].违约次数 = c.违约次数;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 里程碑
-                        if (bdsmResult.里程碑 && bdsmResult.里程碑.length > 0) {
-                            for (const [npcId, 档案] of Object.entries(更新后档案)) {
-                                const 档案Any = 档案 as any;
-                                if (!档案Any.BDSM关系) continue;
-                                档案Any.BDSM关系.里程碑 = [
-                                    ...(档案Any.BDSM关系.里程碑 || []),
-                                    ...bdsmResult.里程碑!
-                                ];
-                            }
-                        }
-
-                        // 日常指令
-                        if (bdsmResult.日常指令 && bdsmResult.日常指令.length > 0) {
-                            // 日常指令关联到当前焦点 NPC（取第一个有 BDSM 关系的）
-                            const 焦点NpcId = Object.keys(更新后档案).find(id =>
-                                更新后档案[id]?.BDSM关系
-                            );
-                            if (焦点NpcId) {
-                                更新后档案[焦点NpcId].BDSM关系.日常指令 = bdsmResult.日常指令 as BDSM日常指令[];
-                            }
-                        }
-
-                        return {
-                            ...prev,
-                            欲望系统: { ...欲望系统, NPC欲望档案: 更新后档案 },
-                        };
-                    });
-                },
-                onBDSM见面预约更新: (更新) => {
-                    设置校园系统(prev => {
-                        const 预约列表 = prev?.见面预约列表 || [];
-                        const 更新后列表 = 预约列表.map(预约 =>
-                            预约.npcId === 更新.npcId
-                                ? { ...预约, 状态: 更新.新状态 as '已协商' | '已见面' | '已取消' }
-                                : 预约
-                        );
-                        return { ...prev, 见面预约列表: 更新后列表 };
-                    });
-                },
-            },
-            options
-        );
-    };
+    // --- Core Send Logic (提取到 useSend.ts) ---
+    const { handleSend } = 创建主剧情发送工作流({
+        历史记录,
+        记忆系统,
+        角色,
+        环境,
+        社交,
+        世界,
+        战斗,
+        玩家门派,
+        任务列表,
+        约定列表,
+        剧情,
+        剧情规划,
+        女主剧情规划,
+        同人剧情规划,
+        同人女主剧情规划,
+        开局配置,
+        校规系统,
+        催眠系统,
+        校园系统,
+        currentEra,
+        loading,
+        gameConfig,
+        apiConfig,
+        memoryConfig,
+        visualConfig,
+        场景图片档案,
+        prompts,
+        内置提示词列表,
+        世界书列表,
+        设备状态Messages: 设备状态.messages,
+        设备状态Notifications: 设备状态.notifications,
+        abortControllerRef,
+        variableGenerationAbortControllerRef,
+        setLoading,
+        setShowSettings,
+        设置剧情,
+        设置历史记录,
+        应用并同步记忆系统,
+        构建系统提示词,
+        processResponseCommands,
+        performAutoSave: (...args: any[]) => performAutoSaveRef.current?.(...args),
+        执行正文润色,
+        执行世界演变更新,
+        触发新增NPC自动生图,
+        触发场景自动生图,
+        应用常驻壁纸为背景,
+        提取新增NPC列表,
+        推入重Roll快照,
+        弹出重Roll快照: () => 弹出重Roll快照() || undefined,
+        回档到快照,
+        深拷贝,
+        按回合窗口裁剪历史,
+        规范化环境信息,
+        规范化剧情状态,
+        规范化剧情规划状态,
+        规范化女主剧情规划状态,
+        规范化同人剧情规划状态,
+        规范化同人女主剧情规划状态,
+        规范化世界状态,
+        游戏设置启用自动重试,
+        执行带自动重试的生成请求,
+        更新流式草稿为自动重试提示,
+        提取解析失败原始信息,
+        提取原始报错详情,
+        格式化错误详情,
+        获取原始AI消息,
+        估算消息Token,
+        估算AI输出Token,
+        计算回复耗时秒,
+        文章优化功能已开启,
+        后台执行统一规划分析,
+        执行变量生成并合并响应,
+        派生设备模式,
+        onBDSM状态更新: 构建BDSM状态更新回调(gameConfig?.校园NSFW设置),
+        onBDSM见面预约更新: 构建BDSM见面预约更新回调(),
+        set开局变量生成进度,
+        set开局世界演变进度,
+        set开局规划进度,
+        ensurePromptsLoaded,
+    });
 
     // --- 私聊发送工作流 ---
     const handlePrivateChatSend = async (
@@ -2238,147 +1405,6 @@ export const useGame = () => {
         }
     };
 
-    /**
-     * 报告任务完成：标记状态 → AI 评价 → 更新服从度 → 检查阶段推进 → 检查 Aftercare
-     */
-    const handleReportTaskComplete = async (
-        taskId: string,
-        npcId: string,
-        executionDescription: string
-    ): Promise<{ evaluation: string; obedienceDelta: number }> => {
-        const 校园系统快照 = 校园系统;
-        const 欲望系统 = 校园系统快照?.欲望系统;
-        if (!欲望系统?.NPC欲望档案?.[npcId]) {
-            return { evaluation: '[错误：未找到NPC欲望档案]', obedienceDelta: 0 };
-        }
-
-        const 档案 = 欲望系统.NPC欲望档案[npcId];
-        const bdsM关系 = 档案.BDSM关系;
-        if (!bdsM关系?.任务历史) {
-            return { evaluation: '[错误：未找到任务历史]', obedienceDelta: 0 };
-        }
-
-        // 1. 标记任务为已完成
-        const 任务列表 = bdsM关系.任务历史;
-        const 任务 = 任务列表.find((t: any) => t.id === taskId);
-        if (!任务) {
-            return { evaluation: '[错误：未找到指定任务]', obedienceDelta: 0 };
-        }
-
-        任务.状态 = '已完成';
-        任务.完成时间 = new Date().toISOString();
-
-        // 2. 调用 AI 评价
-        const 主剧情Api = 获取主剧情接口配置(apiConfig);
-        if (!主剧情Api || !主剧情Api.apiKey) {
-            return { evaluation: '[AI不可用，无法评价]', obedienceDelta: 0 };
-        }
-
-        try {
-            const { 构建任务完成评价提示词 } = await import('../prompts/runtime/bdsmTasks');
-            const { 请求模型文本 } = await import('../services/ai/chatCompletionClient');
-            const 评价提示词 = 构建任务完成评价提示词({
-                任务类型: 任务.类型,
-                任务难度: 任务.难度,
-                任务描述: 任务.描述,
-                执行情况描述: executionDescription,
-                当前服从度: bdsM关系.服从度,
-                NPC性格特征: npcId,
-            });
-
-            const 评价结果文本 = await 请求模型文本(主剧情Api, [
-                { role: 'system', content: '你是 BDSM 关系中的任务评价系统。' },
-                { role: 'user', content: 评价提示词 },
-            ], { temperature: 0.7 });
-
-            // 3. 解析评价结果
-            let 评价: { grade?: string; obedienceChange?: number; feedback?: string; consequence?: string } = {};
-            try {
-                const jsonMatch = 评价结果文本.match(/\{[\s\S]*\}/);
-                if (jsonMatch) {
-                    评价 = JSON.parse(jsonMatch[0]);
-                }
-            } catch {
-                评价 = { grade: '良好', obedienceChange: 5, feedback: 评价结果文本.slice(0, 100) };
-            }
-
-            const 服从度变化 = 评价.obedienceChange ?? 0;
-
-            // 3. 应用任务影响
-            const { 处理BDSM任务影响 } = await import('./useGame/campusNSFWEngine');
-            const 评价等级 = (评价.grade || '良好') as '完美服从' | '优秀' | '良好' | '勉强' | '失败' | '拒绝';
-            const 结果 = 处理BDSM任务影响({
-                NPC档案: 档案,
-                任务评价: 评价等级,
-                服从度变化,
-            });
-
-            任务.评价 = 评价等级;
-            任务.服从度变化 = 服从度变化;
-
-            // 4. 应用状态更新
-            设置校园系统(prev => {
-                const 欲望系统 = (prev?.欲望系统 || {}) as any;
-                const 档案 = { ...(欲望系统.NPC欲望档案?.[npcId] || {}), ...结果.更新后档案 };
-                return {
-                    ...prev,
-                    欲望系统: { ...欲望系统, NPC欲望档案: { ...欲望系统.NPC欲望档案, [npcId]: 档案 } },
-                };
-            });
-
-            return {
-                evaluation: 评价.feedback || 评价结果文本.slice(0, 200),
-                obedienceDelta: 服从度变化,
-            };
-        } catch (err) {
-            console.warn('[任务评价] 失败:', err);
-            return { evaluation: '[评价失败]', obedienceDelta: 0 };
-        }
-    };
-
-    /**
-     * 自动阶段推进：检查并推进 BDSM 关系阶段
-     */
-    const handleStageAdvance = async (npcId: string): Promise<{ advanced: boolean; newStage?: string; reason?: string }> => {
-        const 校园系统快照 = 校园系统;
-        const 欲望系统 = 校园系统快照?.欲望系统;
-        if (!欲望系统?.NPC欲望档案?.[npcId]) {
-            return { advanced: false };
-        }
-
-        const 档案 = 欲望系统.NPC欲望档案[npcId];
-        const bdsM关系 = 档案.BDSM关系;
-        if (!bdsM关系) return { advanced: false };
-
-        const { 判定BDSM关系阶段推进 } = await import('./useGame/campusNSFWEngine');
-        const 结果 = 判定BDSM关系阶段推进(档案);
-
-        if (结果.推进 && 结果.新阶段) {
-            const 旧阶段 = bdsM关系.阶段;
-            设置校园系统(prev => {
-                const 欲望系统 = (prev?.欲望系统 || {}) as any;
-                const 原档案 = 欲望系统.NPC欲望档案?.[npcId];
-                if (!原档案) return prev;
-                const 更新后BDSM = {
-                    ...原档案.BDSM关系,
-                    阶段: 结果.新阶段 as 关系阶段,
-                    里程碑: [
-                        ...(原档案.BDSM关系?.里程碑 || []),
-                        { 类型: '阶段推进', 时间: new Date().toISOString(), 描述: `关系从 "${旧阶段}" 推进至 "${结果.新阶段}"` },
-                    ],
-                };
-                const 更新后档案 = { ...原档案, BDSM关系: 更新后BDSM };
-                return {
-                    ...prev,
-                    欲望系统: { ...欲望系统, NPC欲望档案: { ...欲望系统.NPC欲望档案, [npcId]: 更新后档案 } },
-                };
-            });
-            return { advanced: true, newStage: 结果.新阶段, reason: 结果.理由 };
-        }
-
-        return { advanced: false };
-    };
-
     const imagePresets = useImagePresets({
         apiConfigRef,
         updateApiConfig,
@@ -2406,6 +1432,11 @@ export const useGame = () => {
         extractCharacterAnchor: 提取角色锚点,
         extractPlayerCharacterAnchor: 提取主角角色锚点
     } = imagePresets;
+
+    // 注册到 ref，供图片生成协调器前向引用
+    按NPC读取角色锚点Ref.current = 按NPC读取角色锚点;
+    提取场景角色锚点Ref.current = 提取场景角色锚点;
+    获取当前PNG画风预设摘要Ref.current = 获取当前PNG画风预设摘要;
 
     const updateMemorySystem = (nextMemory: 记忆系统结构) => {
         const normalized = 规范化记忆系统(nextMemory);
@@ -2947,8 +1978,8 @@ export const useGame = () => {
             buildMeetingPrompt: 构建见面场景提示词,
             parseMeetingResult: 解析见面结果,
             generateTaskSummary: 生成任务摘要,
-            reportTaskComplete: handleReportTaskComplete,
-            stageAdvance: handleStageAdvance,
+            reportTaskComplete: 请求报告任务完成,
+            stageAdvance: 请求阶段推进,
             // BDSM AI 操作
             requestBDSMTaskGeneration: 请求生成BDSM任务,
             requestBDSMDailyInstructions: 请求生成BDSM日常指令,
