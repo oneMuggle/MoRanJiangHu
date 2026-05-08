@@ -65,6 +65,10 @@ export const BDSMContractModal = 创建可预加载懒组件(() => import('./BDS
 export const BDSMSafetyModal = 创建可预加载懒组件(() => import('./BDSMSafetyModal'));
 export const MobileCampusDesireApp = 创建可预加载懒组件(() => import('./MobileCampusDesireApp'));
 
+// Urban Driver NSFW
+export const UrbanDriverDashboard = 创建可预加载懒组件(() => import('./UrbanDriverDashboard'));
+export const MobileUrbanDriverApp = 创建可预加载懒组件(() => import('./MobileUrbanDriverApp'));
+
 // NSFW Center
 export const NsfwControlCenter = 创建可预加载懒组件(() => import('./NSFWCenter/NsfwControlCenter'));
 

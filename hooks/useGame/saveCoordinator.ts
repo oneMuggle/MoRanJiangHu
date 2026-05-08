@@ -47,7 +47,8 @@ export type 自动存档快照结构 = {
     openingConfig?: OpeningConfig;
     visualConfig?: 视觉设置结构;
     sceneImageArchive?: 场景图片档案;
-    都市网约车系统?: Record<string, unknown>;
+    写真系统?: unknown;
+    都市网约车系统?: unknown;
     force?: boolean;
 };
 
@@ -80,6 +81,8 @@ type 存档协调当前状态 = {
     校规系统?: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] };
     催眠系统?: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number };
     校园系统?: 校园系统数据;
+    写真系统?: unknown;
+    都市网约车系统?: unknown;
 };
 
 type 存档协调依赖 = {
@@ -123,6 +126,8 @@ type 存档协调依赖 = {
     设置校规系统: (value: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
     设置催眠系统: (value: { 催眠记录列表: 催眠记录[]; app等级: 催眠App等级; 累计使用次数: number }) => void;
     设置校园系统: (value: 校园系统数据) => void;
+    设置写真系统: (value: unknown) => void;
+    设置都市网约车系统: (value: unknown) => void;
     setView: (value: 'home' | 'game' | 'new_game') => void;
     setShowSaveLoad: (value: { show: boolean; mode: 'save' | 'load' }) => void;
     设置最近开局配置: (value: any) => void;
@@ -297,6 +302,7 @@ export const 创建存档数据 = (
         校规系统: currentState.校规系统 ? deps.深拷贝(currentState.校规系统) : undefined,
         催眠系统: currentState.催眠系统 ? deps.深拷贝(currentState.催眠系统) : undefined,
         校园系统: currentState.校园系统 ? deps.深拷贝(currentState.校园系统) : undefined,
+        写真系统: (currentState as any).写真系统 ? deps.深拷贝((currentState as any).写真系统) : undefined,
         都市网约车系统: 都市网约车系统Source ? deps.深拷贝(都市网约车系统Source) : undefined
     };
 };
@@ -431,6 +437,12 @@ export const 执行读取存档 = async (
     }
     if (save.校园系统 && typeof save.校园系统 === 'object') {
         deps.设置校园系统(deps.深拷贝(save.校园系统));
+    }
+    if (save.写真系统 && typeof save.写真系统 === 'object') {
+        deps.设置写真系统(deps.深拷贝(save.写真系统));
+    }
+    if (save.都市网约车系统 && typeof save.都市网约车系统 === 'object') {
+        deps.设置都市网约车系统(deps.深拷贝(save.都市网约车系统));
     }
 
     deps.setHasSave(true);

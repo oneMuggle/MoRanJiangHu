@@ -217,6 +217,12 @@ export const useGameState = () => {
         社团活动列表: [],
     });
 
+    // Photography NSFW System Data
+    const [写真系统, 设置写真系统] = useState<unknown>({});
+
+    // Urban Driver NSFW System Data
+    const [都市网约车系统, 设置都市网约车系统] = useState<unknown>({});
+
     const [activeTab, setActiveTab] = useState<'api' | 'image_generation' | 'integrated_models' | 'independent_api_gpt' | 'novel_decomposition' | 'novel_decomposition_runtime' | 'prompt' | 'storage' | 'theme' | 'visual' | 'world' | 'game' | 'reality' | 'tavern_preset' | 'memory' | 'history' | 'context' | 'music' | 'npc_management' | 'variable_manager'>('api');
     
     // Config State
@@ -453,7 +459,11 @@ export const useGameState = () => {
         校规系统, 设置校规系统,
         催眠系统, 设置催眠系统,
         校园系统, 设置校园系统,
-        
+
+        // NSFW Systems
+        写真系统, 设置写真系统,
+        都市网约车系统, 设置都市网约车系统,
+
         // Configs
         apiConfig, setApiConfig,
         visualConfig, setVisualConfig,
