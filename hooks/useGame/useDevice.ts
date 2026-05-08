@@ -2,7 +2,7 @@
  * 设备子系统 Hook
  * 管理移动设备状态、刷新任务队列、设备打开/关闭/应用导航
  */
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import type { DeviceState } from '../../models/mobileDevice';
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
 import type { 校园系统数据 } from '../../models/campusPhone';
@@ -13,6 +13,7 @@ import type { 世界数据结构 } from '../../models/world';
 import type { 剧情系统结构 } from '../../models/story';
 import type { 聊天记录结构 } from '../../types';
 import { useDeviceRefreshMonitor, type 设备刷新任务 } from './device/deviceRefreshMonitor';
+import { useDeviceFromStore } from './subsystems/zustandStore';
 
 interface UseDeviceDeps {
     gameConfig: any;
@@ -38,24 +39,12 @@ export function useDevice(deps: UseDeviceDeps) {
         设置校园系统, apiConfig, 推送右下角提示,
     } = deps;
 
-    // 设备状态
-    const [设备状态, set设备状态] = useState<DeviceState>({
-        isOpen: false,
-        activeApp: null,
-        mode: 'normal' as const,
-        messages: [],
-        stats: {
-            totalMessagesSent: 0,
-            totalMessagesReceived: 0,
-            lastUsedTimestamp: 0,
-            activeContacts: [],
-            missedNotifications: 0,
-        },
-        notifications: [],
-    });
-
-    // 设备刷新任务队列
-    const [设备刷新任务队列, set设备刷新任务队列] = useState<设备刷新任务[]>([]);
+    // --- Zustand Device Slice ---
+    const deviceStore = useDeviceFromStore();
+    const 设备状态 = deviceStore.state.设备状态;
+    const set设备状态 = deviceStore.actions.set设备状态;
+    const 设备刷新任务队列 = deviceStore.state.设备刷新任务队列;
+    const set设备刷新任务队列 = deviceStore.actions.set设备刷新任务队列;
 
     /** 根据 gameConfig 推导设备模式 */
     const 派生设备模式 = useCallback((): 'normal' | 'li' => {

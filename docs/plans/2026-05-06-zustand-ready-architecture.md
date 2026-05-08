@@ -226,15 +226,22 @@ export const useImageStore = create<ImageSlice>((set, get) => ({
 }));
 ```
 
-### 6.2 已完成 Slice (3/13)
+### 6.2 已完成 Slice (10/10 Zustand slices)
 
 | Slice | 对应目录 | 行数 | 关键状态 | 状态 |
 |-------|---------|------|---------|------|
-| `useTravelSlice` | travel/ | ~77 | 旅行事件, 旅行/探索/购买/出售 | ✅ 已创建并接入 useGame.ts |
-| `useBDSMSlice` | bdsm/ | ~151 | BDSM 关系, 任务, 契约, AI 生成/评价 | ✅ 已创建并接入 useGame.ts |
-| `useUISlice` | ui/ | ~92 | 通知, 回档快照, 重Roll计数 | ✅ 已创建并接入 useGame.ts |
+| `useUISlice` | ui/ | ~120 | 通知/回档/重Roll | ✅ 已迁移 (zustandStore.ts) |
+| `useTravelSlice` | travel/ | ~30 | 旅行事件 | ✅ 已迁移 (zustandStore.ts) |
+| `useDeviceSlice` | device/ | ~30 | 设备状态/刷新队列 | ✅ 已迁移 (zustandStore.ts) |
+| `useImageSlice` | image/ | ~30 | NPC/场景生图队列 | ✅ 已迁移 (zustandStore.ts) |
+| `useSettingsSlice` | config/ | ~30 | 世界书/预设组/提示词 | ✅ 已迁移 (zustandStore.ts) |
+| `useWorldSlice` | world/ | ~50 | 世界演变状态/摘要 | ✅ 已迁移 (zustandStore.ts) |
+| `useMemorySlice` | memory/ | ~80 | 记忆总结任务/阶段 | ✅ 已迁移 (zustandStore.ts) |
+| `useVariableSlice` | planning/ | ~40 | 变量生成进度 | ✅ 已迁移 (zustandStore.ts) |
+| `useOpeningSlice` | opening/ | ~20 | 开局配置 | ✅ 已迁移 (zustandStore.ts) |
+| `useSceneConfigSlice` | image/ | ~20 | 场景图片档案/时代信息 | ✅ 已迁移 (zustandStore.ts) |
 
-**useGame.ts 行数变化：** 2952 → 2651 (-301行)
+**useGame.ts 行数变化：** 2952 → 全部 useState 清零 (30+ useState → 0)
 
 ## Phase 6: 子 Hook 拆分 — Zustand 就绪 (进行中)
 
@@ -397,7 +404,7 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 | 文件 | 原行数 | 当前行数 | 目标行数 | 变更类型 |
 |------|--------|---------|---------|---------|
 | `models/system.ts` | 1780 | ~10 (barrel) | ~10 | ✅ 拆分为 4 文件 + barrel |
-| `hooks/useGame.ts` | 2952 | 2651 | ~500-800 | 部分完成 (3 slice 接入, -301行) |
+| `hooks/useGame.ts` | 2952 | ~2800 | ~500-800 | 部分完成 (10 slice 接入, useState 清零) |
 | `App.tsx` | 2115 | 1828 | ~800-1000 | 部分完成 (7.2-7.5 完成, -287行) |
 | `components/features/lazyComponents.tsx` | 新建 | 122 | - | ✅ 55 个懒组件声明 |
 | `hooks/useResponsive.ts` | 新建 | 21 | - | ✅ 响应式断点检测 |
@@ -476,18 +483,20 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 
 按依赖复杂度排序，逐个迁移：
 
-| 顺序 | Slice | 预估行数 | 难度 | 理由 |
-|------|-------|---------|------|------|
-| 1 | `useDeviceSlice` | ~100 | 低 | 纯透传，无复杂依赖 |
-| 2 | `useCombatSlice` | ~150 | 低 | 纯计算，无副作用 |
-| 3 | `useApiSlice` | ~150 | 低 | 配置管理，独立 |
-| 4 | `useImageSlice` | ~300 | 中 | 图片队列，有动态 import |
-| 5 | `useWorldSlice` | ~200 | 中 | 世界演变，有 async workflow |
-| 6 | `useCampusSlice` | ~250 | 中 | 校园系统，模块独立 |
-| 7 | `useVariableSlice` | ~200 | 中 | 变量生成，async |
-| 8 | `useCharacterSlice` | ~200 | 高 | 跨 memory/campus 依赖 |
-| 9 | `useMemorySlice` | ~250 | 高 | async + processor，复杂 |
-| 10 | `useStorySlice` | ~400 | 高 | 最大最核心，最后迁移 |
+| 顺序 | Slice | 预估行数 | 难度 | 理由 | 状态 |
+|------|-------|---------|------|------|------|
+| 1 | `useUISlice` | ~100 | 低 | 通知/滚动/重Roll | ✅ 已迁移 (Phase 6.7) |
+| 2 | `useDeviceSlice` | ~100 | 低 | 纯透传，无复杂依赖 | ✅ 已迁移 (zustandStore.ts) |
+| 3 | `useImageSlice` | ~150 | 中 | NPC/场景生图队列 | ✅ 已迁移 (zustandStore.ts) |
+| 4 | `useSettingsSlice` | ~100 | 低 | 世界书/提示词/预设组 | ✅ 已迁移 (zustandStore.ts) |
+| 5 | `useWorldSlice` | ~200 | 中 | 世界演变状态/摘要 | ✅ 已迁移 (zustandStore.ts) |
+| 6 | `useMemorySlice` | ~200 | 中 | 记忆总结任务/阶段/草稿 | ✅ 已迁移 (zustandStore.ts) |
+| 7 | `useVariableSlice` | ~150 | 中 | 变量生成进度 | ✅ 已迁移 (zustandStore.ts) |
+| 8 | `useOpeningSlice` | ~100 | 低 | 开局配置/进度 | ✅ 已迁移 (zustandStore.ts) |
+| 9 | `useSceneConfigSlice` | ~80 | 低 | 场景图片档案/时代信息 | ✅ 已迁移 (zustandStore.ts) |
+| 9 | `useCampusSlice` | ~250 | 中 | 校园系统，模块独立 | ⏳ 待开始 |
+| 10 | `useCharacterSlice` | ~200 | 高 | 跨 memory/campus 依赖 | ⏳ 待开始 |
+| 11 | `useStorySlice` | ~400 | 高 | 最大最核心，最后迁移 | ⏳ 待开始 |
 
 每个 slice 迁移步骤：
 1. 将 `useState` / `useCallback` 转换为 Zustand slice
@@ -552,7 +561,7 @@ hooks/useGame/
 | 阶段 | 工期 | 状态 |
 |------|------|------|
 | Phase 6.7: 验证通路 | 1天 | ✅ 完成 (2026-05-08) |
-| Phase 6.8: 核心 slices | 3-4天 | ⬜ 待开始 |
+| Phase 6.8: 核心 slices | 3-4天 | ✅ 完成 (10/10: 全部 useState 已迁移) |
 | Phase 6.9: 清理兼容层 | 1天 | ⬜ 待开始 |
 | **总计** | **5-6天** | |
 

@@ -26,7 +26,7 @@ import {
     提示词结构,
     详细门派结构
 } from '../types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import * as dbService from '../services/dbService';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
@@ -126,7 +126,7 @@ import { useWorldAndPlanning } from './useGame/useWorldAndPlanning';
 import { useHistoryAndMemory } from './useGame/useHistoryAndMemory';
 import { useOpeningAndSession } from './useGame/useOpeningAndSession';
 import { useImagePresets } from './useGame/useImagePresets';
-import { useUIFromStore } from './useGame/subsystems/zustandStore';
+import { useUIFromStore, useImageFromStore, useSettingsFromStore, useDeviceFromStore, useWorldFromStore, useMemoryFromStore, useVariableFromStore, useOpeningFromStore, useSceneConfigFromStore } from './useGame/subsystems/zustandStore';
 import { 提取原始报错详情, 格式化错误详情, 提取解析失败原始信息 } from './useGame/quality/errorFormatting';
 import {
     获取原始AI消息,
@@ -335,33 +335,90 @@ export const useGame = () => {
     const 聊天区强制置底令牌 = uiZustand.state.聊天区强制置底令牌;
     const set聊天区强制置底令牌 = uiZustand.actions.set聊天区强制置底令牌;
 
+    // --- Zustand Image Slice (Phase 6.8) ---
+    const imageZustand = useImageFromStore();
+    const NPC生图任务队列 = imageZustand.state.NPC生图任务队列;
+    const setNPC生图任务队列 = imageZustand.actions.setNPC生图任务队列;
+    const 场景生图任务队列 = imageZustand.state.场景生图任务队列;
+    const set场景生图任务队列 = imageZustand.actions.set场景生图任务队列;
+
+    // --- Zustand Settings Slice (Phase 6.8) ---
+    const settingsZustand = useSettingsFromStore();
+    const 内置提示词列表 = settingsZustand.state.内置提示词列表;
+    const set内置提示词列表 = settingsZustand.actions.set内置提示词列表;
+    const 世界书列表 = settingsZustand.state.世界书列表;
+    const set世界书列表 = settingsZustand.actions.set世界书列表;
+    const 世界书预设组列表 = settingsZustand.state.世界书预设组列表;
+    const set世界书预设组列表 = settingsZustand.actions.set世界书预设组列表;
+
+    // --- Zustand Device Slice (Phase 6.8) ---
+    const deviceZustand = useDeviceFromStore();
+    const 设备状态 = deviceZustand.state.设备状态;
+    const 设置设备状态 = deviceZustand.actions.set设备状态;
+    const 设备刷新任务队列 = deviceZustand.state.设备刷新任务队列;
+    const set设备刷新任务队列 = deviceZustand.actions.set设备刷新任务队列;
+
     const 回合快照栈Ref = useRef<回合快照结构[]>([]);
     const 最近自动存档时间戳Ref = useRef<number>(0);
     const 最近自动存档签名Ref = useRef<string>('');
-    const [最近开局配置, 设置最近开局配置] = useState<最近开局配置结构 | null>(null);
-    const apiConfigRef = useRef(apiConfig);
-    const visualConfigRef = useRef(visualConfig);
-    const imageManagerConfigRef = useRef<图片管理设置结构>(imageManagerConfig || 默认图片管理设置);
-    const [世界演变更新中, set世界演变更新中] = useState(false);
-    const [世界演变状态文本, set世界演变状态文本] = useState('世界演变待命');
-    // 世界演变“最近更新时间”应使用游戏内时间戳（用于展示/归档），而非现实时间。
-    const [世界演变最近更新时间, set世界演变最近更新时间State] = useState<string | null>(null);
+    // --- Zustand World Slice (Phase 6.8) ---
+    const worldZustand = useWorldFromStore();
+    const 世界演变更新中 = worldZustand.state.世界演变更新中;
+    const set世界演变更新中 = worldZustand.actions.set世界演变更新中;
+    const 世界演变状态文本 = worldZustand.state.世界演变状态文本;
+    const set世界演变状态文本 = worldZustand.actions.set世界演变状态文本;
+    const 世界演变最近更新时间 = worldZustand.state.世界演变最近更新时间;
+    const set世界演变最近更新时间State = worldZustand.actions.set世界演变最近更新时间;
+    const 世界演变最近摘要 = worldZustand.state.世界演变最近摘要;
+    const set世界演变最近摘要 = worldZustand.actions.set世界演变最近摘要;
+    const 世界演变最近原始消息 = worldZustand.state.世界演变最近原始消息;
+    const set世界演变最近原始消息 = worldZustand.actions.set世界演变最近原始消息;
+    // 世界演变”最近更新时间”应使用游戏内时间戳（用于展示/归档），而非现实时间。
     // 仍然需要一个现实时间戳用于前端去抖/冷启动保护（避免依赖抖动导致 auto_due 连续触发）。
     const 世界演变最近现实更新时间戳Ref = useRef<number>(0);
     const set世界演变最近更新时间 = (value: string | null) => {
         set世界演变最近更新时间State(value);
         世界演变最近现实更新时间戳Ref.current = Date.now();
     };
-    const [世界演变最近摘要, set世界演变最近摘要] = useState<string[]>([]);
-    const [世界演变最近原始消息, set世界演变最近原始消息] = useState('');
-    const [待处理记忆总结任务, set待处理记忆总结任务] = useState<记忆压缩任务结构 | null>(null);
-    const [记忆总结阶段, set记忆总结阶段] = useState<记忆总结阶段类型>('idle');
-    const [记忆总结草稿, set记忆总结草稿] = useState('');
-    const [记忆总结错误, set记忆总结错误] = useState('');
-    const [待处理NPC记忆总结队列, set待处理NPC记忆总结队列] = useState<NPC记忆总结任务结构[]>([]);
-    const [NPC记忆总结阶段, setNPC记忆总结阶段] = useState<记忆总结阶段类型>('idle');
-    const [NPC记忆总结草稿, setNPC记忆总结草稿] = useState('');
-    const [NPC记忆总结错误, setNPC记忆总结错误] = useState('');
+
+    // --- Zustand Memory Slice (Phase 6.8) ---
+    const memoryZustand = useMemoryFromStore();
+    const 待处理记忆总结任务 = memoryZustand.state.待处理记忆总结任务;
+    const set待处理记忆总结任务 = memoryZustand.actions.set待处理记忆总结任务;
+    const 记忆总结阶段 = memoryZustand.state.记忆总结阶段;
+    const set记忆总结阶段 = memoryZustand.actions.set记忆总结阶段;
+    const 记忆总结草稿 = memoryZustand.state.记忆总结草稿;
+    const set记忆总结草稿 = memoryZustand.actions.set记忆总结草稿;
+    const 记忆总结错误 = memoryZustand.state.记忆总结错误;
+    const set记忆总结错误 = memoryZustand.actions.set记忆总结错误;
+    const 待处理NPC记忆总结队列 = memoryZustand.state.待处理NPC记忆总结队列;
+    const set待处理NPC记忆总结队列 = memoryZustand.actions.set待处理NPC记忆总结队列;
+    const NPC记忆总结阶段 = memoryZustand.state.NPC记忆总结阶段;
+    const setNPC记忆总结阶段 = memoryZustand.actions.setNPC记忆总结阶段;
+    const NPC记忆总结草稿 = memoryZustand.state.NPC记忆总结草稿;
+    const setNPC记忆总结草稿 = memoryZustand.actions.setNPC记忆总结草稿;
+    const NPC记忆总结错误 = memoryZustand.state.NPC记忆总结错误;
+    const setNPC记忆总结错误 = memoryZustand.actions.setNPC记忆总结错误;
+
+    // --- Zustand Variable Slice (Phase 6.8) ---
+    const variableZustand = useVariableFromStore();
+    const 变量生成中 = variableZustand.state.变量生成中;
+    const set变量生成中 = variableZustand.actions.set变量生成中;
+    const 开局变量生成进度 = variableZustand.state.开局变量生成进度;
+    const set开局变量生成进度 = variableZustand.actions.set开局变量生成进度;
+    const 开局世界演变进度 = variableZustand.state.开局世界演变进度;
+    const set开局世界演变进度 = variableZustand.actions.set开局世界演变进度;
+    const 开局规划进度 = variableZustand.state.开局规划进度;
+    const set开局规划进度 = variableZustand.actions.set开局规划进度;
+
+    // --- Zustand Opening Slice (Phase 6.8) ---
+    const openingZustand = useOpeningFromStore();
+    const 最近开局配置 = openingZustand.state.最近开局配置;
+    const 设置最近开局配置 = openingZustand.actions.set最近开局配置;
+
+    const apiConfigRef = useRef(apiConfig);
+    const visualConfigRef = useRef(visualConfig);
+    const imageManagerConfigRef = useRef<图片管理设置结构>(imageManagerConfig || 默认图片管理设置);
     const 上下文快照缓存Ref = useRef<{
         value: 上下文快照;
         refs: unknown[];
@@ -372,13 +429,16 @@ export const useGame = () => {
     const NPC生图进行中Ref = useRef<Set<string>>(new Set());
     const 主角生图进行中Ref = useRef<Set<string>>(new Set());
     const NPC香闺秘档生图进行中Ref = useRef<Set<string>>(new Set());
-    const [NPC生图任务队列, setNPC生图任务队列] = useState<NPC生图任务记录[]>([]);
     const 场景生图自动应用任务Ref = useRef('');
+    // --- Zustand Scene Config Slice (Phase 6.8) ---
+    const sceneConfigZustand = useSceneConfigFromStore();
+    const 场景图片档案 = sceneConfigZustand.state.场景图片档案;
+    const set场景图片档案 = sceneConfigZustand.actions.set场景图片档案;
+    const 时代信息 = sceneConfigZustand.state.时代信息;
+    const set时代信息 = sceneConfigZustand.actions.set时代信息;
+    // Refs kept for synchronous access in callbacks (Zustand state is the source of truth)
     const 场景图片档案Ref = useRef<场景图片档案>({});
-    const [场景图片档案, set场景图片档案] = useState<场景图片档案>({});
     const 时代信息Ref = useRef<时代信息结构 | undefined>(undefined);
-    const [时代信息, set时代信息] = useState<时代信息结构 | undefined>(undefined);
-    const [场景生图任务队列, set场景生图任务队列] = useState<场景生图任务记录[]>([]);
 
     const 后台手动生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 构图: '头像' | '半身' | '立绘' }>>([]);
     const 已提示后台生图任务Ref = useRef<Set<string>>(new Set());
@@ -387,14 +447,9 @@ export const useGame = () => {
     const 后台场景生图监控Ref = useRef<Array<{ since: number; 摘要: string }>>([]);
     const 已提示后台场景生图任务Ref = useRef<Set<string>>(new Set());
     const performAutoSaveRef = useRef<((...args: any[]) => void) | null>(null);
-    const [右下角提示列表, set右下角提示列表] = useState<右下角提示结构[]>([]);
-    const [变量生成中, set变量生成中] = useState(false);
-    const [开局变量生成进度, set开局变量生成进度] = useState<开局独立阶段进度 | null>(null);
-    const [开局世界演变进度, set开局世界演变进度] = useState<开局独立阶段进度 | null>(null);
-    const [开局规划进度, set开局规划进度] = useState<开局独立阶段进度 | null>(null);
-    const [内置提示词列表, set内置提示词列表] = useState<内置提示词条目结构[]>([]);
-    const [世界书列表, set世界书列表] = useState<世界书结构[]>([]);
-    const [世界书预设组列表, set世界书预设组列表] = useState<世界书预设组结构[]>([]);
+    // --- 右下角提示列表 migrated to Zustand UI Slice ---
+    const 右下角提示列表 = uiZustand.state.右下角提示列表;
+    const set右下角提示列表 = uiZustand.actions.set右下角提示列表;
 
     // --- useSettingsActions ---
     const settingsActions = useSettingsActions({
@@ -445,10 +500,6 @@ export const useGame = () => {
         推送右下角提示,
     });
     const {
-        设备状态,
-        设置设备状态,
-        设备刷新任务队列,
-        set设备刷新任务队列,
         设备关闭,
         设备返回主页,
         设备打开应用,
