@@ -131,7 +131,7 @@ function App() {
 - [x] **步骤 11**：提取 `useOpeningAndSession`（依赖 gameState + save/load）→ `hooks/useGame/useOpeningAndSession.ts` (430 行)
 - [x] **步骤 12**：提取 `useImagePresets`（依赖 gameState + image config）→ `hooks/useGame/useImagePresets.ts` (64 行)
 - [x] **步骤 13**：提取 `useCoreSendWorkflow`（依赖前面所有模块）
-- [x] **步骤 14**：重写 `useGame.ts` 主文件，组合所有子 hook（已完成：已接入 useSettingsActions + useTravelAndTrade + useFeatureFlags + useImagePresets，3098→2940 行，build 通过）
+- [x] **步骤 14**：重写 `useGame.ts` 主文件，组合所有子 hook（已接入 5/11 个子 hook：useSettingsActions + useTravelAndTrade + useFeatureFlags + useImagePresets + useDevice，3098→2940 行，build 通过。剩余 6 个子 hook 依赖过高暂缓）
 
 ### Phase 3：提取 App 子模块
 - [x] **步骤 15**：提取 `useAppModalState`（17 个 useState 组合）→ `components/app/useAppModalState.ts` (155 行)

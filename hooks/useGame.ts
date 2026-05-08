@@ -97,7 +97,7 @@ import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
 import { 规范化可选开局配置 } from '../utils/openingConfig';
-import type { DeviceGameContext } from '../models/mobileDevice';
+import type { DeviceGameContext } from '../models/mobileDevice'; // unused - managed by useDevice
 import { 构建文生图运行时额外提示词 } from '../prompts/runtime/nsfw';
 import { 构建真实世界模式提示词 } from '../prompts/runtime/realWorldMode';
 import { 核心_文章优化思维链 } from '../prompts/core/cotPolish';
@@ -148,7 +148,8 @@ import { 创建变量生成进度系统, type 变量生成上下文缓存项 } f
 import { 创建变量生成队列调度器 } from './useGame/planning/variableGenerationQueue';
 import { useBackgroundImageMonitor } from './useGame/quality/backgroundImageMonitor';
 import { 触发设备消息生成 } from './useGame/device/triggerDeviceMessageWorkflow';
-import { useDeviceRefreshMonitor, type 设备刷新任务 } from './useGame/device/deviceRefreshMonitor';
+import type { 设备刷新任务 } from './useGame/device/deviceRefreshMonitor';
+import { useDevice } from './useGame/useDevice';
 
 type 回忆检索进度 = {
     phase: 'start' | 'stream' | 'done' | 'error';
@@ -322,33 +323,8 @@ export const useGame = () => {
         都市网约车系统, 设置都市网约车系统
     } = gameState;
 
-    // Mobile Device
-    const { 设备状态, 设置设备状态, 设备打开, 设备关闭, 设备打开应用, 设备返回主页 } = gameState;
+    // Mobile Device — managed by useDevice sub-hook (declared below after 推送右下角提示)
 
-    // 旅行与贸易
-    const travelAndTrade = useTravelAndTrade({
-        角色,
-        环境,
-        设置角色,
-        设置环境,
-        gameConfig,
-        currentEra,
-        设备状态,
-        设置设备状态,
-        设备打开,
-    });
-    const {
-        handleTravel,
-        handleExplore,
-        handleBuyItem,
-        handleSellItem,
-        handleForgeItem,
-        getForgeRecipes,
-        checkForgeMaterials,
-        getForgeSuccessRate,
-        打开设备,
-        旅行事件列表,
-    } = travelAndTrade;
     const 回合快照栈Ref = useRef<回合快照结构[]>([]);
     const 最近自动存档时间戳Ref = useRef<number>(0);
     const 最近自动存档签名Ref = useRef<string>('');
@@ -394,9 +370,6 @@ export const useGame = () => {
     const 时代信息Ref = useRef<时代信息结构 | undefined>(undefined);
     const [时代信息, set时代信息] = useState<时代信息结构 | undefined>(undefined);
     const [场景生图任务队列, set场景生图任务队列] = useState<场景生图任务记录[]>([]);
-
-    // 设备刷新任务队列
-    const [设备刷新任务队列, set设备刷新任务队列] = useState<设备刷新任务[]>([]);
 
     const 后台手动生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 构图: '头像' | '半身' | '立绘' }>>([]);
     const 已提示后台生图任务Ref = useRef<Set<string>>(new Set());
@@ -447,6 +420,59 @@ export const useGame = () => {
     // --- 子系统初始化 ---
     const 通知系统 = 创建通知系统(set右下角提示列表);
     const 推送右下角提示 = 通知系统.推送右下角提示;
+
+    // --- useDevice ---
+    const device = useDevice({
+        gameConfig,
+        currentEra,
+        角色,
+        社交,
+        世界,
+        剧情,
+        历史记录,
+        校规系统,
+        催眠系统,
+        校园系统,
+        设置校园系统,
+        apiConfig,
+        推送右下角提示,
+    });
+    const {
+        设备状态,
+        设置设备状态,
+        设备刷新任务队列,
+        set设备刷新任务队列,
+        设备关闭,
+        设备返回主页,
+        设备打开应用,
+        设备打开,
+        派生设备模式,
+    } = device;
+
+    // --- useTravelAndTrade ---
+    const travelAndTrade = useTravelAndTrade({
+        角色,
+        环境,
+        设置角色,
+        设置环境,
+        gameConfig,
+        currentEra,
+        设备状态,
+        设置设备状态,
+        设备打开,
+    });
+    const {
+        handleTravel,
+        handleExplore,
+        handleBuyItem,
+        handleSellItem,
+        handleForgeItem,
+        getForgeRecipes,
+        checkForgeMaterials,
+        getForgeSuccessRate,
+        打开设备,
+        旅行事件列表,
+    } = travelAndTrade;
 
     const 回档快照系统 = 创建回档快照系统({
         回合快照栈Ref,
@@ -571,32 +597,6 @@ export const useGame = () => {
         推送右下角提示,
         NPC生图任务队列,
         场景生图任务队列
-    });
-
-    // 后台设备刷新监控
-    const nsfw设置 = gameConfig?.校园NSFW设置 || { 启用BDSM论坛: true, BDSM内容强度: '轻度' };
-    const 设备消息接口 = 获取设备消息接口配置(apiConfig);
-    const 设备刷新GameContext: DeviceGameContext = {
-        角色: 角色 || null,
-        社交: 社交 || [],
-        世界: 世界 || null,
-        剧情: 剧情 || null,
-        历史记录: 历史记录 || [],
-        校规系统: 校规系统,
-        催眠系统: 催眠系统,
-        校园系统: 校园系统,
-    };
-    useDeviceRefreshMonitor({
-        设备刷新任务队列,
-        set设备刷新任务队列,
-        set校园系统: 设置校园系统,
-        eraId: currentEra,
-        mode: travelAndTrade.派生设备模式(),
-        apiConfig: 设备消息接口!,
-        apiSettings: 设备消息接口!,
-        gameContext: 设备刷新GameContext,
-        nsfw设置,
-        推送右下角提示,
     });
 
     useEffect(() => {
@@ -2003,7 +2003,7 @@ export const useGame = () => {
                     try {
                         const 当前时代 = currentEra;
                         if (!当前时代) return;
-                        const mode = travelAndTrade.派生设备模式();
+                        const mode = device.派生设备模式();
                         const 设备消息接口 = 获取设备消息接口配置(apiConfig);
                         if (!设备消息接口?.baseUrl || !设备消息接口?.apiKey) return;
                         const liIntensity = gameConfig?.子纪元里模式强度?.[当前时代];

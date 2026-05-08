@@ -3,16 +3,16 @@
  * 管理移动设备状态、刷新任务队列、设备打开/关闭/应用导航
  */
 import { useCallback, useState } from 'react';
-import type { DeviceState } from '../../../models/mobileDevice';
-import type { 当前可用接口结构 } from '../../../utils/apiConfig';
-import type { 校园系统数据 } from '../../../models/campusPhone';
-import type { 校园NSFW设置 } from '../../../models/campusNSFW';
-import type { 角色数据结构 } from '../../../models/domain/character';
-import type { NPC结构 } from '../../../models/domain/social';
-import type { 世界数据结构 } from '../../../models/game/world';
-import type { 剧情系统结构 } from '../../../models/game/story';
-import type { 聊天记录结构 } from '../../../types';
-import { useDeviceRefreshMonitor, type 设备刷新任务 } from '../device/deviceRefreshMonitor';
+import type { DeviceState } from '../../models/mobileDevice';
+import type { 当前可用接口结构 } from '../../utils/apiConfig';
+import type { 校园系统数据 } from '../../models/campusPhone';
+import type { 校园NSFW设置 } from '../../models/campusNSFW';
+import type { 角色数据结构 } from '../../models/character';
+import type { NPC结构 } from '../../models/social';
+import type { 世界数据结构 } from '../../models/world';
+import type { 剧情系统结构 } from '../../models/story';
+import type { 聊天记录结构 } from '../../types';
+import { useDeviceRefreshMonitor, type 设备刷新任务 } from './device/deviceRefreshMonitor';
 
 interface UseDeviceDeps {
     gameConfig: any;
@@ -95,7 +95,7 @@ export function useDevice(deps: UseDeviceDeps) {
     // 后台设备刷新监控
     const nsfw设置 = gameConfig?.校园NSFW设置 || { 启用BDSM论坛: true, BDSM内容强度: '轻度' };
     const 设备消息接口配置 = (): 当前可用接口结构 | null => {
-        const { 获取设备消息接口配置 } = require('../../../utils/apiConfig');
+        const { 获取设备消息接口配置 } = require('../../utils/apiConfig');
         return 获取设备消息接口配置(apiConfig);
     };
     const 设备消息接口 = 设备消息接口配置();
@@ -131,7 +131,6 @@ export function useDevice(deps: UseDeviceDeps) {
         设备关闭,
         设备返回主页,
         设备打开应用,
-        设置设备状态,
         设备打开,
         派生设备模式,
     };
