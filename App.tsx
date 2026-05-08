@@ -20,7 +20,7 @@ import { MusicProvider } from './components/features/Music/MusicProvider';
 import { 小说拆分后台调度服务 } from './services/novel-decomposition/novelDecompositionScheduler';
 import { desktopTabs, mobileTabs } from './components/features/Settings/tabDefinitions';
 
-import { 懒加载边界, CharacterModal, MobileCharacter, NewGameWizard, MobileNewGameWizard, SettingsPanel, InventoryModal, MobileInventoryModal, EquipmentModal, MobileEquipmentModal, BattleModal, MobileBattleModal, SocialModal, MobileSocial, CampusDesireDashboard, PhotographyDashboard, MobilePhotographyDashboard, BDSMRelationshipModal, BDSMContractModal, BDSMSafetyModal, MobileCampusDesireApp, NsfwControlCenter, ImageManagerModal, MobileImageManagerModal, WorldbookManagerModal, MobileWorldbookManagerModal, TeamModal, MobileTeamModal, KungfuModal, MobileKungfuModal, WorldModal, MobileWorldModal, MapModal, MobileMapModal, SectModal, MobileSect, TaskModal, MobileTask, AgreementModal, MobileAgreementModal, StoryModal, MobileStory, HeroinePlanModal, MobileHeroinePlanModal, MemoryModal, MobileMemory, MemorySummaryFlowModal, MemorySummaryFlowMobileModal, NpcMemorySummaryFlowModal, NpcMemorySummaryFlowMobileModal, SaveLoadModal, MobileSaveLoadModal, MobileMusicPlayer, NovelDecompositionWorkbenchModal, MobileNovelDecompositionWorkbenchModal, NovelWritingWorkbenchModal, MobileNovelWritingWorkbenchModal, MobileDeviceModal } from './components/features/lazyComponents';
+import { 懒加载边界, CharacterModal, MobileCharacter, NewGameWizard, MobileNewGameWizard, SettingsPanel, InventoryModal, MobileInventoryModal, EquipmentModal, MobileEquipmentModal, BattleModal, MobileBattleModal, SocialModal, MobileSocial, CampusDesireDashboard, PhotographyDashboard, MobilePhotographyDashboard, UrbanDriverDashboard, MobileUrbanDriverApp, BDSMRelationshipModal, BDSMContractModal, BDSMSafetyModal, MobileCampusDesireApp, NsfwControlCenter, ImageManagerModal, MobileImageManagerModal, WorldbookManagerModal, MobileWorldbookManagerModal, TeamModal, MobileTeamModal, KungfuModal, MobileKungfuModal, WorldModal, MobileWorldModal, MapModal, MobileMapModal, SectModal, MobileSect, TaskModal, MobileTask, AgreementModal, MobileAgreementModal, StoryModal, MobileStory, HeroinePlanModal, MobileHeroinePlanModal, MemoryModal, MobileMemory, MemorySummaryFlowModal, MemorySummaryFlowMobileModal, NpcMemorySummaryFlowModal, NpcMemorySummaryFlowMobileModal, SaveLoadModal, MobileSaveLoadModal, MobileMusicPlayer, NovelDecompositionWorkbenchModal, MobileNovelDecompositionWorkbenchModal, NovelWritingWorkbenchModal, MobileNovelWritingWorkbenchModal, MobileDeviceModal } from './components/features/lazyComponents';
 
 const App: React.FC = () => {
     const { state, meta, setters, actions } = useGame();
@@ -32,6 +32,7 @@ const App: React.FC = () => {
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
     const [showCampusDesire, setShowCampusDesire] = React.useState(false);
     const [showPhotography, setShowPhotography] = React.useState(false);
+    const [showUrbanDriver, setShowUrbanDriver] = React.useState(false);
     const [showNsfwCenter, setShowNsfwCenter] = React.useState(false);
     const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
@@ -392,6 +393,7 @@ const App: React.FC = () => {
         showMobileMusic, setShowMobileMusic,
         showCampusDesire, setShowCampusDesire,
         showPhotography, setShowPhotography,
+        showUrbanDriver, setShowUrbanDriver,
         showBDSMRelationship, setShowBDSMRelationship,
         showBDSMContract, setShowBDSMContract,
         showBDSMSafety, setShowBDSMSafety,
@@ -1375,6 +1377,22 @@ const App: React.FC = () => {
                         </懒加载边界>
                     )}
 
+                    {showUrbanDriver && (
+                        <懒加载边界>
+                            {isMobile ? (
+                                <MobileUrbanDriverApp
+                                    都市网约车系统={(state as any).都市网约车系统}
+                                    onClose={() => setShowUrbanDriver(false)}
+                                />
+                            ) : (
+                                <UrbanDriverDashboard
+                                    都市网约车系统={(state as any).都市网约车系统}
+                                    onClose={() => setShowUrbanDriver(false)}
+                                />
+                            )}
+                        </懒加载边界>
+                    )}
+
                     {showNsfwCenter && (
                         <懒加载边界>
                             <NsfwControlCenter
@@ -1385,6 +1403,7 @@ const App: React.FC = () => {
                                     setShowNsfwCenter(false);
                                     if (moduleId === 'campusNSFW') setShowCampusDesire(true);
                                     else if (moduleId === 'photographyNSFW') setShowPhotography(true);
+                                    else if (moduleId === 'urbanDriverNSFW') setShowUrbanDriver(true);
                                 }}
                             />
                         </懒加载边界>

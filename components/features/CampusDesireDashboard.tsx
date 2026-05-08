@@ -420,7 +420,7 @@ export const CampusDesireDashboard: React.FC<Props> = ({
               npcId={id}
               npcName={NPC姓名映射[id] || id}
               档案={NPC欲望档案[id]}
-              后果={后果列表}
+              后果={后果列表.filter(c => c.关联NPC === id)}
               里程碑数={里程碑数[id] || 0}
               onOpenBDSMRelationship={onOpenBDSMRelationship}
               onOpenBDSMContract={onOpenBDSMContract}

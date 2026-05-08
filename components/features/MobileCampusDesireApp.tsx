@@ -181,8 +181,14 @@ export const MobileCampusDesireApp: React.FC<Props> = ({
 }) => {
   const npcIds = Object.keys(NPC欲望档案);
 
-  const 总未解决后果 = useMemo(() => {
-    return 后果列表.filter(c => !c.是否已解决).length;
+  const 未解决后果计数 = useMemo(() => {
+    const map: Record<string, number> = {};
+    后果列表.filter(c => !c.是否已解决).forEach(c => {
+      if (c.关联NPC) {
+        map[c.关联NPC] = (map[c.关联NPC] || 0) + 1;
+      }
+    });
+    return map;
   }, [后果列表]);
 
   return (
@@ -211,8 +217,8 @@ export const MobileCampusDesireApp: React.FC<Props> = ({
         </div>
         <div className="text-center">
           <div className="text-[9px] text-gray-600">后果</div>
-          <div className={`text-lg font-serif ${总未解决后果 > 0 ? 'text-red-500' : 'text-gray-600'}`}>
-            {总未解决后果}
+          <div className={`text-lg font-serif ${npcIds.some(id => 未解决后果计数[id]) ? 'text-red-500' : 'text-gray-600'}`}>
+            {npcIds.reduce((sum, id) => sum + (未解决后果计数[id] || 0), 0)}
           </div>
         </div>
         <div className="text-center">
@@ -239,7 +245,7 @@ export const MobileCampusDesireApp: React.FC<Props> = ({
             key={id}
             npcName={NPC姓名映射[id] || id}
             档案={NPC欲望档案[id]}
-            未解决后果数={总未解决后果}
+            未解决后果数={未解决后果计数[id] || 0}
           />
         ))}
         {npcIds.length === 0 && (

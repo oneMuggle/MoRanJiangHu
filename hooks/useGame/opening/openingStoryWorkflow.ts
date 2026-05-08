@@ -816,6 +816,10 @@ export const 执行开场剧情生成工作流 = async (
                     };
                 }
                 return undefined;
+            })(),
+            写真系统: (() => {
+                // 写真系统需要特定条件才初始化，默认留空
+                return undefined;
             })()
         };
         const openingBodyText = 提取响应完整正文文本(aiData);

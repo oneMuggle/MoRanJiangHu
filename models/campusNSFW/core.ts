@@ -91,6 +91,7 @@ export interface 后果记录 {
   id: string;
   触发时间: string;
   类型: 后果类型;
+  关联NPC?: string;
   严重程度: '轻微' | '中等' | '严重' | '毁灭';
   描述: string;
   持续回合: number;
