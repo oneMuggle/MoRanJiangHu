@@ -14,6 +14,7 @@ import type { 剧情系统结构 } from '../../models/story';
 import type { 聊天记录结构 } from '../../types';
 import { useDeviceRefreshMonitor, type 设备刷新任务 } from './device/deviceRefreshMonitor';
 import { useDeviceFromStore } from './subsystems/zustandStore';
+import { 获取设备消息接口配置 } from '../../utils/apiConfig';
 
 interface UseDeviceDeps {
     gameConfig: any;
@@ -83,11 +84,7 @@ export function useDevice(deps: UseDeviceDeps) {
 
     // 后台设备刷新监控
     const nsfw设置 = gameConfig?.校园NSFW设置 || { 启用BDSM论坛: true, BDSM内容强度: '轻度' };
-    const 设备消息接口配置 = (): 当前可用接口结构 | null => {
-        const { 获取设备消息接口配置 } = require('../../utils/apiConfig');
-        return 获取设备消息接口配置(apiConfig);
-    };
-    const 设备消息接口 = 设备消息接口配置();
+    const 设备消息接口 = 获取设备消息接口配置(apiConfig);
     const 设备刷新GameContext = {
         角色: 角色 || null,
         社交: 社交 || [],

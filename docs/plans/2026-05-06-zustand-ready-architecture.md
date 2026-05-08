@@ -394,7 +394,7 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 | 3. 目录重组 | 2-3天 | 低（单消费者） | ✅ 完成 |
 | 4. 删除废弃 GM | 0.5天 | 无 | ✅ 完成 |
 | 5. 修复 prompts | 0.5天 | 无 | ✅ 完成 |
-| 6. 子 Hook 拆分 | 3-4天 | 中（最大行为变更） | 进行中 (3/13 slice) |
+| 6. 子 Hook 拆分 | 3-4天 | 中（最大行为变更） | ✅ 完成 (10/10 slice 迁移, 兼容层清理) |
 | 7. App.tsx 瘦身 | 1天 | 低（提取-only） | 已完成 (7.2-7.5 完成) |
 
 ---
@@ -411,11 +411,10 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 | `hooks/useModalOpeners.ts` | 新建 | ~330 | - | ✅ 面板开关逻辑 |
 | `hooks/useConfirmSystem.tsx` | 新建 | ~57 | - | ✅ 确认对话框逻辑 |
 | `hooks/useGame/index.ts` | 新建 | ~195 | - | ✅ barrel 导出入口 |
-| `hooks/useGame/subsystems/types.ts` | 新建 | ~340 | - | ✅ slice 契约定义 |
-| `hooks/useGame/subsystems/zustandStore.ts` | 新建 | ~110 | - | ✅ Zustand 主 store (UI + Travel) |
-| `hooks/useGame/subsystems/useTravelSlice.ts` | 新建 | ~77 | - | ✅ 旅行/交易 slice (hook 模式) |
-| `hooks/useGame/subsystems/useBDSMSlice.ts` | 新建 | ~151 | - | ✅ BDSM 关系 slice (hook 模式) |
-| `hooks/useGame/subsystems/useUISlice.ts` | 新建 | ~92 | - | ✅ UI/通知/回档 slice (hook 模式) |
+| `hooks/useGame/subsystems/zustandStore.ts` | 新建 | ~500 | - | ✅ Zustand 主 store (10 slices + 兼容层) |
+| `hooks/useGame/subsystems/useTravelSlice.ts` | ~~新建~~ | ~~77~~ | - | ~~旅行/交易 slice~~ → Phase 6.9 删除 (迁移到 zustandStore) |
+| `hooks/useGame/subsystems/useBDSMSlice.ts` | ~~新建~~ | ~~151~~ | - | ~~BDSM 关系 slice~~ → Phase 6.9 删除 (未接入) |
+| `hooks/useGame/subsystems/useUISlice.ts` | ~~新建~~ | ~~92~~ | - | ~~UI/通知/回档 slice~~ → Phase 6.9 删除 (迁移到 zustandStore) |
 
 ## Phase 1-3 变更统计
 
@@ -562,7 +561,7 @@ hooks/useGame/
 |------|------|------|
 | Phase 6.7: 验证通路 | 1天 | ✅ 完成 (2026-05-08) |
 | Phase 6.8: 核心 slices | 3-4天 | ✅ 完成 (10/10: 全部 useState 已迁移) |
-| Phase 6.9: 清理兼容层 | 1天 | ⬜ 待开始 |
+| Phase 6.9: 清理兼容层 | 1天 | ✅ 完成 (删除 5 个废弃 hook 文件) |
 | **总计** | **5-6天** | |
 
 ### 单 store vs 多 store 对比
