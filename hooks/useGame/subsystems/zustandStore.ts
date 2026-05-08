@@ -5,7 +5,15 @@
 
 import { create } from 'zustand';
 import type { 右下角提示结构 } from '../ui/notificationSystem';
-import type { 回合快照结构 } from '../ui/rollbackSnapshot';
+import type { 旅行事件 } from '../travel/travelWorkflow';
+
+// ==================== Type Helper ====================
+
+type ZustandSlice<T> = (
+    set: (partial: Partial<T> | ((state: T) => Partial<T>)) => void,
+    get: () => T,
+    store: unknown
+) => T;
 
 // ==================== UI Slice (Zustand) ====================
 
@@ -23,27 +31,39 @@ interface UIActions {
     强制置底: () => void;
     递增重Roll计数: () => void;
     重置重Roll计数: () => void;
+    set聊天区自动滚动抑制令牌: (updater: number | ((prev: number) => number)) => void;
+    set聊天区强制置底令牌: (updater: number | ((prev: number) => number)) => void;
+    set可重Roll计数: (updater: number | ((prev: number) => number)) => void;
 }
 
 interface UISlice extends UIState, UIActions {}
 
-type ZustandSlice<T> = (
-    set: (partial: Partial<T> | ((state: T) => Partial<T>)) => void,
-    get: () => T,
-    store: any
-) => T;
-
 const createUISlice: ZustandSlice<UISlice> = (set) => ({
+    // --- state ---
     右下角提示列表: [],
     聊天区自动滚动抑制令牌: 0,
     聊天区强制置底令牌: 0,
     可重Roll计数: 0,
-    推送右下角提示: (toast) => set((state) => ({
-        右下角提示列表: [...state.右下角提示列表, { ...toast, id: `toast-${Date.now()}-${Math.random()}` }]
-    })),
-    关闭右下角提示: (toastId) => set((state) => ({
-        右下角提示列表: state.右下角提示列表.filter(t => t.id !== toastId)
-    })),
+
+    // --- actions ---
+    推送右下角提示: (toast) => {
+        const nextId = `toast_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        set((state) => {
+            const next = [...state.右下角提示列表, { id: nextId, ...toast }].slice(-4);
+            window.setTimeout(() => {
+                set((s) => ({
+                    右下角提示列表: s.右下角提示列表.filter(item => item.id !== nextId)
+                }));
+            }, 4200);
+            return { 右下角提示列表: next };
+        });
+    },
+    关闭右下角提示: (toastId) => {
+        if (!toastId) return;
+        set((state) => ({
+            右下角提示列表: state.右下角提示列表.filter(t => t.id !== toastId)
+        }));
+    },
     抑制滚动: () => set((state) => ({
         聊天区自动滚动抑制令牌: state.聊天区自动滚动抑制令牌 + 1
     })),
@@ -54,16 +74,25 @@ const createUISlice: ZustandSlice<UISlice> = (set) => ({
         可重Roll计数: state.可重Roll计数 + 1
     })),
     重置重Roll计数: () => set({ 可重Roll计数: 0 }),
+    set聊天区自动滚动抑制令牌: (updater) => set((state) => ({
+        聊天区自动滚动抑制令牌: typeof updater === 'function' ? (updater as (prev: number) => number)(state.聊天区自动滚动抑制令牌) : updater
+    })),
+    set聊天区强制置底令牌: (updater) => set((state) => ({
+        聊天区强制置底令牌: typeof updater === 'function' ? (updater as (prev: number) => number)(state.聊天区强制置底令牌) : updater
+    })),
+    set可重Roll计数: (updater) => set((state) => ({
+        可重Roll计数: typeof updater === 'function' ? (updater as (prev: number) => number)(state.可重Roll计数) : updater
+    })),
 });
 
 // ==================== Travel Slice (Zustand) ====================
 
 interface TravelState {
-    旅行事件列表: any[];
+    旅行事件列表: 旅行事件[];
 }
 
 interface TravelActions {
-    设置旅行事件列表: (events: any[]) => void;
+    设置旅行事件列表: (events: 旅行事件[]) => void;
     清空旅行事件列表: () => void;
 }
 
@@ -87,7 +116,7 @@ export const useGameStore = create<GameStore>()((...a) => ({
 // ==================== 兼容层 (供 useGame.ts 过渡期使用) ====================
 
 export function useUIFromStore(): {
-    state: UIState & { 回合快照栈Ref: React.MutableRefObject<回合快照结构[]> | null };
+    state: UIState;
     actions: UIActions;
 } {
     const store = useGameStore();
@@ -97,7 +126,6 @@ export function useUIFromStore(): {
             聊天区自动滚动抑制令牌: store.聊天区自动滚动抑制令牌,
             聊天区强制置底令牌: store.聊天区强制置底令牌,
             可重Roll计数: store.可重Roll计数,
-            回合快照栈Ref: null,
         },
         actions: {
             推送右下角提示: store.推送右下角提示,
@@ -106,6 +134,9 @@ export function useUIFromStore(): {
             强制置底: store.强制置底,
             递增重Roll计数: store.递增重Roll计数,
             重置重Roll计数: store.重置重Roll计数,
+            set聊天区自动滚动抑制令牌: store.set聊天区自动滚动抑制令牌,
+            set聊天区强制置底令牌: store.set聊天区强制置底令牌,
+            set可重Roll计数: store.set可重Roll计数,
         },
     };
 }

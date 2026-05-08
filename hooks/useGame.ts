@@ -126,6 +126,7 @@ import { useWorldAndPlanning } from './useGame/useWorldAndPlanning';
 import { useHistoryAndMemory } from './useGame/useHistoryAndMemory';
 import { useOpeningAndSession } from './useGame/useOpeningAndSession';
 import { useImagePresets } from './useGame/useImagePresets';
+import { useUIFromStore } from './useGame/subsystems/zustandStore';
 import { 提取原始报错详情, 格式化错误详情, 提取解析失败原始信息 } from './useGame/quality/errorFormatting';
 import {
     获取原始AI消息,
@@ -325,10 +326,18 @@ export const useGame = () => {
 
     // Mobile Device — managed by useDevice sub-hook (declared below after 推送右下角提示)
 
+    // --- Zustand UI Slice (Phase 6.7) ---
+    const uiZustand = useUIFromStore();
+    const 可重Roll计数 = uiZustand.state.可重Roll计数;
+    const set可重Roll计数 = uiZustand.actions.set可重Roll计数;
+    const 聊天区自动滚动抑制令牌 = uiZustand.state.聊天区自动滚动抑制令牌;
+    const set聊天区自动滚动抑制令牌 = uiZustand.actions.set聊天区自动滚动抑制令牌;
+    const 聊天区强制置底令牌 = uiZustand.state.聊天区强制置底令牌;
+    const set聊天区强制置底令牌 = uiZustand.actions.set聊天区强制置底令牌;
+
     const 回合快照栈Ref = useRef<回合快照结构[]>([]);
     const 最近自动存档时间戳Ref = useRef<number>(0);
     const 最近自动存档签名Ref = useRef<string>('');
-    const [可重Roll计数, set可重Roll计数] = useState(0);
     const [最近开局配置, 设置最近开局配置] = useState<最近开局配置结构 | null>(null);
     const apiConfigRef = useRef(apiConfig);
     const visualConfigRef = useRef(visualConfig);
@@ -379,8 +388,6 @@ export const useGame = () => {
     const 已提示后台场景生图任务Ref = useRef<Set<string>>(new Set());
     const performAutoSaveRef = useRef<((...args: any[]) => void) | null>(null);
     const [右下角提示列表, set右下角提示列表] = useState<右下角提示结构[]>([]);
-    const [聊天区自动滚动抑制令牌, set聊天区自动滚动抑制令牌] = useState(0);
-    const [聊天区强制置底令牌, set聊天区强制置底令牌] = useState(0);
     const [变量生成中, set变量生成中] = useState(false);
     const [开局变量生成进度, set开局变量生成进度] = useState<开局独立阶段进度 | null>(null);
     const [开局世界演变进度, set开局世界演变进度] = useState<开局独立阶段进度 | null>(null);

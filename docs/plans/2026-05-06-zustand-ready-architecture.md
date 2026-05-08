@@ -420,3 +420,146 @@ Phase 7: App.tsx 瘦身 (可与 Phase 6 并行)
 | 修复 import | 15+ 文件 (components/, services/, utils/, App.tsx) |
 | 新增 TypeScript 错误 | 0 |
 | Vite build | ✅ 通过 |
+
+---
+
+## Zustand 迁移方案 (Phase 6.7+)
+
+### 当前架构痛点
+
+| 问题 | 现状 | 影响 |
+|------|------|------|
+| God Hook | `useGame.ts` 2651行，30+ 个 `useState` | 任何新增状态都要改这个文件 |
+| 重渲染 | `useGame()` 返回大对象，子组件难以选择订阅 | 一处状态变更触发全量重渲染 |
+| 测试困难 | 所有状态绑在 React hook 上，无法独立测试 | 业务逻辑测试需要 React 测试渲染 |
+| 跨组件共享 | 必须通过 Context 层层传递 | Context 层级越多，订阅越难优化 |
+
+### Zustand 优势
+
+1. **精准订阅** — `useStore(s => s.右下角提示列表)` 只在该字段变化时触发渲染
+2. **状态与 UI 解耦** — store 是纯 JS 对象，业务逻辑可在 React 外独立测试
+3. **跨模块零耦合** — 任何模块通过 `import { useGameStore }` 即可读写状态
+4. **中间件生态** — persist (IndexedDB 持久化)、devtools (Chrome 调试)、immer (不可变更新)
+5. **TypeScript 一等公民** — 完整类型推导
+6. **体积极小** — < 1KB gzipped，无依赖
+7. **渐进式迁移** — 已有的 `{ state, actions }` 模式直接映射到 Zustand slice
+
+### 核心策略
+
+**渐进式替换，不做大爆炸重写。** 每个 slice 迁移后保持兼容层，`useGame()` 返回值不变，App.tsx 完全无感知。
+
+### Phase 6.7: 完善兼容层，验证通路 (1天)
+
+**目标：** 将 `zustandStore.ts` 接入 `useGame.ts`，替换现有的 `useUISlice` / `useTravelSlice` hook 实现
+
+**步骤：**
+1. 在 `useGame.ts` 中将 `useUISlice` 替换为 `useUIFromStore()`
+2. 在 `useGame.ts` 中将 `useTravelSlice` 替换为 `useTravelFromStore()`
+3. 验证兼容层返回值与原有 hook 完全一致（对比 state 和 actions 签名）
+4. 跑通 `npx tsc --noEmit` + `npx vite build` + 运行时验证
+
+**验收标准：**
+- TypeScript 编译通过 ✅
+- Vite 构建通过 ✅
+- 运行时通知提示、旅行事件列表功能正常 ✅
+
+**已完成操作 (2026-05-08):**
+1. 重写 `zustandStore.ts` — 使用正确的 `旅行事件` 类型，增加 `set*` 兼容方法
+2. 在 `useGame.ts` 中导入 `useUIFromStore()`
+3. 将 `可重Roll计数`, `聊天区自动滚动抑制令牌`, `聊天区强制置底令牌` 从 `useState` 迁移到 Zustand store
+4. 删除对应的 3 个 `useState` 声明
+5. 保留 `右下角提示列表` 和 `set右下角提示列表` 为 `useState`（通知系统和 settingsActions 依赖深，后续迁移）
+6. 保留 `旅行事件列表` 在 `useTravelAndTrade` 中（写侧未迁移，避免状态不一致）
+7. `useTravelFromStore()` 就绪但未接入，留待 Phase 6.8
+
+### Phase 6.8: 迁移核心 slices (3-4天)
+
+按依赖复杂度排序，逐个迁移：
+
+| 顺序 | Slice | 预估行数 | 难度 | 理由 |
+|------|-------|---------|------|------|
+| 1 | `useDeviceSlice` | ~100 | 低 | 纯透传，无复杂依赖 |
+| 2 | `useCombatSlice` | ~150 | 低 | 纯计算，无副作用 |
+| 3 | `useApiSlice` | ~150 | 低 | 配置管理，独立 |
+| 4 | `useImageSlice` | ~300 | 中 | 图片队列，有动态 import |
+| 5 | `useWorldSlice` | ~200 | 中 | 世界演变，有 async workflow |
+| 6 | `useCampusSlice` | ~250 | 中 | 校园系统，模块独立 |
+| 7 | `useVariableSlice` | ~200 | 中 | 变量生成，async |
+| 8 | `useCharacterSlice` | ~200 | 高 | 跨 memory/campus 依赖 |
+| 9 | `useMemorySlice` | ~250 | 高 | async + processor，复杂 |
+| 10 | `useStorySlice` | ~400 | 高 | 最大最核心，最后迁移 |
+
+每个 slice 迁移步骤：
+1. 将 `useState` / `useCallback` 转换为 Zustand slice
+2. 添加到 `zustandStore.ts` 的 store 合并
+3. 创建兼容层函数 `useXxxFromStore()`
+4. 在 `useGame.ts` 中替换原有 hook 调用
+5. 验证 `npx tsc --noEmit` + `npx vite build`
+
+### Phase 6.9: 清理兼容层，完成迁移 (1天)
+
+**目标：** 所有 slice 迁移到 Zustand 后，移除 hook-based 实现
+
+**步骤：**
+1. 删除所有 hook-based slice 文件 (`useUISlice.ts`、`useTravelSlice.ts` 等)
+2. `useGame()` 变为薄适配层 (~100-200行)，仅做 `{ state, meta, setters, actions }` 格式转换
+3. 使用 Zustand `persist` 中间件替代手动 `saveSettings()` / `loadSettings()`
+4. 最终验证
+
+### 迁移后架构
+
+```
+hooks/useGame/
+├── useGame.ts              # 薄适配层 (~150行)：组装 slices 为 { state, meta, setters, actions }
+├── subsystems/
+│   ├── zustandStore.ts     # 主 store: create<GameStore>() 合并所有 slices
+│   ├── types.ts            # 接口契约 (不变)
+│   └── slices/             # 13 个 Zustand slices
+│       ├── uiSlice.ts
+│       ├── travelSlice.ts
+│       ├── deviceSlice.ts
+│       ├── combatSlice.ts
+│       ├── apiSlice.ts
+│       ├── imageSlice.ts
+│       ├── worldSlice.ts
+│       ├── campusSlice.ts
+│       ├── variableSlice.ts
+│       ├── characterSlice.ts
+│       ├── memorySlice.ts
+│       ├── storySlice.ts
+│       └── bdsmSlice.ts
+```
+
+### 关键设计决策
+
+1. **单 store 多 slice** — 所有状态在一个 `useGameStore` 中，避免多 store 循环依赖
+2. **兼容层保留** — 每个 slice 提供 `{ state, actions }` 兼容函数，确保 `useGame()` 返回值不变
+3. **跨 slice 访问** — 通过 Zustand `get()` 获取其他 slice 状态
+4. **持久化策略** — Zustand `persist` 中间件替代手动持久化
+5. **不碰 App.tsx** — 迁移期间 App.tsx 完全不变
+
+### 风险控制
+
+| 风险 | 缓解措施 |
+|------|---------|
+| 状态不一致 | 每个 slice 迁移后做运行时对比：hook 值 vs store 值 |
+| 重渲染回归 | `useStore(s => s.field)` 精确订阅 |
+| 持久化丢失 | persist 中间件正确配置 IndexedDB 适配 |
+| 迁移中途卡住 | 兼容层保证随时可回退 |
+
+### 预计工期
+
+| 阶段 | 工期 | 状态 |
+|------|------|------|
+| Phase 6.7: 验证通路 | 1天 | ✅ 完成 (2026-05-08) |
+| Phase 6.8: 核心 slices | 3-4天 | ⬜ 待开始 |
+| Phase 6.9: 清理兼容层 | 1天 | ⬜ 待开始 |
+| **总计** | **5-6天** | |
+
+### 单 store vs 多 store 对比
+
+采用 **单 store 多 slice** 模式，原因：
+- 避免多 store 间的循环依赖
+- 统一的 devtools 调试入口
+- 一致的 persist 配置
+- 简化跨 slice 状态访问 (`get()` 即可，不需要 import 其他 store)
