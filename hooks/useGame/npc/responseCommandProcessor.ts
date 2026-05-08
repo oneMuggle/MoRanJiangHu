@@ -63,6 +63,8 @@ type 响应命令处理依赖 = {
     设置同人剧情规划?: (value: 同人剧情规划结构 | undefined) => void;
     设置同人女主剧情规划?: (value: 同人女主剧情规划结构 | undefined) => void;
     设置校园系统?: (value: 校园系统数据) => void;
+    设置写真系统?: (value: unknown) => void;
+    设置都市网约车系统?: (value: unknown) => void;
     命令后校准?: (state: 响应命令处理状态) => { state: 响应命令处理状态; corrections?: string[] } | 响应命令处理状态;
 };
 
@@ -255,6 +257,12 @@ export const 执行响应命令处理 = (
             deps.设置同人剧情规划?.(finalState.同人剧情规划);
             deps.设置同人女主剧情规划?.(finalState.同人女主剧情规划);
             deps.设置校园系统?.(finalState.校园系统);
+            if ((finalState as any).写真系统) {
+                deps.设置写真系统?.((finalState as any).写真系统);
+            }
+            if ((finalState as any).都市网约车系统) {
+                deps.设置都市网约车系统?.((finalState as any).都市网约车系统);
+            }
         }
 
         return finalState;
@@ -360,6 +368,12 @@ export const 执行响应命令处理 = (
             deps.设置同人剧情规划?.(finalState.同人剧情规划);
             deps.设置同人女主剧情规划?.(finalState.同人女主剧情规划);
             deps.设置校园系统?.(finalState.校园系统);
+            if ((finalState as any).写真系统) {
+                deps.设置写真系统?.((finalState as any).写真系统);
+            }
+            if ((finalState as any).都市网约车系统) {
+                deps.设置都市网约车系统?.((finalState as any).都市网约车系统);
+            }
         }
     };
     return finalState;
