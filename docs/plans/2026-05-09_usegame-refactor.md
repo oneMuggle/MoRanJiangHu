@@ -200,9 +200,15 @@ const imageDomain = createImageDomain(context);
 
 ## 当前进度
 
-- **主文件行数**: 1484（目标 ~200，从 1717 减少 233 行）
+- **主文件行数**: 1283（目标 ~200，从 1717 减少 434 行，-25.3%）
 - **已完成**:
   - `imageDomain` 集成（替换 ~187 行内联代码）
   - `sessionDomain` 集成（替换 ~246 行存读档 + 会话生命周期代码）
-- **阻塞项**: memoryDomain 因循环依赖无法直接集成，需重构 `useFeatureFlags` 的依赖方式
-- **下一步**: 考虑 coreDomain 的提取（主剧情发送工作流 + 私聊发送工作流），进一步减少主文件行数
+  - `sendDomain` 集成（替换 ~316 行命令处理 + 世界演变 + 规划更新 + 上下文快照 + 主剧情发送 + 私聊发送代码）
+  - **循环依赖修复**: `processResponseCommands` 提前到 `创建历史回合工作流` 之前创建，解除了 sendDomain 和历史回合工作流之间的循环依赖
+- **阻塞项**: 
+  - memoryDomain 因循环依赖无法直接集成，需重构 `useFeatureFlags` 的依赖方式
+  - runtimeDomain 尝试失败：回档快照系统的参数与 featureFlags 后的 `应用并同步记忆系统` 存在冲突，命名空间重叠过多
+- **下一步**: 
+  - 进一步拆分需要考虑更小的域（如 settings+persistence domain、device+travel domain）
+  - 或者优化 return mapper 的参数传递（当前 ~173 个参数占了 175 行）
