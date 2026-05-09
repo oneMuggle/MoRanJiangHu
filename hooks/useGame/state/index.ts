@@ -1,5 +1,7 @@
 // 故事状态工厂 — 子模块统一导出
-// 从原 storyState.ts 拆分
+
+export { createGameStateAccess, type GameStateAccess, type GameStateSlice, type GameStoreSlice, type 世界演变时间管理器 } from './gameStateAccess';
+export { createRefRegistry, useSyncRef, type UseGameRefs } from './refRegistry';
 
 export type { 开场命令基态 } from './historyUtils';
 

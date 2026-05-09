@@ -443,7 +443,7 @@ const createSceneConfigSlice: ZustandSlice<SceneConfigSlice> = (set) => ({
 
 // ==================== Store ====================
 
-interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice {}
+export interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice {}
 
 export const useGameStore = create<GameStore>()((...a) => ({
     ...createUISlice(...a),

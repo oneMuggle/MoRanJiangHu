@@ -5,16 +5,11 @@ import {
     同人剧情规划结构,
     同人女主剧情规划结构,
     OpeningConfig,
-    场景图片档案,
-    香闺秘档部位类型,
-    图片管理设置结构,
     世界书作用域,
-    时代信息结构,
     GameResponse,
     提示词结构
 } from '../types';
-import { useEffect, useRef } from 'react';
-import * as dbService from '../services/dbService';
+import { useEffect } from 'react';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
 import { 规范化接口设置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用, 获取变量生成并发配置 } from '../utils/apiConfig';
@@ -75,17 +70,13 @@ import { 规范化游戏设置 } from '../utils/gameSettings';
 import { 规范化视觉设置 } from '../utils/visualSettings';
 import { 默认图片管理设置, 规范化图片管理设置 } from '../utils/imageManagerSettings';
 import { 规范化可选开局配置 } from '../utils/openingConfig';
-import {
-    规范化环境信息,
-    构建完整地点文本,
-    规范化角色物品容器映射,
-    规范化社交列表
-} from './useGame/stateTransforms';
+import { 规范化环境信息, 构建完整地点文本, 规范化角色物品容器映射, 规范化社交列表 } from './useGame/stateTransforms';
+import { createGameStateAccess, createRefRegistry } from './useGame/state';
+import { createImageDomain } from './useGame/domains/imageDomain';
 import { 按世界演变分流净化响应 } from './useGame/response/storyResponseGuards';
 import { 执行变量自动校准 } from './useGame/planning/variableCalibration';
 import { 执行变量模型校准工作流 } from './useGame/planning/variableModelWorkflow';
 import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from './useGame/planning/variableCalibrationMerge';
-import { 设置键 } from '../utils/settingsSchema';
 
 // 提取的子系统
 import { useSettingsActions } from './useGame/useSettingsActions';
@@ -127,10 +118,14 @@ const 加载场景生图工作流 = () => import('./useGame/image/sceneImageWork
 
 
 export const useGame = () => {
+    // --- 统一状态访问 + Ref 注册表（阶段 1 重构） ---
     const gameState = useGameState();
+    const stateAccess = createGameStateAccess(gameState, useGameStore());
+    const refs = createRefRegistry();
+
+    // 从统一状态访问层解构（保持原有变量名，确保后续引用不变）
     const {
-        view, setView,
-        setHasSave,
+        view, setView, setHasSave,
         角色, 设置角色,
         环境, 设置环境,
         社交, 设置社交,
@@ -152,7 +147,6 @@ export const useGame = () => {
         setWorldEvents,
         setShowSettings, setShowInventory, setShowEquipment, setShowBattle, setShowSocial, setShowTeam, setShowKungfu, setShowWorld, setShowMap, setShowSect, setShowTask, setShowAgreement, setShowStory, setShowHeroinePlan, setShowMemory, setShowSaveLoad,
         setActiveTab, setCurrentTheme,
-
         apiConfig, setApiConfig,
         visualConfig, setVisualConfig,
         imageManagerConfig, setImageManagerConfig,
@@ -164,127 +158,80 @@ export const useGame = () => {
         festivals, setFestivals,
         currentEra, setCurrentEra,
         scrollRef, abortControllerRef, variableGenerationAbortControllerRef,
-
         // Campus Systems
         校规系统, 设置校规系统,
         催眠系统, 设置催眠系统,
         校园系统, 设置校园系统,
-
         // NSFW Systems
         写真系统, 设置写真系统,
-        都市网约车系统, 设置都市网约车系统
-    } = gameState;
+        都市网约车系统, 设置都市网约车系统,
+        // Zustand Store — UI Slice
+        可重Roll计数, set可重Roll计数,
+        聊天区自动滚动抑制令牌, set聊天区自动滚动抑制令牌,
+        聊天区强制置底令牌, set聊天区强制置底令牌,
+        右下角提示列表, set右下角提示列表,
+        // Zustand Store — Image Slice
+        NPC生图任务队列, setNPC生图任务队列,
+        场景生图任务队列, set场景生图任务队列,
+        // Zustand Store — Settings Slice
+        内置提示词列表, set内置提示词列表,
+        世界书列表, set世界书列表,
+        世界书预设组列表, set世界书预设组列表,
+        // Zustand Store — Device Slice
+        设备状态, 设置设备状态,
+        设备刷新任务队列, set设备刷新任务队列,
+        // Zustand Store — World Slice
+        世界演变更新中, set世界演变更新中,
+        世界演变状态文本, set世界演变状态文本,
+        世界演变最近更新时间, set世界演变最近更新时间State,
+        世界演变最近摘要, set世界演变最近摘要,
+        世界演变最近原始消息, set世界演变最近原始消息,
+        // Zustand Store — Memory Slice
+        待处理记忆总结任务, set待处理记忆总结任务,
+        记忆总结阶段, set记忆总结阶段,
+        记忆总结草稿, set记忆总结草稿,
+        记忆总结错误, set记忆总结错误,
+        待处理NPC记忆总结队列, set待处理NPC记忆总结队列,
+        NPC记忆总结阶段, setNPC记忆总结阶段,
+        NPC记忆总结草稿, setNPC记忆总结草稿,
+        NPC记忆总结错误, setNPC记忆总结错误,
+        // Zustand Store — Variable Slice
+        变量生成中, set变量生成中,
+        开局变量生成进度, set开局变量生成进度,
+        开局世界演变进度, set开局世界演变进度,
+        开局规划进度, set开局规划进度,
+        // Zustand Store — Opening Slice
+        最近开局配置, 设置最近开局配置,
+        // Zustand Store — Scene Config Slice
+        场景图片档案, set场景图片档案,
+        set时代信息,
+        // Zustand Store — Travel Slice
+        旅行事件列表,
+    } = stateAccess;
 
-    // Mobile Device — managed by useDevice sub-hook (declared below after 推送右下角提示)
+    // 从 Ref 注册表解构（保持原有变量名）
+    const {
+        回合快照栈Ref, 最近自动存档时间戳Ref, 最近自动存档签名Ref,
+        apiConfigRef, visualConfigRef, imageManagerConfigRef,
+        上下文快照缓存Ref,
+        世界演变进行中Ref, 世界演变去重签名Ref, 世界演变最近现实更新时间戳Ref,
+        最近变量生成上下文Ref,
+        NPC生图进行中Ref, 主角生图进行中Ref, NPC香闺秘档生图进行中Ref,
+        场景生图自动应用任务Ref,
+        场景图片档案Ref, 时代信息Ref,
+        后台手动生图监控Ref, 后台私密生图监控Ref, 后台场景生图监控Ref,
+        performAutoSaveRef,
+        按NPC读取角色锚点Ref, 提取场景角色锚点Ref, 获取当前PNG画风预设摘要Ref,
+    } = refs;
 
-    // --- Zustand Store (Phase 6.9: direct store access) ---
-    const store = useGameStore();
-    // UI Slice
-    const 可重Roll计数 = store.可重Roll计数;
-    const set可重Roll计数 = store.set可重Roll计数;
-    const 聊天区自动滚动抑制令牌 = store.聊天区自动滚动抑制令牌;
-    const set聊天区自动滚动抑制令牌 = store.set聊天区自动滚动抑制令牌;
-    const 聊天区强制置底令牌 = store.聊天区强制置底令牌;
-    const set聊天区强制置底令牌 = store.set聊天区强制置底令牌;
-    const 右下角提示列表 = store.右下角提示列表;
-    const set右下角提示列表 = store.set右下角提示列表;
-    // Image Slice
-    const NPC生图任务队列 = store.NPC生图任务队列;
-    const setNPC生图任务队列 = store.setNPC生图任务队列;
-    const 场景生图任务队列 = store.场景生图任务队列;
-    const set场景生图任务队列 = store.set场景生图任务队列;
-    // Settings Slice
-    const 内置提示词列表 = store.内置提示词列表;
-    const set内置提示词列表 = store.set内置提示词列表;
-    const 世界书列表 = store.世界书列表;
-    const set世界书列表 = store.set世界书列表;
-    const 世界书预设组列表 = store.世界书预设组列表;
-    const set世界书预设组列表 = store.set世界书预设组列表;
-    // Device Slice
-    const 设备状态 = store.设备状态;
-    const 设置设备状态 = store.set设备状态;
-    const 设备刷新任务队列 = store.设备刷新任务队列;
-    const set设备刷新任务队列 = store.set设备刷新任务队列;
-    // World Slice
-    const 世界演变更新中 = store.世界演变更新中;
-    const set世界演变更新中 = store.set世界演变更新中;
-    const 世界演变状态文本 = store.世界演变状态文本;
-    const set世界演变状态文本 = store.set世界演变状态文本;
-    const 世界演变最近更新时间 = store.世界演变最近更新时间;
-    const set世界演变最近更新时间State = store.set世界演变最近更新时间;
-    const 世界演变最近摘要 = store.世界演变最近摘要;
-    const set世界演变最近摘要 = store.set世界演变最近摘要;
-    const 世界演变最近原始消息 = store.世界演变最近原始消息;
-    const set世界演变最近原始消息 = store.set世界演变最近原始消息;
-    // 世界演变”最近更新时间”应使用游戏内时间戳（用于展示/归档），而非现实时间。
-    // 仍然需要一个现实时间戳用于前端去抖/冷启动保护（避免依赖抖动导致 auto_due 连续触发）。
-    const 世界演变最近现实更新时间戳Ref = useRef<number>(0);
+    // 世界演变时间管理（封装游戏内时间 + 现实时间戳）
+    const { 世界演变时间管理 } = stateAccess;
+
+    // set世界演变最近更新时间 封装（原内联函数，保持向后兼容）
     const set世界演变最近更新时间 = (value: string | null) => {
         set世界演变最近更新时间State(value);
         世界演变最近现实更新时间戳Ref.current = Date.now();
     };
-    // Memory Slice
-    const 待处理记忆总结任务 = store.待处理记忆总结任务;
-    const set待处理记忆总结任务 = store.set待处理记忆总结任务;
-    const 记忆总结阶段 = store.记忆总结阶段;
-    const set记忆总结阶段 = store.set记忆总结阶段;
-    const 记忆总结草稿 = store.记忆总结草稿;
-    const set记忆总结草稿 = store.set记忆总结草稿;
-    const 记忆总结错误 = store.记忆总结错误;
-    const set记忆总结错误 = store.set记忆总结错误;
-    const 待处理NPC记忆总结队列 = store.待处理NPC记忆总结队列;
-    const set待处理NPC记忆总结队列 = store.set待处理NPC记忆总结队列;
-    const NPC记忆总结阶段 = store.NPC记忆总结阶段;
-    const setNPC记忆总结阶段 = store.setNPC记忆总结阶段;
-    const NPC记忆总结草稿 = store.NPC记忆总结草稿;
-    const setNPC记忆总结草稿 = store.setNPC记忆总结草稿;
-    const NPC记忆总结错误 = store.NPC记忆总结错误;
-    const setNPC记忆总结错误 = store.setNPC记忆总结错误;
-    // Variable Slice
-    const 变量生成中 = store.变量生成中;
-    const set变量生成中 = store.set变量生成中;
-    const 开局变量生成进度 = store.开局变量生成进度;
-    const set开局变量生成进度 = store.set开局变量生成进度;
-    const 开局世界演变进度 = store.开局世界演变进度;
-    const set开局世界演变进度 = store.set开局世界演变进度;
-    const 开局规划进度 = store.开局规划进度;
-    const set开局规划进度 = store.set开局规划进度;
-    // Opening Slice
-    const 最近开局配置 = store.最近开局配置;
-    const 设置最近开局配置 = store.set最近开局配置;
-    // Scene Config Slice
-    const 场景图片档案 = store.场景图片档案;
-    const set场景图片档案 = store.set场景图片档案;
-    const set时代信息 = store.set时代信息;
-
-    const 回合快照栈Ref = useRef<回合快照结构[]>([]);
-    const 最近自动存档时间戳Ref = useRef<number>(0);
-    const 最近自动存档签名Ref = useRef<string>('');
-    const apiConfigRef = useRef(apiConfig);
-    const visualConfigRef = useRef(visualConfig);
-    const imageManagerConfigRef = useRef<图片管理设置结构>(imageManagerConfig || 默认图片管理设置);
-    const 上下文快照缓存Ref = useRef<{
-        value: 上下文快照;
-        refs: unknown[];
-    } | null>(null);
-    const 世界演变进行中Ref = useRef(false);
-    const 世界演变去重签名Ref = useRef('');
-    const 最近变量生成上下文Ref = useRef<变量生成上下文缓存项[]>([]);
-    const NPC生图进行中Ref = useRef<Set<string>>(new Set());
-    const 主角生图进行中Ref = useRef<Set<string>>(new Set());
-    const NPC香闺秘档生图进行中Ref = useRef<Set<string>>(new Set());
-    const 场景生图自动应用任务Ref = useRef('');
-    // Refs kept for synchronous access in callbacks (Zustand state is the source of truth)
-    const 场景图片档案Ref = useRef<场景图片档案>({});
-    const 时代信息Ref = useRef<时代信息结构 | undefined>(undefined);
-
-    const 后台手动生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 构图: '头像' | '半身' | '立绘' }>>([]);
-    const 后台私密生图监控Ref = useRef<Array<{ npcId: string; since: number; npcName: string; 部位: 香闺秘档部位类型 }>>([]);
-    const 后台场景生图监控Ref = useRef<Array<{ since: number; 摘要: string }>>([]);
-    const performAutoSaveRef = useRef<((...args: any[]) => void) | null>(null);
-    const 按NPC读取角色锚点Ref = useRef<((npcId: string) => any) | null>(null);
-    const 提取场景角色锚点Ref = useRef<((ctx: unknown) => any) | null>(null);
-    const 获取当前PNG画风预设摘要Ref = useRef<((presetId?: string, type?: 'scene' | 'npc') => any) | null>(null);
 
     // --- useSettingsActions ---
     const settingsActions = useSettingsActions({
@@ -361,8 +308,7 @@ export const useGame = () => {
         checkForgeMaterials,
         getForgeSuccessRate,
     } = travelAndTrade;
-    // 旅行事件列表 now managed by Zustand store (travel slice)
-    const 旅行事件列表 = store.旅行事件列表;
+    // 旅行事件列表 now managed by Zustand store (already destructured from stateAccess above)
 
     const 回档快照系统 = 创建回档快照系统({
         回合快照栈Ref,
@@ -387,6 +333,8 @@ export const useGame = () => {
     });
     const { 清空重Roll快照, 推入重Roll快照, 弹出重Roll快照, 回档到快照, 重置自动存档状态, 删除最近自动存档并重置状态 } = 回档快照系统;
 
+    // ==================== 记忆与变量：早期子系统 ====================
+    // 这些不依赖 featureFlags 的输出，可以提前创建
     const 变量生成队列调度器 = 创建变量生成队列调度器({
         执行变量模型校准工作流,
         apiConfig,
@@ -429,7 +377,7 @@ export const useGame = () => {
         memoryConfig,
         apiConfig,
         历史记录,
-        performAutoSave: (...args) => performAutoSaveRef.current?.(...args),
+        performAutoSave: (...args: any[]) => performAutoSaveRef.current?.(...args),
         规范化社交列表
     });
     const { handleStartMemorySummary, handleCancelMemorySummary, handleBackToMemorySummaryRemind, handleUpdateMemorySummaryDraft, handleStartManualMemorySummary, handleApplyMemorySummary, 刷新NPC记忆总结队列, 应用并同步记忆系统, handleStartNpcMemorySummary, handleCancelNpcMemorySummary, handleBackToNpcMemorySummaryRemind, handleUpdateNpcMemorySummaryDraft, handleQueueManualNpcMemorySummary, handleApplyNpcMemorySummary } = 记忆总结处理器;
@@ -498,36 +446,100 @@ export const useGame = () => {
 
     const 追加系统消息 = 创建追加系统消息(设置历史记录);
 
-    const 获取场景图历史上限 = (): number => (
-        规范化图片管理设置(imageManagerConfigRef.current || imageManagerConfig || 默认图片管理设置).场景图历史上限
-    );
+    // ==================== 图片生成域 ====================
+    const imageDomain = createImageDomain({
+        stateAccess,
+        refs,
+        apiConfig,
+        gameConfig,
+        visualConfig,
+        imageManagerConfig,
+        推送右下角提示,
+        深拷贝,
+        规范化环境信息,
+        规范化社交列表安全,
+        规范化角色物品容器映射,
+        环境时间转标准串,
+        构建完整地点文本,
+        提取NPC生图基础数据,
+        提取NPC生图基础数据附带私密描述,
+        提取NPC香闺秘档部位生图数据,
+        提取主角生图基础数据,
+        生成场景生图记录ID,
+        生成NPC生图记录ID,
+        创建场景图片档案工作流,
+        创建图片生成协调器,
+        创建手动图片动作工作流,
+        创建手动NPC工作流,
+        创建主角图片工作流,
+        useImagePresets,
+        加载图片AI服务,
+        加载NPC生图工作流,
+        加载NPC香闺秘档生图工作流,
+        加载场景生图工作流,
+        获取文生图接口配置,
+        获取场景文生图接口配置,
+        获取生图词组转化器接口配置,
+        获取生图画师串预设,
+        获取词组转化器预设提示词,
+        接口配置是否可用,
+    });
+    const { sceneArchive, imageGen, imagePresets, manualNpc, manualImageActions, playerImage } = imageDomain;
 
     const {
-        加载场景图片档案,
-        写入场景图片档案,
-        应用场景图片为壁纸,
-        清除场景壁纸,
-        设置常驻壁纸,
-        清除常驻壁纸,
-        应用常驻壁纸为背景,
-        删除场景图片记录,
-        清空场景图片历史,
-        保存场景图片本地副本
-    } = 创建场景图片档案工作流({
-        获取场景图历史上限,
-        读取场景图片档案设置: () => dbService.读取设置(设置键.场景图片档案),
-        保存场景图片档案设置: (archive) => dbService.保存设置(设置键.场景图片档案, archive),
-        同步场景图片档案: (archive) => {
-            场景图片档案Ref.current = archive;
-            set场景图片档案(archive);
-        },
-        获取当前场景图片档案: () => 场景图片档案Ref.current || {},
-        清理未引用图片资源: dbService.清理未引用图片资源,
-        获取当前视觉设置: () => visualConfigRef.current || visualConfig,
-        应用视觉设置到状态,
-        深拷贝,
-        加载图片AI服务
-    });
+        加载场景图片档案, 写入场景图片档案, 应用场景图片为壁纸,
+        清除场景壁纸, 设置常驻壁纸, 清除常驻壁纸, 应用常驻壁纸为背景,
+        删除场景图片记录, 清空场景图片历史, 保存场景图片本地副本
+    } = sceneArchive;
+
+    const {
+        删除场景生图任务, 清空场景生图任务队列, 获取NPC唯一标识,
+        创建NPC生图任务, 删除NPC生图任务, 清空NPC生图任务队列,
+        删除NPC图片记录, 清空NPC图片历史, 选择NPC头像图片,
+        清除NPC头像图片, 选择NPC立绘图片, 清除NPC立绘图片,
+        选择NPC背景图片, 清除NPC背景图片, 保存NPC图片本地副本,
+        读取文生图功能配置, 提取新增NPC列表, 读取修炼体系开关,
+        构建文生图额外要求, 触发场景自动生图, 生成场景壁纸,
+        执行单个NPC生图, 执行NPC香闺秘档部位生图, 触发新增NPC自动生图
+    } = imageGen;
+
+    const {
+        savePngStylePreset: 保存PNG画风预设,
+        deletePngStylePreset: 删除PNG画风预设,
+        setCurrentPngStylePreset: 设置当前PNG画风预设,
+        getCurrentPngStylePreset: 获取当前PNG画风预设摘要,
+        parsePngStylePreset,
+        exportPngStylePresets: 导出PNG画风预设,
+        importPngStylePresets: 导入PNG画风预设,
+        saveCharacterAnchor: 保存角色锚点,
+        deleteCharacterAnchor: 删除角色锚点,
+        setCurrentCharacterAnchor: 设置当前角色锚点,
+        getCharacterAnchor: 读取角色锚点,
+        getCharacterAnchorByNpcId: 按NPC读取角色锚点,
+        getPlayerCharacterAnchor: 读取主角角色锚点,
+        getSceneCharacterAnchors: 提取场景角色锚点,
+        extractCharacterAnchor: 提取角色锚点,
+        extractPlayerCharacterAnchor: 提取主角角色锚点
+    } = imagePresets;
+
+    const {
+        createNpcManually, updateNpcManually, deleteNpcManually,
+        uploadNpcImageToSlot, updateNpcMajorRole, updateNpcPresence, removeNpc
+    } = manualNpc;
+
+    const {
+        generateNpcImageManually, generateNpcSecretPartImage, retryNpcImageGeneration
+    } = manualImageActions;
+
+    const {
+        updatePlayerAvatar: 更新玩家头像,
+        selectPlayerAvatarImage: 选择主角头像图片,
+        clearPlayerAvatarImage: 清除主角头像图片,
+        selectPlayerPortraitImage: 选择主角立绘图片,
+        clearPlayerPortraitImage: 清除主角立绘图片,
+        removePlayerImageRecord: 删除主角图片记录,
+        generatePlayerImageManually: 生成主角图片
+    } = playerImage;
 
     const {
         loadBuiltinPromptEntries,
@@ -569,7 +581,7 @@ export const useGame = () => {
             场景图片档案Ref.current = archive;
             set场景图片档案(archive);
         },
-        获取场景图历史上限,
+        获取场景图历史上限: () => 规范化图片管理设置(imageManagerConfigRef.current || imageManagerConfig || 默认图片管理设置).场景图历史上限,
         设置游戏设置: setGameConfig,
         设置记忆配置: setMemoryConfig,
         设置提示词池: setPrompts,
@@ -604,77 +616,6 @@ export const useGame = () => {
     useEffect(() => {
         void loadWorldbookPresetGroups();
     }, []);
-
-    // ==================== 图片生成协调器 ====================
-    const imageGen = 创建图片生成协调器({
-        apiConfig,
-        gameConfig,
-        环境,
-        角色,
-        社交,
-        历史记录,
-        set场景生图任务队列,
-        setNPC生图任务队列,
-        设置社交,
-        规范化社交列表安全,
-        规范化环境信息,
-        深拷贝,
-        环境时间转标准串,
-        构建完整地点文本,
-        提取NPC生图基础数据: (npc) => 提取NPC生图基础数据(npc, {
-            cultivationSystemEnabled: gameConfig?.启用修炼体系 !== false
-        }),
-        提取NPC生图基础数据附带私密描述,
-        提取NPC香闺秘档部位生图数据,
-        按NPC读取角色锚点: (npcId) => 按NPC读取角色锚点Ref.current?.(npcId) ?? null,
-        提取场景角色锚点: (ctx) => 提取场景角色锚点Ref.current?.(ctx) ?? [],
-        获取文生图接口配置,
-        获取生图词组转化器接口配置,
-        获取生图画师串预设,
-        获取当前PNG画风预设摘要: (presetId?: string, type?: 'scene' | 'npc') => 获取当前PNG画风预设摘要Ref.current?.(presetId, type) ?? null,
-        获取词组转化器预设提示词,
-        接口配置是否可用,
-        加载NPC生图工作流,
-        加载NPC香闺秘档生图工作流,
-        加载场景生图工作流,
-        获取场景文生图接口配置,
-        生成场景生图记录ID,
-        生成NPC生图记录ID,
-        应用场景图片为壁纸,
-        场景生图自动应用任务Ref,
-        后台场景生图监控Ref,
-        NPC生图进行中Ref,
-        NPC香闺秘档生图进行中Ref,
-        推送右下角提示,
-        写入场景图片档案,
-        performAutoSave: (...args) => performAutoSaveRef.current?.(...args)
-    });
-    const {
-        删除场景生图任务,
-        清空场景生图任务队列,
-        获取NPC唯一标识,
-        创建NPC生图任务,
-        删除NPC生图任务,
-        清空NPC生图任务队列,
-        删除NPC图片记录,
-        清空NPC图片历史,
-        选择NPC头像图片,
-        清除NPC头像图片,
-        选择NPC立绘图片,
-        清除NPC立绘图片,
-        选择NPC背景图片,
-        清除NPC背景图片,
-        保存NPC图片本地副本,
-        读取文生图功能配置,
-        提取新增NPC列表,
-        读取修炼体系开关,
-        构建文生图额外要求,
-        触发场景自动生图,
-        生成场景壁纸,
-        执行单个NPC生图,
-        执行NPC香闺秘档部位生图,
-        触发新增NPC自动生图
-    } = imageGen;
 
     // ==================== BDSM 关系管线操作 ====================
     const bdsm = 创建BDSM关系操作工作流({ 校园系统, apiConfig, 设置校园系统 });
@@ -963,6 +904,8 @@ export const useGame = () => {
         合并NPC图片档案
     });
 
+    // ==================== 变量校准协调器 ====================
+    // 注意：此协调器依赖 featureFlags.世界演变功能已开启，必须在 featureFlags 之后创建
     const {
         执行变量校准并合并响应: 执行变量生成并合并响应,
         执行重解析变量校准: 执行重解析变量生成
@@ -1128,39 +1071,6 @@ export const useGame = () => {
         角色,
         设置校园系统
     });
-
-    const imagePresets = useImagePresets({
-        apiConfigRef,
-        updateApiConfig,
-        加载图片AI服务,
-        set右下角提示列表,
-        社交,
-        角色,
-        isCultivationSystemEnabled: 读取修炼体系开关,
-    });
-    const {
-        savePngStylePreset: 保存PNG画风预设,
-        deletePngStylePreset: 删除PNG画风预设,
-        setCurrentPngStylePreset: 设置当前PNG画风预设,
-        getCurrentPngStylePreset: 获取当前PNG画风预设摘要,
-        parsePngStylePreset,
-        exportPngStylePresets: 导出PNG画风预设,
-        importPngStylePresets: 导入PNG画风预设,
-        saveCharacterAnchor: 保存角色锚点,
-        deleteCharacterAnchor: 删除角色锚点,
-        setCurrentCharacterAnchor: 设置当前角色锚点,
-        getCharacterAnchor: 读取角色锚点,
-        getCharacterAnchorByNpcId: 按NPC读取角色锚点,
-        getPlayerCharacterAnchor: 读取主角角色锚点,
-        getSceneCharacterAnchors: 提取场景角色锚点,
-        extractCharacterAnchor: 提取角色锚点,
-        extractPlayerCharacterAnchor: 提取主角角色锚点
-    } = imagePresets;
-
-    // 注册到 ref，供图片生成协调器前向引用
-    按NPC读取角色锚点Ref.current = 按NPC读取角色锚点;
-    提取场景角色锚点Ref.current = 提取场景角色锚点;
-    获取当前PNG画风预设摘要Ref.current = 获取当前PNG画风预设摘要;
 
     const updateMemorySystem = (nextMemory: 记忆系统结构) => {
         const normalized = 规范化记忆系统(nextMemory);
@@ -1415,25 +1325,6 @@ export const useGame = () => {
     performAutoSaveRef.current = performAutoSave;
 
     const {
-        createNpcManually,
-        updateNpcManually,
-        deleteNpcManually,
-        uploadNpcImageToSlot,
-        updateNpcMajorRole,
-        updateNpcPresence,
-        removeNpc
-    } = 创建手动NPC工作流({
-        获取环境: () => 环境,
-        环境时间转标准串,
-        规范化社交列表: 规范化社交列表安全,
-        设置社交,
-        执行社交自动存档: (socialSnapshot) => {
-            void performAutoSave({ social: socialSnapshot, history: 历史记录, force: true });
-        },
-        保存图片资源: dbService.保存图片资源
-    });
-
-    const {
         updateRuntimeVariableSection,
         applyRuntimeVariableCommand,
         removeTask,
@@ -1488,56 +1379,6 @@ export const useGame = () => {
         performAutoSave
     });
 
-    const {
-        generateNpcImageManually,
-        generateNpcSecretPartImage,
-        retryNpcImageGeneration
-    } = 创建手动图片动作工作流({
-        获取社交列表: () => 社交,
-        记录后台手动生图监控: (payload) => {
-            后台手动生图监控Ref.current.push(payload);
-        },
-        记录后台私密生图监控: (payload) => {
-            后台私密生图监控Ref.current.push(payload);
-        },
-        推送右下角提示,
-        执行单个NPC生图,
-        执行NPC香闺秘档部位生图
-    });
-
-    const {
-        updatePlayerAvatar: 更新玩家头像,
-        selectPlayerAvatarImage: 选择主角头像图片,
-        clearPlayerAvatarImage: 清除主角头像图片,
-        selectPlayerPortraitImage: 选择主角立绘图片,
-        clearPlayerPortraitImage: 清除主角立绘图片,
-        removePlayerImageRecord: 删除主角图片记录,
-        generatePlayerImageManually: 生成主角图片
-    } = 创建主角图片工作流({
-        获取角色: () => 角色,
-        设置角色,
-        规范化角色物品容器映射,
-        执行自动存档: performAutoSave,
-        获取历史记录: () => 历史记录,
-        推送右下角提示,
-        加载NPC生图工作流,
-        apiConfig,
-        获取文生图接口配置,
-        获取生图词组转化器接口配置,
-        获取生图画师串预设,
-        获取当前PNG画风预设: (presetId?: string) => 获取当前PNG画风预设摘要(presetId, 'npc'),
-        读取主角角色锚点,
-        获取词组转化器预设提示词,
-        接口配置是否可用,
-        读取文生图功能配置,
-        主角生图进行中集合: 主角生图进行中Ref.current,
-        提取主角生图基础数据: (character) => 提取主角生图基础数据(character, {
-            cultivationSystemEnabled: 读取修炼体系开关()
-        }),
-        创建NPC生图任务,
-        生成NPC生图记录ID,
-        构建文生图额外要求
-    });
 
     return 构建useGame返回值({
         gameState,
