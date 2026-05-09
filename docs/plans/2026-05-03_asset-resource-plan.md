@@ -253,7 +253,8 @@ CDN 路径：`https://mrqk.cc.cd/data/era_assets/{eraId}/manifest.json`
 
 - [x] 阶段一.1：补齐 6 个缺失时代的场景素材（36 图 + 6 BGM）— ✅ 已完成
 - [x] 阶段二.4：扩充 BGM 至 20+ 首 — ✅ 已完成（新增 travel/cultivation/supernatural_night/relationship/ending/sect_training 等6首）
-- [x] 阶段二.6：图标扩充至 50+ 张 — 🟡 进行中（14→25张含本次11张图片）
+- [x] 阶段二.6：图标扩充至 50+ 张 — ✅ 已完成（图标已扩至56+张）
+- [x] 补齐 5 个时代 BGM 缺失（2026-05-10）：contemporary_campus、contemporary_post_apocalyptic、contemporary_rural、far-future_virtual_reality、near-future_space_colonization
 
 ---
 
