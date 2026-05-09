@@ -73,6 +73,7 @@ import { 规范化可选开局配置 } from '../utils/openingConfig';
 import { 规范化环境信息, 构建完整地点文本, 规范化角色物品容器映射, 规范化社交列表 } from './useGame/stateTransforms';
 import { createGameStateAccess, createRefRegistry } from './useGame/state';
 import { createImageDomain } from './useGame/domains/imageDomain';
+import { createSessionDomain } from './useGame/domains/sessionDomain';
 import { 按世界演变分流净化响应 } from './useGame/response/storyResponseGuards';
 import { 执行变量自动校准 } from './useGame/planning/variableCalibration';
 import { 执行变量模型校准工作流 } from './useGame/planning/variableModelWorkflow';
@@ -1077,27 +1078,11 @@ export const useGame = () => {
         应用并同步记忆系统(normalized);
     };
 
-    const 存档格式版本 = 3;
-    const 自动存档最小间隔毫秒 = 30000;
-    const 重置读档瞬态状态 = () => {
-        清空变量生成上下文缓存();
-        世界演变进行中Ref.current = false;
-        世界演变去重签名Ref.current = '';
-        set世界演变更新中(false);
-        set世界演变状态文本('世界演变待命');
-        set世界演变最近更新时间(null);
-        世界演变最近现实更新时间戳Ref.current = 0;
-        set世界演变最近摘要([]);
-        set世界演变最近原始消息('');
-    };
-
-    const {
-        handleSaveGame,
-        performAutoSave,
-        handleLoadGame
-    } = 创建存读档工作流({
-        存档格式版本,
-        自动存档最小间隔毫秒,
+    // ==================== 会话生命周期域 ====================
+    const sessionDomain = createSessionDomain({
+        apiConfig,
+        存档格式版本: 3,
+        自动存档最小间隔毫秒: 30000,
         深拷贝,
         历史记录,
         角色,
@@ -1114,8 +1099,8 @@ export const useGame = () => {
         同人剧情规划,
         同人女主剧情规划,
         记忆系统,
-        openingConfig: 开局配置,
-        提示词池: prompts,
+        开局配置,
+        prompts,
         游戏初始时间,
         gameConfig,
         memoryConfig,
@@ -1145,7 +1130,7 @@ export const useGame = () => {
         规范化视觉设置,
         规范化场景图片档案,
         规范化角色物品容器映射,
-        规范化社交列表: 规范化社交列表安全,
+        规范化社交列表安全,
         获取当前提示词池: () => prompts,
         创建开场空白环境,
         创建开场空白世界,
@@ -1159,7 +1144,7 @@ export const useGame = () => {
         设置视觉设置: 应用视觉设置到状态,
         设置场景图片档案: 应用场景图片档案到状态,
         设置游戏初始时间,
-        设置角色锚点列表: (value) => {
+        设置角色锚点列表: (value: any) => {
             void updateApiConfig(config => ({
                 ...config,
                 功能模型占位: {
@@ -1168,7 +1153,7 @@ export const useGame = () => {
                 }
             }));
         },
-        设置当前角色锚点ID: (value) => {
+        设置当前角色锚点ID: (value: any) => {
             void updateApiConfig(config => ({
                 ...config,
                 功能模型占位: {
@@ -1178,11 +1163,11 @@ export const useGame = () => {
             }));
         },
         设置时代信息: 应用时代信息到状态,
-        设置校规系统: 设置校规系统,
-        设置催眠系统: 设置催眠系统,
-        设置校园系统: 设置校园系统,
-        设置写真系统: 设置写真系统,
-        设置都市网约车系统: 设置都市网约车系统,
+        设置校规系统,
+        设置催眠系统,
+        设置校园系统,
+        设置写真系统,
+        设置都市网约车系统,
         setView,
         setShowSaveLoad,
         设置最近开局配置,
@@ -1206,105 +1191,41 @@ export const useGame = () => {
         重置自动存档状态,
         最近自动存档时间戳Ref,
         最近自动存档签名Ref,
-        读档前重置瞬态状态: 重置读档瞬态状态,
+        读档前重置瞬态状态: () => {
+            清空变量生成上下文缓存();
+            世界演变进行中Ref.current = false;
+            世界演变去重签名Ref.current = '';
+            set世界演变更新中(false);
+            set世界演变状态文本('世界演变待命');
+            set世界演变最近更新时间(null);
+            世界演变最近现实更新时间戳Ref.current = 0;
+            set世界演变最近摘要([]);
+            set世界演变最近原始消息('');
+        },
         读档后重置上下文: 清空变量生成上下文缓存,
-        读档后定位到最新回合: () => set聊天区强制置底令牌(prev => prev + 1)
-    });
-
-    const {
-        handleStartNewGameWizard,
-        handleGenerateWorld,
-        handleReturnToHome,
-        handleQuickRestart
-    } = 创建会话生命周期工作流({
-        apiConfig,
-        gameConfig,
-        memoryConfig,
+        读档后定位到最新回合: () => set聊天区强制置底令牌(prev => prev + 1),
+        创建存读档工作流,
         view,
-        prompts,
-        历史记录,
-        记忆系统,
-        社交,
-        环境,
-        角色,
-        世界,
-        战斗,
-        玩家门派,
-        任务列表,
-        约定列表,
-        剧情,
-        剧情规划,
-        女主剧情规划,
-        同人剧情规划,
-        同人女主剧情规划,
-        开局配置,
-        内置提示词列表,
-        世界书列表,
         loading,
         最近开局配置,
         abortControllerRef,
         ensurePromptsLoaded,
-        setView,
-        setPrompts,
         setLoading,
         setShowSettings,
-        设置历史记录,
-        设置最近开局配置,
-        清空重Roll快照,
-        推入重Roll快照,
-        重置自动存档状态,
-        设置角色,
-        设置环境,
-        设置游戏初始时间,
-        设置社交,
-        设置世界,
-        设置战斗,
-        设置玩家门派,
-        设置任务列表,
-        设置约定列表,
-        设置剧情,
-        设置剧情规划,
-        设置女主剧情规划,
-        设置同人剧情规划,
-        设置同人女主剧情规划,
-        设置开局配置,
-        设置时代信息: 应用时代信息到状态,
         currentEra,
-        setGameConfig,
-        设置开局变量生成进度: set开局变量生成进度,
-        设置开局世界演变进度: set开局世界演变进度,
-        设置开局规划进度: set开局规划进度,
         setWorldEvents,
-        应用并同步记忆系统,
         清空变量生成上下文缓存,
         创建开场基础状态,
         构建前端清空开场状态,
         创建开场命令基态,
-        创建开场空白环境,
-        创建开场空白世界,
-        创建开场空白战斗,
-        创建空门派状态,
-        创建开场空白剧情,
         创建空剧情规划,
         创建空记忆系统,
         应用开场基态,
         追加系统消息,
         替换流式草稿为失败提示,
         记录变量生成上下文,
-        深拷贝,
-        performAutoSave,
-        构建系统提示词,
+        构建系统提示词: 构建系统提示词工作流,
         processResponseCommands,
-        规范化环境信息,
-        规范化剧情状态,
-        规范化剧情规划状态,
-        规范化女主剧情规划状态,
-        规范化同人剧情规划状态,
-        规范化同人女主剧情规划状态,
-        规范化角色物品容器映射,
-        规范化社交列表: 规范化社交列表安全,
-        规范化世界状态,
-        规范化战斗状态,
         规范化门派状态,
         游戏设置启用自动重试,
         执行带自动重试的生成请求,
@@ -1317,12 +1238,18 @@ export const useGame = () => {
         触发新增NPC自动生图,
         触发场景自动生图,
         提取新增NPC列表,
-        获取当前视觉设置快照: () => 规范化视觉设置(深拷贝(visualConfigRef.current || visualConfig)),
-        获取当前场景图片档案快照: () => 规范化场景图片档案(深拷贝(场景图片档案Ref.current || 场景图片档案))
+        设置开局变量生成进度: set开局变量生成进度,
+        设置开局世界演变进度: set开局世界演变进度,
+        设置开局规划进度: set开局规划进度,
+        创建会话生命周期工作流,
+        performAutoSaveRef,
+        内置提示词列表,
+        世界书列表,
+        推入重Roll快照,
     });
 
-    // 填充前向引用
-    performAutoSaveRef.current = performAutoSave;
+    const { handleSaveGame, performAutoSave, handleLoadGame } = sessionDomain;
+    const { handleStartNewGameWizard, handleGenerateWorld, handleReturnToHome, handleQuickRestart } = sessionDomain;
 
     const {
         updateRuntimeVariableSection,

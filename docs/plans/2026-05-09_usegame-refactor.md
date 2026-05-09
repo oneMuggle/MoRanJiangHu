@@ -200,7 +200,9 @@ const imageDomain = createImageDomain(context);
 
 ## 当前进度
 
-- **主文件行数**: 1557（目标 ~200）
-- **已完成**: imageDomain 集成，减少 ~187 行
+- **主文件行数**: 1484（目标 ~200，从 1717 减少 233 行）
+- **已完成**:
+  - `imageDomain` 集成（替换 ~187 行内联代码）
+  - `sessionDomain` 集成（替换 ~246 行存读档 + 会话生命周期代码）
 - **阻塞项**: memoryDomain 因循环依赖无法直接集成，需重构 `useFeatureFlags` 的依赖方式
-- **下一步**: 考虑 sessionDomain 和 coreDomain 的提取，进一步减少主文件行数
+- **下一步**: 考虑 coreDomain 的提取（主剧情发送工作流 + 私聊发送工作流），进一步减少主文件行数

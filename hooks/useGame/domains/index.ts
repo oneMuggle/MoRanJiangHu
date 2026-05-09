@@ -11,3 +11,5 @@ export { createImageDomain, type ImageDomainInput } from './imageDomain';
 // 而 memoryDomain 需要 世界演变功能已开启（来自 useFeatureFlags）
 // 解决方案：可考虑将记忆处理器提前创建，或将 memoryDomain 拆分为两个子域
 export { createMemoryDomain, type MemoryDomainInput } from './memoryDomain';
+
+export { createSessionDomain, type SessionDomainInput } from './sessionDomain';
