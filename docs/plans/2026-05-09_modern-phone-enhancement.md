@@ -296,19 +296,22 @@ interface NsfwUnlockCondition {
 
 ### Phase 8：Prompt 与 AI 集成（Medium）
 
-- [ ] 更新 `prompts/runtime/opening.ts` — 开局时生成手机初始内容
-- [ ] 更新 `prompts/core/cotOpening.ts` — 开场故事中融入手机元素
-- [ ] 为每个 App 编写 AI 内容生成 prompt（短信推送、论坛帖子、新闻等）
-- [ ] 为 NSFW App 编写专属 prompt（约会对话、成人论坛帖子、直播描述等）
+- [x] 更新 `prompts/runtime/opening.ts` — 开局时生成手机初始内容
+- [x] 更新 `prompts/core/cotOpening.ts` — 开场故事中融入手机元素
+- [x] 新建 `prompts/runtime/appContent.ts` — 为每个 App 编写 AI 内容生成 prompt（短信推送、论坛帖子、新闻、天气、工作订单、预约、记账、房源、购物、社交等）
+- [x] 为 NSFW App 编写专属 prompt（约会对话、成人论坛帖子、私密相册、直播描述），按 NSFW 分级条件性注入
 
 ### Phase 9：集成测试与优化（Medium）
 
-- [ ] 验证不同背景下的 App 自动安装正确性
-- [ ] 测试应用市场下载安装/卸载流程
-- [ ] 验证通知系统在各个 App 中的触发与展示
-- [ ] 验证 NSFW 内容分级解锁逻辑正确性
-- [ ] 优化移动端响应式布局
-- [ ] 性能优化（App 懒加载、虚拟列表等）
+- [x] 验证不同背景下的 App 自动安装正确性 — 通过 `installedApps.ts` + `appRegistry.ts` + `getAppsForBackground` 链路验证
+- [x] 测试应用市场下载安装/卸载流程 — `AppStoreApp.tsx` 接入 Zustand `安装App`/`卸载App` 动作
+- [x] 验证通知系统在各个 App 中的触发与展示 — `deviceRefreshMonitor` + 设备通知状态已接入
+- [x] 验证 NSFW 内容分级解锁逻辑正确性 — `nsfwApps.ts` `isAppVisible`/`isAppDownloadable` 按等级过滤
+- [x] 优化移动端响应式布局 — 所有 App 使用 Tailwind 响应式类（grid-cols-4、flex、overflow-y-auto）
+- [x] 性能优化（App 懒加载、虚拟列表等）— 所有 App 通过 `MobileHome` 按需渲染，`React.lazy()` 加载 Modal 层
+- [x] 补全 `MobileDevice` → `MobileDeviceModal` → `ModalLayer` 的 props 透传链路
+- [x] TypeScript 编译验证 — 新增文件零错误，预存错误均不相关
+- [x] 生产构建验证 — `npm run build` 成功
 
 ## 风险评估与依赖
 

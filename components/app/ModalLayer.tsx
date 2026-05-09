@@ -916,6 +916,11 @@ export function ModalLayer({
                                     (setters as any).set约定列表?.([...现有约定, 新约定]);
                                 }}
                                 apiConfig={state.apiConfig as any}
+                                installedApps={(state as any).设备已安装App}
+                                nsfwEnabled={(state as any).gameConfig?.启用NSFW模式}
+                                maxNsfwLevel={(state as any).gameConfig?.最大NSFW等级 ?? 0}
+                                onInstallApp={(appId: string) => (actions as any).安装App?.(appId)}
+                                onUninstallApp={(appId: string) => (actions as any).卸载App?.(appId)}
                             />
                         </懒加载边界>
                     )}

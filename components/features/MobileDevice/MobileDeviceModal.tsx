@@ -3,6 +3,8 @@ import MobileDevice from './MobileDevice';
 import type { 接口设置结构 } from '../../../models/system';
 import type { 当前可用接口结构 } from '../../../utils/apiConfig';
 import { DeviceState, MobileApp, DeviceGameContext } from '../../../models/mobileDevice';
+import type { AppInstallState } from '../../../models/installedApps';
+import type { NsfwLevel } from '../../../models/appRegistry';
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级 } from '../../../types';
 import type { NPC结构 } from '../../../models/social';
 import type { BDSM论坛帖子 } from '../../../models/campusNSFW/bdsm-forum';
@@ -29,6 +31,11 @@ interface MobileDeviceModalProps {
     onConfirmNegotiation?: (npcId: string, npcName: string, 协商结果: { 见面回合偏移: number; 见面地点: string; 安全词: string; 玩家底线: string[] }) => void;
     onBDSM保存安全设置?: (npcId: string, 安全词: string, 底线: string[]) => void;
     apiConfig?: ApiConfigLike;
+    installedApps?: AppInstallState;
+    nsfwEnabled?: boolean;
+    maxNsfwLevel?: NsfwLevel;
+    onInstallApp?: (appId: string) => void;
+    onUninstallApp?: (appId: string) => void;
 }
 
 const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
@@ -49,6 +56,11 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
     onConfirmNegotiation,
     onBDSM保存安全设置,
     apiConfig,
+    installedApps,
+    nsfwEnabled,
+    maxNsfwLevel,
+    onInstallApp,
+    onUninstallApp,
 }) => {
     return (
         <div
@@ -77,6 +89,11 @@ const MobileDeviceModal: React.FC<MobileDeviceModalProps> = ({
                     onConfirmNegotiation={onConfirmNegotiation}
                     onBDSM保存安全设置={onBDSM保存安全设置}
                     apiConfig={apiConfig}
+                    installedApps={installedApps}
+                    nsfwEnabled={nsfwEnabled}
+                    maxNsfwLevel={maxNsfwLevel}
+                    onInstallApp={onInstallApp}
+                    onUninstallApp={onUninstallApp}
                 />
             </div>
         </div>
