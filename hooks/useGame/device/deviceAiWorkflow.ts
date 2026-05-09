@@ -1,13 +1,13 @@
 import type { 当前可用接口结构 } from '../../utils/apiConfig';
 import type { DeviceMode, MobileApp, DeviceMessage, DeviceContact, DeviceGroup } from '../../models/mobileDevice';
-import { getDeviceConfig, getAppName } from '../../models/eraDevice';
-import { getEraCategory } from '../../components/features/MobileDevice/eraStyles/EraStyleSelector';
-import { 构建子纪元里模式注入, LiModeIntensity } from '../../prompts/runtime/eraLiMode';
+import { getDeviceConfig, getAppName } from '../../../models/eraDevice';
+import { getEraCategory } from '../../../components/features/MobileDevice/eraStyles/EraStyleSelector';
+import { 构建子纪元里模式注入, LiModeIntensity } from '../../../prompts/runtime/eraLiMode';
 import {
     type 通用消息,
     规范化文本补全消息链,
     请求模型文本,
-} from '../../services/ai/chatCompletionClient';
+} from '../../../services/ai/chatCompletionClient';
 
 // ============================================================
 // 设备消息 AI 生成工作流

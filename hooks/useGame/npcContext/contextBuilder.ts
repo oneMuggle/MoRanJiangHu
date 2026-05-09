@@ -1,7 +1,7 @@
 import type { OpeningConfig, 记忆配置结构 } from '../../../types';
-import { 规范化记忆配置 } from '../memoryUtils';
-import { 构建NPC记忆展示结果 } from '../npcMemorySummary';
-import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../timeUtils';
+import { 规范化记忆配置 } from '../memory/memoryUtils';
+import { 构建NPC记忆展示结果 } from '../memory/npcMemorySummary';
+import { normalizeCanonicalGameTime, 结构化时间转标准串 } from '../time/timeUtils';
 import { 解析境界映射值 } from '../../../prompts/runtime/fandom';
 import { 计算亲密度等级 } from '../../../models/intimacy';
 import { 构建NPC表里切换注入, 构建里模式阶段注入 } from '../../../prompts/runtime/eraLiMode';

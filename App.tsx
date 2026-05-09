@@ -8,7 +8,7 @@ import InputArea from './components/features/Chat/InputArea';
 import LandingPage from './components/layout/LandingPage';
 import InAppConfirmModal, { ConfirmOptions } from './components/ui/InAppConfirmModal';
 import { useGame } from './hooks/useGame';
-import { 环境时间转标准串, normalizeCanonicalGameTime, 结构化时间转标准串 } from './hooks/useGame/timeUtils';
+import { 环境时间转标准串, normalizeCanonicalGameTime, 结构化时间转标准串 } from './hooks/useGame/time/timeUtils';
 import { 获取文生图接口配置, 获取生图词组转化器接口配置, 接口配置是否可用 } from './utils/apiConfig';
 import { 构建字体注入样式文本, 构建UI文字CSS变量 } from './utils/visualSettings';
 import { 获取图片资源文本地址 } from './utils/imageAssets';

@@ -24,7 +24,7 @@ import type { NPC结构 } from '../../../types';
 import { 从NPC创建欲望档案, 创建默认欲望档案 } from '../campusNSFWEngine';
 import { 执行手动存档, 执行自动存档, 执行读取存档 } from '../saveCoordinator';
 import type { 自动存档快照结构 } from '../saveCoordinator';
-import { 校验并修复世界状态 } from '../worldStateIntegrity';
+import { 校验并修复世界状态 } from '../world/worldStateIntegrity';
 
 type 存档编排工作流依赖 = {
     存档格式版本: number;

@@ -1,5 +1,5 @@
 import type { 世界数据结构, 战斗状态结构, 详细门派结构, 剧情系统结构, 剧情规划结构, 环境信息结构, 角色数据结构 } from '../../../types';
-import { 校验并修复世界状态 } from '../worldStateIntegrity';
+import { 校验并修复世界状态 } from '../world/worldStateIntegrity';
 
 const 取文本 = (value: any, fallback = ''): string => (typeof value === 'string' ? value.trim() : fallback);
 const 取数字 = (value: any, fallback = 0): number => { const n = Number(value); return Number.isFinite(n) ? n : fallback; };
