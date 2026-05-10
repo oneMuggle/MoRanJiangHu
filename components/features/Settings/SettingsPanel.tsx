@@ -1,11 +1,11 @@
 import React from 'react';
 import { OrnateBorder } from '../../ui/decorations/OrnateBorder';
-import { 时代主题方案 } from '../../../models/eraTheme';
 import {
     接口设置结构, 提示词结构, ThemePreset, 视觉设置结构, 节日结构, 聊天记录结构,
     游戏设置结构, 记忆配置结构, 记忆系统结构, NPC结构, TavernCommand, OpeningConfig, 剧情系统结构,
     时代配置, 时代信息结构
 } from '../../../types';
+import { 时代主题方案 } from '../../../models/eraTheme';
 
 const ApiSettings = React.lazy(() => import('./ApiSettings'));
 const ImageGenerationSettings = React.lazy(() => import('./ImageGenerationSettings'));
@@ -185,7 +185,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 </div>
             );
         }
-        if (activeTab === 'game' && gameConfig && onSaveGame) return <GameSettings settings={gameConfig} onSave={onSaveGame} currentEra={currentEra} onEraChange={onEraChange} availableEras={availableEras} eraTheme={eraTheme} />;
+        if (activeTab === 'game' && gameConfig && onSaveGame) return <GameSettings settings={gameConfig} onSave={onSaveGame} currentEra={currentEra} />;
         if (activeTab === 'reality' && gameConfig && onSaveGame) return <RealitySettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'tavern_preset' && gameConfig && onSaveGame) return <TavernPresetSettings settings={gameConfig} onSave={onSaveGame} />;
         if (activeTab === 'memory' && memoryConfig && onSaveMemory) return <MemorySettings settings={memoryConfig} onSave={onSaveMemory} />;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 时代主题方案, allEraNodes } from '../../../models/eraTheme';
-import { 时代配置, 游戏设置结构 } from '../../../types';
+import { allEraNodes } from '../../../models/eraTheme';
+import { 游戏设置结构 } from '../../../types';
 import GameButton from '../../ui/GameButton';
 import ToggleSwitch from '../../ui/ToggleSwitch';
 
@@ -8,12 +8,9 @@ interface Props {
     settings: 游戏设置结构;
     onSave: (settings: 游戏设置结构) => void;
     currentEra?: string;
-    onEraChange?: (eraId: string) => void;
-    availableEras?: 时代配置[];
-    eraTheme?: 时代主题方案;
 }
 
-const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChange, availableEras, eraTheme }) => {
+const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra }) => {
     const [form, setForm] = useState<游戏设置结构>(settings);
     const [showSuccess, setShowSuccess] = useState(false);
     const [openMenu, setOpenMenu] = useState<'perspective' | 'style' | 'ntl' | null>(null);
@@ -138,41 +135,6 @@ const GameSettings: React.FC<Props> = ({ settings, onSave, currentEra, onEraChan
 
     return (
         <div ref={rootRef} className="space-y-6 animate-fadeIn">
-            {availableEras && availableEras.length > 0 && (
-                <div className="space-y-3">
-                    <div className="text-sm text-wuxia-cyan font-bold">时代背景</div>
-                    <div className="text-xs text-gray-400">时代是界面风格的大前提，切换后将改变整体配色、字体与界面文案。</div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {availableEras.map((era) => {
-                            const isSelected = era.id === (currentEra || 'ancient_eastern_wuxia');
-                            const scheme = eraTheme?.id === era.id ? eraTheme : undefined;
-                            const colorPreview = scheme
-                                ? [scheme.配色['ink-black'], scheme.配色['ink-gray'], scheme.配色['primary'], scheme.配色['secondary']].map(v => `rgb(${v})`)
-                                : ['rgb(30 30 30)', 'rgb(60 60 60)', 'rgb(180 180 180)', 'rgb(120 120 120)'];
-                            return (
-                                <button
-                                    key={era.id}
-                                    type="button"
-                                    onClick={() => onEraChange?.(era.id)}
-                                    className={`rounded-xl border p-3 text-left transition-all ${
-                                        isSelected
-                                            ? 'border-wuxia-gold/60 bg-wuxia-gold/10 ring-1 ring-wuxia-gold/30'
-                                            : 'border-gray-700/50 bg-black/30 hover:border-gray-500'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-1.5 mb-2">
-                                        {colorPreview.map((c: string, i: number) => (
-                                            <span key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: c }} />
-                                        ))}
-                                    </div>
-                                    <div className="text-sm text-white font-bold">{era.名称}</div>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
             <div className="flex justify-between items-center border-b border-wuxia-gold/30 pb-3 mb-6">
                 <h3 className="text-wuxia-gold font-serif font-bold text-xl">游戏设定</h3>
                 {showSuccess && <span className="text-green-400 text-xs font-bold animate-pulse">✔ 设定已保存</span>}
