@@ -29,6 +29,8 @@ export function 规范化桌游社交NSFW设置(raw: Partial<桌游社交NSFW设
     启用狼人杀NSFW: 读取布尔(raw.启用狼人杀NSFW, s.启用狼人杀NSFW),
     启用剧本杀NSFW: 读取布尔(raw.启用剧本杀NSFW, s.启用剧本杀NSFW),
     启用派对游戏NSFW: 读取布尔(raw.启用派对游戏NSFW, s.启用派对游戏NSFW),
+    启用骰子桌游NSFW: 读取布尔(raw.启用骰子桌游NSFW, s.启用骰子桌游NSFW),
+    启用棋牌桌游NSFW: 读取布尔(raw.启用棋牌桌游NSFW, s.启用棋牌桌游NSFW),
     桌游触发频率: 枚举校验(raw.桌游触发频率, 合法桌游频率, s.桌游触发频率),
     启用桌游多人局: 读取布尔(raw.启用桌游多人局, s.启用桌游多人局),
     启用桌游邀请系统: 读取布尔(raw.启用桌游邀请系统, s.启用桌游邀请系统),
