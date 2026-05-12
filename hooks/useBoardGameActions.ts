@@ -7,6 +7,7 @@
 
 import * as React from 'react';
 import { useGameStore } from './useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
 import type { BoardGamePlayerAction, BoardGameSettlementResult, BoardGamePendingEvent } from './useGame/subsystems/zustandStore';
 
 export interface UseBoardGameActionsReturn {
@@ -40,7 +41,7 @@ export function useBoardGameActions(): UseBoardGameActionsReturn {
     setNarrativeConstraints,
     boardGamePaused,
     pauseReason,
-  } = useGameStore((s) => ({
+  } = useGameStore(useShallow((s) => ({
     setBoardGamePaused: s.setBoardGamePaused,
     setPauseReason: s.setPauseReason,
     addActionToHistory: s.addActionToHistory,
@@ -49,7 +50,7 @@ export function useBoardGameActions(): UseBoardGameActionsReturn {
     setNarrativeConstraints: s.setNarrativeConstraints,
     boardGamePaused: s.boardGamePaused,
     pauseReason: s.pauseReason,
-  }));
+  })));
 
   const dispatch = React.useCallback((action: Omit<BoardGamePlayerAction, 'timestamp'>) => {
     const fullAction: BoardGamePlayerAction = {

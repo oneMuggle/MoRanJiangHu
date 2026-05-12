@@ -127,7 +127,7 @@ const 加载场景生图工作流 = () => import('./useGame/image/sceneImageWork
 export const useGame = () => {
     // --- 统一状态访问 + Ref 注册表（阶段 1 重构） ---
     const gameState = useGameState();
-    const stateAccess = createGameStateAccess(gameState, useGameStore());
+    const stateAccess = createGameStateAccess(gameState, useGameStore.getState());
     const refs = createRefRegistry();
 
     // 从统一状态访问层解构（保持原有变量名，确保后续引用不变）

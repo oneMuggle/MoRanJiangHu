@@ -10,6 +10,7 @@
 
 import * as React from 'react';
 import { useGameStore } from './useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
 import type { BoardGameSettlementResult } from './useGame/subsystems/zustandStore';
 
 export interface UseBoardGameBridgeReturn {
@@ -39,7 +40,7 @@ export function useBoardGameBridge(): UseBoardGameBridgeReturn {
     setPauseReason,
     setNarrativeConstraints,
     setLastSettlement,
-  } = useGameStore((s) => ({
+  } = useGameStore(useShallow((s) => ({
     boardGamePaused: s.boardGamePaused,
     pauseReason: s.pauseReason,
     showBoardGameModal: s.showBoardGameModal,
@@ -48,7 +49,7 @@ export function useBoardGameBridge(): UseBoardGameBridgeReturn {
     setPauseReason: s.setPauseReason,
     setNarrativeConstraints: s.setNarrativeConstraints,
     setLastSettlement: s.setLastSettlement,
-  }));
+  })));
 
   const onChatMessageSent = React.useCallback(() => {
     if (showBoardGameModal && !boardGamePaused) {
