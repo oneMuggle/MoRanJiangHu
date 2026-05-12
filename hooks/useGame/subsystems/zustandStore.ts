@@ -572,19 +572,38 @@ interface EngineSliceActions {
 
 interface EngineSlice extends EngineSliceState, EngineSliceActions {}
 
+// 辅助函数：为所有 EngineType 生成默认值
+function allEngines<T>(fallback: T): Record<EngineType, T> {
+  return {
+    boardGame: fallback,
+    urbanDriver: fallback,
+    phoneSim: fallback,
+    campusNSFW: fallback,
+    bdsm: fallback,
+    global: fallback,
+    rpgBattle: fallback,
+    rpgEquip: fallback,
+    rpgItem: fallback,
+    rpgKungfu: fallback,
+    rpgTask: fallback,
+    rpgSect: fallback,
+    avgDialogue: fallback,
+    avgRelation: fallback,
+    avgBranch: fallback,
+    exploration: fallback,
+    dailyTown: fallback,
+    notification: fallback,
+  };
+}
+
 const DEFAULT_ENGINE_STATUS: Record<EngineType, 'idle' | 'running' | 'paused' | 'error'> = {
-  boardGame: 'idle',
-  urbanDriver: 'idle',
-  phoneSim: 'idle',
-  campusNSFW: 'idle',
-  bdsm: 'idle',
-  global: 'idle',
+  ...allEngines('idle' as const),
 };
 
 const createEngineSlice: ZustandSlice<EngineSlice> = (set) => ({
   engineStatus: { ...DEFAULT_ENGINE_STATUS },
-  enginePausedReason: { boardGame: null, urbanDriver: null, phoneSim: null, campusNSFW: null, bdsm: null, global: null },
-  engineActiveFlags: { boardGame: false, urbanDriver: false, phoneSim: false, campusNSFW: false, bdsm: false, global: false },
+  enginePausedReason: allEngines(null),
+  engineActiveFlags: allEngines(false),
   setEngineStatus: (type, status) => set((state) => ({
     engineStatus: { ...state.engineStatus, [type]: status },
   })),

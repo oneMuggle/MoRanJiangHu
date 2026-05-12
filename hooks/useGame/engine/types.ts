@@ -12,7 +12,24 @@ export type EngineType =
   | 'phoneSim'
   | 'campusNSFW'
   | 'bdsm'
-  | 'global';
+  | 'global'
+  // RPG engines (Phases 7-9)
+  | 'rpgBattle'
+  | 'rpgEquip'
+  | 'rpgItem'
+  | 'rpgKungfu'
+  | 'rpgTask'
+  | 'rpgSect'
+  // AVG engines (Phases 11-13)
+  | 'avgDialogue'
+  | 'avgRelation'
+  | 'avgBranch'
+  // Exploration engine (Phase 14)
+  | 'exploration'
+  // Daily town engine (Phase 10)
+  | 'dailyTown'
+  // Notification engine (promoted from standalone class)
+  | 'notification';
 
 // ==================== 回合系统 ====================
 
@@ -175,4 +192,21 @@ export const ENGINE_PRIORITY: Record<EngineType, EnginePriority> = {
   campusNSFW: 'medium',
   bdsm: 'low',
   global: 'high',
+  // RPG engines
+  rpgBattle: 'high',
+  rpgEquip: 'medium',
+  rpgItem: 'medium',
+  rpgKungfu: 'medium',
+  rpgTask: 'low',
+  rpgSect: 'medium',
+  // AVG engines
+  avgDialogue: 'high',
+  avgRelation: 'medium',
+  avgBranch: 'medium',
+  // Exploration
+  exploration: 'high',
+  // Daily town
+  dailyTown: 'medium',
+  // Notification
+  notification: 'low',
 };

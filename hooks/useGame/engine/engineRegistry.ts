@@ -12,6 +12,8 @@ import type {
   GameEvent,
 } from './types';
 import { ENGINE_PRIORITY } from './types';
+import { getEventBus } from '../events/globalEventBus';
+import type { EventSubscriber } from '../events/eventSubscriber';
 
 export interface EngineMetadata {
   type: EngineType;
@@ -32,6 +34,7 @@ export class EngineRegistry {
 
   /**
    * 注册引擎到注册表。
+   * 如果引擎实现了 EventSubscriber 接口，自动订阅到 EventBus。
    */
   register(engine: SLGEngine): void {
     const type = engine.getEngineType();
@@ -46,14 +49,24 @@ export class EngineRegistry {
       registeredAt: Date.now(),
       isActive: true,
     });
+
+    // 如果引擎实现了 EventSubscriber，自动订阅
+    const subscriber = engine as Partial<EventSubscriber>;
+    if (typeof subscriber.handleEvent === 'function') {
+      getEventBus().subscribe(subscriber as EventSubscriber);
+    }
   }
 
   /**
    * 注销并移除引擎。
+   * 如果引擎之前订阅了 EventBus，自动取消订阅。
    */
   unregister(type: EngineType): boolean {
     const engine = this._engines.get(type);
     if (!engine) return false;
+
+    // 自动取消 EventBus 订阅
+    getEventBus().unsubscribe(type);
 
     this._engines.delete(type);
     this._metadata.delete(type);
@@ -151,12 +164,14 @@ export class EngineRegistry {
   }
 
   /**
-   * 广播事件到所有引擎。
+   * 广播事件到所有引擎，同时发布到 EventBus。
    */
   broadcastEvent(event: GameEvent): void {
     for (const engine of this._engines.values()) {
       engine.enqueueEvent(event);
     }
+    // 同时发布到 EventBus，让非 SLGEngine 订阅者也能收到
+    getEventBus().publish(event);
   }
 
   /**

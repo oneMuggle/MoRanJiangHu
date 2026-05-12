@@ -19,6 +19,7 @@ import type {
   ActionResult,
 } from './types';
 import { EngineRegistry } from './engineRegistry';
+import { getEventBus } from '../events/globalEventBus';
 
 export interface GlobalTurnManagerConfig {
   /** 自动推进间隔（ms），0 表示禁用自动推进 */
@@ -106,6 +107,14 @@ export class GlobalTurnManager {
     // 聚合全局事件
     const batchedEvents = this._batchEvents(eventsTriggered);
     batchedEvents.push(...this._drainGlobalEvents());
+
+    // 通过 EventBus 发布事件，让外部订阅者（非引擎模块）也能收到
+    for (const event of batchedEvents) {
+      getEventBus().publish(event);
+    }
+
+    // 处理延迟队列中到期的事件
+    getEventBus().processQueued(this._currentTurn);
 
     const turnResult: TurnResult = {
       turnNumber: this._currentTurn,

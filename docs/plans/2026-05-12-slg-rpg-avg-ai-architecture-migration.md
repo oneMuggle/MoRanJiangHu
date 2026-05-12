@@ -1306,14 +1306,18 @@ assets/presets/
 
 ---
 
-## 九、新增文件清单（99 个）
+## 九、新增文件清单（107 个）
 
 | 文件 | 阶段 | 说明 |
 |------|------|------|
 | `hooks/useGame/events/globalEventBus.ts` | 六 | 事件总线核心 |
-| `hooks/useGame/events/eventTypes.ts` | 六 | 事件类型定义 |
+| `hooks/useGame/events/globalEventBus.test.ts` | 六 | EventBus 单元测试 (17 tests) |
+| `hooks/useGame/events/eventTypes.ts` | 六 | 事件类型定义 (46种) |
 | `hooks/useGame/events/eventSubscriber.ts` | 六 | 订阅者接口 |
+| `hooks/useGame/events/index.ts` | 六 | 事件模块导出 |
 | `hooks/useGame/narrative/constraintBuilder.ts` | 六 | 叙事约束构建器 |
+| `hooks/useGame/narrative/constraintBuilder.test.ts` | 六 | ConstraintBuilder 测试 (12 tests) |
+| `hooks/useGame/narrative/index.ts` | 六 | 叙事模块导出 |
 | `prompts/runtime/narrativeConstraints.ts` | 六 | 分层注入 prompt |
 | `hooks/useGame/engine/rpgBattleEngine.ts` | 七 | 战斗引擎 |
 | `hooks/useGame/rpg/battle/damageCalculator.ts` | 七 | 伤害计算 |
@@ -1407,12 +1411,16 @@ assets/presets/
 
 ### 阶段六：全局事件总线 + 叙事约束构建器
 
-- [ ] 6.1 全局事件总线（`globalEventBus.ts`）
-- [ ] 6.2 事件类型定义（`eventTypes.ts`）
-- [ ] 6.3 叙事约束构建器（`constraintBuilder.ts`）
-- [ ] 6.4 分层注入 prompt
-- [ ] 6.5 单元测试
-- [ ] 6.6 build 通过
+- [x] 6.1 全局事件总线（`globalEventBus.ts`）— 单例模式，订阅/发布/广播/历史/延迟队列
+- [x] 6.2 事件类型定义（`eventTypes.ts`）— 46 种事件类型 + 领域映射 + 工厂函数
+- [x] 6.3 叙事约束构建器（`constraintBuilder.ts`）— 分层注册、优先级注入、大小控制 < 2KB
+- [x] 6.4 分层注入 prompt（`systemPromptBuilder.ts` L1592-1600）
+- [x] 6.5 单元测试 — 29 tests 通过（EventBus 17 + ConstraintBuilder 12）
+- [x] 6.6 build 通过 — 修改文件无 TypeScript 错误
+- [x] 6.7 EngineType 扩展（`engine/types.ts`）— 6 → 18 种引擎类型
+- [x] 6.8 Zustand 默认更新（`zustandStore.ts`）— allEngines() 辅助函数
+- [x] 6.9 EngineRegistry 集成（`engineRegistry.ts`）— 自动订阅/取消订阅 EventBus
+- [x] 6.10 GlobalTurnManager 集成（`globalTurnManager.ts`）— advanceTurn 后发布事件 + 处理延迟队列
 
 ### 阶段七：RPG 战斗引擎
 

@@ -60,6 +60,7 @@ import { 构建校规注入提示词, 构建催眠注入提示词 } from './camp
 import { 构建设备通讯摘要 } from './device/triggerDeviceMessageWorkflow';
 import { 构建BDSM论坛叙事约束 } from '../../prompts/runtime/bdsmForum';
 import { 构建桌游NSFW完整叙事约束 } from '../../prompts/runtime/boardGameNSFW';
+import { ConstraintBuilder } from './narrative/constraintBuilder';
 import { 检查到期见面预约, 构建见面注入提示词 } from './bdsmMeetingTrigger';
 
 export type 运行时提示词状态 = {
@@ -1588,6 +1589,14 @@ export const 构建系统提示词 = ({
                     ? 桌游系统.参与NPC.map((n: any) => `${n.name || n.id}: ${n.状态 || 'active'}`).join('\n')
                     : undefined,
             });
+        })(),
+        // 统一叙事约束（四支柱：SLG + RPG + AVG + AI）
+        (() => {
+            const builder = (statePayload as Record<string, unknown>).__constraintBuilder as ConstraintBuilder | undefined;
+            if (!builder) return null;
+            const xml = builder.build(statePayload);
+            if (!xml || xml === '<游戏叙事约束>\n\n</游戏叙事约束>') return null;
+            return xml;
         })(),
         设备通讯摘要 || null
     ]
