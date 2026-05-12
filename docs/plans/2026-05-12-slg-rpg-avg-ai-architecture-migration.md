@@ -1470,13 +1470,13 @@ assets/presets/
 
 ### 阶段十二：AVG 关系图谱/好感度（+ Galgame 扩展）
 
-- [ ] 12.1 AVG 关系引擎
-- [ ] 12.2 好感度状态机 + 触发器
-- [ ] 12.3 Galgame 路线判定
-- [ ] 12.4 Galgame 结局解析
-- [ ] 12.5 Galgame CG 图鉴
-- [ ] 12.6 单元测试
-- [ ] 12.7 build 通过
+- [x] 12.1 AVG 关系引擎 — `hooks/useGame/engine/avgRelationEngine.ts`
+- [x] 12.2 好感度状态机 + 触发器 — `hooks/useGame/avg/intimacy/intimacyStateMachine.ts`
+- [x] 12.3 Galgame 路线判定 — `hooks/useGame/avg/galgame/routeResolver.ts`
+- [x] 12.4 Galgame 结局解析 — `hooks/useGame/avg/galgame/endingResolver.ts`
+- [x] 12.5 CG 图鉴管理 — 内置在 `endingResolver.ts` 中 (`CGManager`)
+- [x] 12.6 单元测试 — `hooks/useGame/phase12.test.ts`，75 tests 通过
+- [x] 12.7 build 通过
 
 ### 阶段十三：AVG 分支叙事追踪引擎
 
