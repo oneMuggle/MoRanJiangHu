@@ -129,3 +129,9 @@ export const MobileNovelWritingWorkbenchModal = 创建可预加载懒组件(() =
 
 // Mobile Device
 export const MobileDeviceModal = 创建可预加载懒组件(() => import('./MobileDevice/MobileDeviceModal'));
+
+// Board Game
+export const BoardGameDashboard = 创建可预加载懒组件(() => import('./BoardGame/BoardGameDashboard'));
+export const BoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/BoardGameModal'));
+export const MobileBoardGameDashboard = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameDashboard'));
+export const MobileBoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameModal'));

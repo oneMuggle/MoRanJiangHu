@@ -39,6 +39,17 @@ interface ReturnMapperDeps {
     设备状态: any;
     设备刷新任务队列: any[];
     旅行事件列表: any[];
+
+    // BoardGame Slice
+    showBoardGameDashboard: boolean;
+    setShowBoardGameDashboard: (updater: boolean | ((prev: boolean) => boolean)) => void;
+    showBoardGameModal: boolean;
+    setShowBoardGameModal: (updater: boolean | ((prev: boolean) => boolean)) => void;
+    activeBoardGameTab: string;
+    setActiveBoardGameTab: (updater: any) => void;
+    selectedGameType: string | null;
+    setSelectedGameType: (updater: any) => void;
+
     最近开局配置: any;
 
     // Computed meta

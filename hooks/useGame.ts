@@ -214,6 +214,11 @@ export const useGame = () => {
         set时代信息,
         // Zustand Store — Travel Slice
         旅行事件列表,
+        // Zustand Store — BoardGame Slice
+        showBoardGameDashboard, setShowBoardGameDashboard,
+        showBoardGameModal, setShowBoardGameModal,
+        activeBoardGameTab, setActiveBoardGameTab,
+        selectedGameType, setSelectedGameType,
     } = stateAccess;
 
     // 从 Ref 注册表解构（保持原有变量名）
@@ -779,6 +784,10 @@ export const useGame = () => {
         设备状态: 设备状态Zustand,
         设备刷新任务队列,
         旅行事件列表,
+        showBoardGameDashboard, setShowBoardGameDashboard,
+        showBoardGameModal, setShowBoardGameModal,
+        activeBoardGameTab, setActiveBoardGameTab,
+        selectedGameType, setSelectedGameType,
         最近开局配置,
         已进入主剧情回合,
         接口配置是否可用,

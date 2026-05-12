@@ -219,6 +219,16 @@ export interface GameStateAccess {
     // Travel Slice
     旅行事件列表: GameStoreSlice['旅行事件列表'];
 
+    // BoardGame Slice
+    showBoardGameDashboard: GameStoreSlice['showBoardGameDashboard'];
+    setShowBoardGameDashboard: GameStoreSlice['setShowBoardGameDashboard'];
+    showBoardGameModal: GameStoreSlice['showBoardGameModal'];
+    setShowBoardGameModal: GameStoreSlice['setShowBoardGameModal'];
+    activeBoardGameTab: GameStoreSlice['activeBoardGameTab'];
+    setActiveBoardGameTab: GameStoreSlice['setActiveBoardGameTab'];
+    selectedGameType: GameStoreSlice['selectedGameType'];
+    setSelectedGameType: GameStoreSlice['setSelectedGameType'];
+
     // --- 派生状态 ---
     /** 世界演变时间管理（游戏内时间 + 现实时间戳） */
     世界演变时间管理: 世界演变时间管理器;
@@ -440,6 +450,16 @@ export function createGameStateAccess(
 
         // Travel Slice
         旅行事件列表: store.旅行事件列表,
+
+        // BoardGame Slice
+        showBoardGameDashboard: store.showBoardGameDashboard,
+        setShowBoardGameDashboard: store.setShowBoardGameDashboard,
+        showBoardGameModal: store.showBoardGameModal,
+        setShowBoardGameModal: store.setShowBoardGameModal,
+        activeBoardGameTab: store.activeBoardGameTab,
+        setActiveBoardGameTab: store.setActiveBoardGameTab,
+        selectedGameType: store.selectedGameType,
+        setSelectedGameType: store.setSelectedGameType,
 
         // --- 派生状态 ---
         世界演变时间管理,

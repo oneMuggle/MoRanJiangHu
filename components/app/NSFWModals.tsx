@@ -19,6 +19,10 @@ import {
     BDSMContractModal,
     BDSMSafetyModal,
     MobileCampusDesireApp,
+    BoardGameDashboard,
+    MobileBoardGameDashboard,
+    BoardGameModal,
+    MobileBoardGameModal,
 } from '../features/lazyComponents';
 
 // ============================================================================
@@ -38,6 +42,10 @@ interface NSFWModalsProps {
     setShowUrbanDriver: (v: React.SetStateAction<boolean>) => void;
     showNsfwCenter: boolean;
     setShowNsfwCenter: (v: React.SetStateAction<boolean>) => void;
+    showBoardGameDashboard: boolean;
+    setShowBoardGameDashboard: (v: React.SetStateAction<boolean>) => void;
+    showBoardGameModal: boolean;
+    setShowBoardGameModal: (v: React.SetStateAction<boolean>) => void;
     showBDSMRelationship: { npcId: string; npcName: string } | null;
     setShowBDSMRelationship: (v: React.SetStateAction<{ npcId: string; npcName: string } | null>) => void;
     showBDSMContract: { npcId: string; npcName: string } | null;
@@ -63,6 +71,10 @@ export function NSFWModals({
     setShowUrbanDriver,
     showNsfwCenter,
     setShowNsfwCenter,
+    showBoardGameDashboard,
+    setShowBoardGameDashboard,
+    showBoardGameModal,
+    setShowBoardGameModal,
     showBDSMRelationship,
     setShowBDSMRelationship,
     showBDSMContract,
@@ -176,8 +188,53 @@ export function NSFWModals({
                             if (moduleId === 'campusNSFW') setShowCampusDesire(true);
                             else if (moduleId === 'photographyNSFW') setShowPhotography(true);
                             else if (moduleId === 'urbanDriverNSFW') setShowUrbanDriver(true);
+                            else if (moduleId === 'boardGameNSFW') setShowBoardGameDashboard(true);
                         }}
                     />
+                </懒加载边界>
+            )}
+
+            {showBoardGameDashboard && (
+                <懒加载边界>
+                    {isMobile ? (
+                        <MobileBoardGameDashboard
+                            桌游状态={欲望系统?.桌游状态 ?? null}
+                            onClose={() => setShowBoardGameDashboard(false)}
+                            onStartGame={(type) => {
+                                setShowBoardGameDashboard(false);
+                                setShowBoardGameModal(true);
+                            }}
+                        />
+                    ) : (
+                        <BoardGameDashboard
+                            桌游状态={欲望系统?.桌游状态 ?? null}
+                            onClose={() => setShowBoardGameDashboard(false)}
+                            onStartGame={(type) => {
+                                setShowBoardGameDashboard(false);
+                                setShowBoardGameModal(true);
+                            }}
+                        />
+                    )}
+                </懒加载边界>
+            )}
+
+            {showBoardGameModal && (
+                <懒加载边界>
+                    {isMobile ? (
+                        <MobileBoardGameModal
+                            多人局={欲望系统?.多人局 ?? null}
+                            桌游类型={欲望系统?.桌游状态?.桌游类型 ?? null}
+                            桌游状态={欲望系统?.桌游状态 ?? null}
+                            onClose={() => setShowBoardGameModal(false)}
+                        />
+                    ) : (
+                        <BoardGameModal
+                            多人局={欲望系统?.多人局 ?? null}
+                            桌游类型={欲望系统?.桌游状态?.桌游类型 ?? null}
+                            桌游状态={欲望系统?.桌游状态 ?? null}
+                            onClose={() => setShowBoardGameModal(false)}
+                        />
+                    )}
                 </懒加载边界>
             )}
 

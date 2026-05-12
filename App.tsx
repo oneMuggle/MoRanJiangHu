@@ -34,6 +34,8 @@ const App: React.FC = () => {
         showPhotography, setShowPhotography,
         showUrbanDriver, setShowUrbanDriver,
         showNsfwCenter, setShowNsfwCenter,
+        showBoardGameDashboard, setShowBoardGameDashboard,
+        showBoardGameModal, setShowBoardGameModal,
         showBDSMRelationship, setShowBDSMRelationship,
         showBDSMContract, setShowBDSMContract,
         showBDSMSafety, setShowBDSMSafety,
@@ -265,6 +267,10 @@ const App: React.FC = () => {
                     setShowUrbanDriver={setShowUrbanDriver}
                     showNsfwCenter={showNsfwCenter}
                     setShowNsfwCenter={setShowNsfwCenter}
+                    showBoardGameDashboard={showBoardGameDashboard}
+                    setShowBoardGameDashboard={setShowBoardGameDashboard}
+                    showBoardGameModal={showBoardGameModal}
+                    setShowBoardGameModal={setShowBoardGameModal}
                     showBDSMRelationship={showBDSMRelationship}
                     setShowBDSMRelationship={setShowBDSMRelationship}
                     showBDSMContract={showBDSMContract}

@@ -16,6 +16,7 @@ import type { NPC记忆总结任务结构, 记忆总结阶段类型 } from '../m
 import type { WorldGenConfig } from '../../../models/system';
 import type { 角色数据结构 } from '../../../models/character';
 import type { OpeningConfig } from '../../../models/system';
+import type { 桌游类型 } from '../../../models/boardGameNSFW/core';
 
 // Type helpers for slices (defined locally to avoid circular deps with useGame.ts)
 type 最近开局配置结构 = {
@@ -441,9 +442,46 @@ const createSceneConfigSlice: ZustandSlice<SceneConfigSlice> = (set) => ({
     })),
 });
 
+// ==================== BoardGame Slice (Zustand) ====================
+
+interface BoardGameSliceState {
+  showBoardGameDashboard: boolean;
+  showBoardGameModal: boolean;
+  activeBoardGameTab: 'dashboard' | 'history' | 'preferences';
+  selectedGameType: 桌游类型 | null;
+}
+
+interface BoardGameSliceActions {
+  setShowBoardGameDashboard: (updater: boolean | ((prev: boolean) => boolean)) => void;
+  setShowBoardGameModal: (updater: boolean | ((prev: boolean) => boolean)) => void;
+  setActiveBoardGameTab: (updater: BoardGameSliceState['activeBoardGameTab'] | ((prev: BoardGameSliceState['activeBoardGameTab']) => BoardGameSliceState['activeBoardGameTab'])) => void;
+  setSelectedGameType: (updater: 桌游类型 | null | ((prev: 桌游类型 | null) => 桌游类型 | null)) => void;
+}
+
+interface BoardGameSlice extends BoardGameSliceState, BoardGameSliceActions {}
+
+const createBoardGameSlice: ZustandSlice<BoardGameSlice> = (set) => ({
+  showBoardGameDashboard: false,
+  showBoardGameModal: false,
+  activeBoardGameTab: 'dashboard',
+  selectedGameType: null,
+  setShowBoardGameDashboard: (updater) => set((state) => ({
+    showBoardGameDashboard: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.showBoardGameDashboard) : updater,
+  })),
+  setShowBoardGameModal: (updater) => set((state) => ({
+    showBoardGameModal: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.showBoardGameModal) : updater,
+  })),
+  setActiveBoardGameTab: (updater) => set((state) => ({
+    activeBoardGameTab: typeof updater === 'function' ? (updater as (prev: BoardGameSliceState['activeBoardGameTab']) => BoardGameSliceState['activeBoardGameTab'])(state.activeBoardGameTab) : updater,
+  })),
+  setSelectedGameType: (updater) => set((state) => ({
+    selectedGameType: typeof updater === 'function' ? (updater as (prev: 桌游类型 | null) => 桌游类型 | null)(state.selectedGameType) : updater,
+  })),
+});
+
 // ==================== Store ====================
 
-export interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice {}
+export interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice, BoardGameSlice {}
 
 export const useGameStore = create<GameStore>()((...a) => ({
     ...createUISlice(...a),
@@ -456,5 +494,6 @@ export const useGameStore = create<GameStore>()((...a) => ({
     ...createVariableSlice(...a),
     ...createOpeningSlice(...a),
     ...createSceneConfigSlice(...a),
+    ...createBoardGameSlice(...a),
 }));
 

@@ -37,6 +37,10 @@ export interface AppModalState {
     setShowUrbanDriver: React.Dispatch<React.SetStateAction<boolean>>;
     showNsfwCenter: boolean;
     setShowNsfwCenter: React.Dispatch<React.SetStateAction<boolean>>;
+    showBoardGameDashboard: boolean;
+    setShowBoardGameDashboard: React.Dispatch<React.SetStateAction<boolean>>;
+    showBoardGameModal: boolean;
+    setShowBoardGameModal: React.Dispatch<React.SetStateAction<boolean>>;
     showBDSMRelationship: { npcId: string; npcName: string } | null;
     setShowBDSMRelationship: React.Dispatch<React.SetStateAction<{ npcId: string; npcName: string } | null>>;
     showBDSMContract: { npcId: string; npcName: string } | null;
@@ -90,6 +94,8 @@ export function useAppModalState({
     const [showPhotography, setShowPhotography] = React.useState(false);
     const [showUrbanDriver, setShowUrbanDriver] = React.useState(false);
     const [showNsfwCenter, setShowNsfwCenter] = React.useState(false);
+    const [showBoardGameDashboard, setShowBoardGameDashboard] = React.useState(false);
+    const [showBoardGameModal, setShowBoardGameModal] = React.useState(false);
     const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
@@ -134,6 +140,8 @@ export function useAppModalState({
         showPhotography, setShowPhotography,
         showUrbanDriver, setShowUrbanDriver,
         showNsfwCenter, setShowNsfwCenter,
+        showBoardGameDashboard, setShowBoardGameDashboard,
+        showBoardGameModal, setShowBoardGameModal,
         showBDSMRelationship, setShowBDSMRelationship,
         showBDSMContract, setShowBDSMContract,
         showBDSMSafety, setShowBDSMSafety,
