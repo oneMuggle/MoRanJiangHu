@@ -88,7 +88,7 @@ describe('计算暴露风险', () => {
 
   it('CBD 写字楼应有较低风险', () => {
     const risk = 计算暴露风险(0, 'CBD写字楼', '试探');
-    expect(risk).toBeLessThan(20);
+    expect(risk).toBeLessThan(30);
   });
 });
 

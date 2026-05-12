@@ -342,8 +342,10 @@ interface ActionLogEntry {
 
 > [x] 2.1 接入统一引擎接口 — **已完成**。`BoardGameEngine` 继承 `BaseEngine`，实现 `SLGEngine` 全部接口。
 
-> [ ] 2.2 游戏循环实现
-> [ ] 2.3 7 个新游戏 Panel 实现
+> [x] 2.3 7 个新游戏 Panel 实现 — **已完成**。全部 8 个游戏 Panel 均已实现并注册：
+>   - 真心话大冒险Panel、国王游戏Panel（P0）
+>   - 大富翁Panel、棋牌游戏Panel（P1）
+>   - 密室逃脱Panel、剧本杀Panel、狼人杀Panel（P2/P3）
 > [ ] 2.4 叙事约束注入验证
 
 > 这是最成熟的模块，已有完整的引擎代码和部分 UI。
@@ -448,9 +450,9 @@ function gameLoop() {
 
 #### 阶段二验收标准
 
-- [ ] `boardGameNSFWEngine` 继承 BaseEngine，通过接口测试
-- [ ] 游戏循环正常运行，自动回合推进正常
-- [ ] 7 个新游戏 Panel 可交互游玩
+- [x] `boardGameNSFWEngine` 继承 BaseEngine，通过接口测试 — `BoardGameEngine` 22 tests
+- [x] 游戏循环正常运行，自动回合推进正常 — `BoardGameLoop` 16 tests
+- [x] 7 个新游戏 Panel 可交互游玩 — 全部 8 个 Panel 已实现
 - [ ] 叙事约束正确注入 prompt
 - [ ] AI 输出质量验证通过（紧张度变化、关键步骤描写）
 - [ ] 所有 Panel 移动端响应式正常

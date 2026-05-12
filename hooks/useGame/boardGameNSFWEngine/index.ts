@@ -42,6 +42,16 @@ export {
 
 export { BoardGameEngine } from './boardGameEngine';
 
+// === 游戏循环 ===
+
+export {
+  BoardGameLoop,
+  createBoardGameLoop,
+  type GameLoopState,
+  type GameLoopConfig,
+  type GameLoopCallbacks,
+} from './gameLoop';
+
 export type {
   多人局配置,
   多人局参与者,

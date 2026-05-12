@@ -59,6 +59,7 @@ import { 构建行动选项运行时指令 } from '../../prompts/runtime/actionO
 import { 构建校规注入提示词, 构建催眠注入提示词 } from './campusPromptInjector';
 import { 构建设备通讯摘要 } from './device/triggerDeviceMessageWorkflow';
 import { 构建BDSM论坛叙事约束 } from '../../prompts/runtime/bdsmForum';
+import { 构建桌游NSFW完整叙事约束 } from '../../prompts/runtime/boardGameNSFW';
 import { 检查到期见面预约, 构建见面注入提示词 } from './bdsmMeetingTrigger';
 
 export type 运行时提示词状态 = {
@@ -1573,6 +1574,20 @@ export const 构建系统提示词 = ({
             // 只取最早到期的一个，避免 prompt 过长
             const 首个到期 = 到期预约[0];
             return 构建见面注入提示词(首个到期);
+        })(),
+        // 桌游社交 NSFW 叙事约束注入
+        (() => {
+            const 桌游系统 = statePayload?.桌游系统;
+            if (!桌游系统?.桌游类型) return null;
+
+            return 构建桌游NSFW完整叙事约束({
+                桌游类型: 桌游系统.桌游类型,
+                密室主题: (桌游系统.当前桌游状态 as any)?.当前主题,
+                紧张度: 桌游系统.紧张度,
+                参与NPC摘要: Array.isArray(桌游系统.参与NPC)
+                    ? 桌游系统.参与NPC.map((n: any) => `${n.name || n.id}: ${n.状态 || 'active'}`).join('\n')
+                    : undefined,
+            });
         })(),
         设备通讯摘要 || null
     ]
