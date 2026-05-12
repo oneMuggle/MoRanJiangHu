@@ -1451,14 +1451,14 @@ assets/presets/
 
 ### 阶段十：日常城镇地图引擎
 
-- [ ] 10.1 DailyTownEngine 主类
-- [ ] 10.2 城镇区域节点图
-- [ ] 10.3 行动力 + 时段管理器
-- [ ] 10.4 NPC 日程管理器
-- [ ] 10.5 动态事件触发
-- [ ] 10.6 区域面板 UI（武器铺/酒楼/茶楼等）
-- [ ] 10.7 单元测试
-- [ ] 10.8 build 通过
+- [x] 10.1 DailyTownEngine 主类
+- [x] 10.2 城镇区域节点图 (townGraph.ts)
+- [x] 10.3 行动力管理器 (actionPointManager.ts) + 时段管理器 (timeOfDayManager.ts)
+- [x] 10.4 NPC 日程管理器 (npcScheduleManager.ts)
+- [x] 10.5 动态事件触发 (dynamicEventTrigger.ts)
+- [ ] 10.6 区域面板 UI（武器铺/酒楼/茶楼等）— 待前端实施
+- [x] 10.7 单元测试 — 52 tests 通过
+- [x] 10.8 build 通过 — TypeScript 编译无错误
 
 ### 阶段十一：AVG 对话树引擎
 
