@@ -1462,10 +1462,10 @@ assets/presets/
 
 ### 阶段十一：AVG 对话树引擎
 
-- [ ] 11.1 AVG 对话引擎
-- [ ] 11.2 对话树结构
-- [ ] 11.3 节点解析器 + 条件求值
-- [ ] 11.4 单元测试
+- [x] 11.1 AVG 对话引擎 — `hooks/useGame/engine/avgDialogueEngine.ts`
+- [x] 11.2 对话树结构 — `models/avg/dialogueTree.ts`
+- [x] 11.3 节点解析器 + 条件求值 — `hooks/useGame/avg/dialogue/nodeResolver.ts` + `conditionEvaluator.ts`
+- [x] 11.4 单元测试 — `hooks/useGame/phase11.test.ts`，52 tests 通过
 - [ ] 11.5 build 通过
 
 ### 阶段十二：AVG 关系图谱/好感度（+ Galgame 扩展）
