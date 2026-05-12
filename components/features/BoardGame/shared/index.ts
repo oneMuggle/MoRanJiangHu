@@ -5,3 +5,8 @@ export { default as EventQueue } from './EventQueue';
 export { default as RoundCounter } from './RoundCounter';
 export { default as GameTypeSelector } from './GameTypeSelector';
 export { default as StatCard } from './StatCard';
+export { default as ActionButtons } from './ActionButtons';
+export { default as ChoiceDialog } from './ChoiceDialog';
+export { default as StatusBadge } from './StatusBadge';
+export type { ActionButtonDef } from './ActionButtons';
+export type { ChoiceOption } from './ChoiceDialog';

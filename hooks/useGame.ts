@@ -116,6 +116,7 @@ import { 构建useGame返回值 } from './useGame/core/useGameReturnMapper';
 import { createUtilityDomain } from './useGame/domains/utilityDomain';
 import { createMemoryRuntimeDomain } from './useGame/domains/memoryRuntimeDomain';
 import { createWorkflowDomain } from './useGame/domains/workflowDomain';
+import { useBoardGameBridge } from './useBoardGameBridge';
 
 const 加载图片AI服务 = () => import('../services/ai/image/runtime');
 const 加载NPC生图工作流 = () => import('./useGame/image/npcImageWorkflow');
@@ -583,6 +584,17 @@ export const useGame = () => {
 
     const { 执行世界演变更新, 后台执行统一规划分析, buildContextSnapshot, handleSend, handlePrivateChatSend } = sendDomain;
 
+    // ==================== 桌游叙事桥接层 ====================
+    const boardGameBridge = useBoardGameBridge();
+
+    // 包装 handleSend：发送前暂停桌游，回复后恢复
+    const handleSendWithBoardGame: typeof handleSend = async (content, isStreaming, options) => {
+        boardGameBridge.onChatMessageSent();
+        const result = await handleSend(content, isStreaming, options);
+        boardGameBridge.onAIReplyReceived();
+        return result;
+    };
+
     // ==================== 会话生命周期域 ====================
     const sessionDomain = createSessionDomain({
         apiConfig,
@@ -802,6 +814,7 @@ export const useGame = () => {
         narrativeConstraints, setNarrativeConstraints,
         lastSettlement, setLastSettlement,
         clearActionHistory, clearPendingEvents,
+        boardGameBridge,
         最近开局配置,
         已进入主剧情回合,
         接口配置是否可用,
@@ -813,7 +826,7 @@ export const useGame = () => {
         setApiConfig, setVisualConfig, setImageManagerConfig, setPrompts,
         设置校规系统, 设置催眠系统, 设置校园系统, 设置约定列表, 设置社交,
         set设备刷新任务队列,
-        handleSend,
+        handleSend: handleSendWithBoardGame,
         handlePrivateChatSend,
         handleStop,
         handleCancelVariableGeneration,

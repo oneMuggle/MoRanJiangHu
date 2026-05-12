@@ -65,6 +65,17 @@ interface ReturnMapperDeps {
     clearActionHistory: () => void;
     clearPendingEvents: () => void;
 
+    // BoardGame Bridge
+    boardGameBridge: {
+        onChatMessageSent: () => void;
+        onAIReplyReceived: () => void;
+        onKeyStepDetected: (result: any) => void;
+        generateNarrativeConstraint: (actionType: string, result: any) => string;
+        isPaused: boolean;
+        pauseReason: string | null;
+        narrativeConstraints: string | null;
+    };
+
     最近开局配置: any;
 
     // Computed meta
@@ -460,7 +471,8 @@ export function 构建useGame返回值(deps: ReturnMapperDeps) {
             openDeviceApp: deps.设备打开应用,
             returnDeviceHome: deps.设备返回主页,
             setDeviceState: deps.设置设备状态,
-            performanceConfig: deps.performanceConfig
+            performanceConfig: deps.performanceConfig,
+            boardGameBridge: deps.boardGameBridge
         }
     };
 }

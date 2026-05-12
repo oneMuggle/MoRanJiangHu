@@ -1,7 +1,7 @@
 # 桌游社交 SLG 交互体验系统
 
 > 创建日期: 2026-05-12
-> 状态: 规划中
+> 状态: 实施中
 > 替代方案: 旧版被动 UI 方案（已覆盖）
 
 ---
@@ -391,44 +391,49 @@ function generateNarrativeConstraint(action: PlayerAction, result: EngineResult)
 
 ### 里程碑 1：基础架构扩展 (2-3h)
 
-- [ ] 扩展 `zustandStore.ts` BoardGameSlice 状态字段
-- [ ] 新增 `useBoardGameActions.ts` 操作层
-- [ ] 新增 `useBoardGameBridge.ts` 桥接层
-- [ ] 扩展 `engine/core.ts` 添加 `executePlayerAction`、`pauseGame`、`resumeGame`
-- [ ] 扩展 `eventSystem.ts` 支持 pending 事件
+- [x] 扩展 `zustandStore.ts` BoardGameSlice 状态字段
+- [x] 新增 `useBoardGameActions.ts` 操作层
+- [x] 新增 `useBoardGameBridge.ts` 桥接层
+- [x] 扩展 `engine/core.ts` 添加 `executePlayerAction`、`pauseGame`、`resumeGame`
+- [x] 扩展 `eventSystem.ts` 支持 pending 事件
 
 ### 里程碑 2：共享组件补全 (2-3h)
 
-- [ ] `ActionButtons.tsx` — 操作按钮组（带 loading/disabled 状态）
-- [ ] `ChoiceDialog.tsx` — 选择对话框（多选项、风险标识）
-- [ ] `StatusBadge.tsx` — 状态徽章（运行/暂停/结束）
+- [x] `ActionButtons.tsx` — 操作按钮组（带 loading/disabled 状态）
+- [x] `ChoiceDialog.tsx` — 选择对话框（多选项、风险标识）
+- [x] `StatusBadge.tsx` — 状态徽章（运行/暂停/结束）
 - [ ] 更新现有共享组件以支持交互（TensionMeter 增加预警动画）
 
 ### 里程碑 3：骰子游戏 Panel 重写 (2h)
 
-- [ ] 重写 `骰子游戏Panel.tsx` 为完整 SLG 交互
-- [ ] 策略选择（激进/保守/平衡）
-- [ ] 掷骰操作 + 动画
-- [ ] 累积效应可视化
-- [ ] 历史记录增强
+- [x] 重写 `骰子游戏Panel.tsx` 为完整 SLG 交互
+- [x] 策略选择（激进/保守/平衡）
+- [x] 掷骰操作 + 动画
+- [x] 累积效应可视化
+- [x] 历史记录增强
 
 ### 里程碑 4：桥接层集成 (2h)
 
-- [ ] 发消息时自动暂停游戏
-- [ ] AI 回复后自动恢复游戏
-- [ ] 关键步骤触发叙事推进
-- [ ] 叙事约束生成与注入
+- [x] 发消息时自动暂停游戏（`useGame.ts` 包装 `handleSend` 调用 `onChatMessageSent`）
+- [x] AI 回复后自动恢复游戏（包装 `handleSend` 调用 `onAIReplyReceived`）
+- [x] 关键步骤触发叙事推进（`keyStep` 检测自动暂停）
+- [x] 叙事约束生成与注入（`generateNarrativeConstraint` 暴露到 `actions.boardGameBridge`）
 
-### 里程碑 5：其余 7 个游戏 Panel (8-12h)
+### 里程碑 5：设置面板重写 (1h)
+
+- [x] 主开关、强度选择、游戏类型开关、触发频率
+- [x] 多人局/邀请/成就/线上模式开关
+
+### 里程碑 5b：其余 7 个游戏 Panel (8-12h)
 
 按优先级逐个实现：
-1. 真心话大冒险（简单，底线管理）
-2. 国王游戏（简单，服从/反抗）
-3. 大富翁（中等，资源经营）
-4. 棋牌游戏（中等，回合策略）
-5. 密室逃脱（中等，属性检定）
-6. 剧本杀（复杂，线索推理）
-7. 狼人杀（复杂，社交推理）
+1. [ ] 真心话大冒险（简单，底线管理）
+2. [ ] 国王游戏（简单，服从/反抗）
+3. [ ] 大富翁（中等，资源经营）
+4. [ ] 棋牌游戏（中等，回合策略）
+5. [ ] 密室逃脱（中等，属性检定）
+6. [ ] 剧本杀（复杂，线索推理）
+7. [ ] 狼人杀（复杂，社交推理）
 
 ### 里程碑 6：暂停/恢复协议测试 (1h)
 
@@ -472,3 +477,31 @@ function generateNarrativeConstraint(action: PlayerAction, result: EngineResult)
 | 里程碑 5：其余 7 Panel | 8-12h |
 | 里程碑 6：测试验证 | 1h |
 | **总计** | **17-23h** |
+
+---
+
+## 实施记录
+
+### 2026-05-12 进度更新
+
+**已完成里程碑 1-5，共修改 12 个文件：**
+
+| 文件 | 状态 | 变更 |
+|------|------|------|
+| `hooks/useGame/subsystems/zustandStore.ts` | 已修改 | BoardGameSlice 新增 6 个 SLG 字段 + 8 个 setter |
+| `hooks/useGame/state/gameStateAccess.ts` | 已修改 | 暴露 12 个 BoardGame 字段到全局状态访问 |
+| `hooks/useGame.ts` | 已修改 | 导入 `useBoardGameBridge`，包装 `handleSend`，暴露 `boardGameBridge` 到返回值 |
+| `hooks/useGame/core/useGameReturnMapper.ts` | 已修改 | 新增 `boardGameBridge` 类型定义和返回值传递 |
+| `hooks/useBoardGameActions.ts` | 已新建 | 封装 dispatch/pause/resume/recordSettlement/resolvePendingEvent |
+| `hooks/useBoardGameBridge.ts` | 已新建 | 叙事桥接层：onChatMessageSent/onAIReplyReceived/onKeyStepDetected |
+| `hooks/useGame/boardGameNSFWEngine/core.ts` | 已修改 | 新增 `executePlayerAction` + `玩家操作`/`操作结算结果` 类型 |
+| `hooks/useGame/boardGameNSFWEngine/eventSystem.ts` | 已修改 | 新增 `待处理桌游事件`、`桌游事件选择`、`生成待处理桌游事件`、`解析事件选择` |
+| `hooks/useGame/boardGameNSFWEngine/index.ts` | 已修改 | 导出新增函数和类型 |
+| `components/features/BoardGame/shared/ActionButtons.tsx` | 已新建 | 多布局操作按钮组（horizontal/vertical/grid） |
+| `components/features/BoardGame/shared/ChoiceDialog.tsx` | 已新建 | 多选项对话框（低/中/高风险着色） |
+| `components/features/BoardGame/shared/StatusBadge.tsx` | 已新建 | 运行/暂停/结束状态徽章 |
+| `components/features/BoardGame/shared/index.ts` | 已修改 | 导出新增共享组件 |
+| `components/features/BoardGame/panels/骰子游戏Panel.tsx` | 已重写 | 完整 SLG 交互：策略选择、掷骰动画、引擎结算、暂停/恢复 |
+| `components/features/Settings/BoardGameNSFWSettings.tsx` | 已存在 | 设置面板已完整实现 |
+
+**TypeScript 编译结果**：新增修改文件零错误（65 个错误均为预先存在的无关文件）。
