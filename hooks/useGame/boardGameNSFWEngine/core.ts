@@ -79,3 +79,152 @@ export function 判定桌游NSFW升级(参数: {
   if (桌游类型 === '国王游戏' && 露出偏好等级 >= 3 && 欲望阶段 === '沉沦') return true;
   return false;
 }
+
+// ============================================================================
+// SLG 交互扩展
+// ============================================================================
+
+export interface 玩家操作 {
+  type: '掷骰' | '选择路径' | '投票' | '搜索' | '选择真心话大冒险' | '回应命令' | '购买地块' | '出牌' | '自定义';
+  payload: Record<string, unknown>;
+  游戏类型: 桌游类型;
+}
+
+export interface 操作结算结果 {
+  success: boolean;
+  tensionDelta: number;
+  nsfwTriggered: boolean;
+  keyStep: boolean;
+  narrativeConstraint: string;
+  description: string;
+}
+
+/**
+ * 执行玩家操作，返回结算结果。
+ * 这是 SLG 引擎的核心入口 — 玩家操作经此计算后影响游戏状态。
+ */
+export function executePlayerAction(操作: 玩家操作, 当前状态: {
+  紧张度: number;
+  当前回合: number;
+  总回合数: number;
+}): 操作结算结果 {
+  const { 游戏类型, type, payload } = 操作;
+  const { 紧张度, 当前回合 } = 当前状态;
+
+  let tensionDelta = Math.floor(Math.random() * 5) + 1;
+  let success = true;
+  let keyStep = false;
+  let description = '';
+
+  switch (type) {
+    case '掷骰': {
+      const 骰子结果 = Math.random();
+      if (骰子结果 < 0.15) {
+        keyStep = true;
+        tensionDelta += 15;
+        description = '骰子落在了惩罚面，气氛骤然紧张';
+      } else if (骰子结果 < 0.30) {
+        tensionDelta += 10;
+        description = '翻倍！紧张度急剧上升';
+      } else {
+        description = '骰子平稳落地';
+      }
+      break;
+    }
+
+    case '选择路径': {
+      const 需求值 = (payload.需求属性值 as number) ?? 5;
+      const 路径成功率 = Math.min(0.9, 需求值 / 10);
+      success = Math.random() < 路径成功率;
+      if (!success) {
+        keyStep = true;
+        tensionDelta += 12;
+        description = '探索失败了，触发了意外事件';
+      } else {
+        tensionDelta += 5;
+        description = '成功发现了一条新线索';
+      }
+      break;
+    }
+
+    case '投票':
+      tensionDelta += 8;
+      description = '投票已提交';
+      break;
+
+    case '搜索': {
+      const 搜索成功 = Math.random() < 0.7;
+      if (搜索成功) {
+        description = '找到了一条重要线索';
+        tensionDelta += 3;
+      } else {
+        description = '搜索无果';
+        tensionDelta += 6;
+      }
+      break;
+    }
+
+    case '选择真心话大冒险': {
+      const 选择 = (payload.选择 as string) ?? '真心话';
+      if (选择 === '大冒险') {
+        tensionDelta += 15;
+        keyStep = Math.random() < 0.3;
+        description = keyStep ? '大冒险的内容超出了预期' : '大冒险顺利完成';
+      } else {
+        tensionDelta += 8;
+        description = '选择了真心话';
+      }
+      break;
+    }
+
+    case '回应命令': {
+      const 回应 = (payload.回应 as string) ?? '服从';
+      if (回应 === '反抗') {
+        tensionDelta += 20;
+        keyStep = true;
+        description = '反抗了命令，气氛剑拔弩张';
+      } else if (回应 === '协商') {
+        tensionDelta += 10;
+        description = '尝试协商修改命令';
+      } else {
+        tensionDelta += 5;
+        description = '服从了命令';
+      }
+      break;
+    }
+
+    case '购买地块':
+      tensionDelta += 3;
+      description = '购买了新的地块';
+      break;
+
+    case '出牌':
+      tensionDelta += 5;
+      description = '出了一张牌';
+      break;
+
+    default:
+      tensionDelta += 5;
+      description = '执行了自定义操作';
+  }
+
+  const 回合加成 = Math.floor(当前回合 / 5) * 2;
+  tensionDelta += 回合加成;
+
+  const 最终紧张度 = Math.min(100, 紧张度 + tensionDelta);
+  const nsfwTriggered = 最终紧张度 >= 75 && Math.random() < 0.3;
+
+  if (nsfwTriggered) {
+    keyStep = true;
+    tensionDelta += 10;
+  }
+
+  return {
+    success,
+    tensionDelta,
+    nsfwTriggered,
+    keyStep,
+    narrativeConstraint: `<桌游叙事约束>游戏类型: ${游戏类型} | 操作: ${type} | ${description} | 紧张度+${tensionDelta}${nsfwTriggered ? ' | NSFW触发' : ''}${keyStep ? ' | 关键步骤' : ''}</桌游叙事约束>`,
+    description,
+  };
+}

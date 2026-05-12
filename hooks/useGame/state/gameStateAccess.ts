@@ -6,7 +6,7 @@
  */
 
 import type { useGameState } from '../../useGameState';
-import type { GameStore } from '../subsystems/zustandStore';
+import type { GameStore, BoardGamePlayerAction, BoardGamePendingEvent, BoardGameSettlementResult } from '../subsystems/zustandStore';
 
 // ============================================================
 // 类型定义
@@ -228,6 +228,21 @@ export interface GameStateAccess {
     setActiveBoardGameTab: GameStoreSlice['setActiveBoardGameTab'];
     selectedGameType: GameStoreSlice['selectedGameType'];
     setSelectedGameType: GameStoreSlice['setSelectedGameType'];
+    // SLG 新增
+    boardGamePaused: GameStoreSlice['boardGamePaused'];
+    setBoardGamePaused: GameStoreSlice['setBoardGamePaused'];
+    pauseReason: GameStoreSlice['pauseReason'];
+    setPauseReason: GameStoreSlice['setPauseReason'];
+    pendingEvents: GameStoreSlice['pendingEvents'];
+    setPendingEvents: GameStoreSlice['setPendingEvents'];
+    actionHistory: GameStoreSlice['actionHistory'];
+    addActionToHistory: GameStoreSlice['addActionToHistory'];
+    narrativeConstraints: GameStoreSlice['narrativeConstraints'];
+    setNarrativeConstraints: GameStoreSlice['setNarrativeConstraints'];
+    lastSettlement: GameStoreSlice['lastSettlement'];
+    setLastSettlement: GameStoreSlice['setLastSettlement'];
+    clearActionHistory: GameStoreSlice['clearActionHistory'];
+    clearPendingEvents: GameStoreSlice['clearPendingEvents'];
 
     // --- 派生状态 ---
     /** 世界演变时间管理（游戏内时间 + 现实时间戳） */
@@ -460,6 +475,21 @@ export function createGameStateAccess(
         setActiveBoardGameTab: store.setActiveBoardGameTab,
         selectedGameType: store.selectedGameType,
         setSelectedGameType: store.setSelectedGameType,
+        // SLG 新增
+        boardGamePaused: store.boardGamePaused,
+        setBoardGamePaused: store.setBoardGamePaused,
+        pauseReason: store.pauseReason,
+        setPauseReason: store.setPauseReason,
+        pendingEvents: store.pendingEvents,
+        setPendingEvents: store.setPendingEvents,
+        actionHistory: store.actionHistory,
+        addActionToHistory: store.addActionToHistory,
+        narrativeConstraints: store.narrativeConstraints,
+        setNarrativeConstraints: store.setNarrativeConstraints,
+        lastSettlement: store.lastSettlement,
+        setLastSettlement: store.setLastSettlement,
+        clearActionHistory: store.clearActionHistory,
+        clearPendingEvents: store.clearPendingEvents,
 
         // --- 派生状态 ---
         世界演变时间管理,

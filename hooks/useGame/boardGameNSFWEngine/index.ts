@@ -8,6 +8,9 @@ export {
   计算桌游紧张度,
   计算羁绊加成,
   判定桌游NSFW升级,
+  executePlayerAction,
+  type 玩家操作,
+  type 操作结算结果,
 } from './core';
 
 export {
@@ -17,9 +20,11 @@ export {
 
 export {
   生成桌游NSFW事件,
+  生成待处理桌游事件,
+  解析事件选择,
 } from './eventSystem';
 
-export type { 桌游NSFW事件 } from './eventSystem';
+export type { 桌游NSFW事件, 桌游事件选择, 待处理桌游事件 } from './eventSystem';
 
 // === 多人局管理 ===
 

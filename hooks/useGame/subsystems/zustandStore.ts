@@ -444,11 +444,48 @@ const createSceneConfigSlice: ZustandSlice<SceneConfigSlice> = (set) => ({
 
 // ==================== BoardGame Slice (Zustand) ====================
 
+export interface BoardGamePlayerAction {
+  type: string;
+  payload: Record<string, unknown>;
+  timestamp: number;
+}
+
+export interface BoardGamePendingEvent {
+  id: string;
+  type: '轮流' | '随机' | '阵营';
+  description: string;
+  choices: BoardGameEventChoice[];
+  timeout?: number;
+}
+
+export interface BoardGameEventChoice {
+  id: string;
+  label: string;
+  risk: 'low' | 'medium' | 'high';
+  consequence: string;
+}
+
+export interface BoardGameSettlementResult {
+  success: boolean;
+  tensionDelta: number;
+  nsfwTriggered: boolean;
+  keyStep: boolean;
+  narrativeConstraint: string;
+  nextState: Record<string, unknown>;
+}
+
 interface BoardGameSliceState {
   showBoardGameDashboard: boolean;
   showBoardGameModal: boolean;
   activeBoardGameTab: 'dashboard' | 'history' | 'preferences';
   selectedGameType: 桌游类型 | null;
+  // SLG 新增
+  boardGamePaused: boolean;
+  pauseReason: 'chat-sent' | 'key-step' | 'player-pause' | null;
+  pendingEvents: BoardGamePendingEvent[];
+  actionHistory: BoardGamePlayerAction[];
+  narrativeConstraints: string | null;
+  lastSettlement: BoardGameSettlementResult | null;
 }
 
 interface BoardGameSliceActions {
@@ -456,6 +493,15 @@ interface BoardGameSliceActions {
   setShowBoardGameModal: (updater: boolean | ((prev: boolean) => boolean)) => void;
   setActiveBoardGameTab: (updater: BoardGameSliceState['activeBoardGameTab'] | ((prev: BoardGameSliceState['activeBoardGameTab']) => BoardGameSliceState['activeBoardGameTab'])) => void;
   setSelectedGameType: (updater: 桌游类型 | null | ((prev: 桌游类型 | null) => 桌游类型 | null)) => void;
+  // SLG 新增
+  setBoardGamePaused: (updater: boolean | ((prev: boolean) => boolean)) => void;
+  setPauseReason: (updater: BoardGameSliceState['pauseReason'] | ((prev: BoardGameSliceState['pauseReason']) => BoardGameSliceState['pauseReason'])) => void;
+  setPendingEvents: (updater: BoardGamePendingEvent[] | ((prev: BoardGamePendingEvent[]) => BoardGamePendingEvent[])) => void;
+  addActionToHistory: (action: BoardGamePlayerAction) => void;
+  setNarrativeConstraints: (updater: string | null | ((prev: string | null) => string | null)) => void;
+  setLastSettlement: (updater: BoardGameSettlementResult | null | ((prev: BoardGameSettlementResult | null) => BoardGameSettlementResult | null)) => void;
+  clearActionHistory: () => void;
+  clearPendingEvents: () => void;
 }
 
 interface BoardGameSlice extends BoardGameSliceState, BoardGameSliceActions {}
@@ -465,6 +511,13 @@ const createBoardGameSlice: ZustandSlice<BoardGameSlice> = (set) => ({
   showBoardGameModal: false,
   activeBoardGameTab: 'dashboard',
   selectedGameType: null,
+  // SLG 新增
+  boardGamePaused: false,
+  pauseReason: null,
+  pendingEvents: [],
+  actionHistory: [],
+  narrativeConstraints: null,
+  lastSettlement: null,
   setShowBoardGameDashboard: (updater) => set((state) => ({
     showBoardGameDashboard: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.showBoardGameDashboard) : updater,
   })),
@@ -477,6 +530,27 @@ const createBoardGameSlice: ZustandSlice<BoardGameSlice> = (set) => ({
   setSelectedGameType: (updater) => set((state) => ({
     selectedGameType: typeof updater === 'function' ? (updater as (prev: 桌游类型 | null) => 桌游类型 | null)(state.selectedGameType) : updater,
   })),
+  // SLG 新增
+  setBoardGamePaused: (updater) => set((state) => ({
+    boardGamePaused: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.boardGamePaused) : updater,
+  })),
+  setPauseReason: (updater) => set((state) => ({
+    pauseReason: typeof updater === 'function' ? (updater as (prev: BoardGameSliceState['pauseReason']) => BoardGameSliceState['pauseReason'])(state.pauseReason) : updater,
+  })),
+  setPendingEvents: (updater) => set((state) => ({
+    pendingEvents: typeof updater === 'function' ? (updater as (prev: BoardGamePendingEvent[]) => BoardGamePendingEvent[])(state.pendingEvents) : updater,
+  })),
+  addActionToHistory: (action) => set((state) => ({
+    actionHistory: [...state.actionHistory, action].slice(-50),
+  })),
+  setNarrativeConstraints: (updater) => set((state) => ({
+    narrativeConstraints: typeof updater === 'function' ? (updater as (prev: string | null) => string | null)(state.narrativeConstraints) : updater,
+  })),
+  setLastSettlement: (updater) => set((state) => ({
+    lastSettlement: typeof updater === 'function' ? (updater as (prev: BoardGameSettlementResult | null) => BoardGameSettlementResult | null)(state.lastSettlement) : updater,
+  })),
+  clearActionHistory: () => set({ actionHistory: [] }),
+  clearPendingEvents: () => set({ pendingEvents: [] }),
 });
 
 // ==================== Store ====================

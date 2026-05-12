@@ -49,6 +49,21 @@ interface ReturnMapperDeps {
     setActiveBoardGameTab: (updater: any) => void;
     selectedGameType: string | null;
     setSelectedGameType: (updater: any) => void;
+    // SLG 新增
+    boardGamePaused: boolean;
+    setBoardGamePaused: (updater: boolean | ((prev: boolean) => boolean)) => void;
+    pauseReason: 'chat-sent' | 'key-step' | 'player-pause' | null;
+    setPauseReason: (updater: any) => void;
+    pendingEvents: any[];
+    setPendingEvents: (updater: any) => void;
+    actionHistory: any[];
+    addActionToHistory: (action: any) => void;
+    narrativeConstraints: string | null;
+    setNarrativeConstraints: (updater: any) => void;
+    lastSettlement: any;
+    setLastSettlement: (updater: any) => void;
+    clearActionHistory: () => void;
+    clearPendingEvents: () => void;
 
     最近开局配置: any;
 

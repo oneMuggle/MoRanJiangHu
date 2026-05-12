@@ -1,273 +1,474 @@
-# 桌游社交 NSFW UI 互动系统
+# 桌游社交 SLG 交互体验系统
 
 > 创建日期: 2026-05-12
 > 状态: 规划中
+> 替代方案: 旧版被动 UI 方案（已覆盖）
 
-## 需求
+---
 
-为桌游社交 NSFW 系统（8种桌游类型、3-8人多人局管理）设计并实现沉浸式 UI 互动体验。当前引擎层功能完整但 UI 层几乎不存在（仅一个"开发中"占位符）。
+## 背景与目标
 
-## 现状分析
+桌游 NSFW 引擎层已功能完整（8种游戏类型、3-8人多人局、事件编排、紧张度计算、阵营分配、回合推进、淘汰机制、NSFW升级判定），但 UI 层仅为"被动观察者"——玩家无法操作，引擎 mechanics 隐藏在 AI prompt 约束中。
 
-| 层级 | 状态 | 说明 |
-|------|------|------|
-| 数据模型 | 完整 | 8种桌游类型状态 + 多人局管理 + 事件编排 |
-| 引擎逻辑 | 完整 | 触发判定、紧张度计算、阵营分配、回合推进 |
-| 提示词约束 | 完整 | 每种游戏的叙事约束 + 多人局叙事 |
-| 设置面板 | 占位 | 仅显示"开发中" |
-| 仪表盘 | 不存在 | moduleRegistry 已注册但无组件 |
-| 游戏 Modal | 不存在 | 无任何互动 UI |
-| 导航入口 | 不存在 | 右侧面板/手机快捷菜单均无入口 |
+**目标**：以 SLG（策略模拟游戏）模式重构桌游交互体验，实现：
+1. **当剧情推进到游戏环节时，弹出游戏 UI**
+2. **玩家在游戏界面上做策略决策（SLG 操作）**
+3. **发送新消息后，游戏暂停并保存状态**
+4. **下一回合 LLM 回复后，恢复游戏状态继续**
+5. **关键步骤（如惩罚、升级）触发剧情推进到下一回合**
 
-## 核心设计原则
+**核心循环**：`玩家决策 → 引擎结算 → AI 叙事描写`
 
-1. **文本优先**：UI 展示结构化状态（数字、进度条、状态徽章），叙事仍由 AI 在聊天区域生成
-2. **分层渐进**：基础设施 → 共享组件 → 仪表盘 → 首个游戏面板 → 完整 8 种游戏
-3. **响应式**：桌面端 Modal + 移动端 Bottom Sheet
+---
 
-## 变更文件总览
+## 架构设计
 
-| 文件 | 操作 | 阶段 |
-|------|------|------|
-| `hooks/useGame/subsystems/zustandStore.ts` | 修改 | Phase 1 |
-| `hooks/useGame.ts` | 修改 | Phase 1 |
-| `components/features/lazyComponents.tsx` | 修改 | Phase 1 |
-| `components/app/useAppModalState.ts` | 修改 | Phase 1 |
-| `components/features/BoardGame/*` | 新建 (7) | Phase 1-4 |
-| `components/features/Settings/BoardGameNSFWSettings.tsx` | 修改 | Phase 5 |
-| `components/layout/RightPanel.tsx` | 修改 | Phase 6 |
-| `components/layout/MobileQuickMenu.tsx` | 修改 | Phase 6 |
-| `hooks/useModalOpeners.ts` | 修改 | Phase 6 |
+### 分层架构
 
-## 实施步骤
+```
+┌─────────────────────────────────────────────────────────┐
+│                    叙事层 (AI Chat)                       │
+│  - 场景渲染  - NPC 性格表达  - 关键步骤详细描写           │
+├─────────────────────────────────────────────────────────┤
+│                  桥接层 (Bridge Hook)                     │
+│  - useBoardGameBridge: SLG 结果 → 叙事约束               │
+│  - 自动暂停/恢复  - 状态序列化  - 事件推送               │
+├─────────────────────────────────────────────────────────┤
+│                  操作层 (Actions Hook)                    │
+│  - useBoardGameActions: 封装玩家所有可交互操作            │
+│  - 掷骰  - 投票  - 解谜  - 选择  - 资源管理              │
+├─────────────────────────────────────────────────────────┤
+│                  SLG 引擎层 (现有 Engine)                 │
+│  - 紧张度  - 事件编排  - 阵营  - 淘汰  - NSFW 升级        │
+└─────────────────────────────────────────────────────────┘
+```
 
-### Phase 1: 基础设施
+### 数据流
 
-#### 1.1 Zustand BoardGame Slice
+```
+[玩家操作]
+    ↓
+useBoardGameActions.dispatch(action)
+    ↓
+boardGameNSFWEngine.executePlayerAction(action)
+    ↓
+引擎计算结果 → 更新桌游状态
+    ↓
+useBoardGameBridge.captureNarrativeConstraints(result)
+    ↓
+生成叙事约束 JSON → 写入待发送上下文
+    ↓
+[关键步骤？] → 自动触发剧情推进 → AI 按约束生成叙事 → 聊天区展示
+```
 
-**文件**: `hooks/useGame/subsystems/zustandStore.ts`
+### 暂停/恢复协议
 
-新增 slice 管理 UI 瞬态状态（不复制引擎数据）：
+```
+发送消息                    AI 回复
+   │                          │
+   ▼                          │
+暂停游戏                       │
+保存状态 ──────────────────► 恢复状态
+   │                          继续游戏
+   ▼                          │
+[聊天区] ──────────────────► [聊天区]
+```
+
+---
+
+## 涉及文件
+
+### 新建文件
+
+| 文件 | 用途 |
+|------|------|
+| `hooks/useBoardGameBridge.ts` | 叙事桥接层：SLG ↔ AI 双向通信，暂停/恢复，叙事约束生成 |
+| `hooks/useBoardGameActions.ts` | 玩家操作层：封装所有可交互操作 |
+| `components/features/BoardGame/panels/骰子游戏Panel.tsx` | 骰子游戏 SLG 面板（重写为交互版） |
+| `components/features/BoardGame/panels/密室逃脱Panel.tsx` | 密室逃脱 SLG 面板 |
+| `components/features/BoardGame/panels/狼人杀Panel.tsx` | 狼人杀 SLG 面板 |
+| `components/features/BoardGame/panels/剧本杀Panel.tsx` | 剧本杀 SLG 面板 |
+| `components/features/BoardGame/panels/真心话大冒险Panel.tsx` | 真心话大冒险 SLG 面板 |
+| `components/features/BoardGame/panels/国王游戏Panel.tsx` | 国王游戏 SLG 面板 |
+| `components/features/BoardGame/panels/大富翁Panel.tsx` | 大富翁 SLG 面板 |
+| `components/features/BoardGame/panels/棋牌游戏Panel.tsx` | 棋牌游戏 SLG 面板 |
+| `components/features/BoardGame/shared/ActionButtons.tsx` | 操作按钮组（带 loading/disabled） |
+| `components/features/BoardGame/shared/ChoiceDialog.tsx` | 选择对话框（多选项、风险标识） |
+| `components/features/BoardGame/shared/StatusBadge.tsx` | 状态徽章（运行/暂停/结束） |
+
+### 修改文件
+
+| 文件 | 变更内容 |
+|------|---------|
+| `hooks/useGame/subsystems/zustandStore.ts` | BoardGameSlice 扩展：新增 paused 状态、操作历史、待处理事件 |
+| `hooks/useGame.ts` | 暴露新 setter 和 actions |
+| `hooks/useGame/boardGameNSFWEngine/core.ts` | 新增 `executePlayerAction()`、`pauseGame()`、`resumeGame()` |
+| `hooks/useGame/boardGameNSFWEngine/eventSystem.ts` | 事件增加 `pending` 状态，支持玩家选择 |
+| `components/features/BoardGame/BoardGameDashboard.tsx` | 增加游戏状态指示（运行/暂停） |
+| `components/features/BoardGame/BoardGameModal.tsx` | 集成桥接层，增加暂停/恢复控制 |
+| `components/features/BoardGame/MobileBoardGameModal.tsx` | 同上 |
+| `components/features/BoardGame/panels/index.ts` | 注册所有 8 个游戏 Panel |
+| `components/app/useAppModalState.ts` | 新增 `boardGamePaused` 状态 |
+| `components/app/NSFWModals.tsx` | 传递暂停状态和恢复回调 |
+| `hooks/useGame/sendWorkflow.ts` | 发消息时自动暂停桌游 |
+| `hooks/useGame/responseCommandProcessor.ts` | AI 回复后自动恢复桌游状态 |
+| `prompts/runtime/boardGameNSFW.ts` | 增加叙事约束生成器（基于 SLG 结算结果） |
+
+---
+
+## 状态管理扩展
+
+### BoardGameSlice 新增字段
 
 ```typescript
 interface BoardGameSliceState {
+  // 现有
   showBoardGameDashboard: boolean;
   showBoardGameModal: boolean;
   activeBoardGameTab: 'dashboard' | 'history' | 'preferences';
   selectedGameType: 桌游类型 | null;
+
+  // 新增
+  boardGamePaused: boolean;
+  pauseReason: 'chat-sent' | 'key-step' | 'player-pause' | null;
+  pendingEvents: PendingEvent[];
+  actionHistory: BoardGameAction[];
+  narrativeConstraints: string | null;
+  lastSettlement: SettlementResult | null;
+}
+
+interface PendingEvent {
+  id: string;
+  type: '轮流' | '随机' | '阵营';
+  description: string;
+  choices: EventChoice[];
+  timeout?: number;
+}
+
+interface EventChoice {
+  id: string;
+  label: string;
+  risk: 'low' | 'medium' | 'high';
+  consequence: string;
+}
+
+interface SettlementResult {
+  success: boolean;
+  tensionDelta: number;
+  nsfwTriggered: boolean;
+  keyStep: boolean;
+  narrativeConstraint: string;
+  nextState: Partial<桌游状态>;
 }
 ```
 
-#### 1.2 暴露 Setters
+---
 
-**文件**: `hooks/useGame.ts` — 解构并返回新增的 setter。
-
-#### 1.3 懒加载注册
-
-**文件**: `components/features/lazyComponents.tsx`
+## 桥接层核心逻辑
 
 ```typescript
-export const BoardGameDashboard = 创建可预加载懒组件(() => import('./BoardGame/BoardGameDashboard'));
-export const BoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/BoardGameModal'));
-export const MobileBoardGameDashboard = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameDashboard'));
-export const MobileBoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameModal'));
-```
+// hooks/useBoardGameBridge.ts
 
-#### 1.4 Modal 状态管理
+// 1. 玩家发送消息时自动暂停
+function onChatMessageSent() {
+  if (hasActiveBoardGame()) {
+    pauseBoardGame('chat-sent');
+    serializeAndSaveState();
+  }
+}
 
-**文件**: `components/app/useAppModalState.ts` — 新增 `showBoardGameDashboard` / `showBoardGameModal` 状态。
+// 2. AI 回复后恢复
+function onAIReplyReceived() {
+  if (isPaused('chat-sent')) {
+    restoreState();
+    resumeBoardGame();
+  }
+}
 
-### Phase 2: 共享组件
+// 3. 关键步骤触发叙事推进
+function onKeyStepDetected(result: SettlementResult) {
+  pauseBoardGame('key-step');
+  pushNarrativeConstraint(result.narrativeConstraint);
+  // 强制推进到下一回合，让 AI 描写关键步骤
+}
 
-所有共享组件放在 `components/features/BoardGame/shared/`。
-
-#### 2.1 TensionMeter.tsx — 紧张度进度条 (0-100，绿→黄→红→紫渐变)
-
-#### 2.2 PlayerRoster.tsx — 玩家花名册 (3-8人，活跃/出局状态，阵营色边框)
-
-#### 2.3 EventQueue.tsx — 事件队列 (待处理/已执行，按类型着色)
-
-#### 2.4 RoundCounter.tsx — 回合计数器 (Round 3/12 + 进度点)
-
-#### 2.5 GameTypeSelector.tsx — 8种桌游选择卡片网格
-
-#### 2.6 StatCard.tsx — 通用统计卡片
-
-#### 2.7 ProgressBar.tsx — 从 CampusDesireDashboard 提取为共享组件
-
-### Phase 3: 桌游仪表盘 ("桌游社交仪表盘")
-
-**文件**:
-- `components/features/BoardGame/BoardGameDashboard.tsx`
-- `components/features/BoardGame/MobileBoardGameDashboard.tsx`
-
-布局结构：
-
-```
-+---------------------------------------------------+
-| [pulse] 桌游社交仪表盘    BOARD GAME    [X close] |
-+---------------------------------------------------+
-| [总场次:12] [最高紧张度:87] [NSFW触发:5] [偏好NPC:3] |
-+---------------------------------------------------+
-| Tabs: [历史记录] [游戏偏好] [多人局统计]             |
-+---------------------------------------------------+
-| 历史记录列表 (按场次折叠)                           |
-| 每场：类型、参与者、NSFW次数、里程碑                 |
-|                                                   |
-| NPC 偏好进度条 (ProgressBar)                        |
-+---------------------------------------------------+
-| [开始新桌游] → 打开 BoardGameModal                 |
-+---------------------------------------------------+
-```
-
-Props:
-```typescript
-interface BoardGameDashboardProps {
-  桌游状态: 桌游状态;
-  社交列表: NPC结构[];
-  onClose: () => void;
-  onStartGame: (type: 桌游类型) => void;
+// 4. 叙事约束生成
+function generateNarrativeConstraint(action: PlayerAction, result: EngineResult): string {
+  return `<桌游叙事约束>
+    当前游戏类型: ${result.gameType}
+    玩家操作: ${action.type}
+    结算结果: ${result.outcome}
+    紧张度变化: ${result.tensionDelta}
+    NSFW触发: ${result.nsfwTriggered ? '是' : '否'}
+    ${result.keyStep ? '关键步骤，请详细描写' : ''}
+  </桌游叙事约束>`;
 }
 ```
 
-### Phase 4: 游戏互动 Modal
+---
 
-**文件**:
-- `components/features/BoardGame/BoardGameModal.tsx` — 桌面端
-- `components/features/BoardGame/MobileBoardGameModal.tsx` — 移动端
+## 各游戏类型 SLG 界面设计
 
-#### 4.1 Modal 外壳
+### 1. 骰子游戏
 
 ```
-+---------------------------------------------------+
-| [pulse] 桌游局        GAME IN PROGRESS    [X]      |
-+---------------------------------------------------+
-| [Round 3/12] [Tension: ████░░ 67] [Players: 5]    |
-+---------------------------------------------------+
-| Player Roster                                      |
-+---------------------------------------------------+
-| 游戏类型专属面板 (策略模式路由)                      |
-+---------------------------------------------------+
-| Event Queue (可折叠)                               |
-+---------------------------------------------------+
+┌─────────────────────────────────────────┐
+│ 骰子游戏 (3 dice)    回合 5/12          │
+├─────────────────────────────────────────┤
+│ [紧张度 ████░░ 67]  [累积等级 Lv.4]     │
+├─────────────────────────────────────────┤
+│     [🎲]    [🎲]    [🎲]               │
+│      ?       ?       ?                  │
+│  ┌─────────────────────────────────┐    │
+│  │ 选择策略：                       │    │
+│  │ [激进] 翻倍概率↑ 惩罚风险↑       │    │
+│  │ [保守] 豁免概率↑ 累积↓           │    │
+│  │ [平衡] 标准投掷                  │    │
+│  └─────────────────────────────────┘    │
+│           [ 掷骰 ]                       │
+├─────────────────────────────────────────┤
+│ 历史: R1轻抚→R2亲吻→R3翻倍→R4拥抱       │
+└─────────────────────────────────────────┘
 ```
 
-#### 4.2 策略注册表
+**核心操作**：选择策略 → 掷骰 → 引擎结算 → 更新累积效应
 
-**文件**: `components/features/BoardGame/panels/index.ts`
-
-```typescript
-const gamePanelRegistry: Record<桌游类型, React.ComponentType<GamePanelProps>> = {
-  '密室逃脱': 密室逃脱Panel,
-  '狼人杀': 狼人杀Panel,
-  '剧本杀': 剧本杀Panel,
-  '真心话大冒险': 真心话大冒险Panel,
-  '国王游戏': 国王游戏Panel,
-  '大富翁': 大富翁Panel,
-  '棋牌游戏': 棋牌游戏Panel,
-  '骰子游戏': 骰子游戏Panel,
-};
-```
-
-#### 4.3 首个实现：骰子游戏 Panel
-
-**文件**: `components/features/BoardGame/panels/骰子游戏Panel.tsx`
+### 2. 密室逃脱
 
 ```
-+-------------------------------------------+
-| 骰子游戏 (3 dice)                         |
-| [🎲 掷骰按钮]                             |
-+-------------------------------------------+
-| 当前结果: [轻抚] [亲吻] [翻倍]             |
-| 累积效应: Level 4                          |
-+-------------------------------------------+
-| 历史记录:                                  |
-|   R1: 轻抚  拥抱  豁免                     |
-|   R2: 翻倍  轻抚  亲吻                     |
-|   R3: 亲吻  脱衣  惩罚 ← current           |
-+-------------------------------------------+
+┌─────────────────────────────────────────┐
+│ 密室逃脱    剩余时间: 08:32              │
+├─────────────────────────────────────────┤
+│ [紧张度 ███░░░ 45]  [线索: 3/7]         │
+├─────────────────────────────────────────┤
+│  ┌───────┐  ┌───────┐  ┌───────┐       │
+│  │ 左门   │  │ 中路   │  │ 右窗   │       │
+│  │ 需要:  │  │ 需要:  │  │ 需要:  │       │
+│  │ 智力≥5 │  │ 敏捷≥7 │  │ 魅力≥4 │       │
+│  │ [探索] │  │ [探索] │  │ [探索] │       │
+│  └───────┘  └───────┘  └───────┘       │
+│  已发现线索:                             │
+│  · 墙上的血迹图案 [智力检定通过]          │
+├─────────────────────────────────────────┤
+│ NPC 状态: 张三[紧张] 李四[冷静]          │
+└─────────────────────────────────────────┘
 ```
 
-选择骰子游戏的原因：UI 需求相对简单（骰子展示、历史记录、累积效应），能锻炼所有共享组件的使用，且数据模型清晰。
+**核心操作**：选择路径 → 属性检定 → 发现线索/触发事件
 
-#### 4.4 后续 Panel（按优先级）
-
-1. **密室逃脱Panel** — 房间网格地图、逃脱进度条、主题选择器
-2. **真心话大冒险Panel** — 卡片翻转动画、指令展示、饮酒状态
-3. **国王游戏Panel** — 国王选择动画、指令展示、执行确认面板
-4. **狼人杀Panel** — 角色卡、阵营展示、投票面板、淘汰追踪
-5. **剧本杀Panel** — 剧本文本、CP关系指示器、现实/虚构模糊度
-6. **大富翁Panel** — 简化地产板、资产追踪、债务惩罚列表
-7. **棋牌游戏Panel** — 手牌展示、虚张声势指示、赌注池
-
-### Phase 5: 设置面板
-
-**文件**: `components/features/Settings/BoardGameNSFWSettings.tsx`
-
-替换占位符，实现 `桌游社交NSFW设置` 的完整控制：
-
-- 主开关：启用桌游社交NSFW系统
-- 强度选择：关闭/轻度/中度/深度
-- 每种游戏类型独立开关
-- 触发频率：低/中/高
-- 多人局/邀请/成就/线上模式开关
-
-### Phase 6: 导航入口
-
-#### 6.1 右侧面板
-
-**文件**: `components/layout/RightPanel.tsx` — 添加"桌游"菜单项，受 `enableBoardGame` 属性控制。
-
-#### 6.2 手机快捷菜单
-
-**文件**: `components/layout/MobileQuickMenu.tsx` — 添加"桌游"入口 + 骰子图标。
-
-#### 6.3 Modal 开启器
-
-**文件**: `hooks/useModalOpeners.ts` — 新增 `openBoardGameDashboard` / `openBoardGameModal`。
-
-## 数据流
+### 3. 狼人杀
 
 ```
-引擎状态 (校园系统.欲望系统.桌游状态)
-    │ (只读)
-    ▼
-useGame 返回 state.校园系统
-    │
-    ▼
-App.tsx → BoardGameModals
-    │
-    ▼
-BoardGameModal 提取数据 → PlayerRoster + EventQueue + GamePanel
+┌─────────────────────────────────────────┐
+│ 狼人杀    第 3 夜    你的身份: 平民      │
+├─────────────────────────────────────────┤
+│ [存活: 6/8]  [紧张度 █████░ 78]         │
+├─────────────────────────────────────────┤
+│  玩家列表：                              │
+│  👤 张三  [存活]  昨晚投了: 李四        │
+│  👤 李四  [存活]  昨晚投了: 王五        │
+│  💀 王五  [出局]  身份: 预言家           │
+│  ┌─────────────────────────────────┐    │
+│  │ 白天投票：                       │    │
+│  │ [张三] [李四] [赵六] [跳过]      │    │
+│  └─────────────────────────────────┘    │
+├─────────────────────────────────────────┤
+│ 你的推理笔记: [点击编辑]                 │
+└─────────────────────────────────────────┘
 ```
 
-UI 不修改引擎状态，引擎状态变更通过现有 `set校园系统` 更新。
+**核心操作**：夜间选择目标 / 白天投票 / 编辑推理笔记
 
-## 风险与缓解
+### 4. 剧本杀
 
-| 风险 | 等级 | 缓解 |
-|------|------|------|
-| 状态路径深嵌套 | 中 | 封装 `useBoardGameState()` selector hook |
-| 联合类型区分 | 中 | 每种游戏状态有独立 type 字段，用 discriminated union |
-| 移动端空间不足 | 中 | 移动端使用 Bottom Sheet + 垂直滚动 |
-| 范围蔓延 | 高 | Phase 4.3 仅实现骰子游戏，其余后续迭代 |
-| 与叙事内容重复 | 低 | UI 仅展示结构化数据，不复制叙事文本 |
+```
+┌─────────────────────────────────────────┐
+│ 剧本杀: 《血色黄昏》   第 2 幕           │
+├─────────────────────────────────────────┤
+│ [线索卡: 5/12]  [推理度 ███░░░ 42%]     │
+├─────────────────────────────────────────┤
+│  线索墙：                                │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐      │
+│  │ 🔪   │ │ 📝   │ │ 🕐   │ │ 👤   │      │
+│  │ 凶器 │ │ 遗书 │ │ 时间 │ │ 证人 │      │
+│  │ [已得│ │ [未得│ │ [已得│ │ [未得│      │
+│  │  到] │ │  到] │ │  到] │ │  到] │      │
+│  └─────┘ └─────┘ └─────┘ └─────┘      │
+│  ┌─────────────────────────────────┐    │
+│  │ 本轮行动：                       │    │
+│  │ [搜索房间] [审问 NPC] [隐藏线索] │    │
+│  └─────────────────────────────────┘    │
+├─────────────────────────────────────────┤
+│ 推理链: 凶器 → ??? → 凶手               │
+└─────────────────────────────────────────┘
+```
 
-## 复杂度评估
+**核心操作**：搜索/审问/隐藏 → 拼凑线索 → 推理指控
 
-| 阶段 | 复杂度 | 预估工时 |
-|------|--------|----------|
-| Phase 1: 基础设施 | 低 | 1-2h |
-| Phase 2: 共享组件 | 中 | 3-4h |
-| Phase 3: 仪表盘 | 中 | 2-3h |
-| Phase 4.1-4.3: Modal+骰子游戏 | 高 | 4-6h |
-| Phase 4.4-4.10: 剩余 7 个 Panel | 高 | 8-12h |
-| Phase 5: 设置面板 | 低 | 1-2h |
-| Phase 6: 导航入口 | 低 | 1h |
-| **总计** | **高** | **20-30h** |
+### 5. 真心话大冒险
 
-## 推荐实施顺序
+```
+┌─────────────────────────────────────────┐
+│ 真心话大冒险    轮到: 你                 │
+├─────────────────────────────────────────┤
+│ [紧张度 ██░░░░ 28]  [底线余量: 72%]     │
+├─────────────────────────────────────────┤
+│  ┌─────────────────────────────────┐    │
+│  │ 你的选择：                       │    │
+│  │  ┌──────────────┐ ┌──────────┐  │    │
+│  │  │   真心话      │ │  大冒险  │  │    │
+│  │  │  风险: 低     │ │ 风险: 中 │  │    │
+│  │  │  余量 -5%     │ │ 余量-15% │  │    │
+│  │  └──────────────┘ └──────────┘  │    │
+│  └─────────────────────────────────┘    │
+│  底线管理：████████░░ 72%               │
+├─────────────────────────────────────────┤
+│ NPC 底线余量: 张三 85% | 李四 60%        │
+└─────────────────────────────────────────┘
+```
 
-**本轮**：Phase 1 + Phase 2 + Phase 3 + Phase 4.1-4.2 (基础设施 + 共享组件 + 仪表盘 + Modal 外壳 + 骰子游戏 Panel)
+**核心操作**：选择真心话/大冒险 → 底线消耗 → 触发后果
 
-**后续**：Phase 4.3 (剩余 7 Panel) + Phase 5 + Phase 6
+### 6. 国王游戏
+
+```
+┌─────────────────────────────────────────┐
+│ 国王游戏    第 4 轮    你是: 服从者      │
+├─────────────────────────────────────────┤
+│  🎭 国王命令："李四，给赵六按摩 30 秒"   │
+│  ┌─────────────────────────────────┐    │
+│  │ [服从] 服从度↑ 紧张度↑           │    │
+│  │ [协商] 修改命令内容               │    │
+│  │ [反抗] 服从度↓↓ 可能触发惩罚     │    │
+│  └─────────────────────────────────┘    │
+│  服从度历史：R1✓ R2✓ R3✗ R4?            │
+├─────────────────────────────────────────┤
+│ 累计服从: 3/4 | 最大反抗: 1              │
+└─────────────────────────────────────────┘
+```
+
+**核心操作**：回应国王命令（服从/协商/反抗）
+
+### 7. 大富翁
+
+```
+┌─────────────────────────────────────────┐
+│ 大富翁    你的回合    💰 资金: 5000      │
+├─────────────────────────────────────────┤
+│  你的位置: 05 (⭐ 机会格)               │
+│  ┌─────────────────────────────────┐    │
+│  │ 机会卡："获得 NPC 好感，支付 1000"│    │
+│  │ [接受] [拒绝]                    │    │
+│  └─────────────────────────────────┘    │
+│  资产：02 号地块(2000) | 06 号地块(3000) │
+├─────────────────────────────────────────┤
+│ 掷骰: [🎲 结果: 4] → 移动到 09          │
+└─────────────────────────────────────────┘
+```
+
+**核心操作**：掷骰移动 → 地块决策（购买/支付/机会）
+
+### 8. 棋牌游戏
+
+```
+┌─────────────────────────────────────────┐
+│ 棋牌游戏: 斗地主    你的回合             │
+├─────────────────────────────────────────┤
+│  上家出牌: 对 8                          │
+│  你的手牌：3 4 5 6 7 8 9 10 J Q K A 2   │
+│  ┌─────────────────────────────────┐    │
+│  │ [对 9] [对 J] [对 Q] [不出]     │    │
+│  └─────────────────────────────────┘    │
+│  其他玩家剩余：张三 8 张 | 李四 15 张    │
+└─────────────────────────────────────────┘
+```
+
+**核心操作**：选择手牌 → 出牌/不出 → 胜负判定
+
+---
+
+## 实施步骤
+
+### 里程碑 1：基础架构扩展 (2-3h)
+
+- [ ] 扩展 `zustandStore.ts` BoardGameSlice 状态字段
+- [ ] 新增 `useBoardGameActions.ts` 操作层
+- [ ] 新增 `useBoardGameBridge.ts` 桥接层
+- [ ] 扩展 `engine/core.ts` 添加 `executePlayerAction`、`pauseGame`、`resumeGame`
+- [ ] 扩展 `eventSystem.ts` 支持 pending 事件
+
+### 里程碑 2：共享组件补全 (2-3h)
+
+- [ ] `ActionButtons.tsx` — 操作按钮组（带 loading/disabled 状态）
+- [ ] `ChoiceDialog.tsx` — 选择对话框（多选项、风险标识）
+- [ ] `StatusBadge.tsx` — 状态徽章（运行/暂停/结束）
+- [ ] 更新现有共享组件以支持交互（TensionMeter 增加预警动画）
+
+### 里程碑 3：骰子游戏 Panel 重写 (2h)
+
+- [ ] 重写 `骰子游戏Panel.tsx` 为完整 SLG 交互
+- [ ] 策略选择（激进/保守/平衡）
+- [ ] 掷骰操作 + 动画
+- [ ] 累积效应可视化
+- [ ] 历史记录增强
+
+### 里程碑 4：桥接层集成 (2h)
+
+- [ ] 发消息时自动暂停游戏
+- [ ] AI 回复后自动恢复游戏
+- [ ] 关键步骤触发叙事推进
+- [ ] 叙事约束生成与注入
+
+### 里程碑 5：其余 7 个游戏 Panel (8-12h)
+
+按优先级逐个实现：
+1. 真心话大冒险（简单，底线管理）
+2. 国王游戏（简单，服从/反抗）
+3. 大富翁（中等，资源经营）
+4. 棋牌游戏（中等，回合策略）
+5. 密室逃脱（中等，属性检定）
+6. 剧本杀（复杂，线索推理）
+7. 狼人杀（复杂，社交推理）
+
+### 里程碑 6：暂停/恢复协议测试 (1h)
+
+- [ ] 验证发消息 → 暂停 → 保存 → AI 回复 → 恢复 完整链路
+- [ ] 验证关键步骤 → 叙事推进流程
+- [ ] 验证状态序列化/反序列化正确性
+
+---
+
+## 风险评估
+
+| 风险 | 等级 | 缓解措施 |
+|------|------|---------|
+| 范围蔓延（8种游戏） | 高 | 里程碑 3 仅实现骰子游戏，其余后续迭代 |
+| 引擎与 UI 状态不同步 | 中 | 使用 Zustand 作为单一数据源，引擎只读状态 |
+| 叙事约束格式不稳定 | 中 | 定义严格的 XML tag 协议，增加校验 |
+| 暂停/恢复状态丢失 | 中 | IndexedDB 持久化 + 内存缓存双保险 |
+| 移动端空间不足 | 中 | Bottom Sheet + 垂直滚动 + 可折叠面板 |
+
+---
+
+## 验证标准
+
+1. `npm run build` 构建通过
+2. 游戏弹出/暂停/恢复链路正常
+3. 骰子游戏可完整游玩（选择策略 → 掷骰 → 结算 → 更新状态）
+4. 叙事约束正确注入 AI prompt
+5. 移动端响应式正常
+6. 状态序列化/反序列化无损
+
+---
+
+## 预估工时
+
+| 阶段 | 工时 |
+|------|------|
+| 里程碑 1：基础架构 | 2-3h |
+| 里程碑 2：共享组件 | 2-3h |
+| 里程碑 3：骰子游戏重写 | 2h |
+| 里程碑 4：桥接层集成 | 2h |
+| 里程碑 5：其余 7 Panel | 8-12h |
+| 里程碑 6：测试验证 | 1h |
+| **总计** | **17-23h** |

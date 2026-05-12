@@ -219,6 +219,13 @@ export const useGame = () => {
         showBoardGameModal, setShowBoardGameModal,
         activeBoardGameTab, setActiveBoardGameTab,
         selectedGameType, setSelectedGameType,
+        boardGamePaused, setBoardGamePaused,
+        pauseReason, setPauseReason,
+        pendingEvents, setPendingEvents,
+        actionHistory, addActionToHistory,
+        narrativeConstraints, setNarrativeConstraints,
+        lastSettlement, setLastSettlement,
+        clearActionHistory, clearPendingEvents,
     } = stateAccess;
 
     // 从 Ref 注册表解构（保持原有变量名）
@@ -788,6 +795,13 @@ export const useGame = () => {
         showBoardGameModal, setShowBoardGameModal,
         activeBoardGameTab, setActiveBoardGameTab,
         selectedGameType, setSelectedGameType,
+        boardGamePaused, setBoardGamePaused,
+        pauseReason, setPauseReason,
+        pendingEvents, setPendingEvents,
+        actionHistory, addActionToHistory,
+        narrativeConstraints, setNarrativeConstraints,
+        lastSettlement, setLastSettlement,
+        clearActionHistory, clearPendingEvents,
         最近开局配置,
         已进入主剧情回合,
         接口配置是否可用,
