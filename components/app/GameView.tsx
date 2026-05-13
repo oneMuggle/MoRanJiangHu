@@ -12,6 +12,7 @@ import RightPanel from '../layout/RightPanel';
 import MobileQuickMenu from '../layout/MobileQuickMenu';
 import ChatList from '../features/Chat/ChatList';
 import InputArea from '../features/Chat/InputArea';
+import { GalgameView } from './GalgameView';
 import { 懒加载边界, MobileMusicPlayer } from '../features/lazyComponents';
 
 // ============================================================================
@@ -30,6 +31,8 @@ interface GameViewProps {
     启用修炼体系: boolean;
     chatContentHidden: boolean;
     setChatContentHidden: (v: React.SetStateAction<boolean>) => void;
+    galgameModeEnabled: boolean;
+    toggleGalgameMode: () => void;
     sceneQuickGenHint: boolean;
     sceneQuickGenToastVisible: boolean;
     tickerEvents: unknown[];
@@ -84,6 +87,8 @@ export function GameView({
     启用修炼体系,
     chatContentHidden,
     setChatContentHidden,
+    galgameModeEnabled,
+    toggleGalgameMode,
     sceneQuickGenHint,
     sceneQuickGenToastVisible,
     tickerEvents,
@@ -196,6 +201,32 @@ export function GameView({
                             }`}
                         ></div>
                         <div className="absolute right-3 top-3 z-30 flex items-center gap-2">
+                            {/* Galgame 模式切换 */}
+                            <button
+                                type="button"
+                                onClick={toggleGalgameMode}
+                                className={`inline-flex h-[27px] w-[27px] items-center justify-center rounded-full border bg-black/55 backdrop-blur-sm transition-colors hover:text-white ${
+                                    galgameModeEnabled
+                                        ? 'border-purple-400 text-purple-100 ring-2 ring-purple-400/60'
+                                        : 'border-gray-600/60 text-gray-300 hover:border-purple-400'
+                                }`}
+                                title={galgameModeEnabled ? '切换为传统聊天视图' : '切换为 Galgame 沉浸视图'}
+                                aria-label="Galgame 模式切换"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-[14px] w-[14px]">
+                                    {galgameModeEnabled ? (
+                                        <>
+                                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                                            <path d="M8 10h.01M12 10h.01M16 10h.01" strokeWidth="3" strokeLinecap="round" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36" />
+                                            <path d="m9 12 2 2 4-4" />
+                                        </>
+                                    )}
+                                </svg>
+                            </button>
                             {chatContentHidden && (
                                 <button
                                     type="button"
@@ -248,38 +279,61 @@ export function GameView({
                             }`}
                             aria-hidden={chatContentHidden}
                         >
-                            <ChatList
-                                history={state.历史记录}
-                                loading={state.loading}
-                                scrollRef={state.scrollRef}
-                                onUpdateHistory={(actions as any).updateHistoryItem}
-                                onPolishTurn={(actions as any).handlePolishTurn}
-                                visualConfig={state.visualConfig}
-                                socialList={state.社交}
-                                playerProfile={playerProfile}
-                                renderCount={(state.visualConfig as any)?.渲染层数}
-                                suppressAutoScrollToken={(meta as any).chatScrollSuppressToken}
-                                forceScrollToken={(meta as any).chatForceScrollToken}
-                                isDebugMode={(state.gameConfig as any)?.启用调试模式 === true}
-                            />
-                            <InputArea
-                                onSend={(actions as any).handleSend}
-                                onStop={(actions as any).handleStop}
-                                onCancelVariableGeneration={(actions as any).handleCancelVariableGeneration}
-                                onRegenerate={(actions as any).handleRegenerate}
-                                onRecoverParseErrorRaw={(actions as any).handleRecoverFromParseErrorRaw}
-                                onQuickRestart={(actions as any).handleQuickRestart}
-                                requestConfirm={requestConfirm}
-                                loading={state.loading}
-                                variableGenerationRunning={(meta as any).variableGenerationRunning}
-                                canReroll={(meta as any).canRerollLatest}
-                                canQuickRestart={(meta as any).canQuickRestart}
-                                openingWorldEvolutionProgress={(meta as any).openingWorldEvolutionProgress}
-                                openingPlanningProgress={(meta as any).openingPlanningProgress}
-                                openingVariableGenerationProgress={(meta as any).openingVariableGenerationProgress}
-                                options={currentOptions}
-                                actionOptionInputMode={(state.gameConfig as any)?.行动选项输入模式}
-                            />
+                            {galgameModeEnabled ? (
+                                <GalgameView
+                                    history={state.历史记录 as any[]}
+                                    loading={state.loading as boolean}
+                                    socialList={state.社交 as any[]}
+                                    playerProfile={playerProfile}
+                                    currentOptions={currentOptions}
+                                    backgroundImage={当前背景图片地址}
+                                    sceneName={(state.环境 as any)?.当前地点}
+                                    timeOfDay={(state.环境 as any)?.时间}
+                                    onOptionSelect={(optionId: string) => {
+                                        const optionText = currentOptions[parseInt(optionId.split('-')[1], 10)];
+                                        if (optionText) {
+                                            (actions as any).handleSend?.(optionText);
+                                        }
+                                    }}
+                                    onSend={(actions as any).handleSend}
+                                    onStop={(actions as any).handleStop}
+                                />
+                            ) : (
+                                <>
+                                    <ChatList
+                                        history={state.历史记录}
+                                        loading={state.loading}
+                                        scrollRef={state.scrollRef}
+                                        onUpdateHistory={(actions as any).updateHistoryItem}
+                                        onPolishTurn={(actions as any).handlePolishTurn}
+                                        visualConfig={state.visualConfig}
+                                        socialList={state.社交}
+                                        playerProfile={playerProfile}
+                                        renderCount={(state.visualConfig as any)?.渲染层数}
+                                        suppressAutoScrollToken={(meta as any).chatScrollSuppressToken}
+                                        forceScrollToken={(meta as any).chatForceScrollToken}
+                                        isDebugMode={(state.gameConfig as any)?.启用调试模式 === true}
+                                    />
+                                    <InputArea
+                                        onSend={(actions as any).handleSend}
+                                        onStop={(actions as any).handleStop}
+                                        onCancelVariableGeneration={(actions as any).handleCancelVariableGeneration}
+                                        onRegenerate={(actions as any).handleRegenerate}
+                                        onRecoverParseErrorRaw={(actions as any).handleRecoverFromParseErrorRaw}
+                                        onQuickRestart={(actions as any).handleQuickRestart}
+                                        requestConfirm={requestConfirm}
+                                        loading={state.loading}
+                                        variableGenerationRunning={(meta as any).variableGenerationRunning}
+                                        canReroll={(meta as any).canRerollLatest}
+                                        canQuickRestart={(meta as any).canQuickRestart}
+                                        openingWorldEvolutionProgress={(meta as any).openingWorldEvolutionProgress}
+                                        openingPlanningProgress={(meta as any).openingPlanningProgress}
+                                        openingVariableGenerationProgress={(meta as any).openingVariableGenerationProgress}
+                                        options={currentOptions}
+                                        actionOptionInputMode={(state.gameConfig as any)?.行动选项输入模式}
+                                    />
+                                </>
+                            )}
                         </div>
                         {sceneQuickGenToastVisible && (
                             <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">

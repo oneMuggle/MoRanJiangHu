@@ -27,6 +27,8 @@ export interface GalgameDialogueBoxProps {
   onOptionSelect?: (optionId: string) => void;
   /** 点击跳过回调 */
   onClick?: () => void;
+  /** 禁用打字机效果，直接显示全文 */
+  disableTypewriter?: boolean;
 }
 
 export const GalgameDialogueBox: React.FC<GalgameDialogueBoxProps> = ({
@@ -36,10 +38,11 @@ export const GalgameDialogueBox: React.FC<GalgameDialogueBoxProps> = ({
   options,
   onOptionSelect,
   onClick,
+  disableTypewriter = false,
 }) => {
-  const { displayedText, isComplete, skip } = useTypewriter(text, {
-    speed: typewriterSpeed,
-  });
+  const { displayedText, isComplete, skip } = disableTypewriter
+    ? { displayedText: text, isComplete: true, skip: () => {} }
+    : useTypewriter(text, { speed: typewriterSpeed });
 
   const handleClick = () => {
     if (!isComplete) {

@@ -55,6 +55,8 @@ export interface AppModalState {
     setSceneQuickGenToastVisible: React.Dispatch<React.SetStateAction<boolean>>;
     contextSnapshot: Awaited<ReturnType<any>> | undefined;
     setContextSnapshot: React.Dispatch<React.SetStateAction<Awaited<ReturnType<any>> | undefined>>;
+    galgameModeEnabled: boolean;
+    toggleGalgameMode: () => void;
 }
 
 interface UseAppModalStateDeps {
@@ -103,6 +105,10 @@ export function useAppModalState({
     const [sceneQuickGenHint, setSceneQuickGenHint] = React.useState(false);
     const [sceneQuickGenToastVisible, setSceneQuickGenToastVisible] = React.useState(false);
     const [contextSnapshot, setContextSnapshot] = React.useState<Awaited<ReturnType<any>> | undefined>(undefined);
+    const [galgameModeEnabled, setGalgameModeEnabled] = React.useState(false);
+    const toggleGalgameMode = React.useCallback(() => {
+        setGalgameModeEnabled(prev => !prev);
+    }, []);
 
     // --- 弹窗开启器 ---
     const modalStates = {
@@ -149,6 +155,7 @@ export function useAppModalState({
         sceneQuickGenHint, setSceneQuickGenHint,
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,
         contextSnapshot, setContextSnapshot,
+        galgameModeEnabled, toggleGalgameMode,
         requestConfirm,
         modalOpeners,
     };

@@ -43,6 +43,7 @@ const App: React.FC = () => {
         sceneQuickGenHint, setSceneQuickGenHint,
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,
         contextSnapshot, setContextSnapshot,
+        galgameModeEnabled, toggleGalgameMode,
         modalOpeners,
     } = useAppModalState({
         setters,
@@ -184,6 +185,8 @@ const App: React.FC = () => {
                         启用修炼体系={启用修炼体系}
                         chatContentHidden={chatContentHidden}
                         setChatContentHidden={setChatContentHidden}
+                        galgameModeEnabled={galgameModeEnabled}
+                        toggleGalgameMode={toggleGalgameMode}
                         sceneQuickGenHint={sceneQuickGenHint}
                         sceneQuickGenToastVisible={sceneQuickGenToastVisible}
                         tickerEvents={tickerEvents}

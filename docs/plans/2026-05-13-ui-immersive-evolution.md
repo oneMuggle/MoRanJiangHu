@@ -1,7 +1,7 @@
 # UI 沉浸式演进方案 — 实施计划
 
 > 创建日期: 2026-05-13
-> 状态: **实施中（Phase 1-2 P0 已完成）**
+> 状态: **实施中（Phase 1-2 P0 已完成，增强功能已完成）**
 > 上游文档: `2026-05-12-slg-rpg-avg-ai-architecture-migration.md`（第七节）
 > 最后更新: 2026-05-13
 
@@ -11,6 +11,7 @@
 |-------|------|--------|------|
 | Phase 1 | 数据链路打通 | P0 | ✅ **已完成** |
 | Phase 2 | Galgame 核心 UI | P0 | ✅ **已完成** |
+| Phase 2.5 | Galgame 体验增强 | P0 | ✅ **已完成** |
 | Phase 3 | 场景切换动画 | P1 | 待实施 |
 | Phase 4 | 战争迷雾 & 战术地图增强 | P1 | 待实施 |
 | Phase 5 | CG 播放器 | P1 | 待实施 |
@@ -18,10 +19,19 @@
 | Phase 7 | 降级体系 | P2 | 待实施 |
 
 **Phase 1-2 产出：**
-- 新增 5 个文件：`useTypewriter.ts`, `CharacterSprite.tsx`, `SceneBackground.tsx`, `GalgameDialogueBox.tsx`, `GalgameMode.tsx`
-- 修改 3 个文件：`MapExplorerModal.tsx`, `MobileMapExplorerModal.tsx`, `ModalLayer.tsx`, `global.css`
+- 新增 6 个文件：`useTypewriter.ts`, `CharacterSprite.tsx`, `SceneBackground.tsx`, `GalgameDialogueBox.tsx`, `GalgameMode.tsx`, `GalgameView.tsx`
+- 修改 5 个文件：`MapExplorerModal.tsx`, `MobileMapExplorerModal.tsx`, `ModalLayer.tsx`, `global.css`, `GameView.tsx`, `useAppModalState.ts`, `App.tsx`
 - MapExplorer 弹窗已从 demo 数据切换到真实引擎数据
 - Galgame UI 基础设施（立绘、背景、对话框、打字机、容器）全部就绪
+- GalgameView 已完整接入 GameView，通过右上角切换按钮可在 Galgame 模式和传统 ChatList 模式间切换
+
+**Phase 2.5 增强产出：**
+- 新增 2 个文件：`useAggregatedDialogue.ts`, `DialogueBacklog.tsx`
+- 修改 2 个文件：`GalgameDialogueBox.tsx`（disableTypewriter prop）, `GalgameView.tsx`（完全重写）
+- 全量对话日志聚合：`useAggregatedDialogue` hook 展平所有回合的所有 logs
+- 多条目显示：当前场景最后 3 条堆叠显示（旁白 + NPC 对话）
+- 修复 loading 白屏：AI 生成时保留上次场景，不再白屏
+- Backlog 对话记录面板：ESC 关闭、自动滚动、时间线样式
 
 ---
 
@@ -502,11 +512,17 @@ Phase 1（数据链路）──┬──▶ Phase 2（Galgame 核心）──▶
 
 ### Phase 2 验收
 
-- [ ] 角色立绘在对话时正确显示
-- [ ] 说话中的角色立绘有呼吸动画 ✅（`animate-breathe` 已添加到 global.css）
-- [ ] 场景背景根据当前区域正确加载
-- [ ] 对话框支持逐字显示，点击可跳过 ✅
-- [ ] 选项按钮列表正确渲染 ✅
+- [x] 角色立绘在对话时正确显示（通过 GalgameView → GalgameMode → CharacterSprite 链路）
+- [x] 说话中的角色立绘有呼吸动画 ✅（`animate-breathe` 已添加到 global.css）
+- [x] 场景背景根据当前区域正确加载（通过 GalgameView → SceneBackground 链路）
+- [x] 对话框支持逐字显示，点击可跳过 ✅
+- [x] 选项按钮列表正确渲染 ✅
+- [x] GalgameMode 通过 GalgameView 完整接入 GameView，替代 ChatList 渲染
+- [x] 右上角切换按钮实现，可切换 Galgame 模式 / 传统 ChatList 模式
+- [x] AI 生成时不白屏，保留上次场景显示
+- [x] 旁白文本正确渲染（斜体、左边框样式）
+- [x] 当前场景多条对话堆叠显示（最后 3 条）
+- [x] 对话记录 Backlog 面板（ESC 关闭、自动滚动到底部）
 - [ ] 移动端 GalgameMode 全屏适配
 
 ### Phase 3 验收
