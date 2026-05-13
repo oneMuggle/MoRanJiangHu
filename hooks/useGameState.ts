@@ -192,6 +192,8 @@ export const useGameState = () => {
 
     // Relationship Modal
     const [showRelationship, setShowRelationship] = useState<{ show: boolean }>({ show: false });
+    const [showCGGallery, setShowCGGallery] = useState(false);
+    const [showMapExplorer, setShowMapExplorer] = useState(false);
 
     // 人物关系谱（懒初始化：首次从社交数据构建）
     const [关系谱, 设置关系谱] = useState<关系网络数据 | undefined>(undefined);
@@ -457,6 +459,8 @@ export const useGameState = () => {
         showMemory, setShowMemory,
         showSaveLoad, setShowSaveLoad, // New
         showRelationship, setShowRelationship,
+        showCGGallery, setShowCGGallery,
+        showMapExplorer, setShowMapExplorer,
         关系谱, 设置关系谱,
         activeTab, setActiveTab,
 

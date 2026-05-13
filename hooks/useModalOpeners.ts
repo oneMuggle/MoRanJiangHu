@@ -25,6 +25,8 @@ interface GameSetters {
     setShowRelationship: React.Dispatch<React.SetStateAction<{ show: boolean }>>;
     setShowSettings: React.Dispatch<React.SetStateAction<boolean>>;
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    setShowCGGallery: React.Dispatch<React.SetStateAction<boolean>>;
+    setShowMapExplorer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface GameActions {
@@ -96,6 +98,8 @@ export interface ModalOpeners {
     openWorldbookManager: () => void;
     openNovelDecompositionWorkbench: () => Promise<void>;
     openImageManagerWithCheck: () => Promise<void>;
+    openCGGallery: () => void;
+    openMapExplorer: () => void;
     handleMobileMenuClick: (menu: string) => void;
     handleStartFromLanding: () => void;
     handleReturnToHomeFromSettings: () => Promise<void>;
@@ -126,6 +130,7 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         setters.setShowRelationship({ show: false });
         setters.setShowSettings(false);
         states.setShowMobileMusic(false);
+        setters.setShowMapExplorer(false);
     }, [setters, states]);
 
     const openCharacter = React.useCallback(() => states.setShowCharacter(true), [states]);
@@ -224,6 +229,9 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         states.setShowImageManager(true);
     }, [closeAllPanels, requestConfirm, setters, states, apiConfig]);
 
+    const openMapExplorer = React.useCallback(() => setters.setShowMapExplorer(true), [setters]);
+    const openCGGallery = React.useCallback(() => setters.setShowCGGallery(true), [setters]);
+
     const handleMobileMenuClick = React.useCallback((menu: string) => {
         const isActive = activeMobileWindow === menu;
         closeAllPanels();
@@ -286,6 +294,9 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
             case '小说分解':
                 void openNovelDecompositionWorkbench();
                 break;
+            case '探索':
+                setters.setShowMapExplorer(true);
+                break;
             case '保存':
                 setters.setShowSaveLoad({ show: true, mode: 'save' });
                 break;
@@ -297,6 +308,9 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
                 break;
             case '通讯':
                 actions.openDevice();
+                break;
+            case '图鉴':
+                setters.setShowCGGallery(true);
                 break;
             case '音乐':
                 states.setShowMobileMusic(true);
@@ -330,7 +344,7 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         closeSettings, closeNovelDecompositionWorkbench, closeNovelWritingWorkbench,
         closeSaveLoad, closeMobileMusic,
         openWorldbookManager, openNovelDecompositionWorkbench,
-        openImageManagerWithCheck, handleMobileMenuClick, handleStartFromLanding,
+        openImageManagerWithCheck, openCGGallery, openMapExplorer, handleMobileMenuClick, handleStartFromLanding,
         handleReturnToHomeFromSettings,
     };
 }

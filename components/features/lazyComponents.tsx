@@ -135,3 +135,10 @@ export const BoardGameDashboard = 创建可预加载懒组件(() => import('./Bo
 export const BoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/BoardGameModal'));
 export const MobileBoardGameDashboard = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameDashboard'));
 export const MobileBoardGameModal = 创建可预加载懒组件(() => import('./BoardGame/MobileBoardGameModal'));
+
+// CG Gallery (Galgame)
+export const CGGalleryModal = 创建可预加载懒组件(() => import('./Galgame/CGGalleryModal'));
+export const MobileCGGalleryModal = 创建可预加载懒组件(() => import('./Galgame/MobileCGGalleryModal'));
+
+export const MapExplorerModal = 创建可预加载懒组件(() => import('./Exploration/MapExplorerModal'));
+export const MobileMapExplorerModal = 创建可预加载懒组件(() => import('./Exploration/MobileMapExplorerModal'));

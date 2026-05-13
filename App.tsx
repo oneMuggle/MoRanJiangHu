@@ -104,7 +104,7 @@ const App: React.FC = () => {
         closeSettings, closeNovelDecompositionWorkbench, closeNovelWritingWorkbench,
         closeSaveLoad, closeMobileMusic,
         openWorldbookManager, openNovelDecompositionWorkbench,
-        openImageManagerWithCheck, handleMobileMenuClick, handleStartFromLanding,
+        openImageManagerWithCheck, openCGGallery, openMapExplorer, handleMobileMenuClick, handleStartFromLanding,
         handleReturnToHomeFromSettings,
     } = modalOpeners;
 
@@ -206,6 +206,8 @@ const App: React.FC = () => {
                         openStory={openStory}
                         openHeroinePlan={openHeroinePlan}
                         openMemory={openMemory}
+                        openCGGallery={openCGGallery}
+                        openMapExplorer={openMapExplorer}
                         openImageManagerWithCheck={openImageManagerWithCheck}
                         openNovelDecompositionWorkbench={openNovelDecompositionWorkbench}
                         openSave={openSave}

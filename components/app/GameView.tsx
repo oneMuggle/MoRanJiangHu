@@ -52,6 +52,8 @@ interface GameViewProps {
     openStory: () => void;
     openHeroinePlan: () => void;
     openMemory: () => void;
+    openCGGallery: () => void;
+    openMapExplorer: () => void;
     openImageManagerWithCheck: () => void;
     openNovelDecompositionWorkbench: () => void;
     openSave: () => void;
@@ -104,6 +106,8 @@ export function GameView({
     openStory,
     openHeroinePlan,
     openMemory,
+    openCGGallery,
+    openMapExplorer,
     openImageManagerWithCheck,
     openNovelDecompositionWorkbench,
     openSave,
@@ -307,6 +311,8 @@ export function GameView({
                             onOpenImageManager={openImageManagerWithCheck}
                             onOpenNovelDecomposition={openNovelDecompositionWorkbench}
                             onOpenDevice={openDevice}
+                            onOpenCGGallery={openCGGallery}
+                            onOpenMapExplorer={openMapExplorer}
                             deviceUnreadCount={((state as any).设备状态?.notifications || []).filter((n: any) => !n.read).length}
                             worldEvolutionEnabled={(meta as any).worldEvolutionEnabled}
                             worldEvolutionUpdating={(meta as any).worldEvolutionUpdating}

@@ -102,6 +102,10 @@ interface ReturnMapperDeps {
     setShowMemory: (v: boolean) => void;
     setShowSaveLoad: (v: any) => void;
     setShowRelationship: (v: any) => void;
+    showCGGallery: boolean;
+    setShowCGGallery: (v: boolean) => void;
+    showMapExplorer: boolean;
+    setShowMapExplorer: (v: boolean) => void;
 
     // 关系谱
     设置关系谱: (v: any) => void;
@@ -318,6 +322,10 @@ export function 构建useGame返回值(deps: ReturnMapperDeps) {
             setShowMemory: deps.setShowMemory,
             setShowSaveLoad: deps.setShowSaveLoad,
             setShowRelationship: deps.setShowRelationship,
+            showCGGallery: deps.showCGGallery,
+            setShowCGGallery: deps.setShowCGGallery,
+            showMapExplorer: deps.showMapExplorer,
+            setShowMapExplorer: deps.setShowMapExplorer,
             设置关系谱: deps.设置关系谱,
             setActiveTab: deps.setActiveTab,
             setCurrentTheme: deps.setCurrentTheme,

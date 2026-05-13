@@ -55,6 +55,10 @@ import {
     ImageManagerModal,
     MobileImageManagerModal,
     MobileDeviceModal,
+    CGGalleryModal,
+    MobileCGGalleryModal,
+    MapExplorerModal,
+    MobileMapExplorerModal,
 } from '../features/lazyComponents';
 
 // ============================================================================
@@ -724,6 +728,36 @@ export function ModalLayer({
                                     currentTime={currentEnvTime}
                                     onSaveMemory={(actions as any).updateMemorySystem}
                                     onStartMemorySummary={(actions as any).handleStartManualMemorySummary}
+                                />
+                            )}
+                        </懒加载边界>
+                    )}
+
+                    {/* CG Gallery Modal */}
+                    {(state.showCGGallery as boolean) && (
+                        <懒加载边界>
+                            {isMobile ? (
+                                <MobileCGGalleryModal
+                                    onClose={() => (setters as any).setShowCGGallery?.(false)}
+                                />
+                            ) : (
+                                <CGGalleryModal
+                                    onClose={() => (setters as any).setShowCGGallery?.(false)}
+                                />
+                            )}
+                        </懒加载边界>
+                    )}
+
+                    {/* Map Explorer Modal */}
+                    {(state.showMapExplorer as boolean) && (
+                        <懒加载边界>
+                            {isMobile ? (
+                                <MobileMapExplorerModal
+                                    onClose={() => (setters as any).setShowMapExplorer?.(false)}
+                                />
+                            ) : (
+                                <MapExplorerModal
+                                    onClose={() => (setters as any).setShowMapExplorer?.(false)}
                                 />
                             )}
                         </懒加载边界>

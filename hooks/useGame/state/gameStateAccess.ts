@@ -89,6 +89,10 @@ export interface GameStateAccess {
     setShowMemory: GameStateSlice['setShowMemory'];
     setShowSaveLoad: GameStateSlice['setShowSaveLoad'];
     setShowRelationship: GameStateSlice['setShowRelationship'];
+    showCGGallery: GameStateSlice['showCGGallery'];
+    setShowCGGallery: GameStateSlice['setShowCGGallery'];
+    showMapExplorer: GameStateSlice['showMapExplorer'];
+    setShowMapExplorer: GameStateSlice['setShowMapExplorer'];
 
     // 关系谱
     关系谱: GameStateSlice['关系谱'];
@@ -362,6 +366,10 @@ export function createGameStateAccess(
         setShowMemory: gameState.setShowMemory,
         setShowSaveLoad: gameState.setShowSaveLoad,
         setShowRelationship: gameState.setShowRelationship,
+        showCGGallery: gameState.showCGGallery,
+        setShowCGGallery: gameState.setShowCGGallery,
+        showMapExplorer: gameState.showMapExplorer,
+        setShowMapExplorer: gameState.setShowMapExplorer,
 
         // 关系谱
         关系谱: gameState.关系谱,
