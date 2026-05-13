@@ -1,3 +1,38 @@
+# 2026-05-13 墨染江湖 夜间执行记录
+
+**Date**: 2026-05-13 23:00-23:20 CST
+**Status**: ✅ Completed (Task 1.3)
+
+## 任务: Phase 1.3 — systemPromptBuilder 拆分
+
+**Source**: `hooks/useGame/systemPromptBuilder.ts` (1763 lines)
+**Target**: `hooks/useGame/systemPromptBuilder/` (6 files)
+
+### 完成内容
+| 文件 | 行数 | 内容 |
+|------|------|------|
+| coreBlocks.ts | 203 | rules, format, COT fragments |
+| stateBlocks.ts | 559 | character, environment, world, combat state |
+| socialBlocks.ts | 28 | NPC and social blocks |
+| memoryBlocks.ts | 49 | memory and recall blocks |
+| planningBlocks.ts | 287 | planning blocks |
+| types.ts | 82 | shared type definitions |
+| index.ts | 735 | main entry + orchestration |
+
+**Build**: ✅ Passes (10.18s)
+**Commit**: `451d22e refactor(systemPromptBuilder): split 1763-line file into modular subdirectory`
+**Backup Branch**: `backup/2026-05-13` (network blocked push to main)
+
+### 阻塞因素
+- 网络降级: git fetch/pull 超时 (90-180s)
+- origin/main 已前移，需要 rebase
+
+### 下一步
+- git pull --rebase origin main (网络恢复后)
+- 验证 systemPromptBuilder/index.ts 正确导出所有模块
+
+---
+
 # 2026-05-07 动态难度调整 (Dynamic Difficulty Adjustment) — Verification
 
 **Date**: 2026-05-07
