@@ -67,6 +67,16 @@ import { 同步剧情小说分解时间校准 } from '../../../services/novel-de
 import { 按功能开关过滤提示词内容, 裁剪修炼体系上下文数据 } from '../../../utils/promptFeatureToggles';
 import { 执行变量模型校准工作流 } from '../planning/variableModelWorkflow';
 import { 合并变量校准结果到响应 as 合并变量生成结果到响应 } from '../planning/variableCalibrationMerge';
+import type { 开场命令基态, 自动存档快照结构, 开场剧情生成依赖, 开局工作流选项 } from './types';
+import {
+    构建开局角色建档摘要,
+    提取响应完整正文文本,
+    格式化命令展示路径,
+    序列化命令文本,
+    构建带索引命令文本,
+    过滤规划补丁命令,
+    读取提示词内容
+} from './utils';
 
 type 开场命令基态 = {
     角色: 角色数据结构;
