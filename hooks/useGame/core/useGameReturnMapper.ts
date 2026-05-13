@@ -76,6 +76,39 @@ interface ReturnMapperDeps {
         narrativeConstraints: string | null;
     };
 
+    // Exploration Slice
+    explorationPaused: boolean;
+    explorationPauseReason: string | null;
+    explorationNodes: any[];
+    explorationPaths: any[];
+    explorationCurrentAp: number;
+    explorationMaxAp: number;
+    explorationCurrentNodeId: string | null;
+    explorationPendingEvents: Array<{ type: string; payload: Record<string, unknown> }>;
+    setExplorationPaused: (updater: boolean | ((prev: boolean) => boolean)) => void;
+    setExplorationPauseReason: (updater: string | null | ((prev: string | null) => string | null)) => void;
+    setExplorationNodes: (updater: any[] | ((prev: any[]) => any[])) => void;
+    setExplorationPaths: (updater: any[] | ((prev: any[]) => any[])) => void;
+    setExplorationCurrentAp: (updater: number | ((prev: number) => number)) => void;
+    setExplorationMaxAp: (updater: number | ((prev: number) => number)) => void;
+    setExplorationCurrentNodeId: (updater: string | null | ((prev: string | null) => string | null)) => void;
+    setExplorationPendingEvents: (updater: any[] | ((prev: any[]) => any[])) => void;
+    syncExplorationState: (state: Record<string, unknown>) => void;
+
+    // Exploration Bridge
+    explorationBridge: {
+        engineRef: { current: unknown };
+        initMap: (nodes: any[], paths: Array<{ from: string; to: string; actionCost: number }>, startNodeId?: string) => void;
+        moveTo: (targetNodeId: string) => { success: boolean; encounter?: unknown; treasure?: unknown; hiddenEvents: string[] };
+        explore: () => void;
+        rest: () => void;
+        onChatMessageSent: () => void;
+        onAIReplyReceived: () => void;
+        getNarrativeConstraints: () => string | null;
+        syncStateToZustand: () => void;
+        isPaused: boolean;
+    };
+
     最近开局配置: any;
 
     // Computed meta
@@ -326,6 +359,15 @@ export function 构建useGame返回值(deps: ReturnMapperDeps) {
             setShowCGGallery: deps.setShowCGGallery,
             showMapExplorer: deps.showMapExplorer,
             setShowMapExplorer: deps.setShowMapExplorer,
+            // Exploration state
+            explorationPaused: deps.explorationPaused,
+            explorationPauseReason: deps.explorationPauseReason,
+            explorationNodes: deps.explorationNodes,
+            explorationPaths: deps.explorationPaths,
+            explorationCurrentAp: deps.explorationCurrentAp,
+            explorationMaxAp: deps.explorationMaxAp,
+            explorationCurrentNodeId: deps.explorationCurrentNodeId,
+            explorationPendingEvents: deps.explorationPendingEvents,
             设置关系谱: deps.设置关系谱,
             setActiveTab: deps.setActiveTab,
             setCurrentTheme: deps.setCurrentTheme,
@@ -480,7 +522,8 @@ export function 构建useGame返回值(deps: ReturnMapperDeps) {
             returnDeviceHome: deps.设备返回主页,
             setDeviceState: deps.设置设备状态,
             performanceConfig: deps.performanceConfig,
-            boardGameBridge: deps.boardGameBridge
+            boardGameBridge: deps.boardGameBridge,
+            explorationBridge: deps.explorationBridge,
         }
     };
 }

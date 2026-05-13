@@ -117,6 +117,7 @@ import { createUtilityDomain } from './useGame/domains/utilityDomain';
 import { createMemoryRuntimeDomain } from './useGame/domains/memoryRuntimeDomain';
 import { createWorkflowDomain } from './useGame/domains/workflowDomain';
 import { useBoardGameBridge } from './useBoardGameBridge';
+import { useExplorationBridge } from './useExplorationBridge';
 
 const 加载图片AI服务 = () => import('../services/ai/image/runtime');
 const 加载NPC生图工作流 = () => import('./useGame/image/npcImageWorkflow');
@@ -228,6 +229,16 @@ export const useGame = () => {
         narrativeConstraints, setNarrativeConstraints,
         lastSettlement, setLastSettlement,
         clearActionHistory, clearPendingEvents,
+        // Zustand Store — Exploration Slice
+        explorationPaused, explorationPauseReason,
+        explorationNodes, explorationPaths,
+        explorationCurrentAp, explorationMaxAp,
+        explorationCurrentNodeId, explorationPendingEvents,
+        setExplorationPaused, setExplorationPauseReason,
+        setExplorationNodes, setExplorationPaths,
+        setExplorationCurrentAp, setExplorationMaxAp,
+        setExplorationCurrentNodeId, setExplorationPendingEvents,
+        syncExplorationState,
     } = stateAccess;
 
     // 从 Ref 注册表解构（保持原有变量名）
@@ -588,11 +599,16 @@ export const useGame = () => {
     // ==================== 桌游叙事桥接层 ====================
     const boardGameBridge = useBoardGameBridge();
 
-    // 包装 handleSend：发送前暂停桌游，回复后恢复
+    // ==================== 探索引擎桥接层 ====================
+    const explorationBridge = useExplorationBridge();
+
+    // 包装 handleSend：发送前暂停桌游/探索，回复后恢复
     const handleSendWithBoardGame: typeof handleSend = async (content, isStreaming, options) => {
         boardGameBridge.onChatMessageSent();
+        explorationBridge.onChatMessageSent();
         const result = await handleSend(content, isStreaming, options);
         boardGameBridge.onAIReplyReceived();
+        explorationBridge.onAIReplyReceived();
         return result;
     };
 
@@ -816,6 +832,17 @@ export const useGame = () => {
         lastSettlement, setLastSettlement,
         clearActionHistory, clearPendingEvents,
         boardGameBridge,
+        explorationBridge,
+        // Exploration Slice
+        explorationPaused, explorationPauseReason,
+        explorationNodes, explorationPaths,
+        explorationCurrentAp, explorationMaxAp,
+        explorationCurrentNodeId, explorationPendingEvents,
+        setExplorationPaused, setExplorationPauseReason,
+        setExplorationNodes, setExplorationPaths,
+        setExplorationCurrentAp, setExplorationMaxAp,
+        setExplorationCurrentNodeId, setExplorationPendingEvents,
+        syncExplorationState,
         最近开局配置,
         已进入主剧情回合,
         接口配置是否可用,

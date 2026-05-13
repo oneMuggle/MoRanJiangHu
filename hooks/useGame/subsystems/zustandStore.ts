@@ -554,6 +554,80 @@ const createBoardGameSlice: ZustandSlice<BoardGameSlice> = (set) => ({
   clearPendingEvents: () => set({ pendingEvents: [] }),
 });
 
+// ==================== Exploration Slice (Zustand) ====================
+
+import type { MapNode as EngineMapNode, MapPath as EngineMapPath } from '../../../models/exploration/mapNode';
+
+interface ExplorationSliceState {
+  showMapExplorer: boolean;
+  explorationPaused: boolean;
+  explorationPauseReason: string | null;
+  explorationNodes: EngineMapNode[];
+  explorationPaths: EngineMapPath[];
+  explorationCurrentAp: number;
+  explorationMaxAp: number;
+  explorationCurrentNodeId: string | null;
+  explorationPendingEvents: Array<{ type: string; payload: Record<string, unknown> }>;
+}
+
+interface ExplorationSliceActions {
+  setShowMapExplorer: (updater: boolean | ((prev: boolean) => boolean)) => void;
+  setExplorationPaused: (updater: boolean | ((prev: boolean) => boolean)) => void;
+  setExplorationPauseReason: (updater: string | null | ((prev: string | null) => string | null)) => void;
+  setExplorationNodes: (updater: EngineMapNode[] | ((prev: EngineMapNode[]) => EngineMapNode[])) => void;
+  setExplorationPaths: (updater: EngineMapPath[] | ((prev: EngineMapPath[]) => EngineMapPath[])) => void;
+  setExplorationCurrentAp: (updater: number | ((prev: number) => number)) => void;
+  setExplorationMaxAp: (updater: number | ((prev: number) => number)) => void;
+  setExplorationCurrentNodeId: (updater: string | null | ((prev: string | null) => string | null)) => void;
+  setExplorationPendingEvents: (updater: ExplorationSliceState['explorationPendingEvents'] | ((prev: ExplorationSliceState['explorationPendingEvents']) => ExplorationSliceState['explorationPendingEvents'])) => void;
+  syncExplorationState: (state: Partial<ExplorationSliceState>) => void;
+}
+
+interface ExplorationSlice extends ExplorationSliceState, ExplorationSliceActions {}
+
+const createExplorationSlice: ZustandSlice<ExplorationSlice> = (set) => ({
+  showMapExplorer: false,
+  explorationPaused: false,
+  explorationPauseReason: null,
+  explorationNodes: [],
+  explorationPaths: [],
+  explorationCurrentAp: 10,
+  explorationMaxAp: 10,
+  explorationCurrentNodeId: null,
+  explorationPendingEvents: [],
+  setShowMapExplorer: (updater) => set((state) => ({
+    showMapExplorer: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.showMapExplorer) : updater,
+  })),
+  setExplorationPaused: (updater) => set((state) => ({
+    explorationPaused: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.explorationPaused) : updater,
+  })),
+  setExplorationPauseReason: (updater) => set((state) => ({
+    explorationPauseReason: typeof updater === 'function' ? (updater as (prev: string | null) => string | null)(state.explorationPauseReason) : updater,
+  })),
+  setExplorationNodes: (updater) => set((state) => ({
+    explorationNodes: typeof updater === 'function' ? (updater as (prev: EngineMapNode[]) => EngineMapNode[])(state.explorationNodes) : updater,
+  })),
+  setExplorationPaths: (updater) => set((state) => ({
+    explorationPaths: typeof updater === 'function' ? (updater as (prev: EngineMapPath[]) => EngineMapPath[])(state.explorationPaths) : updater,
+  })),
+  setExplorationCurrentAp: (updater) => set((state) => ({
+    explorationCurrentAp: typeof updater === 'function' ? (updater as (prev: number) => number)(state.explorationCurrentAp) : updater,
+  })),
+  setExplorationMaxAp: (updater) => set((state) => ({
+    explorationMaxAp: typeof updater === 'function' ? (updater as (prev: number) => number)(state.explorationMaxAp) : updater,
+  })),
+  setExplorationCurrentNodeId: (updater) => set((state) => ({
+    explorationCurrentNodeId: typeof updater === 'function' ? (updater as (prev: string | null) => string | null)(state.explorationCurrentNodeId) : updater,
+  })),
+  setExplorationPendingEvents: (updater) => set((state) => ({
+    explorationPendingEvents: typeof updater === 'function' ? (updater as (prev: ExplorationSliceState['explorationPendingEvents']) => ExplorationSliceState['explorationPendingEvents'])(state.explorationPendingEvents) : updater,
+  })),
+  syncExplorationState: (partial) => set((state) => ({
+    ...state,
+    ...partial,
+  })),
+});
+
 // ==================== Engine Slice (Zustand) ====================
 
 interface EngineSliceState {
@@ -689,7 +763,7 @@ const createActionLogSlice: ZustandSlice<ActionLogSlice> = (set) => ({
 
 // ==================== Store ====================
 
-export interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice, BoardGameSlice, EngineSlice, TurnSlice, ActionLogSlice {}
+export interface GameStore extends UISlice, TravelSlice, DeviceSlice, ImageSlice, SettingsSlice, WorldSlice, MemorySlice, VariableSlice, OpeningSlice, SceneConfigSlice, BoardGameSlice, ExplorationSlice, EngineSlice, TurnSlice, ActionLogSlice {}
 
 export const useGameStore = create<GameStore>()((...a) => ({
     ...createUISlice(...a),
@@ -703,6 +777,7 @@ export const useGameStore = create<GameStore>()((...a) => ({
     ...createOpeningSlice(...a),
     ...createSceneConfigSlice(...a),
     ...createBoardGameSlice(...a),
+    ...createExplorationSlice(...a),
     ...createEngineSlice(...a),
     ...createTurnSlice(...a),
     ...createActionLogSlice(...a),

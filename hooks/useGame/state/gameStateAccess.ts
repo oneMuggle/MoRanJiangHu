@@ -249,6 +249,25 @@ export interface GameStateAccess {
     clearActionHistory: GameStoreSlice['clearActionHistory'];
     clearPendingEvents: GameStoreSlice['clearPendingEvents'];
 
+    // Exploration Slice
+    explorationPaused: GameStoreSlice['explorationPaused'];
+    explorationPauseReason: GameStoreSlice['explorationPauseReason'];
+    explorationNodes: GameStoreSlice['explorationNodes'];
+    explorationPaths: GameStoreSlice['explorationPaths'];
+    explorationCurrentAp: GameStoreSlice['explorationCurrentAp'];
+    explorationMaxAp: GameStoreSlice['explorationMaxAp'];
+    explorationCurrentNodeId: GameStoreSlice['explorationCurrentNodeId'];
+    explorationPendingEvents: GameStoreSlice['explorationPendingEvents'];
+    setExplorationPaused: GameStoreSlice['setExplorationPaused'];
+    setExplorationPauseReason: GameStoreSlice['setExplorationPauseReason'];
+    setExplorationNodes: GameStoreSlice['setExplorationNodes'];
+    setExplorationPaths: GameStoreSlice['setExplorationPaths'];
+    setExplorationCurrentAp: GameStoreSlice['setExplorationCurrentAp'];
+    setExplorationMaxAp: GameStoreSlice['setExplorationMaxAp'];
+    setExplorationCurrentNodeId: GameStoreSlice['setExplorationCurrentNodeId'];
+    setExplorationPendingEvents: GameStoreSlice['setExplorationPendingEvents'];
+    syncExplorationState: GameStoreSlice['syncExplorationState'];
+
     // Engine Slice
     engineStatus: GameStoreSlice['engineStatus'];
     setEngineStatus: GameStoreSlice['setEngineStatus'];
@@ -525,6 +544,25 @@ export function createGameStateAccess(
         setLastSettlement: store.setLastSettlement,
         clearActionHistory: store.clearActionHistory,
         clearPendingEvents: store.clearPendingEvents,
+
+        // Exploration Slice
+        explorationPaused: store.explorationPaused,
+        explorationPauseReason: store.explorationPauseReason,
+        explorationNodes: store.explorationNodes,
+        explorationPaths: store.explorationPaths,
+        explorationCurrentAp: store.explorationCurrentAp,
+        explorationMaxAp: store.explorationMaxAp,
+        explorationCurrentNodeId: store.explorationCurrentNodeId,
+        explorationPendingEvents: store.explorationPendingEvents,
+        setExplorationPaused: store.setExplorationPaused,
+        setExplorationPauseReason: store.setExplorationPauseReason,
+        setExplorationNodes: store.setExplorationNodes,
+        setExplorationPaths: store.setExplorationPaths,
+        setExplorationCurrentAp: store.setExplorationCurrentAp,
+        setExplorationMaxAp: store.setExplorationMaxAp,
+        setExplorationCurrentNodeId: store.setExplorationCurrentNodeId,
+        setExplorationPendingEvents: store.setExplorationPendingEvents,
+        syncExplorationState: store.syncExplorationState,
 
         // Engine Slice
         engineStatus: store.engineStatus,
