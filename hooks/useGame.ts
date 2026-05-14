@@ -344,6 +344,15 @@ export const useGame = () => {
         社交, 设置社交, 记忆系统, 设置记忆系统,
         memoryConfig, 历史记录, performAutoSaveRef,
         创建记忆总结处理器, 规范化社交列表,
+        onAutoQueueComplete: (result) => {
+            if (result.成功.length > 0) {
+                推送右下角提示({
+                    title: 'NPC 记忆总结完成',
+                    message: `${result.成功.join('、')} 的记忆已自动压缩${result.失败.length > 0 ? `，${result.失败.length} 个失败` : ''}`,
+                    tone: result.失败.length > 0 ? 'error' : 'success',
+                });
+            }
+        },
     });
     const {
         序列化变量校准命令, 清空变量生成上下文缓存, 记录变量生成上下文,
@@ -355,6 +364,7 @@ export const useGame = () => {
         handleStartNpcMemorySummary, handleCancelNpcMemorySummary,
         handleBackToNpcMemorySummaryRemind, handleUpdateNpcMemorySummaryDraft,
         handleQueueManualNpcMemorySummary, handleApplyNpcMemorySummary,
+        自动处理NPC记忆队列,
     } = memoryRuntime;
 
     // 社交列表安全包装器（在 workflowDomain 之前定义，供 imageDomain 使用）
@@ -535,6 +545,7 @@ export const useGame = () => {
 
     useEffect(() => {
         刷新NPC记忆总结队列(Array.isArray(社交) ? 社交 : [], { 静默: NPC记忆总结阶段 === 'processing' || NPC记忆总结阶段 === 'review' });
+        void 自动处理NPC记忆队列();
     }, [社交, memoryConfig]);
 
     // 人物关系谱懒初始化：当社交数据变化时自动构建

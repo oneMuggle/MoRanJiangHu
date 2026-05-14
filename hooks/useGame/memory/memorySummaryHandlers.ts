@@ -59,6 +59,7 @@ export const 创建记忆总结处理器 = (deps: {
     历史记录: any[];
     performAutoSave: (...args: any[]) => void;
     规范化社交列表: (list: any[], options?: { 合并同名?: boolean }) => any[];
+    onAutoQueueComplete?: (result: { 成功: string[]; 失败: { 名称: string; 原因: string }[] }) => void;
 }) => {
     const 构建NPC记忆总结任务 = (
         npc: NPC结构,
@@ -130,7 +131,8 @@ export const 创建记忆总结处理器 = (deps: {
             清空NPC记忆总结流程();
             return;
         }
-        if (!options?.静默 && deps.NPC记忆总结阶段 === 'idle') {
+        const hasManualTask = rebuiltQueue.some((t) => t.触发方式 === 'manual');
+        if (!options?.静默 && hasManualTask && deps.NPC记忆总结阶段 === 'idle') {
             deps.setNPC记忆总结阶段('remind');
         }
     };
@@ -388,6 +390,61 @@ export const 创建记忆总结处理器 = (deps: {
         deps.setNPC记忆总结错误('');
     };
 
+    const 自动处理NPC记忆队列 = async (): Promise<void> => {
+        const summaryApi = 获取记忆总结接口配置(deps.apiConfig);
+        if (!接口配置是否可用(summaryApi)) {
+            return;
+        }
+        const autoTasks = deps.待处理NPC记忆总结队列.filter((t) => t.触发方式 === 'auto');
+        if (autoTasks.length === 0) return;
+
+        const 成功: string[] = [];
+        const 失败: { 名称: string; 原因: string }[] = [];
+
+        for (const task of autoTasks) {
+            try {
+                const raw = await textAIService.generateMemoryRecall(
+                    task.提示词模板,
+                    构建NPC记忆总结用户提示词(task),
+                    summaryApi
+                );
+                const cleaned = 清理记忆总结输出(raw);
+                const summaryText = cleaned || 构建NPC记忆总结回退文案(
+                    task.批次.map((item) => {
+                        const match = item.match(/^\[\d+\]\s+\[(.*?)\]\s+(.*)$/);
+                        return { 时间: match?.[1] || '未知时间', 内容: match?.[2] || item };
+                    })
+                );
+
+                const targetNpc = (Array.isArray(deps.社交) ? deps.社交 : []).find((npc) => npc?.id === task.npcId);
+                if (targetNpc) {
+                    const candidate = task.触发方式 === 'manual'
+                        ? 构建手动NPC记忆总结候选(targetNpc.记忆, deps.memoryConfig)
+                        : 构建自动NPC记忆总结候选(targetNpc.记忆, deps.memoryConfig);
+                    if (candidate) {
+                        const nextNpc = 应用NPC记忆总结(targetNpc, candidate, summaryText);
+                        const nextSocial = (Array.isArray(deps.社交) ? deps.社交 : []).map((npc) => npc?.id === targetNpc.id ? nextNpc : npc);
+                        应用并同步社交列表(nextSocial, { 静默NPC总结提示: true });
+                        成功.push(task.npcName);
+                    } else {
+                        失败.push({ 名称: task.npcName, 原因: '无法构建记忆候选' });
+                    }
+                } else {
+                    失败.push({ 名称: task.npcName, 原因: 'NPC 已不存在' });
+                }
+
+                deps.set待处理NPC记忆总结队列((prev) => prev.filter((t) => t.id !== task.id));
+            } catch (error: unknown) {
+                失败.push({ 名称: task.npcName, 原因: (error as any)?.detail ?? (error as any)?.message ?? '未知错误' });
+                deps.set待处理NPC记忆总结队列((prev) => prev.filter((t) => t.id !== task.id));
+            }
+        }
+
+        if (deps.onAutoQueueComplete) {
+            deps.onAutoQueueComplete({ 成功, 失败 });
+        }
+    };
+
     return {
         构建记忆总结用户提示词,
         清理记忆总结输出,
@@ -410,6 +467,7 @@ export const 创建记忆总结处理器 = (deps: {
         handleBackToNpcMemorySummaryRemind,
         handleUpdateNpcMemorySummaryDraft,
         handleQueueManualNpcMemorySummary,
-        handleApplyNpcMemorySummary
+        handleApplyNpcMemorySummary,
+        自动处理NPC记忆队列,
     };
 };
