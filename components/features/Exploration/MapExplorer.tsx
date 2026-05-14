@@ -47,7 +47,7 @@ const dangerDots = (level: number) => Array.from({ length: 5 }, (_, i) => (
 ));
 
 export const MapExplorer: React.FC<Props> = ({
-  nodes, paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onClose,
+  nodes, paths, timeOfDay, playerSilver, onMove, onClose,
 }) => {
   const nodeMap = useMemo(() => {
     const map = new Map<string, MapNode>();
@@ -56,10 +56,8 @@ export const MapExplorer: React.FC<Props> = ({
   }, [nodes]);
 
   const handleClick = useCallback((nodeId: string) => {
-    if (currentActionPoints > 0) {
-      onMove(nodeId);
-    }
-  }, [currentActionPoints, onMove]);
+    onMove(nodeId);
+  }, [onMove]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={onClose}>
@@ -71,12 +69,6 @@ export const MapExplorer: React.FC<Props> = ({
 
         <div className="flex gap-4 mb-4 text-sm flex-wrap">
           <span className="text-gray-400">时段: <span className="text-white">{timeOfDay}</span></span>
-          <span className="text-gray-400">行动力: </span>
-          <div className="flex gap-1">
-            {Array.from({ length: maxActionPoints }, (_, i) => (
-              <span key={i} className={`w-3 h-3 rounded-full ${i < currentActionPoints ? 'bg-emerald-400' : 'bg-gray-700'}`} />
-            ))}
-          </div>
           <span className="text-gray-400">银两: <span className="text-amber-400">{playerSilver}</span></span>
         </div>
 
@@ -99,7 +91,7 @@ export const MapExplorer: React.FC<Props> = ({
               );
             })}
             {nodes.map((node) => {
-              const canMove = node.isAdjacent && currentActionPoints > 0;
+              const canMove = node.isAdjacent;
               if (!node.isExplored) {
                 return (
                   <g key={node.id}>
@@ -141,7 +133,7 @@ export const MapExplorer: React.FC<Props> = ({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {nodes.filter((n) => n.isExplored).map((node) => {
               const colors = nodeTypeColors[node.type];
-              const canMove = node.isAdjacent && currentActionPoints > 0;
+              const canMove = node.isAdjacent;
               return (
                 <button
                   key={node.id}

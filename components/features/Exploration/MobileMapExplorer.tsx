@@ -24,11 +24,11 @@ const nodeTypeColors: Record<NodeType, { bg: string; border: string; label: stri
 };
 
 export const MobileMapExplorer: React.FC<Props> = ({
-  nodes, paths: _paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onClose,
+  nodes, paths: _paths, timeOfDay, playerSilver, onMove, onClose,
 }) => {
   const handleMove = useCallback((nodeId: string) => {
-    if (currentActionPoints > 0) onMove(nodeId);
-  }, [currentActionPoints, onMove]);
+    onMove(nodeId);
+  }, [onMove]);
 
   return (
     <div className="fixed inset-0 z-50 bg-gray-900 flex flex-col">
@@ -39,14 +39,13 @@ export const MobileMapExplorer: React.FC<Props> = ({
 
       <div className="flex gap-3 px-4 py-2 text-xs flex-wrap border-b border-gray-800">
         <span className="text-gray-400">时段: {timeOfDay}</span>
-        <span className="text-gray-400">行动力: {currentActionPoints}/{maxActionPoints}</span>
         <span className="text-amber-400">银两: {playerSilver}</span>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {nodes.filter((n) => n.isExplored).map((node) => {
           const colors = nodeTypeColors[node.type];
-          const canMove = node.isAdjacent && currentActionPoints > 0;
+          const canMove = node.isAdjacent;
           return (
             <button
               key={node.id}

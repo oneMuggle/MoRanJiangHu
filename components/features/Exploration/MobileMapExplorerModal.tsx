@@ -3,26 +3,34 @@ import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
 import { useShallow } from 'zustand/react/shallow';
 import { MobileMapExplorer } from './MobileMapExplorer';
 import { adaptMapData } from '../../../hooks/useGame/exploration/mapNodeAdapter';
+import { 完整时段显示 } from '../../../hooks/useGame/exploration/timeOfDayUtils';
 
 interface Props {
   onClose: () => void;
   onMove: (nodeId: string) => void;
+  onLazyInit?: () => void;
 }
 
-const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove }) => {
+const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove, onLazyInit }) => {
   const {
     explorationNodes,
     explorationPaths,
     explorationCurrentAp,
     explorationMaxAp,
     explorationCurrentNodeId,
+    explorationTimeOfDay,
+    环境时间,
   } = useGameStore(useShallow((s) => ({
     explorationNodes: s.explorationNodes,
     explorationPaths: s.explorationPaths,
     explorationCurrentAp: s.explorationCurrentAp,
     explorationMaxAp: s.explorationMaxAp,
     explorationCurrentNodeId: s.explorationCurrentNodeId,
+    explorationTimeOfDay: s.explorationTimeOfDay,
+    环境时间: (s as any).环境?.时间,
   })));
+
+  const displayTime = 完整时段显示(环境时间) || explorationTimeOfDay;
 
   const adapted = adaptMapData(
     explorationNodes as any[],
@@ -33,6 +41,13 @@ const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove }) => {
   const handleMove = React.useCallback((nodeId: string) => {
     onMove(nodeId);
   }, [onMove]);
+
+  // 安全网：Zustand 为空时触发懒加载初始化
+  React.useEffect(() => {
+    if (adapted.nodes.length === 0 && onLazyInit) {
+      onLazyInit();
+    }
+  }, [onLazyInit, adapted.nodes.length]);
 
   if (adapted.nodes.length === 0) {
     return (
@@ -51,7 +66,7 @@ const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove }) => {
       paths={adapted.paths}
       currentActionPoints={explorationCurrentAp}
       maxActionPoints={explorationMaxAp}
-      timeOfDay="未知"
+      timeOfDay={displayTime}
       playerSilver={0}
       onMove={handleMove}
       onClose={onClose}

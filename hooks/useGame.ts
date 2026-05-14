@@ -9,10 +9,11 @@ import {
     GameResponse,
     提示词结构
 } from '../types';
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import * as textAIService from '../services/ai/text';
 import { useGameState } from './useGameState';
 import { 规范化接口设置, 获取变量计算接口配置, 获取世界演变接口配置, 获取文生图接口配置, 获取场景文生图接口配置, 获取生图词组转化器接口配置, 获取生图画师串预设, 获取词组转化器预设提示词, 接口配置是否可用, 变量校准功能已启用 as 变量生成功能已启用, 获取变量生成并发配置 } from '../utils/apiConfig';
+import { 推进游戏时间 } from './useGame/travel/travelWorkflow';
 import {
     规范化记忆系统,
     规范化记忆配置,
@@ -602,12 +603,72 @@ export const useGame = () => {
     const boardGameBridge = useBoardGameBridge();
 
     // ==================== 探索引擎桥接层 ====================
-    const explorationBridge = useExplorationBridge();
+    const handleTravelNarrative = useCallback((narrative: string, travelTimeMinutes: number, originName: string, destName: string) => {
+        // 推进游戏时间
+        const store = useGameStore.getState();
+        const currentTime = (store as any).环境?.时间;
+        if (currentTime && travelTimeMinutes > 0) {
+            const advanced = 推进游戏时间(currentTime, travelTimeMinutes);
+            设置环境({ ...环境, 时间: advanced });
+        }
+
+        // 追加 narrative 到历史记录
+        const userMsg = {
+            role: 'user' as const,
+            content: `[探索] 从 ${originName} 前往 ${destName}`,
+            timestamp: Date.now(),
+        };
+        const assistantMsg = {
+            role: 'assistant' as const,
+            content: narrative,
+            timestamp: Date.now(),
+        };
+        设置历史记录([...历史记录, userMsg, assistantMsg]);
+    }, [环境, 历史记录, 设置环境, 设置历史记录]);
+
+    const explorationBridge = useExplorationBridge({
+        apiConfig,
+        onTravelNarrative: handleTravelNarrative,
+    });
+
+    // 缓存世界/环境数据引用，供懒加载初始化使用
+    const worldRef = useRef(世界);
+    const envRef = useRef(环境);
+    useEffect(() => {
+        worldRef.current = 世界;
+        envRef.current = 环境;
+    }, [世界, 环境]);
+
+    // 懒加载初始化：当弹窗打开但 Zustand 为空时触发
+    const lazyInitExploration = useCallback(() => {
+        if (explorationBridge.engineRef.current) return;
+        const store = useGameStore.getState();
+        if (store.explorationNodes && (store.explorationNodes as any[]).length > 0) return;
+
+        const w = worldRef.current;
+        const e = envRef.current;
+        const hasWorldData = w && (w.地图.length > 0 || w.建筑.length > 0);
+        const hasEnvData = e && (e.大地点 || e.具体地点);
+        if (!hasWorldData && !hasEnvData) return;
+
+        const engine = createExplorationEngine();
+        explorationBridge.engineRef.current = engine;
+        const { nodes, paths, startNodeId } = worldToExploration(w, e);
+        if (nodes.length > 0) {
+            engine.initMap(nodes, paths, startNodeId || undefined);
+            explorationBridge.syncStateToZustand();
+        }
+    }, [explorationBridge]);
 
     // 探索引擎初始化：创建引擎实例 + 从世界数据生成地图
     useEffect(() => {
         // 引擎已存在则跳过
         if (explorationBridge.engineRef.current) return;
+
+        // 世界数据尚未生成（AI 开场故事完成前），等待
+        const hasWorldData = 世界 && (世界.地图.length > 0 || 世界.建筑.length > 0);
+        const hasEnvData = 环境 && (环境.大地点 || 环境.具体地点);
+        if (!hasWorldData && !hasEnvData) return;
 
         // 创建引擎实例
         const engine = createExplorationEngine();
@@ -619,7 +680,7 @@ export const useGame = () => {
             engine.initMap(nodes, paths, startNodeId || undefined);
             explorationBridge.syncStateToZustand();
         }
-    }, []);
+    }, [世界, 环境]);
 
     // 包装 handleSend：发送前暂停桌游/探索，回复后恢复
     const handleSendWithBoardGame: typeof handleSend = async (content, isStreaming, options) => {
@@ -873,6 +934,7 @@ export const useGame = () => {
         clearActionHistory, clearPendingEvents,
         boardGameBridge,
         explorationBridge,
+        lazyInitExploration,
         // Exploration Slice
         explorationPaused, explorationPauseReason,
         explorationNodes, explorationPaths,

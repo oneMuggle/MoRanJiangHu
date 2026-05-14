@@ -215,8 +215,23 @@ function fromWorldData(
     }
   }
 
-  // 5. 确定起始节点
-  const startNodeId = findStartNodeId(env, nodes, world.地图);
+  // 5. 确定起始节点 — 若环境具体地点未匹配到，取第一个地图节点作为默认起点
+  let startNodeId = findStartNodeId(env, nodes, world.地图);
+  if (!startNodeId && nodes.length > 0) {
+    const fallback = nodes.find(n => n.type === 'town' || n.type === 'village' || n.type === 'inn' || n.type === 'market');
+    startNodeId = fallback?.id ?? nodes[0].id;
+  }
+
+  // 6. 将起始节点及其相邻节点的 fowState 设为可见
+  if (startNodeId) {
+    for (const node of nodes) {
+      if (node.id === startNodeId) {
+        node.fowState = 'explored';
+      } else if (paths.some(p => (p.from === startNodeId && p.to === node.id) || (p.to === startNodeId && p.from === node.id))) {
+        node.fowState = 'revealed';
+      }
+    }
+  }
 
   return { nodes, paths, startNodeId };
 }
@@ -254,26 +269,72 @@ function findStartNodeId(
   nodes: MapNode[],
   maps: 地图结构[],
 ): string | null {
-  if (!env?.具体地点) return null;
+  if (!env) return null;
 
-  // 精确匹配地图名称
-  const mapMatch = maps.find((m) => m.名称 === env.具体地点);
-  if (mapMatch) {
-    const id = makeNodeId(mapMatch.名称, 'map');
-    if (nodes.some((n) => n.id === id)) return id;
+  // 1. 精确匹配 具体地点 → 地图名称
+  if (env.具体地点) {
+    const mapMatch = maps.find((m) => m.名称 === env.具体地点);
+    if (mapMatch) {
+      const id = makeNodeId(mapMatch.名称, 'map');
+      if (nodes.some((n) => n.id === id)) return id;
+    }
+
+    // 2. 精确匹配 具体地点 → 建筑名称
+    const buildingMatch = nodes.find((n) => n.name === env.具体地点);
+    if (buildingMatch) return buildingMatch.id;
   }
 
-  // 精确匹配建筑名称
-  const buildingMatch = nodes.find((n) => n.name === env.具体地点);
-  if (buildingMatch) return buildingMatch.id;
+  // 3. 精确匹配 小地点 → 地图名称
+  if (env.小地点) {
+    const smallMatch = maps.find((m) => m.名称 === env.小地点);
+    if (smallMatch) {
+      const id = makeNodeId(smallMatch.名称, 'map');
+      if (nodes.some((n) => n.id === id)) return id;
+    }
+  }
 
-  // 模糊匹配（包含关系）
-  const fuzzyMatch = nodes.find((n) =>
-    n.name.includes(env.具体地点) || env.具体地点.includes(n.name),
-  );
-  if (fuzzyMatch) return fuzzyMatch.id;
+  // 4. 精确匹配 中地点 → 地图名称
+  if (env.中地点) {
+    const mediumMatch = maps.find((m) => m.名称 === env.中地点);
+    if (mediumMatch) {
+      const id = makeNodeId(mediumMatch.名称, 'map');
+      if (nodes.some((n) => n.id === id)) return id;
+    }
+  }
+
+  // 5. 模糊匹配：节点名称包含地点名称，或地点名称包含节点名称
+  const locationNames = [env.具体地点, env.小地点, env.中地点].filter(Boolean) as string[];
+  for (const loc of locationNames) {
+    const fuzzyMatch = nodes.find((n) =>
+      n.name.includes(loc) || loc.includes(n.name),
+    );
+    if (fuzzyMatch) return fuzzyMatch.id;
+  }
+
+  // 6. 关键词匹配：从 具体地点 提取关键词（如"酒店房间"→"酒店"、"房间"）
+  if (env.具体地点) {
+    const keywords = extractKeywords(env.具体地点);
+    for (const keyword of keywords) {
+      const keywordMatch = nodes.find((n) => n.name.includes(keyword));
+      if (keywordMatch) return keywordMatch.id;
+    }
+  }
 
   return null;
+}
+
+/** 从地点名称中提取关键词 */
+function extractKeywords(name: string): string[] {
+  const commonKeywords = [
+    '酒店', '客栈', '旅馆', '驿站', '驿',
+    '酒馆', '酒楼', '饭庄', '茶楼',
+    '市集', '市场', '商铺', '商店', '钱庄', '当铺',
+    '城', '镇', '村', '庄',
+    '派', '门', '宗', '谷', '阁', '书院', '殿', '宫',
+    '山洞', '洞穴', '秘境', '遗迹',
+    '房间', '卧室', '大堂', '厢房',
+  ];
+  return commonKeywords.filter((kw) => name.includes(kw));
 }
 
 // ============================================================================

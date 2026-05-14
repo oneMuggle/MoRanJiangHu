@@ -567,6 +567,7 @@ interface ExplorationSliceState {
   explorationCurrentAp: number;
   explorationMaxAp: number;
   explorationCurrentNodeId: string | null;
+  explorationTimeOfDay: string;
   explorationPendingEvents: Array<{ type: string; payload: Record<string, unknown> }>;
 }
 
@@ -579,6 +580,7 @@ interface ExplorationSliceActions {
   setExplorationCurrentAp: (updater: number | ((prev: number) => number)) => void;
   setExplorationMaxAp: (updater: number | ((prev: number) => number)) => void;
   setExplorationCurrentNodeId: (updater: string | null | ((prev: string | null) => string | null)) => void;
+  setExplorationTimeOfDay: (updater: string | ((prev: string) => string)) => void;
   setExplorationPendingEvents: (updater: ExplorationSliceState['explorationPendingEvents'] | ((prev: ExplorationSliceState['explorationPendingEvents']) => ExplorationSliceState['explorationPendingEvents'])) => void;
   syncExplorationState: (state: Partial<ExplorationSliceState>) => void;
 }
@@ -594,6 +596,7 @@ const createExplorationSlice: ZustandSlice<ExplorationSlice> = (set) => ({
   explorationCurrentAp: 10,
   explorationMaxAp: 10,
   explorationCurrentNodeId: null,
+  explorationTimeOfDay: '未知',
   explorationPendingEvents: [],
   setShowMapExplorer: (updater) => set((state) => ({
     showMapExplorer: typeof updater === 'function' ? (updater as (prev: boolean) => boolean)(state.showMapExplorer) : updater,
@@ -618,6 +621,9 @@ const createExplorationSlice: ZustandSlice<ExplorationSlice> = (set) => ({
   })),
   setExplorationCurrentNodeId: (updater) => set((state) => ({
     explorationCurrentNodeId: typeof updater === 'function' ? (updater as (prev: string | null) => string | null)(state.explorationCurrentNodeId) : updater,
+  })),
+  setExplorationTimeOfDay: (updater) => set((state) => ({
+    explorationTimeOfDay: typeof updater === 'function' ? (updater as (prev: string) => string)(state.explorationTimeOfDay) : updater,
   })),
   setExplorationPendingEvents: (updater) => set((state) => ({
     explorationPendingEvents: typeof updater === 'function' ? (updater as (prev: ExplorationSliceState['explorationPendingEvents']) => ExplorationSliceState['explorationPendingEvents'])(state.explorationPendingEvents) : updater,

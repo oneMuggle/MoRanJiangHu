@@ -151,14 +151,13 @@ export class ExplorationEngine extends BaseEngine {
 
   // ==================== 移动 ====================
 
-  moveTo(targetNodeId: string): { success: boolean; encounter?: EncounterResult; treasure?: TreasureResult; hiddenEvents: string[] } {
-    if (!this._currentNodeId) return { success: false, hiddenEvents: [] };
+  moveTo(targetNodeId: string): { success: boolean; encounter?: EncounterResult; treasure?: TreasureResult; hiddenEvents: string[]; travelTimeMinutes: number; pathCost: number } {
+    if (!this._currentNodeId) return { success: false, hiddenEvents: [], travelTimeMinutes: 0, pathCost: 0 };
 
     const path = this._graph.getPathsFrom(this._currentNodeId).find((p) => p.to === targetNodeId);
-    if (!path) return { success: false, hiddenEvents: [] };
-    if (this._currentAp < path.actionCost) return { success: false, hiddenEvents: [] };
+    if (!path) return { success: false, hiddenEvents: [], travelTimeMinutes: 0, pathCost: 0 };
 
-    this._currentAp -= path.actionCost;
+    const pathCost = path.actionCost;
     this._currentNodeId = targetNodeId;
 
     this._graph.revealNode(targetNodeId);
@@ -201,6 +200,8 @@ export class ExplorationEngine extends BaseEngine {
       encounter: encounter.triggered ? encounter : undefined,
       treasure: treasure.found ? treasure : undefined,
       hiddenEvents: triggers.map((t) => t.eventId),
+      travelTimeMinutes: 0, // AI will calculate based on context
+      pathCost,
     };
   }
 

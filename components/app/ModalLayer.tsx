@@ -754,17 +754,17 @@ export function ModalLayer({
                             {isMobile ? (
                                 <MobileMapExplorerModal
                                     onClose={() => (setters as any).setShowMapExplorer?.(false)}
-                                    onMove={(nodeId: string) => {
+                                    onMove={async (nodeId: string) => {
                                         const bridge = (actions as any).explorationBridge;
-                                        if (bridge?.moveTo) bridge.moveTo(nodeId);
+                                        if (bridge?.moveTo) await bridge.moveTo(nodeId);
                                     }}
                                 />
                             ) : (
                                 <MapExplorerModal
                                     onClose={() => (setters as any).setShowMapExplorer?.(false)}
-                                    onMove={(nodeId: string) => {
+                                    onMove={async (nodeId: string) => {
                                         const bridge = (actions as any).explorationBridge;
-                                        if (bridge?.moveTo) bridge.moveTo(nodeId);
+                                        if (bridge?.moveTo) await bridge.moveTo(nodeId);
                                     }}
                                 />
                             )}

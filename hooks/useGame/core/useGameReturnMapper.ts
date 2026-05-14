@@ -99,7 +99,7 @@ interface ReturnMapperDeps {
     explorationBridge: {
         engineRef: { current: unknown };
         initMap: (nodes: any[], paths: Array<{ from: string; to: string; actionCost: number }>, startNodeId?: string) => void;
-        moveTo: (targetNodeId: string) => { success: boolean; encounter?: unknown; treasure?: unknown; hiddenEvents: string[] };
+        moveTo: (targetNodeId: string) => Promise<{ success: boolean; encounter?: unknown; treasure?: unknown; hiddenEvents: string[]; travelTimeMinutes: number; pathCost: number }>;
         explore: () => void;
         rest: () => void;
         onChatMessageSent: () => void;
@@ -108,6 +108,9 @@ interface ReturnMapperDeps {
         syncStateToZustand: () => void;
         isPaused: boolean;
     };
+
+    // 探索引擎懒加载初始化
+    lazyInitExploration: () => void;
 
     最近开局配置: any;
 
@@ -524,6 +527,7 @@ export function 构建useGame返回值(deps: ReturnMapperDeps) {
             performanceConfig: deps.performanceConfig,
             boardGameBridge: deps.boardGameBridge,
             explorationBridge: deps.explorationBridge,
+            lazyInitExploration: deps.lazyInitExploration,
         }
     };
 }
