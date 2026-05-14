@@ -455,10 +455,10 @@ export function useAppEffects({
 
     // --- 修炼体系强制关闭 ---
     React.useEffect(() => {
-        if (!启用修炼体系 && state.showKungfu) {
-            setters.setShowKungfu(false);
+        if (!启用修炼体系) {
+            window.dispatchEvent(new CustomEvent('modal:close', { detail: { id: 'kungfu' } }));
         }
-    }, [启用修炼体系, setters, state.showKungfu]);
+    }, [启用修炼体系]);
 
     // --- Mobile Device 键盘快捷键 (M 键) ---
     React.useEffect(() => {

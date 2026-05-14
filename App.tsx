@@ -9,13 +9,42 @@ import { useAppModalState } from './components/app/useAppModalState';
 import { useAppEffects } from './components/app/useAppEffects';
 import { GameView } from './components/app/GameView';
 import { ModalLayer } from './components/app/ModalLayer';
-import { NSFWModals } from './components/app/NSFWModals';
 import { MemoryModals } from './components/app/MemoryModals';
+import { ModalRenderer, useModalManager } from './utils/moduleRegistry';
+import './utils/moduleRegistry/bootstrap'; // 激活所有模块注册
 
 const App: React.FC = () => {
     const { state, meta, setters, actions } = useGame();
     const { isMobile } = useResponsive();
     const { requestConfirm, ConfirmModal } = useConfirmSystem();
+    const modalManager = useModalManager();
+
+    // 监听新系统弹窗事件（由 ModalRenderer 的 modalManager 派发）
+    React.useEffect(() => {
+        const handleOpen = (e: Event) => {
+            const detail = (e as CustomEvent).detail as { id: string; payload?: unknown };
+            modalManager.open(detail.id, detail.payload);
+        };
+        const handleClose = (e: Event) => {
+            const detail = (e as CustomEvent).detail as { id: string };
+            modalManager.close(detail.id);
+        };
+        const handleCloseAll = () => modalManager.closeAll();
+        const handleToggle = (e: Event) => {
+            const detail = (e as CustomEvent).detail as { id: string };
+            modalManager.toggle(detail.id);
+        };
+        window.addEventListener('modal:open', handleOpen);
+        window.addEventListener('modal:close', handleClose);
+        window.addEventListener('modal:closeAll', handleCloseAll);
+        window.addEventListener('modal:toggle', handleToggle);
+        return () => {
+            window.removeEventListener('modal:open', handleOpen);
+            window.removeEventListener('modal:close', handleClose);
+            window.removeEventListener('modal:closeAll', handleCloseAll);
+            window.removeEventListener('modal:toggle', handleToggle);
+        };
+    }, [modalManager]);
 
     // --- activeMobileWindow (needed for useAppModalState deps) ---
     const activeMobileWindow = React.useMemo(() => {
@@ -24,21 +53,9 @@ const App: React.FC = () => {
     }, [state.view, state.showBattle, state.showEquipment, state.showInventory, state.showSocial, state.showKungfu, state.showWorld, state.showMap, state.showTeam, state.showSect, state.showTask, state.showAgreement, state.showStory, state.showHeroinePlan, state.showMemory, state.showSaveLoad, state.showSettings]);
 
     const {
-        showCharacter, setShowCharacter,
-        showImageManager, setShowImageManager,
-        showWorldbookManager, setShowWorldbookManager,
-        showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench,
-        showNovelWritingWorkbench, setShowNovelWritingWorkbench,
-        showMobileMusic, setShowMobileMusic,
-        showCampusDesire, setShowCampusDesire,
-        showPhotography, setShowPhotography,
-        showUrbanDriver, setShowUrbanDriver,
-        showNsfwCenter, setShowNsfwCenter,
-        showBoardGameDashboard, setShowBoardGameDashboard,
-        showBoardGameModal, setShowBoardGameModal,
-        showBDSMRelationship, setShowBDSMRelationship,
-        showBDSMContract, setShowBDSMContract,
-        showBDSMSafety, setShowBDSMSafety,
+        showCharacter,
+        showNovelDecompositionWorkbench,
+        showMobileMusic,
         chatContentHidden, setChatContentHidden,
         sceneQuickGenHint, setSceneQuickGenHint,
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,
@@ -72,60 +89,51 @@ const App: React.FC = () => {
         },
     });
 
-    // activeMobileWindow — recompute with actual modal state
+    // activeMobileWindow — 使用 modalManager 追踪
+    const isOpen = React.useCallback((id: string) => modalManager.isOpen(id), [modalManager]);
     const activeMobileWindowResolved =
         showCharacter ? '角色' :
-        state.showBattle ? '战斗' :
-        state.showEquipment ? '装备' :
-        state.showInventory ? '背包' :
-        state.showSocial ? '社交' :
-        (appEffects.启用修炼体系 && state.showKungfu) ? '功法' :
-        state.showWorld ? '世界' :
-        state.showMap ? '地图' :
-        state.showTeam ? '队伍' :
-        state.showSect ? '门派' :
-        state.showTask ? '任务' :
-        state.showAgreement ? '约定' :
-        state.showStory ? '剧情' :
-        state.showHeroinePlan ? '规划' :
-        state.showMemory ? '记忆' :
-        showImageManager ? '图册' :
+        isOpen('battle') ? '战斗' :
+        isOpen('equipment') ? '装备' :
+        isOpen('inventory') ? '背包' :
+        isOpen('social') ? '社交' :
+        (appEffects.启用修炼体系 && isOpen('kungfu')) ? '功法' :
+        isOpen('world') ? '世界' :
+        isOpen('map') ? '地图' :
+        isOpen('team') ? '队伍' :
+        isOpen('sect') ? '门派' :
+        isOpen('task') ? '任务' :
+        isOpen('agreement') ? '约定' :
+        isOpen('story') ? '剧情' :
+        isOpen('heroinePlan') ? '规划' :
+        isOpen('memory') ? '记忆' :
         showNovelDecompositionWorkbench ? '小说分解' :
-        state.showSaveLoad.show ? (state.showSaveLoad.mode === 'save' ? '保存' : '读取') :
-        state.showSettings ? '设置' :
+        isOpen('saveLoad') ? (modalManager.openModals.get('saveLoad') as { mode?: string } | undefined)?.mode === 'load' ? '读取' : '保存' :
+        isOpen('settings') ? '设置' :
         showMobileMusic ? '音乐' :
         null;
 
     const {
-        closeAllPanels, openCharacter, openSettings, openInventory, openEquipment,
+        openCharacter, openSettings, openInventory, openEquipment,
         openBattle, openTeam, openSocial, openKungfu,
         openWorld, openMap, openSect, openTask,
         openAgreement, openStory, openHeroinePlan, openMemory,
         openSave, openLoad,
-        closeSettings, closeNovelDecompositionWorkbench, closeNovelWritingWorkbench,
-        closeSaveLoad, closeMobileMusic,
+        closeMobileMusic,
         openWorldbookManager, openNovelDecompositionWorkbench,
-        openImageManagerWithCheck, openCGGallery, openMapExplorer, handleMobileMenuClick, handleStartFromLanding,
-        handleReturnToHomeFromSettings,
+        openCGGallery, openMapExplorer, handleMobileMenuClick, handleStartFromLanding,
     } = modalOpeners;
 
     const {
         tickerEvents,
         renderTickerItems,
-        启用同人模式,
         启用修炼体系,
-        当前剧情规划,
-        当前女主剧情规划,
-        currentEnvTime,
         当前背景图片地址,
         玩家头像地址,
-        主角锚点,
-        playerProfile,
         fontFaceStyleText,
         uiTextStyleVars,
         hideBottomTicker,
         runtimeStateSections,
-        latestAssistantMessage,
         currentOptions,
     } = appEffects;
 
@@ -139,10 +147,10 @@ const App: React.FC = () => {
                     <LandingPage
                         onStart={handleStartFromLanding}
                         onLoad={openLoad}
-                        onImageManager={openImageManagerWithCheck}
+                        onImageManager={() => { modalManager.open('imageManager'); }}
                         onWorldbookManager={openWorldbookManager}
                         onNovelDecomposition={() => { void openNovelDecompositionWorkbench(); }}
-                        onNovelWriting={() => { void setShowNovelWritingWorkbench(true); }}
+                        onNovelWriting={() => { modalManager.open('novelWritingWorkbench'); }}
                         onSettings={openSettings}
                         hasSave={state.hasSave}
                     />
@@ -211,11 +219,11 @@ const App: React.FC = () => {
                         openMemory={openMemory}
                         openCGGallery={openCGGallery}
                         openMapExplorer={openMapExplorer}
-                        openImageManagerWithCheck={openImageManagerWithCheck}
+                        openImageManagerWithCheck={() => { modalManager.open('imageManager'); }}
                         openNovelDecompositionWorkbench={openNovelDecompositionWorkbench}
                         openSave={openSave}
                         openLoad={openLoad}
-                        openNsfwCenter={() => setShowNsfwCenter(true)}
+                        openNsfwCenter={() => modalManager.open('nsfwCenter')}
                         closeMobileMusic={closeMobileMusic}
                         showMobileMusic={showMobileMusic}
                         activeMobileWindow={activeMobileWindowResolved}
@@ -226,64 +234,8 @@ const App: React.FC = () => {
                     />
                 )}
 
-                {/* Modal Layer */}
-                <ModalLayer
-                    state={state}
-                    meta={meta}
-                    setters={setters}
-                    actions={actions}
-                    isMobile={isMobile}
-                    enable修炼体系={启用修炼体系}
-                    当前剧情规划={当前剧情规划}
-                    当前女主剧情规划={当前女主剧情规划}
-                    enable同人模式={启用同人模式}
-                    currentEnvTime={currentEnvTime}
-                    runtimeStateSections={runtimeStateSections}
-                    contextSnapshot={contextSnapshot}
-                    showCharacter={showCharacter}
-                    showImageManager={showImageManager}
-                    showWorldbookManager={showWorldbookManager}
-                    showNovelDecompositionWorkbench={showNovelDecompositionWorkbench}
-                    showNovelWritingWorkbench={showNovelWritingWorkbench}
-                    requestConfirm={requestConfirm}
-                    closeSettings={closeSettings}
-                    closeNovelDecompositionWorkbench={closeNovelDecompositionWorkbench}
-                    closeNovelWritingWorkbench={closeNovelWritingWorkbench}
-                    closeSaveLoad={closeSaveLoad}
-                    handleReturnToHomeFromSettings={handleReturnToHomeFromSettings}
-                    setShowCharacter={setShowCharacter}
-                    setShowImageManager={setShowImageManager}
-                    setShowWorldbookManager={setShowWorldbookManager}
-                    setShowNovelDecompositionWorkbench={setShowNovelDecompositionWorkbench}
-                    setShowNovelWritingWorkbench={setShowNovelWritingWorkbench}
-                    setShowCampusDesire={setShowCampusDesire}
-                />
-
-                {/* NSFW Modals */}
-                <NSFWModals
-                    state={state}
-                    setters={setters}
-                    actions={actions}
-                    isMobile={isMobile}
-                    showCampusDesire={showCampusDesire}
-                    setShowCampusDesire={setShowCampusDesire}
-                    showPhotography={showPhotography}
-                    setShowPhotography={setShowPhotography}
-                    showUrbanDriver={showUrbanDriver}
-                    setShowUrbanDriver={setShowUrbanDriver}
-                    showNsfwCenter={showNsfwCenter}
-                    setShowNsfwCenter={setShowNsfwCenter}
-                    showBoardGameDashboard={showBoardGameDashboard}
-                    setShowBoardGameDashboard={setShowBoardGameDashboard}
-                    showBoardGameModal={showBoardGameModal}
-                    setShowBoardGameModal={setShowBoardGameModal}
-                    showBDSMRelationship={showBDSMRelationship}
-                    setShowBDSMRelationship={setShowBDSMRelationship}
-                    showBDSMContract={showBDSMContract}
-                    setShowBDSMContract={setShowBDSMContract}
-                    showBDSMSafety={showBDSMSafety}
-                    setShowBDSMSafety={setShowBDSMSafety}
-                />
+                {/* Modal Layer (global decorative frame only) */}
+                <ModalLayer />
 
                 {/* Memory Modals */}
                 <MemoryModals
@@ -291,6 +243,19 @@ const App: React.FC = () => {
                     actions={actions}
                     isMobile={isMobile}
                     gameView={state.view === 'game'}
+                />
+
+                {/* 新模块注册系统渲染器（Phase 2：与 ModalLayer 共存） */}
+                <ModalRenderer
+                    state={state}
+                    meta={meta}
+                    setters={setters}
+                    actions={actions}
+                    isMobile={isMobile}
+                    openModals={modalManager.openModals}
+                    onClose={modalManager.close}
+                    requestConfirm={requestConfirm}
+                    extraProps={{ runtimeStateSections, contextSnapshot }}
                 />
 
                 {ConfirmModal}

@@ -1,32 +1,25 @@
 // hooks/useModalOpeners.ts
-// 面板开关逻辑 — 从 App.tsx 提取
+// 面板开关逻辑 — 使用 modalManager 事件系统
 
 import * as React from 'react';
 import type { ConfirmOptions } from '../components/ui/InAppConfirmModal';
 import { 获取文生图接口配置, 获取生图词组转化器接口配置, 接口配置是否可用 } from '../utils/apiConfig';
 
-// Minimal interfaces for the types we need from useGame
+function emitOpen(id: string, payload?: unknown) {
+    window.dispatchEvent(new CustomEvent('modal:open', { detail: { id, payload } }));
+}
+
+function emitClose(id: string) {
+    window.dispatchEvent(new CustomEvent('modal:close', { detail: { id } }));
+}
+
+function emitCloseAll() {
+    window.dispatchEvent(new CustomEvent('modal:closeAll'));
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface GameSetters {
-    setShowBattle: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowInventory: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowEquipment: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowTeam: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowSocial: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowKungfu: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowWorld: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowMap: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowSect: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowTask: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowAgreement: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowStory: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowHeroinePlan: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowMemory: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowSaveLoad: React.Dispatch<React.SetStateAction<{ show: boolean; mode: 'save' | 'load' }>>;
-    setShowRelationship: React.Dispatch<React.SetStateAction<{ show: boolean }>>;
-    setShowSettings: React.Dispatch<React.SetStateAction<boolean>>;
     setActiveTab: React.Dispatch<React.SetStateAction<string>>;
-    setShowCGGallery: React.Dispatch<React.SetStateAction<boolean>>;
-    setShowMapExplorer: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface GameActions {
@@ -36,20 +29,6 @@ interface GameActions {
 }
 
 interface LocalModalStates {
-    showCharacter: boolean;
-    setShowCharacter: React.Dispatch<React.SetStateAction<boolean>>;
-    showImageManager: boolean;
-    setShowImageManager: React.Dispatch<React.SetStateAction<boolean>>;
-    showWorldbookManager: boolean;
-    setShowWorldbookManager: React.Dispatch<React.SetStateAction<boolean>>;
-    showNovelDecompositionWorkbench: boolean;
-    setShowNovelDecompositionWorkbench: React.Dispatch<React.SetStateAction<boolean>>;
-    showNovelWritingWorkbench: boolean;
-    setShowNovelWritingWorkbench: React.Dispatch<React.SetStateAction<boolean>>;
-    showMobileMusic: boolean;
-    setShowMobileMusic: React.Dispatch<React.SetStateAction<boolean>>;
-    showCampusDesire: boolean;
-    setShowCampusDesire: React.Dispatch<React.SetStateAction<boolean>>;
     showBDSMRelationship: { npcId: string; npcName: string } | null;
     setShowBDSMRelationship: React.Dispatch<React.SetStateAction<{ npcId: string; npcName: string } | null>>;
     showBDSMContract: { npcId: string; npcName: string } | null;
@@ -65,6 +44,7 @@ interface UseModalOpenersDeps {
     requestConfirm: (options: ConfirmOptions) => Promise<boolean>;
     启用修炼体系: boolean;
     activeMobileWindow: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     apiConfig: any;
 }
 
@@ -88,80 +68,67 @@ export interface ModalOpeners {
     openMemory: () => void;
     openSave: () => void;
     openLoad: () => void;
-    openRelationship: () => void;
-    closeRelationship: () => void;
     closeSettings: () => void;
     closeNovelDecompositionWorkbench: () => void;
     closeNovelWritingWorkbench: () => void;
-    closeSaveLoad: () => void;
     closeMobileMusic: () => void;
     openWorldbookManager: () => void;
     openNovelDecompositionWorkbench: () => Promise<void>;
     openImageManagerWithCheck: () => Promise<void>;
     openCGGallery: () => void;
     openMapExplorer: () => void;
+    openNsfwCenter: () => void;
+    openCampusDesire: () => void;
+    openPhotography: () => void;
+    openUrbanDriver: () => void;
+    openBoardGameDashboard: () => void;
+    openBoardGame: () => void;
     handleMobileMenuClick: (menu: string) => void;
     handleStartFromLanding: () => void;
     handleReturnToHomeFromSettings: () => Promise<void>;
 }
 
 export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
-    const { setters, actions, states, requestConfirm, 启用修炼体系, activeMobileWindow, apiConfig } = deps;
+    const { setters, actions, states: _states, requestConfirm, 启用修炼体系, activeMobileWindow, apiConfig } = deps;
 
     const closeAllPanels = React.useCallback(() => {
-        states.setShowCharacter(false);
-        setters.setShowBattle(false);
-        setters.setShowInventory(false);
-        setters.setShowEquipment(false);
-        setters.setShowTeam(false);
-        setters.setShowSocial(false);
-        setters.setShowKungfu(false);
-        setters.setShowWorld(false);
-        setters.setShowMap(false);
-        setters.setShowSect(false);
-        setters.setShowTask(false);
-        setters.setShowAgreement(false);
-        setters.setShowStory(false);
-        setters.setShowHeroinePlan(false);
-        setters.setShowMemory(false);
-        states.setShowImageManager(false);
-        states.setShowNovelDecompositionWorkbench(false);
-        setters.setShowSaveLoad({ show: false, mode: 'save' });
-        setters.setShowRelationship({ show: false });
-        setters.setShowSettings(false);
-        states.setShowMobileMusic(false);
-        setters.setShowMapExplorer(false);
-    }, [setters, states]);
+        emitCloseAll();
+    }, []);
 
-    const openCharacter = React.useCallback(() => states.setShowCharacter(true), [states]);
-    const openSettings = React.useCallback(() => setters.setShowSettings(true), [setters]);
-    const openInventory = React.useCallback(() => setters.setShowInventory(true), [setters]);
-    const openEquipment = React.useCallback(() => setters.setShowEquipment(true), [setters]);
-    const openBattle = React.useCallback(() => setters.setShowBattle(true), [setters]);
-    const openTeam = React.useCallback(() => setters.setShowTeam(true), [setters]);
-    const openSocial = React.useCallback(() => setters.setShowSocial(true), [setters]);
+    const openCharacter = React.useCallback(() => emitOpen('character'), []);
+    const openSettings = React.useCallback(() => emitOpen('settings'), []);
+    const openInventory = React.useCallback(() => emitOpen('inventory'), []);
+    const openEquipment = React.useCallback(() => emitOpen('equipment'), []);
+    const openBattle = React.useCallback(() => emitOpen('battle'), []);
+    const openTeam = React.useCallback(() => emitOpen('team'), []);
+    const openSocial = React.useCallback(() => emitOpen('social'), []);
     const openKungfu = React.useCallback(() => {
         if (!启用修炼体系) return;
-        setters.setShowKungfu(true);
-    }, [setters, 启用修炼体系]);
-    const openWorld = React.useCallback(() => setters.setShowWorld(true), [setters]);
-    const openMap = React.useCallback(() => setters.setShowMap(true), [setters]);
-    const openSect = React.useCallback(() => setters.setShowSect(true), [setters]);
-    const openTask = React.useCallback(() => setters.setShowTask(true), [setters]);
-    const openAgreement = React.useCallback(() => setters.setShowAgreement(true), [setters]);
-    const openStory = React.useCallback(() => setters.setShowStory(true), [setters]);
-    const openHeroinePlan = React.useCallback(() => setters.setShowHeroinePlan(true), [setters]);
-    const openMemory = React.useCallback(() => setters.setShowMemory(true), [setters]);
-    const openSave = React.useCallback(() => setters.setShowSaveLoad({ show: true, mode: 'save' }), [setters]);
-    const openLoad = React.useCallback(() => setters.setShowSaveLoad({ show: true, mode: 'load' }), [setters]);
-    const openRelationship = React.useCallback(() => setters.setShowRelationship({ show: true }), [setters]);
-    const closeRelationship = React.useCallback(() => setters.setShowRelationship({ show: false }), [setters]);
-    const closeSettings = React.useCallback(() => setters.setShowSettings(false), [setters]);
-    const closeNovelDecompositionWorkbench = React.useCallback(() => states.setShowNovelDecompositionWorkbench(false), [states]);
-    const closeNovelWritingWorkbench = React.useCallback(() => states.setShowNovelWritingWorkbench(false), [states]);
-    const closeSaveLoad = React.useCallback(() => setters.setShowSaveLoad({ show: false, mode: 'save' }), [setters]);
-    const closeMobileMusic = React.useCallback(() => states.setShowMobileMusic(false), [states]);
-    const openWorldbookManager = React.useCallback(() => states.setShowWorldbookManager(true), [states]);
+        emitOpen('kungfu');
+    }, [启用修炼体系]);
+    const openWorld = React.useCallback(() => emitOpen('world'), []);
+    const openMap = React.useCallback(() => emitOpen('map'), []);
+    const openSect = React.useCallback(() => emitOpen('sect'), []);
+    const openTask = React.useCallback(() => emitOpen('task'), []);
+    const openAgreement = React.useCallback(() => emitOpen('agreement'), []);
+    const openStory = React.useCallback(() => emitOpen('story'), []);
+    const openHeroinePlan = React.useCallback(() => emitOpen('heroinePlan'), []);
+    const openMemory = React.useCallback(() => emitOpen('memory'), []);
+    const openSave = React.useCallback(() => emitOpen('saveLoad', { mode: 'save' }), []);
+    const openLoad = React.useCallback(() => emitOpen('saveLoad', { mode: 'load' }), []);
+    const closeSettings = React.useCallback(() => emitClose('settings'), []);
+    const closeNovelDecompositionWorkbench = React.useCallback(() => emitClose('novelDecompositionWorkbench'), []);
+    const closeNovelWritingWorkbench = React.useCallback(() => emitClose('novelWritingWorkbench'), []);
+    const closeMobileMusic = React.useCallback(() => emitClose('music'), []);
+    const openWorldbookManager = React.useCallback(() => emitOpen('worldbookManager'), []);
+    const openCGGallery = React.useCallback(() => emitOpen('cgGallery'), []);
+    const openMapExplorer = React.useCallback(() => emitOpen('mapExplorer'), []);
+    const openNsfwCenter = React.useCallback(() => emitOpen('nsfwCenter'), []);
+    const openCampusDesire = React.useCallback(() => emitOpen('campusDesire'), []);
+    const openPhotography = React.useCallback(() => emitOpen('photography'), []);
+    const openUrbanDriver = React.useCallback(() => emitOpen('urbanDriver'), []);
+    const openBoardGameDashboard = React.useCallback(() => emitOpen('boardGameDashboard'), []);
+    const openBoardGame = React.useCallback(() => emitOpen('boardGame'), []);
 
     const openNovelDecompositionWorkbench = React.useCallback(async () => {
         const feature = apiConfig?.功能模型占位;
@@ -183,13 +150,13 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
             if (accepted) {
                 closeAllPanels();
                 setters.setActiveTab('novel_decomposition');
-                setters.setShowSettings(true);
+                emitOpen('settings');
             }
             return;
         }
 
-        states.setShowNovelDecompositionWorkbench(true);
-    }, [closeAllPanels, requestConfirm, setters, states, apiConfig]);
+        emitOpen('novelDecompositionWorkbench');
+    }, [closeAllPanels, requestConfirm, setters, apiConfig]);
 
     const openImageManagerWithCheck = React.useCallback(async () => {
         const imageApi = 获取文生图接口配置(apiConfig);
@@ -203,7 +170,7 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
             if (accepted) {
                 closeAllPanels();
                 setters.setActiveTab('image_generation');
-                setters.setShowSettings(true);
+                emitOpen('settings');
             }
             return;
         }
@@ -220,17 +187,14 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
                 if (accepted) {
                     closeAllPanels();
                     setters.setActiveTab('image_generation');
-                    setters.setShowSettings(true);
+                    emitOpen('settings');
                 }
                 return;
             }
         }
 
-        states.setShowImageManager(true);
-    }, [closeAllPanels, requestConfirm, setters, states, apiConfig]);
-
-    const openMapExplorer = React.useCallback(() => setters.setShowMapExplorer(true), [setters]);
-    const openCGGallery = React.useCallback(() => setters.setShowCGGallery(true), [setters]);
+        emitOpen('imageManager');
+    }, [closeAllPanels, requestConfirm, setters, apiConfig]);
 
     const handleMobileMenuClick = React.useCallback((menu: string) => {
         const isActive = activeMobileWindow === menu;
@@ -238,87 +202,33 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         if (isActive) return;
 
         switch (menu) {
-            case '角色':
-                states.setShowCharacter(true);
-                break;
-            case '装备':
-                setters.setShowEquipment(true);
-                break;
-            case '战斗':
-                setters.setShowBattle(true);
-                break;
-            case '背包':
-                setters.setShowInventory(true);
-                break;
-            case '社交':
-                setters.setShowSocial(true);
-                break;
-            case '关系':
-                setters.setShowRelationship({ show: true });
-                break;
-            case '功法':
-                if (启用修炼体系) {
-                    setters.setShowKungfu(true);
-                }
-                break;
-            case '世界':
-                setters.setShowWorld(true);
-                break;
-            case '地图':
-                setters.setShowMap(true);
-                break;
-            case '队伍':
-                setters.setShowTeam(true);
-                break;
-            case '门派':
-                setters.setShowSect(true);
-                break;
-            case '任务':
-                setters.setShowTask(true);
-                break;
-            case '约定':
-                setters.setShowAgreement(true);
-                break;
-            case '剧情':
-                setters.setShowStory(true);
-                break;
-            case '规划':
-                setters.setShowHeroinePlan(true);
-                break;
-            case '记忆':
-                setters.setShowMemory(true);
-                break;
-            case '图册':
-                void openImageManagerWithCheck();
-                break;
-            case '小说分解':
-                void openNovelDecompositionWorkbench();
-                break;
-            case '探索':
-                setters.setShowMapExplorer(true);
-                break;
-            case '保存':
-                setters.setShowSaveLoad({ show: true, mode: 'save' });
-                break;
-            case '读取':
-                setters.setShowSaveLoad({ show: true, mode: 'load' });
-                break;
-            case '设置':
-                setters.setShowSettings(true);
-                break;
-            case '通讯':
-                actions.openDevice();
-                break;
-            case '图鉴':
-                setters.setShowCGGallery(true);
-                break;
-            case '音乐':
-                states.setShowMobileMusic(true);
-                break;
-            default:
-                break;
+            case '角色': emitOpen('character'); break;
+            case '装备': emitOpen('equipment'); break;
+            case '战斗': emitOpen('battle'); break;
+            case '背包': emitOpen('inventory'); break;
+            case '社交': emitOpen('social'); break;
+            case '功法': if (启用修炼体系) emitOpen('kungfu'); break;
+            case '世界': emitOpen('world'); break;
+            case '地图': emitOpen('map'); break;
+            case '队伍': emitOpen('team'); break;
+            case '门派': emitOpen('sect'); break;
+            case '任务': emitOpen('task'); break;
+            case '约定': emitOpen('agreement'); break;
+            case '剧情': emitOpen('story'); break;
+            case '规划': emitOpen('heroinePlan'); break;
+            case '记忆': emitOpen('memory'); break;
+            case '图册': void openImageManagerWithCheck(); break;
+            case '小说分解': void openNovelDecompositionWorkbench(); break;
+            case '探索': emitOpen('mapExplorer'); break;
+            case '保存': emitOpen('saveLoad', { mode: 'save' }); break;
+            case '读取': emitOpen('saveLoad', { mode: 'load' }); break;
+            case '设置': emitOpen('settings'); break;
+            case '通讯': actions.openDevice(); break;
+            case '图鉴': emitOpen('cgGallery'); break;
+            case '音乐': emitOpen('music'); break;
+            default: break;
         }
-    }, [activeMobileWindow, closeAllPanels, openImageManagerWithCheck, openNovelDecompositionWorkbench, setters, 启用修炼体系, actions, states]);
+    }, [activeMobileWindow, closeAllPanels, openImageManagerWithCheck, openNovelDecompositionWorkbench, 启用修炼体系, actions]);
 
     const handleStartFromLanding = React.useCallback(() => actions.handleStartNewGameWizard(), [actions]);
 
@@ -331,8 +241,7 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         });
         if (!ok) return;
         actions.handleReturnToHome();
-        setters.setShowSettings(false);
-    }, [actions, requestConfirm, setters]);
+    }, [actions, requestConfirm]);
 
     return {
         closeAllPanels,
@@ -340,11 +249,13 @@ export function useModalOpeners(deps: UseModalOpenersDeps): ModalOpeners {
         openBattle, openTeam, openSocial, openKungfu,
         openWorld, openMap, openSect, openTask,
         openAgreement, openStory, openHeroinePlan, openMemory,
-        openSave, openLoad, openRelationship, closeRelationship,
+        openSave, openLoad,
         closeSettings, closeNovelDecompositionWorkbench, closeNovelWritingWorkbench,
-        closeSaveLoad, closeMobileMusic,
+        closeMobileMusic,
         openWorldbookManager, openNovelDecompositionWorkbench,
         openImageManagerWithCheck, openCGGallery, openMapExplorer, handleMobileMenuClick, handleStartFromLanding,
+        openNsfwCenter, openCampusDesire, openPhotography, openUrbanDriver,
+        openBoardGameDashboard, openBoardGame,
         handleReturnToHomeFromSettings,
     };
 }

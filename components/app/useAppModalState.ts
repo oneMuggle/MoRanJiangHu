@@ -1,52 +1,20 @@
 /**
  * useAppModalState.ts
  *
- * 提取 App 级别的弹窗状态管理，包括：
- * - 所有本地弹窗 useState 声明
- * - useConfirmSystem 集成
- * - useModalOpeners 调用
- *
- * 返回所有弹窗开/关状态、setters 和 openers，供 useAppEffects 和 App.tsx 使用。
+ * App 级弹窗状态管理：
+ * - useModalOpeners 调用（所有面板开/关函数）
+ * - activeMobileWindow 追踪字段（showCharacter / showNovelDecompositionWorkbench / showMobileMusic）
+ * - useAppEffects 所需的 UI 状态
+ * - BDSM 弹窗本地状态（尚未迁移到 ModalRenderer）
  */
 
 import * as React from 'react';
 import { useModalOpeners, type ModalOpeners } from '../../hooks/useModalOpeners';
 
-// ============================================================================
-// 类型
-// ============================================================================
-
 export interface AppModalState {
     showCharacter: boolean;
-    setShowCharacter: React.Dispatch<React.SetStateAction<boolean>>;
-    showImageManager: boolean;
-    setShowImageManager: React.Dispatch<React.SetStateAction<boolean>>;
-    showWorldbookManager: boolean;
-    setShowWorldbookManager: React.Dispatch<React.SetStateAction<boolean>>;
     showNovelDecompositionWorkbench: boolean;
-    setShowNovelDecompositionWorkbench: React.Dispatch<React.SetStateAction<boolean>>;
-    showNovelWritingWorkbench: boolean;
-    setShowNovelWritingWorkbench: React.Dispatch<React.SetStateAction<boolean>>;
     showMobileMusic: boolean;
-    setShowMobileMusic: React.Dispatch<React.SetStateAction<boolean>>;
-    showCampusDesire: boolean;
-    setShowCampusDesire: React.Dispatch<React.SetStateAction<boolean>>;
-    showPhotography: boolean;
-    setShowPhotography: React.Dispatch<React.SetStateAction<boolean>>;
-    showUrbanDriver: boolean;
-    setShowUrbanDriver: React.Dispatch<React.SetStateAction<boolean>>;
-    showNsfwCenter: boolean;
-    setShowNsfwCenter: React.Dispatch<React.SetStateAction<boolean>>;
-    showBoardGameDashboard: boolean;
-    setShowBoardGameDashboard: React.Dispatch<React.SetStateAction<boolean>>;
-    showBoardGameModal: boolean;
-    setShowBoardGameModal: React.Dispatch<React.SetStateAction<boolean>>;
-    showBDSMRelationship: { npcId: string; npcName: string } | null;
-    setShowBDSMRelationship: React.Dispatch<React.SetStateAction<{ npcId: string; npcName: string } | null>>;
-    showBDSMContract: { npcId: string; npcName: string } | null;
-    setShowBDSMContract: React.Dispatch<React.SetStateAction<{ npcId: string; npcName: string } | null>>;
-    showBDSMSafety: { npcId: string; npcName: string } | null;
-    setShowBDSMSafety: React.Dispatch<React.SetStateAction<{ npcId: string; npcName: string } | null>>;
     chatContentHidden: boolean;
     setChatContentHidden: React.Dispatch<React.SetStateAction<boolean>>;
     sceneQuickGenHint: boolean;
@@ -73,10 +41,6 @@ interface UseAppModalStateReturn extends AppModalState {
     modalOpeners: ModalOpeners;
 }
 
-// ============================================================================
-// Hook
-// ============================================================================
-
 export function useAppModalState({
     setters,
     actions,
@@ -85,19 +49,41 @@ export function useAppModalState({
     activeMobileWindow,
     requestConfirm,
 }: UseAppModalStateDeps): UseAppModalStateReturn {
-    // --- 弹窗状态 ---
+    // --- activeMobileWindow 追踪字段（由 modalManager 事件同步） ---
     const [showCharacter, setShowCharacter] = React.useState(false);
-    const [showImageManager, setShowImageManager] = React.useState(false);
-    const [showWorldbookManager, setShowWorldbookManager] = React.useState(false);
     const [showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench] = React.useState(false);
-    const [showNovelWritingWorkbench, setShowNovelWritingWorkbench] = React.useState(false);
     const [showMobileMusic, setShowMobileMusic] = React.useState(false);
-    const [showCampusDesire, setShowCampusDesire] = React.useState(false);
-    const [showPhotography, setShowPhotography] = React.useState(false);
-    const [showUrbanDriver, setShowUrbanDriver] = React.useState(false);
-    const [showNsfwCenter, setShowNsfwCenter] = React.useState(false);
-    const [showBoardGameDashboard, setShowBoardGameDashboard] = React.useState(false);
-    const [showBoardGameModal, setShowBoardGameModal] = React.useState(false);
+
+    // 监听 modalManager 事件，同步 activeMobileWindow 追踪字段
+    React.useEffect(() => {
+        const handleOpen = (e: Event) => {
+            const detail = (e as CustomEvent).detail as { id: string };
+            if (detail.id === 'character') setShowCharacter(true);
+            if (detail.id === 'novelDecompositionWorkbench') setShowNovelDecompositionWorkbench(true);
+            if (detail.id === 'music') setShowMobileMusic(true);
+        };
+        const handleClose = (e: Event) => {
+            const detail = (e as CustomEvent).detail as { id: string };
+            if (detail.id === 'character') setShowCharacter(false);
+            if (detail.id === 'novelDecompositionWorkbench') setShowNovelDecompositionWorkbench(false);
+            if (detail.id === 'music') setShowMobileMusic(false);
+        };
+        const handleCloseAll = () => {
+            setShowCharacter(false);
+            setShowNovelDecompositionWorkbench(false);
+            setShowMobileMusic(false);
+        };
+        window.addEventListener('modal:open', handleOpen);
+        window.addEventListener('modal:close', handleClose);
+        window.addEventListener('modal:closeAll', handleCloseAll);
+        return () => {
+            window.removeEventListener('modal:open', handleOpen);
+            window.removeEventListener('modal:close', handleClose);
+            window.removeEventListener('modal:closeAll', handleCloseAll);
+        };
+    }, []);
+
+    // --- 本地 UI 状态（不由 ModalRenderer 管理） ---
     const [showBDSMRelationship, setShowBDSMRelationship] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMContract, setShowBDSMContract] = React.useState<{ npcId: string; npcName: string } | null>(null);
     const [showBDSMSafety, setShowBDSMSafety] = React.useState<{ npcId: string; npcName: string } | null>(null);
@@ -110,17 +96,8 @@ export function useAppModalState({
         setGalgameModeEnabled(prev => !prev);
     }, []);
 
-    // --- 弹窗开启器 ---
+    // --- 弹窗开启器（通过 modalManager 事件系统） ---
     const modalStates = {
-        showCharacter, setShowCharacter,
-        showImageManager, setShowImageManager,
-        showWorldbookManager, setShowWorldbookManager,
-        showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench,
-        showNovelWritingWorkbench, setShowNovelWritingWorkbench,
-        showMobileMusic, setShowMobileMusic,
-        showCampusDesire, setShowCampusDesire,
-        showPhotography, setShowPhotography,
-        showUrbanDriver, setShowUrbanDriver,
         showBDSMRelationship, setShowBDSMRelationship,
         showBDSMContract, setShowBDSMContract,
         showBDSMSafety, setShowBDSMSafety,
@@ -136,21 +113,9 @@ export function useAppModalState({
     });
 
     return {
-        showCharacter, setShowCharacter,
-        showImageManager, setShowImageManager,
-        showWorldbookManager, setShowWorldbookManager,
-        showNovelDecompositionWorkbench, setShowNovelDecompositionWorkbench,
-        showNovelWritingWorkbench, setShowNovelWritingWorkbench,
-        showMobileMusic, setShowMobileMusic,
-        showCampusDesire, setShowCampusDesire,
-        showPhotography, setShowPhotography,
-        showUrbanDriver, setShowUrbanDriver,
-        showNsfwCenter, setShowNsfwCenter,
-        showBoardGameDashboard, setShowBoardGameDashboard,
-        showBoardGameModal, setShowBoardGameModal,
-        showBDSMRelationship, setShowBDSMRelationship,
-        showBDSMContract, setShowBDSMContract,
-        showBDSMSafety, setShowBDSMSafety,
+        showCharacter,
+        showNovelDecompositionWorkbench,
+        showMobileMusic,
         chatContentHidden, setChatContentHidden,
         sceneQuickGenHint, setSceneQuickGenHint,
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,

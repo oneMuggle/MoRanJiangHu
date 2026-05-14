@@ -75,4 +75,10 @@ export default [
     files: ['data/**/*.ts', 'models/**/*.ts', 'vite.config.ts', 'hooks/**'],
     rules: { '@typescript-eslint/naming-convention': 'off', 'no-restricted-syntax': 'off' },
   },
+  {
+    files: ['components/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
+  },
 ];
