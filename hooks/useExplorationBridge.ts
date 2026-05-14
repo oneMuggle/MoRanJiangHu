@@ -104,8 +104,10 @@ export function useExplorationBridge(extras?: BridgeExtras): UseExplorationBridg
     if (extras?.onTravelNarrative && extras?.apiConfig) {
       const destNode = engine.getCurrentNode();
       if (destNode) {
-        const 环境时间 = (useGameStore.getState() as any).环境?.时间 ?? '';
-        const 角色名 = (useGameStore.getState() as any).角色?.姓名 ?? '玩家';
+        const store = useGameStore.getState() as any;
+        const 环境时间 = store.环境?.时间 ?? '';
+        const 角色名 = store.角色?.姓名 ?? '玩家';
+        const 时代信息 = store.时代信息;
 
         const context: TravelNarrativeContext = {
           originNodeName: originName,
@@ -119,6 +121,9 @@ export function useExplorationBridge(extras?: BridgeExtras): UseExplorationBridg
           playerCharacterName: 角色名,
           destinationNodeType: destNode.type,
           destinationDescription: destNode.description,
+          // 时代匹配 (Step 3.1)
+          eraId: 时代信息?.配置ID,
+          eraName: 时代信息?.名称,
         };
 
         const narrativeResult = await generateTravelNarrative(context, extras.apiConfig);

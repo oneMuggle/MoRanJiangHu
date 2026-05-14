@@ -28,6 +28,8 @@ interface Props {
   timeOfDay: string;
   playerSilver: number;
   onMove: (nodeId: string) => void;
+  onExplore?: () => void;
+  onRest?: () => void;
   onClose: () => void;
 }
 
@@ -47,7 +49,7 @@ const dangerDots = (level: number) => Array.from({ length: 5 }, (_, i) => (
 ));
 
 export const MapExplorer: React.FC<Props> = ({
-  nodes, paths, timeOfDay, playerSilver, onMove, onClose,
+  nodes, paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
 }) => {
   const nodeMap = useMemo(() => {
     const map = new Map<string, MapNode>();
@@ -70,7 +72,29 @@ export const MapExplorer: React.FC<Props> = ({
         <div className="flex gap-4 mb-4 text-sm flex-wrap">
           <span className="text-gray-400">时段: <span className="text-white">{timeOfDay}</span></span>
           <span className="text-gray-400">银两: <span className="text-amber-400">{playerSilver}</span></span>
+          <span className="text-gray-400">行动力: <span className="text-emerald-400">{currentActionPoints}/{maxActionPoints}</span></span>
         </div>
+
+        {(onExplore || onRest) && (
+          <div className="flex gap-2 mb-4">
+            {onExplore && (
+              <button
+                className="px-3 py-1.5 rounded bg-emerald-900/60 border border-emerald-600 text-emerald-300 text-sm hover:bg-emerald-800/60 transition-colors"
+                onClick={onExplore}
+              >
+                探索此地
+              </button>
+            )}
+            {onRest && (
+              <button
+                className="px-3 py-1.5 rounded bg-blue-900/60 border border-blue-600 text-blue-300 text-sm hover:bg-blue-800/60 transition-colors"
+                onClick={onRest}
+              >
+                休息
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Map SVG */}
         <div className="relative w-full" style={{ paddingBottom: '60%' }}>

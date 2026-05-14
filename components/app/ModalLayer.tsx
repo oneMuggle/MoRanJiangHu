@@ -760,6 +760,14 @@ export function ModalLayer({
                                         const bridge = (actions as any).explorationBridge;
                                         if (bridge?.moveTo) await bridge.moveTo(nodeId);
                                     }}
+                                    onExplore={() => {
+                                        const bridge = (actions as any).explorationBridge;
+                                        bridge?.explore?.();
+                                    }}
+                                    onRest={() => {
+                                        const bridge = (actions as any).explorationBridge;
+                                        bridge?.rest?.();
+                                    }}
                                 />
                             ) : (
                                 <MapExplorerModal
@@ -767,6 +775,14 @@ export function ModalLayer({
                                     onMove={async (nodeId: string) => {
                                         const bridge = (actions as any).explorationBridge;
                                         if (bridge?.moveTo) await bridge.moveTo(nodeId);
+                                    }}
+                                    onExplore={() => {
+                                        const bridge = (actions as any).explorationBridge;
+                                        bridge?.explore?.();
+                                    }}
+                                    onRest={() => {
+                                        const bridge = (actions as any).explorationBridge;
+                                        bridge?.rest?.();
                                     }}
                                 />
                             )}

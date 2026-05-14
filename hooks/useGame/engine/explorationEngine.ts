@@ -13,6 +13,7 @@ import type {
   TurnResult,
 } from './types';
 import type { MapNode, EncounterResult, TreasureResult } from '../../../models/exploration/mapNode';
+import type { EventTrigger } from '../exploration/eventTriggerPoint';
 import { MapGraph, createMapGraph } from '../exploration/mapGraph';
 import { rollEncounter, calculateEncounterRate } from '../exploration/encounterCalculator';
 import { rollTreasure } from '../exploration/treasureDetector';
@@ -90,7 +91,8 @@ export class ExplorationEngine extends BaseEngine {
     if (action.type === 'moveTo') {
       if (!this._currentNodeId) return false;
       const target = action.payload.targetNodeId as string | undefined;
-      return !!target && this._graph.hasPath(this._currentNodeId, target);
+      if (!target || !this._graph.hasPath(this._currentNodeId, target)) return false;
+      return true;
     }
     if (action.type === 'explore') return this._currentNodeId !== null;
     if (action.type === 'rest') return true;
@@ -147,6 +149,21 @@ export class ExplorationEngine extends BaseEngine {
       this._visitedNodes.add(startNodeId);
       this._revealAdjacent(startNodeId);
     }
+
+    // 为每个节点注册首次访问事件
+    for (const node of nodes) {
+      this._eventManager.addTrigger({
+        id: `evt_first_${node.id}`,
+        nodeId: node.id,
+        conditionType: 'first_visit',
+        eventId: `narrative_first_visit_${node.id}`,
+        oneTime: true,
+      });
+    }
+  }
+
+  registerEventTrigger(trigger: EventTrigger): void {
+    this._eventManager.addTrigger(trigger);
   }
 
   // ==================== 移动 ====================
@@ -158,6 +175,11 @@ export class ExplorationEngine extends BaseEngine {
     if (!path) return { success: false, hiddenEvents: [], travelTimeMinutes: 0, pathCost: 0 };
 
     const pathCost = path.actionCost;
+
+    // 本地计算预计耗时
+    const travelTimeMinutes = this._calculateTravelTime(path, this._graph.getNode(targetNodeId)!);
+
+    const fromNodeId = this._currentNodeId; // 保存原始值 (Step 1.1)
     this._currentNodeId = targetNodeId;
 
     this._graph.revealNode(targetNodeId);
@@ -186,8 +208,24 @@ export class ExplorationEngine extends BaseEngine {
       {},
     );
 
+    // 遇敌/宝藏独立事件入队 (Step 1.3)
+    if (encounter.triggered) {
+      this._pushEvent('遇敌', `在 ${targetNode.name} 遭遇了${encounter.encounterType}`, {
+        encounterType: encounter.encounterType,
+        entityId: encounter.entityId,
+        dangerLevel: encounter.dangerLevel,
+      });
+    }
+
+    if (treasure.found) {
+      this._pushEvent('发现宝藏', `在 ${targetNode.name} 发现了${treasure.quality}品质的宝藏`, {
+        treasureId: treasure.treasureId,
+        quality: treasure.quality,
+      });
+    }
+
     this._pushEvent('移动', `移动到 ${targetNode.name}`, {
-      from: this._currentNodeId,
+      from: fromNodeId,
       to: targetNodeId,
       remainingAp: this._currentAp,
       encounter: encounter.triggered ? encounter : undefined,
@@ -321,6 +359,38 @@ export class ExplorationEngine extends BaseEngine {
   }
 
   // ==================== 内部方法 ====================
+
+  /** 本地计算预计耗时 — 基于路径成本、节点类型、危险等级 */
+  private _calculateTravelTime(path: { actionCost: number; description?: string }, targetNode: MapNode): number {
+    const baseMinutes = path.actionCost * 10; // actionCost * 10 分钟为基础
+
+    // 节点类型加成
+    const typeMultipliers: Record<string, number> = {
+      'wilderness': 1.5,
+      'mountain': 1.8,
+      'cave': 1.3,
+      'secret': 2.0,
+      'village': 1.0,
+      'town': 0.8,
+      'market': 0.7,
+      'inn': 0.6,
+      'sect': 0.9,
+    };
+    const multiplier = typeMultipliers[targetNode.type] ?? 1.0;
+
+    // 危险等级加成（危险区域行进更慢）
+    const dangerMultipliers: Record<string, number> = {
+      'safe': 0.8,
+      'low': 1.0,
+      'medium': 1.3,
+      'high': 1.6,
+      'deadly': 2.0,
+    };
+    const dangerMultiplier = dangerMultipliers[targetNode.dangerLevel] ?? 1.0;
+
+    const minutes = Math.round(baseMinutes * multiplier * dangerMultiplier);
+    return Math.max(5, minutes); // 至少 5 分钟
+  }
 
   private _handleMove(payload: { targetNodeId: string }): ActionResult {
     const result = this.moveTo(payload.targetNodeId);

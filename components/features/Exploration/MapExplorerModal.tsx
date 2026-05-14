@@ -8,10 +8,12 @@ import { 完整时段显示 } from '../../../hooks/useGame/exploration/timeOfDay
 interface Props {
   onClose: () => void;
   onMove: (nodeId: string) => void;
+  onExplore?: () => void;
+  onRest?: () => void;
   onLazyInit?: () => void;
 }
 
-const MapExplorerModal: React.FC<Props> = ({ onClose, onMove, onLazyInit }) => {
+const MapExplorerModal: React.FC<Props> = ({ onClose, onMove, onExplore, onRest, onLazyInit }) => {
   const {
     explorationNodes,
     explorationPaths,
@@ -20,6 +22,7 @@ const MapExplorerModal: React.FC<Props> = ({ onClose, onMove, onLazyInit }) => {
     explorationCurrentNodeId,
     explorationTimeOfDay,
     环境时间,
+    角色银两,
   } = useGameStore(useShallow((s) => ({
     explorationNodes: s.explorationNodes,
     explorationPaths: s.explorationPaths,
@@ -28,6 +31,7 @@ const MapExplorerModal: React.FC<Props> = ({ onClose, onMove, onLazyInit }) => {
     explorationCurrentNodeId: s.explorationCurrentNodeId,
     explorationTimeOfDay: s.explorationTimeOfDay,
     环境时间: (s as any).环境?.时间,
+    角色银两: (s as any).角色?.金钱?.银子 ?? 0,
   })));
 
   const displayTime = 完整时段显示(环境时间) || explorationTimeOfDay;
@@ -67,8 +71,10 @@ const MapExplorerModal: React.FC<Props> = ({ onClose, onMove, onLazyInit }) => {
       currentActionPoints={explorationCurrentAp}
       maxActionPoints={explorationMaxAp}
       timeOfDay={displayTime}
-      playerSilver={0}
+      playerSilver={角色银两}
       onMove={handleMove}
+      onExplore={onExplore}
+      onRest={onRest}
       onClose={onClose}
     />
   );

@@ -9,6 +9,8 @@ interface Props {
   timeOfDay: string;
   playerSilver: number;
   onMove: (nodeId: string) => void;
+  onExplore?: () => void;
+  onRest?: () => void;
   onClose: () => void;
 }
 
@@ -24,7 +26,7 @@ const nodeTypeColors: Record<NodeType, { bg: string; border: string; label: stri
 };
 
 export const MobileMapExplorer: React.FC<Props> = ({
-  nodes, paths: _paths, timeOfDay, playerSilver, onMove, onClose,
+  nodes, paths: _paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
 }) => {
   const handleMove = useCallback((nodeId: string) => {
     onMove(nodeId);
@@ -40,7 +42,29 @@ export const MobileMapExplorer: React.FC<Props> = ({
       <div className="flex gap-3 px-4 py-2 text-xs flex-wrap border-b border-gray-800">
         <span className="text-gray-400">时段: {timeOfDay}</span>
         <span className="text-amber-400">银两: {playerSilver}</span>
+        <span className="text-emerald-400">行动力: {currentActionPoints}/{maxActionPoints}</span>
       </div>
+
+      {(onExplore || onRest) && (
+        <div className="flex gap-2 px-4 py-2 border-b border-gray-800">
+          {onExplore && (
+            <button
+              className="flex-1 px-3 py-2 rounded bg-emerald-900/60 border border-emerald-600 text-emerald-300 text-sm active:bg-emerald-800/60"
+              onClick={onExplore}
+            >
+              探索此地
+            </button>
+          )}
+          {onRest && (
+            <button
+              className="flex-1 px-3 py-2 rounded bg-blue-900/60 border border-blue-600 text-blue-300 text-sm active:bg-blue-800/60"
+              onClick={onRest}
+            >
+              休息
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {nodes.filter((n) => n.isExplored).map((node) => {
