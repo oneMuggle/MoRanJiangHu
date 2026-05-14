@@ -6,7 +6,7 @@ import type { 关系网络数据 } from '../../../models/relationship';
 import { 构建NPC记忆展示结果 } from '../../../hooks/useGame/memory/npcMemorySummary';
 import { useImageAssetPrefetch } from '../../../hooks/useImageAssetPrefetch';
 import { 获取图片展示地址 } from '../../../utils/imageAssets';
-import { 获取NPC衣着文本, 获取NPC道具摘要, 获取已装备部位, 获取已装备道具 } from '../../../utils/clothingHelpers';
+import { 获取已装备部位, 获取已装备道具 } from '../../../utils/clothingHelpers';
 import { IconBeads, IconHeart, IconMars, IconScroll } from '../../ui/Icons';
 import RelationshipGraph from '../Relationship/RelationshipGraph';
 
@@ -105,12 +105,28 @@ const SocialModal: React.FC<Props> = ({
         (npc as any).档案?.身材要点,
         (npc as any).档案?.身材描写
     );
-    const 读取衣着 = (npc: NPC结构): string => 取首个非空文本(
-        (npc as any).衣着风格,
-        (npc as any).衣着,
-        (npc as any).档案?.衣着风格,
-        (npc as any).档案?.衣着要点
-    );
+    const 读取衣着 = (npc: NPC结构): string => {
+        const 档案 = npc.服饰档案;
+        if (档案) {
+            const parts: string[] = [];
+            if (档案.上衣?.名称) parts.push(档案.上衣.名称);
+            if (档案.外套?.名称) parts.push(档案.外套.名称);
+            if (档案.下着?.名称) parts.push(档案.下着.名称);
+            if (档案.鞋子?.名称) parts.push(档案.鞋子.名称);
+            if (档案.配饰?.名称) parts.push(档案.配饰.名称);
+            if (档案.头饰?.名称) parts.push(档案.头饰.名称);
+            if (档案.袜子?.名称) parts.push(档案.袜子.名称);
+            if (档案.内衣?.名称) parts.push(档案.内衣.名称);
+            if (档案.内裤?.名称) parts.push(档案.内裤.名称);
+            if (parts.length > 0) return parts.join('，');
+        }
+        return 取首个非空文本(
+            (npc as any).衣着风格,
+            (npc as any).衣着,
+            (npc as any).档案?.衣着风格,
+            (npc as any).档案?.衣着要点
+        );
+    };
     const 读取服饰档案 = (npc: NPC结构) => {
         return (npc as any).服饰档案 || null;
     };
