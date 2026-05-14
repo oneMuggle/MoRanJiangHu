@@ -64,14 +64,7 @@ function buildSystemPrompt(context: TravelNarrativeContext): string {
 2. 叙述 200-400 字，描述从出发地到目的地的旅程
 3. 融入沿途的环境描写、天气、时间氛围
 4. 如果玩家触发了遇敌，在叙述中体现遭遇敌人/野兽的情节
-5. 如果玩家发现了宝藏，在叙述中体现发现意外之财/物品的情节
-6. 在叙述的最后，必须附加一行 JSON（仅此一行，无其他文字）：
-{"travelTimeMinutes": <数字>}
-
-数字表示旅行消耗时间（分钟），根据距离和场景合理推算：
-- 同一城镇内移动：5-15 分钟
-- 城镇之间步行：30-120 分钟
-- 翻山越岭/穿越危险区域：60-240 分钟`;
+5. 如果玩家发现了宝藏，在叙述中体现发现意外之财/物品的情节`;
 }
 
 function buildUserPrompt(context: TravelNarrativeContext): string {
@@ -124,20 +117,7 @@ function buildUserPrompt(context: TravelNarrativeContext): string {
 }
 
 function parseNarrativeResponse(text: string): TravelNarrativeResult {
-    const jsonMatch = text.match(/\{[\s\S]*"travelTimeMinutes"\s*:\s*\d+[\s\S]*\}/);
-    if (jsonMatch) {
-        try {
-            const parsed = JSON.parse(jsonMatch[0]);
-            const narrative = text.replace(jsonMatch[0], '').trim();
-            return {
-                narrative: narrative || text,
-                travelTimeMinutes: typeof parsed.travelTimeMinutes === 'number' ? parsed.travelTimeMinutes : 30,
-            };
-        } catch {
-            // fall through
-        }
-    }
-    return { narrative: text, travelTimeMinutes: 30 };
+    return { narrative: text.trim(), travelTimeMinutes: 0 };
 }
 
 export async function generateTravelNarrative(

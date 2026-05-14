@@ -12,6 +12,7 @@ export interface MapNode {
   isCurrent: boolean;
   x: number;
   y: number;
+  estimatedTimeMinutes?: number;
 }
 
 export interface MapPath {
@@ -23,8 +24,6 @@ export interface MapPath {
 interface Props {
   nodes: MapNode[];
   paths: MapPath[];
-  currentActionPoints: number;
-  maxActionPoints: number;
   timeOfDay: string;
   playerSilver: number;
   onMove: (nodeId: string) => void;
@@ -49,7 +48,7 @@ const dangerDots = (level: number) => Array.from({ length: 5 }, (_, i) => (
 ));
 
 export const MapExplorer: React.FC<Props> = ({
-  nodes, paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
+  nodes, paths, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
 }) => {
   const nodeMap = useMemo(() => {
     const map = new Map<string, MapNode>();
@@ -72,7 +71,6 @@ export const MapExplorer: React.FC<Props> = ({
         <div className="flex gap-4 mb-4 text-sm flex-wrap">
           <span className="text-gray-400">时段: <span className="text-white">{timeOfDay}</span></span>
           <span className="text-gray-400">银两: <span className="text-amber-400">{playerSilver}</span></span>
-          <span className="text-gray-400">行动力: <span className="text-emerald-400">{currentActionPoints}/{maxActionPoints}</span></span>
         </div>
 
         {(onExplore || onRest) && (
@@ -170,6 +168,9 @@ export const MapExplorer: React.FC<Props> = ({
                   </p>
                   <p className="text-xs text-gray-500">
                     危险: {dangerDots(node.dangerLevel)}
+                    {node.estimatedTimeMinutes != null && (
+                      <span className="ml-2 text-amber-400">预计 {node.estimatedTimeMinutes} 分钟</span>
+                    )}
                   </p>
                 </button>
               );

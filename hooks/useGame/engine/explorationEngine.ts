@@ -238,7 +238,7 @@ export class ExplorationEngine extends BaseEngine {
       encounter: encounter.triggered ? encounter : undefined,
       treasure: treasure.found ? treasure : undefined,
       hiddenEvents: triggers.map((t) => t.eventId),
-      travelTimeMinutes: 0, // AI will calculate based on context
+      travelTimeMinutes,
       pathCost,
     };
   }
@@ -247,10 +247,9 @@ export class ExplorationEngine extends BaseEngine {
 
   explore(): ActionResult {
     if (!this._currentNodeId) return this._failResult('不在地图中');
-    if (this._currentAp < 1) return this._failResult('行动力不足');
 
-    this._currentAp -= 1;
     const node = this._graph.getNode(this._currentNodeId)!;
+    const exploreTime = 15; // 探索消耗 15 分钟
 
     const treasure = rollTreasure({
       insight: this._playerInsight,
@@ -261,12 +260,13 @@ export class ExplorationEngine extends BaseEngine {
     this._pushEvent('探索', `在 ${node.name} 探索`, {
       nodeId: this._currentNodeId,
       treasure: treasure.found ? treasure : undefined,
+      travelTimeMinutes: exploreTime,
     });
 
     if (treasure.found) {
       return {
         success: true,
-        stateUpdates: { treasure },
+        stateUpdates: { treasure, travelTimeMinutes: exploreTime },
         narrativeConstraint: `<叙事>你在 ${node.name} 发现了宝藏</叙事>`,
         keyStep: treasure.quality === 'rare' || treasure.quality === 'epic' || treasure.quality === 'legendary',
         sideEffects: [],
@@ -275,7 +275,7 @@ export class ExplorationEngine extends BaseEngine {
 
     return {
       success: true,
-      stateUpdates: {},
+      stateUpdates: { travelTimeMinutes: exploreTime },
       narrativeConstraint: `<叙事>你在 ${node.name} 探索了一番，一无所获</叙事>`,
       keyStep: false,
       sideEffects: [],
@@ -285,12 +285,12 @@ export class ExplorationEngine extends BaseEngine {
   // ==================== 休息 ====================
 
   rest(): ActionResult {
-    this._currentAp = this._maxAp;
-    this._pushEvent('休息', '休息恢复行动力', { restoredAp: this._maxAp });
+    const restTime = 30; // 休息消耗 30 分钟
+    this._pushEvent('休息', '休息恢复行动力', { restoredAp: this._maxAp, travelTimeMinutes: restTime });
     return {
       success: true,
-      stateUpdates: { ap: this._currentAp },
-      narrativeConstraint: '<叙事>你休息了一会儿，恢复了行动力</叙事>',
+      stateUpdates: { ap: this._currentAp, travelTimeMinutes: restTime },
+      narrativeConstraint: '<叙事>你休息了一会儿，恢复了精力</叙事>',
       keyStep: false,
       sideEffects: [],
     };

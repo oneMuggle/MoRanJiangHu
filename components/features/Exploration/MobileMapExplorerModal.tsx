@@ -17,8 +17,6 @@ const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove, onExplore, o
   const {
     explorationNodes,
     explorationPaths,
-    explorationCurrentAp,
-    explorationMaxAp,
     explorationCurrentNodeId,
     explorationTimeOfDay,
     环境时间,
@@ -26,8 +24,6 @@ const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove, onExplore, o
   } = useGameStore(useShallow((s) => ({
     explorationNodes: s.explorationNodes,
     explorationPaths: s.explorationPaths,
-    explorationCurrentAp: s.explorationCurrentAp,
-    explorationMaxAp: s.explorationMaxAp,
     explorationCurrentNodeId: s.explorationCurrentNodeId,
     explorationTimeOfDay: s.explorationTimeOfDay,
     环境时间: (s as any).环境?.时间,
@@ -68,8 +64,6 @@ const MobileMapExplorerModal: React.FC<Props> = ({ onClose, onMove, onExplore, o
     <MobileMapExplorer
       nodes={adapted.nodes}
       paths={adapted.paths}
-      currentActionPoints={explorationCurrentAp}
-      maxActionPoints={explorationMaxAp}
       timeOfDay={displayTime}
       playerSilver={角色银两}
       onMove={handleMove}

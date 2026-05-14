@@ -130,7 +130,7 @@ export function useExplorationBridge(extras?: BridgeExtras): UseExplorationBridg
         if (narrativeResult) {
           extras.onTravelNarrative(
             narrativeResult.narrative,
-            narrativeResult.travelTimeMinutes,
+            result.travelTimeMinutes, // 使用本地计算的耗时
             originName,
             destNode.name,
           );

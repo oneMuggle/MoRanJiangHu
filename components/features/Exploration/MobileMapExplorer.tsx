@@ -4,8 +4,6 @@ import type { MapNode, MapPath, NodeType } from './MapExplorer';
 interface Props {
   nodes: MapNode[];
   paths: MapPath[];
-  currentActionPoints: number;
-  maxActionPoints: number;
   timeOfDay: string;
   playerSilver: number;
   onMove: (nodeId: string) => void;
@@ -26,7 +24,7 @@ const nodeTypeColors: Record<NodeType, { bg: string; border: string; label: stri
 };
 
 export const MobileMapExplorer: React.FC<Props> = ({
-  nodes, paths: _paths, currentActionPoints, maxActionPoints, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
+  nodes, paths: _paths, timeOfDay, playerSilver, onMove, onExplore, onRest, onClose,
 }) => {
   const handleMove = useCallback((nodeId: string) => {
     onMove(nodeId);
@@ -42,7 +40,6 @@ export const MobileMapExplorer: React.FC<Props> = ({
       <div className="flex gap-3 px-4 py-2 text-xs flex-wrap border-b border-gray-800">
         <span className="text-gray-400">时段: {timeOfDay}</span>
         <span className="text-amber-400">银两: {playerSilver}</span>
-        <span className="text-emerald-400">行动力: {currentActionPoints}/{maxActionPoints}</span>
       </div>
 
       {(onExplore || onRest) && (
@@ -82,7 +79,11 @@ export const MobileMapExplorer: React.FC<Props> = ({
                   {node.isCurrent && '📍 '}{node.name}
                 </p>
                 {node.isCurrent && <span className="text-xs text-yellow-400">当前位置</span>}
-                {node.isAdjacent && !node.isCurrent && <span className="text-xs text-emerald-400">可移动</span>}
+                {node.isAdjacent && !node.isCurrent && (
+                  <span className="text-xs text-amber-400">
+                    {node.estimatedTimeMinutes != null ? `预计 ${node.estimatedTimeMinutes} 分钟` : '可移动'}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 危险等级: {Array.from({ length: node.dangerLevel }, (_, i) => (

@@ -369,7 +369,7 @@ Phase 4 (最后):
 
 - [x] Phase 1: P0 关键链路修复
   - [x] Step 1.1: 修复 moveTo() 中 from 字段错误
-  - [x] Step 1.2: 移动时消耗行动力
+  - [x] Step 1.2: 移动时消耗行动力 → **已撤回**：AP 系统已移除，改为本地时间计算
   - [x] Step 1.3: 遇敌/宝藏结果事件入队
 - [x] Phase 2: P1 功能补全
   - [x] Step 2.1: 注册基础事件触发点
@@ -378,10 +378,18 @@ Phase 4 (最后):
   - [x] Step 3.1: 探索叙事加入时代匹配
   - [x] Step 3.2: 叙事约束注入 AI Prompt
   - [ ] Step 3.3: 读档后引擎状态重建（待后续迭代）
-  - [x] Step 3.4: UI 中显示行动力信息
+  - [x] Step 3.4: UI 中显示行动力信息 → **已改为**：显示"预计耗时"（本地计算）
 - [x] Phase 4: P3 次要修复
   - [x] Step 4.1: 修复银两硬编码
   - [ ] Step 4.2: 改进地图坐标布局（可选，待后续迭代）
+- [x] Phase 5: AP 系统移除 + 本地时间计算
+  - [x] 移除 `moveTo()` 中的 AP 扣减逻辑
+  - [x] 新增 `_calculateTravelTime()` 本地计算方法
+  - [x] `mapNodeAdapter.ts` 为每个相邻节点计算 `estimatedTimeMinutes`
+  - [x] UI 移除"行动力: X/Y"，改为在节点卡片显示"预计 X 分钟"
+  - [x] `explorationNarrativeService.ts` 移除 AI JSON 时间解析，AI 只生成纯叙事文本
+  - [x] `useExplorationBridge.ts` 使用 `moveTo()` 返回的本地时间替代 AI 返回时间
+  - [x] `explorationEngine.ts` `moveTo()` 返回实际计算的 `travelTimeMinutes`（之前硬编码为 0）
 
 ---
 
@@ -389,16 +397,19 @@ Phase 4 (最后):
 
 | 阶段 | 验证操作 | 预期结果 |
 |------|---------|---------|
-| Phase 1 | 多次移动节点 | AP 逐渐减少，AP 耗尽时无法继续移动 |
+| Phase 1 | 多次移动节点 | 移动不消耗 AP，每次移动后触发 AI 旅行叙事 |
 | Phase 1 | 查看事件队列 | 遇敌/宝藏有独立事件入队 |
 | Phase 2 | 打开探索弹窗 | 能看到"探索"和"休息"按钮 |
-| Phase 2 | 点击"探索" | 消耗 1 AP，可能发现宝藏 |
-| Phase 2 | 点击"休息" | AP 恢复到最大值 |
+| Phase 2 | 点击"探索" | 可能发现宝藏 |
+| Phase 2 | 点击"休息" | 无 AP 恢复（已移除 AP 系统） |
 | Phase 3 | 移动后看AI叙述 | 叙述包含探索状态约束信息 + 时代文风匹配 |
 | Phase 3 | 读档后打开地图 | 地图状态与读档前一致 |
 | Phase 3 | 切换时代后移动 | 叙事文风随时代变化（古代武侠/现代/科幻） |
 | Phase 4 | 查看银两显示 | 显示实际银两数量（非0） |
 | Phase 4 | 查看地图布局 | 节点位置有地理关系感 |
+| **Phase 5** | 查看节点卡片 | 相邻节点显示"预计 X 分钟" |
+| **Phase 5** | 移动后看时间推进 | 游戏时间按本地计算的分钟数推进 |
+| **Phase 5** | 不同路径耗时对比 | 危险区域/远距离路径耗时更长 |
 
 ---
 
@@ -406,17 +417,17 @@ Phase 4 (最后):
 
 | 文件 | 修改内容 |
 |------|---------|
-| `hooks/useGame/engine/explorationEngine.ts` | Step 1.1, 1.2, 1.3, 2.1 |
-| `components/features/Exploration/MapExplorer.tsx` | Step 2.2, 3.3 |
-| `components/features/Exploration/MobileMapExplorer.tsx` | Step 2.2, 3.3 |
-| `components/features/Exploration/MapExplorerModal.tsx` | Step 2.2, 4.1 |
-| `components/features/Exploration/MobileMapExplorerModal.tsx` | Step 2.2, 4.1 |
+| `hooks/useGame/engine/explorationEngine.ts` | Step 1.1, 1.3, 2.1, Phase 5（AP移除+本地时间计算） |
+| `components/features/Exploration/MapExplorer.tsx` | Step 2.2, Phase 5（预计耗时显示） |
+| `components/features/Exploration/MobileMapExplorer.tsx` | Step 2.2, Phase 5（预计耗时显示） |
+| `components/features/Exploration/MapExplorerModal.tsx` | Step 2.2, 4.1, Phase 5（移除AP props） |
+| `components/features/Exploration/MobileMapExplorerModal.tsx` | Step 2.2, 4.1, Phase 5（移除AP props） |
 | `components/app/ModalLayer.tsx` | Step 2.2 |
-| `hooks/useExplorationBridge.ts` | Step 3.1, 3.2 |
-| `hooks/useGame/exploration/explorationNarrativeService.ts` | Step 3.1, 3.2 |
-| `models/eraTheme/assembly.ts` | Step 3.1 (只读复用 resolveEraNode) |
+| `hooks/useExplorationBridge.ts` | Step 3.1, 3.2, Phase 5（使用本地时间） |
+| `hooks/useGame/exploration/explorationNarrativeService.ts` | Step 3.1, 3.2, Phase 5（移除JSON时间解析） |
+| `hooks/useGame/exploration/mapNodeAdapter.ts` | Phase 5（计算预计耗时） |
+| `models/eraTheme/assembly.ts` | Step 3.1（只读复用 resolveEraNode） |
 | `hooks/useGame.ts` | Step 3.3 |
-| `hooks/useGame/exploration/mapNodeAdapter.ts` | Step 4.2 |
 
 ---
 
