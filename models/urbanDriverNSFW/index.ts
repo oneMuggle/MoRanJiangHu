@@ -95,7 +95,7 @@ export const 默认都市网约车NSFW设置: 都市网约车NSFW设置 = {
 export interface 都市网约车系统扩展 {
   行程系统?: {
     乘客欲望档案: Record<string, import('./core').乘客欲望档案>;
-    当前行程类型: import('./scenarios').行程NSFW类型 | null;
+    活跃场景标签: import('./scenarios').行程NSFW类型[];
     当前地点: import('./scenarios').行程地点 | null;
     行车记录仪状态: '关闭' | '录制中' | '已泄露';
     后果列表: import('./consequences').后果事件[];

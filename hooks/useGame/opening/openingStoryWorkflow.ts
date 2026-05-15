@@ -812,7 +812,7 @@ export const 执行开场剧情生成工作流 = async (
                     return {
                         行程系统: {
                             乘客欲望档案: {} as Record<string, unknown>,
-                            当前行程类型: null,
+                            活跃场景标签: [],
                             当前地点: null,
                             行车记录仪状态: '关闭',
                             后果列表: [],

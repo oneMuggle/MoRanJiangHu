@@ -126,7 +126,7 @@ export const 应用都市网约车状态更新 = (
 
   const 行程系统 = current.行程系统 as {
     乘客欲望档案: Record<string, Record<string, unknown>>;
-    当前行程类型: string | null;
+    活跃场景标签: string[];
     当前地点: string | null;
     行车记录仪状态: string;
     后果列表: unknown[];
@@ -137,13 +137,20 @@ export const 应用都市网约车状态更新 = (
   if (!行程系统.乘客欲望档案) {
     行程系统.乘客欲望档案 = {};
   }
+  // 确保活跃场景标签存在
+  if (!行程系统.活跃场景标签) {
+    行程系统.活跃场景标签 = [];
+  }
 
   for (const [npcId, partialUpdate] of Object.entries(update.更新档案)) {
     const existing = 行程系统.乘客欲望档案[npcId] || {} as Record<string, unknown>;
     // 合并更新：只更新提供的字段
     for (const [key, value] of Object.entries(partialUpdate)) {
       if (key === '当前行程类型' && typeof value === 'string') {
-        行程系统.当前行程类型 = value;
+        // 兼容旧字段：将单场景标签追加到活跃场景列表
+        if (!行程系统.活跃场景标签.includes(value)) {
+          行程系统.活跃场景标签.push(value);
+        }
         continue;
       }
       if (key === '当前地点' && typeof value === 'string') {
@@ -167,7 +174,7 @@ export const 构建都市网约车NSFW参数 = (state: {
   都市网约车系统?: {
     行程系统?: {
       乘客欲望档案: Record<string, 乘客欲望档案>;
-      当前行程类型: 行程NSFW类型 | null;
+      活跃场景标签: 行程NSFW类型[];
       当前地点: 行程地点 | null;
       行车记录仪状态: '关闭' | '录制中' | '已泄露';
       后果列表: Array<{
@@ -193,7 +200,7 @@ export const 构建都市网约车NSFW参数 = (state: {
   时代配置ID?: string;
   社交列表?: Array<{ id: string; 姓名?: string }>;
 }): {
-  行程类型?: 行程NSFW类型;
+  活跃场景标签?: 行程NSFW类型[];
   乘客欲望阶段?: 乘客欲望阶段;
   关系轨道?: 行程关系轨道;
   暴露风险?: number;
@@ -221,10 +228,32 @@ export const 构建都市网约车NSFW参数 = (state: {
     return undefined;
   }
 
-  // 检查乘客欲望档案
-  const 行程系统 = state.都市网约车系统?.行程系统;
-  if (!行程系统?.乘客欲望档案) {
-    return undefined;
+  // 获取或创建行程系统（兼容旧存档缺少字段的情况）
+  let 行程系统 = state.都市网约车系统?.行程系统;
+  if (!行程系统) {
+    // 当时代和背景条件满足时，内联创建默认行程系统，避免因存档缺少字段而跳过
+    行程系统 = {
+      乘客欲望档案: {} as Record<string, 乘客欲望档案>,
+      活跃场景标签: [],
+      当前地点: null,
+      行车记录仪状态: '关闭' as const,
+      后果列表: [],
+      常客记录: [],
+    };
+  }
+
+  // 确保字段完整（兜底补全，兼容旧存档）
+  if (!行程系统.乘客欲望档案 || typeof 行程系统.乘客欲望档案 !== 'object') {
+    行程系统.乘客欲望档案 = {} as Record<string, 乘客欲望档案>;
+  }
+  if (!行程系统.活跃场景标签) {
+    行程系统.活跃场景标签 = [];
+  }
+  if (!行程系统.后果列表) {
+    行程系统.后果列表 = [];
+  }
+  if (!行程系统.常客记录) {
+    行程系统.常客记录 = [];
   }
 
   // 兜底：当档案为空但社交列表有 NPC 时，内联创建初始档案
@@ -240,21 +269,21 @@ export const 构建都市网约车NSFW参数 = (state: {
     return undefined;
   }
 
-  // 随机分配一个行程类型（当尚未有行程时）
-  if (!行程系统.当前行程类型 && state.社交列表 && state.社交列表.length > 0) {
-    const 启用的行程类型 = 行程类型列表.filter(t => {
-      if (t === '醉酒搭车') return nsfw设置.启用醉酒乘客场景;
-      if (t === '饮料下药') return nsfw设置.启用饮料下药场景;
-      if (t === '深夜独处') return nsfw设置.启用深夜独处场景;
-      if (t === '后座暗示') return nsfw设置.启用后座暗示场景;
-      if (t === '停车场秘密') return nsfw设置.启用停车场秘密场景;
-      if (t === '拼车暧昧') return nsfw设置.启用拼车暧昧场景;
-      if (t === '常客关系') return nsfw设置.启用常客关系系统;
-      if (t === '行车记录仪') return nsfw设置.启用行车记录仪系统;
-      return false;
-    });
-    if (启用的行程类型.length > 0) {
-      行程系统.当前行程类型 = 启用的行程类型[Math.floor(Math.random() * 启用的行程类型.length)] as 行程NSFW类型;
+  // 将当前设置中启用但尚未在活跃列表中的场景补充进去
+  const 启用的行程类型 = 行程类型列表.filter(t => {
+    if (t === '醉酒搭车') return nsfw设置.启用醉酒乘客场景;
+    if (t === '饮料下药') return nsfw设置.启用饮料下药场景;
+    if (t === '深夜独处') return nsfw设置.启用深夜独处场景;
+    if (t === '后座暗示') return nsfw设置.启用后座暗示场景;
+    if (t === '停车场秘密') return nsfw设置.启用停车场秘密场景;
+    if (t === '拼车暧昧') return nsfw设置.启用拼车暧昧场景;
+    if (t === '常客关系') return nsfw设置.启用常客关系系统;
+    if (t === '行车记录仪') return nsfw设置.启用行车记录仪系统;
+    return false;
+  });
+  for (const 类型 of 启用的行程类型) {
+    if (!行程系统.活跃场景标签.includes(类型)) {
+      行程系统.活跃场景标签.push(类型 as 行程NSFW类型);
     }
   }
 
@@ -274,14 +303,21 @@ export const 构建都市网约车NSFW参数 = (state: {
   // 获取最新的未处理后果
   const 未处理后果 = 行程系统.后果列表?.find(c => !c.已处理);
 
+  // 当活跃场景包含"饮料下药"且药物状态为空时，自动初始化为初期
+  const 包含下药场景 = (行程系统.活跃场景标签 ?? []).includes('饮料下药');
+  let 药物状态 = 焦点档案.药物状态;
+  if (包含下药场景 && !药物状态) {
+    药物状态 = { 类型: '未知' as const, 生效阶段: '初期' as const, 意识清晰度: 80, 身体控制度: 85 };
+  }
+
   return {
-    行程类型: 行程系统.当前行程类型 ?? undefined,
+    活跃场景标签: 行程系统.活跃场景标签,
     乘客欲望阶段: 焦点档案.当前阶段,
     关系轨道: 焦点档案.关系轨道,
     暴露风险: 焦点档案.暴露风险值,
     紧张度: 焦点档案.紧张度,
     醉酒状态: 焦点档案.醉酒状态,
-    药物状态: 焦点档案.药物状态,
+    药物状态,
     行车记录仪状态: 行程系统.行车记录仪状态 ?? '关闭',
     内容强度: nsfw设置.NSFW内容强度,
     后果: 未处理后果
