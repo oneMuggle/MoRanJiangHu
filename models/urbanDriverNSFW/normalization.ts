@@ -10,6 +10,7 @@ const 合法NSFW强度 = ['微暗', '暧昧', '露骨'] as const;
 const 合法场景强度 = ['关闭', '轻度', '中度', '深度'] as const;
 const 合法后果严重度 = ['轻微', '中等', '严重', '毁灭'] as const;
 const 合法触发频率 = ['低', '中', '高'] as const;
+const 合法药物类型 = ['迷药', '安眠药', '兴奋剂', '催情药', '致幻剂', '记忆阻断剂', '随机'] as const;
 
 function 枚举校验<T extends string>(value: unknown, 合法值: readonly T[], fallback: T): T {
   return (合法值 as readonly string[]).includes(typeof value === 'string' ? value : '')
@@ -29,6 +30,7 @@ export function 规范化都市网约车NSFW设置(raw: Partial<都市网约车N
     醉酒场景强度: 枚举校验(raw.醉酒场景强度, 合法场景强度, s.醉酒场景强度),
     启用饮料下药场景: 读取布尔(raw.启用饮料下药场景, s.启用饮料下药场景),
     下药场景强度: 枚举校验(raw.下药场景强度, 合法场景强度, s.下药场景强度),
+    首选药物类型: 枚举校验(raw.首选药物类型, 合法药物类型, s.首选药物类型),
     启用深夜独处场景: 读取布尔(raw.启用深夜独处场景, s.启用深夜独处场景),
     启用后座暗示场景: 读取布尔(raw.启用后座暗示场景, s.启用后座暗示场景),
     启用停车场秘密场景: 读取布尔(raw.启用停车场秘密场景, s.启用停车场秘密场景),

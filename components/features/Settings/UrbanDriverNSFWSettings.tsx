@@ -78,6 +78,14 @@ export const UrbanDriverNSFWSettings: React.FC<Props> = ({ settings, onChange })
         onChange={(v) => update('下药场景强度', v as 都市网约车NSFW设置['下药场景强度'])}
         disabled={!masterEnabled || !settings.启用饮料下药场景}
       />
+      <NsfwSelectOption
+        label="首选药物类型"
+        value={settings.首选药物类型}
+        options={['随机', '迷药', '安眠药', '兴奋剂', '催情药', '致幻剂', '记忆阻断剂']}
+        onChange={(v) => update('首选药物类型', v as 都市网约车NSFW设置['首选药物类型'])}
+        disabled={!masterEnabled || !settings.启用饮料下药场景}
+        description="随机=每次随机选择；迷药=意识模糊；安眠药=强烈睡意；兴奋剂=感官敏锐；催情药=身体燥热渴望；致幻剂=现实扭曲幻觉；记忆阻断剂=短期记忆丧失"
+      />
 
       {/* 场景系统 */}
       <NsfwSectionHeader title="场景系统" />
