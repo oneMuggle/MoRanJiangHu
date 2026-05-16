@@ -1,18 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 详细门派结构, 职位等级排序 } from '../../../models/sect';
 import { 游戏时间格式 } from '../../../models/world';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     sectData: 详细门派结构;
     currentTime: 游戏时间格式;
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
 type Tab = 'hall' | 'missions' | 'exchange' | 'members';
 
-const MobileSect: React.FC<Props> = ({ sectData, currentTime, onClose }) => {
+const MobileSect: React.FC<Props> = ({ sectData, currentTime, onClose, rpgMode: rpgModeProp, character }) => {
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const [activeTab, setActiveTab] = useState<Tab>('hall');
     const [missionFilter, setMissionFilter] = useState<'all' | 'active' | 'available'>('all');
+
+    const handleRpgGainContribution = useCallback(() => {
+        if (!rpgMode) return;
+        getRpgDispatcher().gainContribution(10);
+    }, [rpgMode]);
+
+    const handleRpgInvestConstruction = useCallback(() => {
+        if (!rpgMode) return;
+        getRpgDispatcher().investConstruction(100);
+    }, [rpgMode]);
 
     const isTimeAfter = (t1: string, t2: string) => t1 > t2;
 
@@ -131,6 +149,26 @@ const MobileSect: React.FC<Props> = ({ sectData, currentTime, onClose }) => {
                                         })}
                                 </div>
                             </div>
+
+                            {rpgMode && (
+                                <div className="bg-black/40 border border-gray-800 rounded-xl p-4">
+                                    <div className="text-[10px] text-wuxia-gold/70 tracking-[0.3em] mb-3">宗门行动</div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={handleRpgGainContribution}
+                                            className="px-3 py-2 rounded-lg bg-wuxia-gold/10 border border-wuxia-gold/30 text-wuxia-gold text-xs font-serif hover:bg-wuxia-gold/20 transition-colors"
+                                        >
+                                            获取贡献
+                                        </button>
+                                        <button
+                                            onClick={handleRpgInvestConstruction}
+                                            className="px-3 py-2 rounded-lg bg-green-900/20 border border-green-700/30 text-green-400 text-xs font-serif hover:bg-green-900/40 transition-colors"
+                                        >
+                                            投资建设
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
 

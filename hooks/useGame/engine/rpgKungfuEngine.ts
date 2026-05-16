@@ -328,13 +328,16 @@ export class RpgKungfuEngine extends BaseEngine {
     return {
       engineType: 'rpgKungfu',
       turnNumber: this._turnNumber,
-      kungfuCount: this._kungfuList.length,
+      kungfuList: this._kungfuList,
     };
   }
 
   static fromJSON(state: Record<string, unknown>): RpgKungfuEngine {
     const engine = new RpgKungfuEngine();
     if (typeof state.turnNumber === 'number') engine._turnNumber = state.turnNumber;
+    if (Array.isArray(state.kungfuList)) {
+      engine._kungfuList = state.kungfuList as 功法结构[];
+    }
     return engine;
   }
 

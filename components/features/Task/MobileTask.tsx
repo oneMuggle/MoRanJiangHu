@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 任务结构, 任务类型 } from '../../../models/task';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     tasks: 任务结构[];
     onDeleteTask?: (taskIndex: number) => void;
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
-const MobileTask: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
+const MobileTask: React.FC<Props> = ({ tasks, onDeleteTask, onClose, rpgMode: rpgModeProp, character }) => {
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const [filter, setFilter] = useState<任务类型 | '全部'>('全部');
     const [selectedIdx, setSelectedIdx] = useState<number>(0);
     const safeTasks = Array.isArray(tasks) ? tasks : [];
@@ -20,6 +28,16 @@ const MobileTask: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
     const currentTask = currentTaskEntry?.task;
     const currentTaskOriginalIndex = currentTaskEntry?.originalIndex ?? -1;
     const currentObjectives = Array.isArray(currentTask?.目标列表) ? currentTask.目标列表 : [];
+
+    const handleRpgSubmitTask = useCallback(() => {
+        if (!currentTask || !rpgMode || !character) return;
+        getRpgDispatcher().submitTask(currentTask.标题, character);
+    }, [currentTask, rpgMode, character]);
+
+    const handleRpgFailTask = useCallback(() => {
+        if (!currentTask || !rpgMode) return;
+        getRpgDispatcher().failTask(currentTask.标题, '玩家主动放弃');
+    }, [currentTask, rpgMode]);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -107,6 +125,23 @@ const MobileTask: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
                             <div className="flex gap-2 flex-wrap">
                                 <span className={`text-[9px] px-2 py-0.5 rounded border ${getTypeLabelColor(currentTask.类型)}`}>{currentTask.类型}</span>
                             </div>
+
+                            {rpgMode && (
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={handleRpgSubmitTask}
+                                        className="flex-1 px-3 py-2 rounded-lg bg-wuxia-gold/10 border border-wuxia-gold/30 text-wuxia-gold text-xs font-serif hover:bg-wuxia-gold/20 transition-colors"
+                                    >
+                                        提交任务
+                                    </button>
+                                    <button
+                                        onClick={handleRpgFailTask}
+                                        className="flex-1 px-3 py-2 rounded-lg bg-red-900/20 border border-red-700/30 text-red-400 text-xs font-serif hover:bg-red-900/40 transition-colors"
+                                    >
+                                        放弃任务
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="text-center text-gray-600 text-sm">暂无选中任务</div>

@@ -1,19 +1,37 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 详细门派结构, 门派任务, 职位等级排序 } from '../../../models/sect';
 import { 游戏时间格式 } from '../../../models/world';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     sectData: 详细门派结构;
-    currentTime: 游戏时间格式; // "YYYY:MM:DD:HH:MM"
+    currentTime: 游戏时间格式;
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
 type Tab = 'hall' | 'missions' | 'exchange' | 'members';
 
-const SectModal: React.FC<Props> = ({ sectData, currentTime, onClose }) => {
+const SectModal: React.FC<Props> = ({ sectData, currentTime, onClose, rpgMode: rpgModeProp, character }) => {
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const [activeTab, setActiveTab] = useState<Tab>('hall');
     const [missionFilter, setMissionFilter] = useState<'all' | 'active' | 'available'>('all');
+
+    const handleRpgGainContribution = useCallback(() => {
+        if (!rpgMode) return;
+        getRpgDispatcher().gainContribution(10);
+    }, [rpgMode]);
+
+    const handleRpgInvestConstruction = useCallback(() => {
+        if (!rpgMode) return;
+        getRpgDispatcher().investConstruction(100);
+    }, [rpgMode]);
 
     // Helper: Parse Time
     const parseTime = (timeStr: string) => {
@@ -132,6 +150,30 @@ const SectModal: React.FC<Props> = ({ sectData, currentTime, onClose }) => {
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* RPG Actions */}
+                                {rpgMode && (
+                                    <div className="bg-black/30 border border-wuxia-gold/20 p-6 rounded-lg">
+                                        <h4 className="text-wuxia-gold font-bold text-sm mb-4 flex items-center gap-2">
+                                            <span className="w-1 h-6 bg-wuxia-gold"></span>
+                                            RPG 引擎操作
+                                        </h4>
+                                        <div className="flex gap-3 flex-wrap">
+                                            <button
+                                                onClick={handleRpgGainContribution}
+                                                className="px-4 py-2 rounded-lg bg-wuxia-gold/10 border border-wuxia-gold/30 text-wuxia-gold text-sm font-serif hover:bg-wuxia-gold/20 transition-colors"
+                                            >
+                                                获取贡献 (+10)
+                                            </button>
+                                            <button
+                                                onClick={handleRpgInvestConstruction}
+                                                className="px-4 py-2 rounded-lg bg-blue-900/20 border border-blue-700/30 text-blue-400 text-sm font-serif hover:bg-blue-900/40 transition-colors"
+                                            >
+                                                投资建设 (-100 资金)
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-2 gap-6">
                                      <div className="bg-black/30 border border-gray-700 p-6 rounded-lg">

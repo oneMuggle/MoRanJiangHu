@@ -1,14 +1,23 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { 功法结构 } from '../../../models/kungfu';
 import { getRarityNameClass, getRarityStyles } from '../../ui/rarityStyles';
 import { IconLock, IconScroll, IconSparkles, IconYinYang } from '../../ui/Icons';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     skills: 功法结构[];
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
-const KungfuModal: React.FC<Props> = ({ skills, onClose }) => {
+const KungfuModal: React.FC<Props> = ({ skills, onClose, rpgMode: rpgModeProp, character }) => {
+    // Default to Zustand rpgMode if not explicitly passed
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const safeSkills = Array.isArray(skills) ? skills : [];
     const [selectedId, setSelectedId] = useState<string | null>(
         safeSkills.length > 0 ? safeSkills[0].ID : null
@@ -24,6 +33,18 @@ const KungfuModal: React.FC<Props> = ({ skills, onClose }) => {
         () => safeSkills.find((s) => s.ID === selectedId) || null,
         [safeSkills, selectedId]
     );
+
+    // RPG mode actions
+    const handleRpgCultivate = useCallback(() => {
+        if (!currentSkill || !rpgMode) return;
+        const gain = Math.floor((currentSkill.升级经验 || 100) / 10);
+        getRpgDispatcher().cultivateKungfu(currentSkill.ID, gain);
+    }, [currentSkill, rpgMode]);
+
+    const handleRpgBreakthrough = useCallback(() => {
+        if (!currentSkill || !rpgMode || !character) return;
+        getRpgDispatcher().breakthroughKungfu(currentSkill.ID, character);
+    }, [currentSkill, rpgMode, character]);
 
     const StatBox: React.FC<{ label: string; value: string | number; sub?: string; icon?: React.ReactNode }> = ({ label, value, sub, icon }) => (
         <div className="bg-gradient-to-br from-black/60 to-black/30 border border-wuxia-gold/10 p-3 rounded-xl flex flex-col items-center justify-center min-w-[90px] shadow-inner hover:border-wuxia-gold/30 transition-colors group">
@@ -243,6 +264,23 @@ const KungfuModal: React.FC<Props> = ({ skills, onClose }) => {
                                             style={{ width: `${Math.min((currentSkill.当前熟练度 / Math.max(currentSkill.升级经验, 1)) * 100, 100)}%` }}
                                         ></div>
                                     </div>
+
+                                    {rpgMode && (
+                                        <div className="flex gap-3 mb-4">
+                                            <button
+                                                onClick={handleRpgCultivate}
+                                                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-wuxia-gold/20 to-black border border-wuxia-gold/30 text-wuxia-gold font-serif tracking-wider hover:bg-wuxia-gold/30 transition-colors shadow-inner"
+                                            >
+                                                修炼 (+{Math.floor((currentSkill.升级经验 || 100) / 10)} 熟练度)
+                                            </button>
+                                            <button
+                                                onClick={handleRpgBreakthrough}
+                                                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-900/30 to-black border border-red-700/40 text-red-400 font-serif tracking-wider hover:bg-red-900/50 transition-colors shadow-inner"
+                                            >
+                                                突破
+                                            </button>
+                                        </div>
+                                    )}
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex bg-black/40 border border-wuxia-gold/10 rounded-xl overflow-hidden shadow-inner">

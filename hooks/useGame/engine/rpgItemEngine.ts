@@ -247,13 +247,22 @@ export class RpgItemEngine extends BaseEngine {
     return {
       engineType: 'rpgItem',
       turnNumber: this._turnNumber,
-      itemCount: Object.keys(this._inventory).length,
+      maxSlots: this._inventory.maxSlots,
+      items: this._inventory.items,
     };
   }
 
   static fromJSON(state: Record<string, unknown>): RpgItemEngine {
-    const engine = new RpgItemEngine();
+    const maxSlots = typeof state.maxSlots === 'number' ? state.maxSlots : 50;
+    const engine = new RpgItemEngine(maxSlots);
     if (typeof state.turnNumber === 'number') engine._turnNumber = state.turnNumber;
+    if (Array.isArray(state.items)) {
+      const invItems = state.items as InventoryItem[];
+      engine._inventory = new InventoryManager(maxSlots);
+      for (const invItem of invItems) {
+        engine._inventory.addItem(invItem.item, invItem.quantity);
+      }
+    }
     return engine;
   }
 

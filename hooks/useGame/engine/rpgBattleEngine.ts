@@ -533,13 +533,56 @@ export class RpgBattleEngine extends BaseEngine {
       battleActive: this.isActive,
       phase: this._stateMachine.phase,
       round: this._stateMachine.round,
-      actorCount: this._actors.length,
+      currentActorIndex: this._stateMachine.currentActorIndex,
+      actors: this._actors,
+      hp: Array.from(this._hp.entries()),
+      maxHp: Array.from(this._maxHp.entries()),
+      cooldowns: Array.from(this._cooldowns.entries()).map(
+        ([k, v]) => [k, Array.from(v.entries())],
+      ),
+      log: this._log,
+      outcome: this._outcome,
     };
   }
 
   static fromJSON(state: Record<string, unknown>): RpgBattleEngine {
     const engine = new RpgBattleEngine();
     if (typeof state.turnNumber === 'number') engine._turnNumber = state.turnNumber;
+
+    if (Array.isArray(state.actors)) {
+      engine._actors = state.actors as BattleActor[];
+    }
+
+    if (Array.isArray(state.hp)) {
+      engine._hp = new Map(state.hp as [string, number][]);
+    }
+
+    if (Array.isArray(state.maxHp)) {
+      engine._maxHp = new Map(state.maxHp as [string, number][]);
+    }
+
+    if (Array.isArray(state.cooldowns)) {
+      engine._cooldowns = new Map(
+        (state.cooldowns as [string, [string, number][]][]).map(
+          ([k, v]) => [k, new Map(v)],
+        ),
+      );
+    }
+
+    if (Array.isArray(state.log)) {
+      engine._log = state.log as BattleLogEntry[];
+    }
+
+    if (state.outcome) {
+      engine._outcome = state.outcome as BattleOutcome;
+    }
+
+    // 恢复状态机状态
+    if (typeof state.phase === 'string' && state.battleActive === true && engine._actors.length >= 2) {
+      engine._stateMachine.start();
+      engine._stateMachine.onInitiativeResolved();
+    }
+
     return engine;
   }
 

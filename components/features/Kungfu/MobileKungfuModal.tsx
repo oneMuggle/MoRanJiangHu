@@ -1,13 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { 功法结构 } from '../../../models/kungfu';
 import { getRarityNameClass, getRarityStyles } from '../../ui/rarityStyles';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     skills: 功法结构[];
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
-const MobileKungfuModal: React.FC<Props> = ({ skills, onClose }) => {
+const MobileKungfuModal: React.FC<Props> = ({ skills, onClose, rpgMode: rpgModeProp, character }) => {
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const safeSkills = Array.isArray(skills) ? skills : [];
     const [selectedId, setSelectedId] = useState<string | null>(safeSkills.length > 0 ? safeSkills[0].ID : null);
 
@@ -21,6 +29,17 @@ const MobileKungfuModal: React.FC<Props> = ({ skills, onClose }) => {
         () => safeSkills.find((s) => s.ID === selectedId) || null,
         [safeSkills, selectedId]
     );
+
+    const handleRpgCultivate = useCallback(() => {
+        if (!current || !rpgMode) return;
+        const gain = Math.floor((current.升级经验 || 100) / 10);
+        getRpgDispatcher().cultivateKungfu(current.ID, gain);
+    }, [current, rpgMode]);
+
+    const handleRpgBreakthrough = useCallback(() => {
+        if (!current || !rpgMode || !character) return;
+        getRpgDispatcher().breakthroughKungfu(current.ID, character);
+    }, [current, rpgMode, character]);
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-3 md:hidden animate-fadeIn">
@@ -115,6 +134,23 @@ const MobileKungfuModal: React.FC<Props> = ({ skills, onClose }) => {
                                     <div className="border border-gray-800 rounded p-2 text-gray-300">大成方向: {current.大成方向 || '暂无'}</div>
                                     <div className="border border-gray-800 rounded p-2 text-gray-300">圆满效果: {current.圆满效果 || '暂无'}</div>
                                 </div>
+
+                                {rpgMode && (
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            onClick={handleRpgCultivate}
+                                            className="flex-1 px-3 py-2 rounded-lg bg-wuxia-gold/10 border border-wuxia-gold/30 text-wuxia-gold text-xs font-serif hover:bg-wuxia-gold/20 transition-colors"
+                                        >
+                                            修炼
+                                        </button>
+                                        <button
+                                            onClick={handleRpgBreakthrough}
+                                            className="flex-1 px-3 py-2 rounded-lg bg-red-900/20 border border-red-700/30 text-red-400 text-xs font-serif hover:bg-red-900/40 transition-colors"
+                                        >
+                                            突破
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {current.附带效果.length > 0 && (

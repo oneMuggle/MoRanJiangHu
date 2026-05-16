@@ -502,14 +502,20 @@ export class RpgSectEngine extends BaseEngine {
     return {
       engineType: 'rpgSect',
       turnNumber: this._turnNumber,
-      hasSect: this._sectData !== null,
-      postCount: this._postAssignments.length,
+      sectData: this._sectData,
+      postAssignments: this._postAssignments,
     };
   }
 
   static fromJSON(state: Record<string, unknown>): RpgSectEngine {
     const engine = new RpgSectEngine();
     if (typeof state.turnNumber === 'number') engine._turnNumber = state.turnNumber;
+    if (state.sectData !== undefined && state.sectData !== null) {
+      engine._sectData = state.sectData as 详细门派结构;
+    }
+    if (Array.isArray(state.postAssignments)) {
+      engine._postAssignments = state.postAssignments as PostAssignment[];
+    }
     return engine;
   }
 

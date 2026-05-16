@@ -397,6 +397,8 @@ UIFeatureRegistry.register({
     propsFactory: ({ state, setters, modalManager }) => ({
       sectData: state.玩家门派,
       currentTime: ((state as any).环境?.时间) || '未知时间',
+      rpgMode: state.rpgMode,
+      character: state.角色,
       onClose: () => {
         (setters as any).setShowSect?.(false);
         modalManager.close('sect');
@@ -422,6 +424,8 @@ UIFeatureRegistry.register({
     propsFactory: ({ state, actions, setters, modalManager }) => ({
       tasks: state.任务列表,
       onDeleteTask: (actions as any).removeTask,
+      rpgMode: state.rpgMode,
+      character: state.角色,
       onClose: () => {
         (setters as any).setShowTask?.(false);
         modalManager.close('task');

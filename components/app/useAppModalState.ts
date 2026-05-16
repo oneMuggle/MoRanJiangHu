@@ -10,6 +10,8 @@
 
 import * as React from 'react';
 import { useModalOpeners, type ModalOpeners } from '../../hooks/useModalOpeners';
+import { useGameStore } from '../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface AppModalState {
     showCharacter: boolean;
@@ -97,10 +99,14 @@ export function useAppModalState({
     const toggleGalgameMode = React.useCallback(() => {
         setGalgameModeEnabled(prev => !prev);
     }, []);
-    const [rpgModeEnabled, setRpgModeEnabled] = React.useState(false);
-    const toggleRpgMode = React.useCallback(() => {
-        setRpgModeEnabled(prev => !prev);
-    }, []);
+
+    // RPG mode backed by Zustand — shared across all consumers
+    const { rpgModeEnabled, toggleRpgMode } = useGameStore(
+        useShallow((s) => ({
+            rpgModeEnabled: s.rpgMode,
+            toggleRpgMode: s.toggleRpgMode,
+        }))
+    );
 
     // --- 弹窗开启器（通过 modalManager 事件系统） ---
     const modalStates = {

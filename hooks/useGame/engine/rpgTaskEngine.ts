@@ -408,14 +408,24 @@ export class RpgTaskEngine extends BaseEngine {
     return {
       engineType: 'rpgTask',
       turnNumber: this._turnNumber,
-      taskCount: this._taskList.length,
-      completedCount: this._completedTasks.length,
+      taskList: this._taskList,
+      completedTasks: this._completedTasks,
+      failedReasons: this._failedReasons,
     };
   }
 
   static fromJSON(state: Record<string, unknown>): RpgTaskEngine {
     const engine = new RpgTaskEngine();
     if (typeof state.turnNumber === 'number') engine._turnNumber = state.turnNumber;
+    if (Array.isArray(state.taskList)) {
+      engine._taskList = state.taskList as 任务结构[];
+    }
+    if (Array.isArray(state.completedTasks)) {
+      engine._completedTasks = state.completedTasks as 任务结构[];
+    }
+    if (state.failedReasons && typeof state.failedReasons === 'object') {
+      engine._failedReasons = state.failedReasons as Record<string, string>;
+    }
     return engine;
   }
 

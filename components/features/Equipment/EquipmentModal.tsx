@@ -1,17 +1,43 @@
-import React, { useState } from 'react';
-import { 角色数据结构, 装备槽位 } from '../../../types';
+import React, { useState, useCallback, useMemo } from 'react';
+import { 角色数据结构 } from '../../../types';
 import { 游戏物品 } from '../../../models/item';
 import { getRarityNameClass, getRarityStyles } from '../../ui/rarityStyles';
 import { 获取图片展示地址 } from '../../../utils/imageAssets';
-import { IconSwords, IconDagger, IconShield, IconArmor, IconBackpack, IconRing, IconBelt, IconHelmet, IconBoot, IconPants, IconGlove, IconHorse, ItemTypeIcon } from '../../ui/Icons';
+import { IconSwords, IconDagger, IconShield, IconArmor, IconBackpack, IconBelt, IconHelmet, IconBoot, IconPants, IconGlove, IconHorse, ItemTypeIcon } from '../../ui/Icons';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import type { EquipSlots } from '../../../hooks/useGame/engine/rpgEquipEngine';
 
 interface Props {
     character: 角色数据结构;
     onClose: () => void;
+    rpgMode?: boolean;
 }
 
-const EquipmentModal: React.FC<Props> = ({ character, onClose }) => {
+/** Map traditional slot key to RPG slot key, or null if unmapped. */
+function toRpgSlot(slotKey: keyof 角色数据结构['装备']): keyof EquipSlots | null {
+    if (slotKey === '主武器' || slotKey === '副武器') return '武器';
+    if (slotKey === '盔甲' || slotKey === '胸部' || slotKey === '内衬') return '防具';
+    if (slotKey === '头部' || slotKey === '腰部' || slotKey === '手部' || slotKey === '足部' || slotKey === '腿部') return '饰品';
+    return null;
+}
+
+/** Map item type to RPG slot key. */
+function toRpgSlotByType(itemType: string): keyof EquipSlots | null {
+    if (itemType === '武器') return '武器';
+    if (itemType === '防具') return '防具';
+    if (itemType === '饰品') return '饰品';
+    return null;
+}
+
+const EquipmentModal: React.FC<Props> = ({ character, onClose, rpgMode: rpgModeProp }) => {
+    // Default to Zustand rpgMode if not explicitly passed
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
+
     const [selectedItem, setSelectedItem] = useState<游戏物品 | null>(null);
+    const [selectingSlot, setSelectingSlot] = useState<{ key: keyof 角色数据结构['装备'], label: string, rpgSlot: keyof EquipSlots | null } | null>(null);
     const playerImageHistory = Array.isArray(character?.图片档案?.生图历史) ? character.图片档案!.生图历史 : [];
     const selectedPortraitId = typeof character?.图片档案?.已选立绘图片ID === 'string'
         ? character.图片档案.已选立绘图片ID.trim()
@@ -20,10 +46,39 @@ const EquipmentModal: React.FC<Props> = ({ character, onClose }) => {
         || (character?.图片档案?.最近生图结果?.id === selectedPortraitId ? character.图片档案.最近生图结果 : null);
     const 主角披挂像地址 = 获取图片展示地址(selectedPortrait);
 
+    const rpgEquipState = useGameStore(
+        useShallow((s) => ({
+            weapon: s.rpgEquipWeapon,
+            armor: s.rpgEquipArmor,
+            accessory: s.rpgEquipAccessory,
+        }))
+    );
+
     const getItem = (idOrName: string): 游戏物品 | null => {
         if (!idOrName || idOrName === '无') return null;
         return character.物品列表.find(i => i.ID === idOrName || i.名称 === idOrName) || null;
     };
+
+    const getRpgEquippedItem = useCallback((rpgSlot: keyof EquipSlots): 游戏物品 | null => {
+        const equippedId = rpgSlot === '武器' ? rpgEquipState.weapon : rpgSlot === '防具' ? rpgEquipState.armor : rpgEquipState.accessory;
+        if (!equippedId) return null;
+        return character.物品列表.find(i => i.ID === equippedId) ?? null;
+    }, [character.物品列表, rpgEquipState]);
+
+    const handleRpgUnequip = useCallback((rpgSlot: keyof EquipSlots) => {
+        const result = getRpgDispatcher().unequipItem(rpgSlot);
+        if (result) setSelectedItem(null);
+    }, []);
+
+    const handleRpgEquip = useCallback((rpgSlot: keyof EquipSlots, item: 游戏物品) => {
+        const result = getRpgDispatcher().equipItem(rpgSlot, item);
+        if (result) {
+            setSelectingSlot(null);
+            setSelectedItem(null);
+        }
+    }, []);
+
+    const inventory = useMemo(() => character.物品列表 ?? [], [character.物品列表]);
 
 
     // 经典 RPG 对称布局
@@ -50,17 +105,36 @@ const EquipmentModal: React.FC<Props> = ({ character, onClose }) => {
     ];
 
     const renderSlot = (slot: { key: keyof typeof character.装备, label: string, icon: React.ReactNode }) => {
-        const itemRef = character.装备[slot.key];
-        const item = getItem(itemRef);
+        const rpgSlot = toRpgSlot(slot.key);
+        const traditionalItem = getItem(character.装备[slot.key]);
+        const rpgItem = rpgMode && rpgSlot ? getRpgEquippedItem(rpgSlot) : null;
+        const item = rpgMode ? rpgItem : traditionalItem;
         const qualityClass = item
             ? `${getRarityStyles(item.品质).border} ${getRarityStyles(item.品质).text} ${getRarityStyles(item.品质).bg} shadow-inner bg-opacity-10 border-opacity-50 hover:bg-opacity-20`
             : 'border-wuxia-gold/10 text-gray-600 border-dashed bg-black/30 hover:bg-black/50 hover:border-wuxia-gold/30';
 
+        const handleClick = () => {
+            if (!rpgMode) {
+                // Traditional: view-only
+                item && setSelectedItem(item);
+                return;
+            }
+            // RPG mode
+            if (item) {
+                // Equipped → unequip
+                if (rpgSlot) handleRpgUnequip(rpgSlot);
+                else setSelectedItem(item);
+            } else if (rpgSlot) {
+                // Empty + mapped → open inventory picker
+                setSelectingSlot({ key: slot.key, label: slot.label, rpgSlot });
+            }
+        };
+
         return (
-            <div 
-                key={slot.key} 
-                onClick={() => item && setSelectedItem(item)}
-                className={`flex items-center gap-2 p-2 md:gap-3 md:p-2.5 rounded-xl md:rounded-2xl border transition-all h-[62px] md:h-[82px] relative group overflow-hidden ${qualityClass} ${item ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+            <div
+                key={slot.key}
+                onClick={handleClick}
+                className={`flex items-center gap-2 p-2 md:gap-3 md:p-2.5 rounded-xl md:rounded-2xl border transition-all h-[62px] md:h-[82px] relative group overflow-hidden ${qualityClass} ${item ? 'cursor-pointer hover:scale-[1.02]' : (rpgMode && rpgSlot ? 'cursor-pointer' : '')}`}
             >
                 {item && <div className="absolute right-0 top-0 bottom-0 w-1 bg-current opacity-50 shadow-[0_0_10px_currentColor]"></div>}
                 
@@ -362,6 +436,50 @@ const EquipmentModal: React.FC<Props> = ({ character, onClose }) => {
                             </div>
                         </div>
                     )}
+
+                    {/* RPG Inventory Picker Overlay */}
+                    {rpgMode && selectingSlot && selectingSlot.rpgSlot && (() => {
+                        const config = selectingSlot;
+                        const candidates = inventory.filter((item) => {
+                            const itemRpgSlot = toRpgSlotByType(item.类型);
+                            return itemRpgSlot === selectingSlot.rpgSlot;
+                        });
+                        return (
+                            <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-sm flex flex-col animate-slideInRight">
+                                <div className="shrink-0 h-14 flex items-center justify-between px-6 border-b border-wuxia-gold/10">
+                                    <div className="text-wuxia-gold font-serif font-bold text-lg tracking-wider">
+                                        ── 选择{config.label} ──
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectingSlot(null)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-black/60 border border-gray-700 text-gray-400 hover:text-wuxia-red"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-6">
+                                    {candidates.length > 0 ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                            {candidates.map((item) => (
+                                                <button
+                                                    key={item.ID}
+                                                    className={`px-3 py-3 rounded-xl border text-left transition-all hover:scale-[1.02] ${getRarityStyles(item.品质).border} ${getRarityStyles(item.品质).bg} bg-opacity-10`}
+                                                    onClick={() => handleRpgEquip(selectingSlot.rpgSlot!, item)}
+                                                >
+                                                    <div className={`text-sm font-bold truncate ${getRarityStyles(item.品质).text}`}>{item.名称}</div>
+                                                    <div className="text-[10px] text-gray-500">{item.类型} · {item.品质} · 耐久 {item.当前耐久}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center text-gray-600 text-sm py-12 italic">暂无可装备的{config.label}类物品</div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
         </div>

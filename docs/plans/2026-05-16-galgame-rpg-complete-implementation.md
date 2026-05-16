@@ -26,6 +26,20 @@
 - [ ] Phase D3: 测试完善
 - [x] Phase D4: 数据迁移（saveCoordinator.ts + saveLoadWorkflow.ts 集成 galgame 序列化/反序列化）
 
+## Phase 2: RPG 引擎注入传统面板（融合增强）
+
+- [x] Phase 2.0: Zustand 扩展 — RpgSlice 添加 `rpgMode: boolean` + `toggleRpgMode()` 方法
+- [x] Phase 2.0b: `useAppModalState.ts` — rpgModeEnabled/toggleRpgMode 从 Zustand 读取
+- [x] Phase 2.1: EquipmentModal RPG 引擎注入 — 12 槽位映射到 3 RPG 槽位，点击装备/卸下走引擎
+- [x] Phase 2.2: KungfuModal RPG 引擎注入 — 修炼/突破按钮调用 dispatcher
+- [x] Phase 2.3: TaskModal RPG 引擎注入 — 提交/放弃按钮调用 dispatcher
+- [x] Phase 2.4: SectModal RPG 引擎注入 — 获取贡献/投资建设按钮调用 dispatcher
+- [x] Phase 2.5: 所有 modal 默认从 Zustand 读取 rpgMode，可选 props 传入覆盖
+- [x] Phase 2.6: MobileEquipmentModal RPG 引擎注入 — 槽位映射+装备/卸下走引擎
+- [x] Phase 2.7: MobileKungfuModal RPG 引擎注入 — 修炼/突破按钮调用 dispatcher
+- [x] Phase 2.8: MobileTask RPG 引擎注入 — 提交/放弃按钮调用 dispatcher + propsFactory 更新
+- [x] Phase 2.9: MobileSect RPG 引擎注入 — 获取贡献/投资建设按钮调用 dispatcher + propsFactory 更新
+
 ## 一、现状评估
 
 ### Galgame 模块

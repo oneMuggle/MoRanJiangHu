@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 任务结构, 任务类型 } from '../../../models/task';
 import { IconBackpack, IconTarget, IconCoins, IconScroll } from '../../ui/Icons';
+import { useGameStore } from '../../../hooks/useGame/subsystems/zustandStore';
+import { useShallow } from 'zustand/react/shallow';
+import { getRpgDispatcher } from '../../../hooks/useRpgStateBridge';
+import { 角色数据结构 } from '../../../models/character';
 
 interface Props {
     tasks: 任务结构[];
     onDeleteTask?: (taskIndex: number) => void;
     onClose: () => void;
+    rpgMode?: boolean;
+    character?: 角色数据结构 | null;
 }
 
-const TaskModal: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
+const TaskModal: React.FC<Props> = ({ tasks, onDeleteTask, onClose, rpgMode: rpgModeProp, character }) => {
+    const zustandRpgMode = useGameStore(useShallow((s) => s.rpgMode));
+    const rpgMode = rpgModeProp ?? zustandRpgMode;
     const [filter, setFilter] = useState<任务类型 | '全部'>('全部');
     const [selectedIdx, setSelectedIdx] = useState<number>(0);
     const safeTasks = Array.isArray(tasks) ? tasks : [];
@@ -22,6 +30,16 @@ const TaskModal: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
     const currentTaskOriginalIndex = currentTaskEntry?.originalIndex ?? -1;
     const currentObjectives = Array.isArray(currentTask?.目标列表) ? currentTask.目标列表 : [];
     const currentRewards = Array.isArray(currentTask?.奖励描述) ? currentTask.奖励描述 : [];
+
+    const handleRpgSubmitTask = useCallback(() => {
+        if (!currentTask || !rpgMode || !character) return;
+        getRpgDispatcher().submitTask(currentTask.标题, character);
+    }, [currentTask, rpgMode, character]);
+
+    const handleRpgFailTask = useCallback(() => {
+        if (!currentTask || !rpgMode) return;
+        getRpgDispatcher().failTask(currentTask.标题, '玩家主动放弃');
+    }, [currentTask, rpgMode]);
 
     const getStatusTheme = (status: string) => {
         switch(status) {
@@ -291,6 +309,24 @@ const TaskModal: React.FC<Props> = ({ tasks, onDeleteTask, onClose }) => {
                                         )}
                                     </div>
                                 </div>
+
+                                {/* RPG Actions */}
+                                {rpgMode && currentTask && (
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={handleRpgSubmitTask}
+                                            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-wuxia-gold/20 to-black border border-wuxia-gold/30 text-wuxia-gold font-serif tracking-wider hover:bg-wuxia-gold/30 transition-colors"
+                                        >
+                                            提交任务
+                                        </button>
+                                        <button
+                                            onClick={handleRpgFailTask}
+                                            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-900/20 to-black border border-red-700/30 text-red-400 font-serif tracking-wider hover:bg-red-900/40 transition-colors"
+                                        >
+                                            放弃任务
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* 截止日期印章 */}
                                 {currentTask.截止时间 && (

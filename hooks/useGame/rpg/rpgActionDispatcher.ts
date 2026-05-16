@@ -15,6 +15,7 @@ import type { ActionResult } from '../engine/types';
 import type { 游戏物品 } from '../../../models/item';
 import type { 任务结构 } from '../../../models/task';
 import type { 角色数据结构 } from '../../../models/character';
+import type { 功法结构 } from '../../../models/kungfu';
 
 export interface RpgActionDispatcher {
   // ==================== Battle ====================
@@ -33,24 +34,34 @@ export interface RpgActionDispatcher {
   equipItem: (slot: keyof EquipSlots, item: 游戏物品) => ActionResult | null;
   unequipItem: (slot: keyof EquipSlots) => ActionResult | null;
 
-  // ==================== Item ====================
-  setItemEngine: (engine: RpgItemEngine) => void;
-  useItem: (itemId: string, character: 角色数据结构, quantity?: number) => ActionResult | null;
-
   // ==================== Kungfu ====================
   setKungfuEngine: (engine: RpgKungfuEngine) => void;
+  learnKungfu: (kungfu: 功法结构) => ActionResult | null;
   cultivateKungfu: (kungfuId: string, proficiencyGain: number) => ActionResult | null;
   cultivateKungfuBatch: (kungfuId: string, totalProficiencyGain: number) => ActionResult | null;
+  breakthroughKungfu: (kungfuId: string, character: 角色数据结构) => ActionResult | null;
 
   // ==================== Task ====================
   setTaskEngine: (engine: RpgTaskEngine) => void;
   acceptTask: (task: 任务结构, playerRealm: string) => ActionResult | null;
   updateTaskProgress: (taskTitle: string, objectiveIndex: number) => ActionResult | null;
   submitTask: (taskTitle: string, character: 角色数据结构) => ActionResult | null;
+  failTask: (taskTitle: string, reason?: string) => ActionResult | null;
 
   // ==================== Sect ====================
   setSectEngine: (engine: RpgSectEngine) => void;
+  gainContribution: (amount: number) => ActionResult | null;
   useContribution: (amount: number) => ActionResult | null;
+  investConstruction: (funds: number) => ActionResult | null;
+  refreshTasks: (missionCountPerType?: number) => ActionResult | null;
+  dispatchMember: (memberId: string, postId: string) => ActionResult | null;
+  recallMember: (memberId: string) => ActionResult | null;
+
+  // ==================== Item ====================
+  setItemEngine: (engine: RpgItemEngine) => void;
+  addItem: (item: 游戏物品, quantity?: number) => ActionResult | null;
+  removeItem: (itemId: string, quantity?: number) => ActionResult | null;
+  useItem: (itemId: string, character: 角色数据结构, quantity?: number) => ActionResult | null;
 }
 
 export function createRpgActionDispatcher(): RpgActionDispatcher {
@@ -117,21 +128,31 @@ export function createRpgActionDispatcher(): RpgActionDispatcher {
 
     // Item
     setItemEngine: (engine) => { itemEngine = engine; },
+    addItem: (item, quantity = 1) => requireItem().addItem(item, quantity),
+    removeItem: (itemId, quantity = 1) => requireItem().removeItem(itemId, quantity),
     useItem: (itemId, character, quantity = 1) => requireItem().useItem(itemId, character, quantity),
 
     // Kungfu
     setKungfuEngine: (engine) => { kungfuEngine = engine; },
+    learnKungfu: (kungfu) => requireKungfu().learnKungfu(kungfu),
     cultivateKungfu: (kungfuId, proficiencyGain) => requireKungfu().cultivateKungfu(kungfuId, proficiencyGain),
     cultivateKungfuBatch: (kungfuId, totalProficiencyGain) => requireKungfu().cultivateKungfuBatch(kungfuId, totalProficiencyGain),
+    breakthroughKungfu: (kungfuId, character) => requireKungfu().breakthroughKungfu(kungfuId, character),
 
     // Task
     setTaskEngine: (engine) => { taskEngine = engine; },
     acceptTask: (task, playerRealm) => requireTask().acceptTask(task, playerRealm),
     updateTaskProgress: (taskTitle, objectiveIndex) => requireTask().updateTaskProgress(taskTitle, objectiveIndex),
     submitTask: (taskTitle, character) => requireTask().submitTask(taskTitle, character),
+    failTask: (taskTitle, reason) => requireTask().failTask(taskTitle, reason),
 
     // Sect
     setSectEngine: (engine) => { sectEngine = engine; },
+    gainContribution: (amount) => requireSect().gainContribution(amount),
     useContribution: (amount) => requireSect().useContribution(amount),
+    investConstruction: (funds) => requireSect().investInConstruction(funds),
+    refreshTasks: (missionCountPerType = 2) => requireSect().refreshTasks(missionCountPerType),
+    dispatchMember: (memberId, postId) => requireSect().dispatchMember(memberId, postId),
+    recallMember: (memberId) => requireSect().recallMember(memberId),
   };
 }

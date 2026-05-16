@@ -773,6 +773,7 @@ const createActionLogSlice: ZustandSlice<ActionLogSlice> = (set) => ({
 // ==================== RPG Slice (Zustand) ====================
 
 interface RpgSliceState {
+  rpgMode: boolean;
   rpgBattleActive: boolean;
   rpgBattlePhase: BattlePhase | null;
   rpgBattleRound: number;
@@ -796,6 +797,7 @@ interface RpgSliceState {
 interface RpgSliceActions {
   setRpgState: (partial: Partial<RpgSliceState>) => void;
   resetRpgState: () => void;
+  toggleRpgMode: () => void;
   setRpgEquipSlot: (slot: 'weapon' | 'armor' | 'accessory', item: { ID: string } | null) => void;
   toggleKungfu: (kungfuId: string) => void;
   toggleTask: (taskId: string) => void;
@@ -806,6 +808,7 @@ interface RpgSliceActions {
 interface RpgSlice extends RpgSliceState, RpgSliceActions {}
 
 const createRpgSlice: ZustandSlice<RpgSlice> = (set) => ({
+  rpgMode: false,
   rpgBattleActive: false,
   rpgBattlePhase: null,
   rpgBattleRound: 0,
@@ -821,7 +824,9 @@ const createRpgSlice: ZustandSlice<RpgSlice> = (set) => ({
   rpgSectId: null,
   rpgSectContribution: 0,
   setRpgState: (partial) => set((state) => ({ ...state, ...partial })),
+  toggleRpgMode: () => set((state) => ({ rpgMode: !state.rpgMode })),
   resetRpgState: () => set({
+    rpgMode: false,
     rpgBattleActive: false,
     rpgBattlePhase: null,
     rpgBattleRound: 0,
