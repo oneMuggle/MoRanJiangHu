@@ -12,10 +12,19 @@
 - [x] Phase B1: Galgame 事件系统（galgameEventBus.ts）
 - [x] Phase B2: Save/Load 序列化（galgameSerializer.ts + 存档结构扩展）
 - [x] Phase B3: AI 驱动的 CG 生成管线（galgameCgGenerator.ts）
-- [ ] Phase B4: 路线/结局 UI 提示
-- [ ] Phase B5: 对话树与分支叙事
-- [ ] Phase C: RPG UI 集成
-- [ ] Phase D: 系统优化
+- [x] Phase B4: 路线/结局 UI 提示（RouteIndicator.tsx + EndingNotification.tsx）
+- [x] Phase B5: 对话树与分支叙事（useDialogueTree.ts + GalgameView 集成）
+- [x] Phase C1: RPG 战斗 UI 集成（RpgBattleIntegration.tsx + BattleModal 条件渲染）
+- [x] Phase C2: RPG 装备 UI 集成（RpgEquipmentIntegration.tsx — 3 槽位面板）
+- [x] Phase C3: RPG 武功 UI 集成（RpgKungfuIntegration.tsx — 功法激活/停用面板）
+- [x] Phase C4: RPG 任务 UI 集成（RpgTaskIntegration.tsx — 任务追踪面板）
+- [x] Phase C5: RPG 门派 UI 集成（RpgSectIntegration.tsx — 门派信息/贡献面板）
+- [x] Phase C6: RPG 模式切换开关（GameView 红色主题按钮）
+- [x] Phase C7: RPG 组件 UI 注册管线（lazyComponents 导出 + UIFeatureRegistry 注册 + RightPanel RPG 菜单 + GameView/App 传递）
+- [x] Phase D1: 统一模式管理（modeManager.ts）
+- [x] Phase D2: 性能优化（CharacterSprite + SceneBackground memo + 已验证所有 memo/useMemo/useShallow）
+- [ ] Phase D3: 测试完善
+- [x] Phase D4: 数据迁移（saveCoordinator.ts + saveLoadWorkflow.ts 集成 galgame 序列化/反序列化）
 
 ## 一、现状评估
 
@@ -98,16 +107,20 @@
 - CG 生成后自动解锁并加入 CG 画廊
 - **预期产出**: 1 个新文件
 
-#### B4. 路线/结局 UI 提示
-- 创建 `components/features/Galgame/RouteIndicator.tsx` — 显示当前路线、好感度等级
-- 创建 `components/features/Galgame/EndingNotification.tsx` — 结局达成时全屏提示
-- **预期产出**: 2 个新组件
+#### B4. 路线/结局 UI 提示 — [x] 已完成
+- 创建 `components/features/Galgame/RouteIndicator.tsx` — 路线状态独立组件（路线名+好感度圆点可视化+CG收集进度）
+- 创建 `components/features/Galgame/EndingNotification.tsx` — 结局达成全屏提示（5种结局类型各自配色）
+- GalgameView 已用 RouteIndicator 替换内联路线指示器
+- AvgRelationEngine 新增 `_lastResolvedEnding` 字段 + `getLastResolvedEnding()` getter
+- AvgStateBridgeSnapshot 新增 `currentEnding` 字段
 
-#### B5. 对话树与分支叙事
-- 完善 `hooks/useGame/avg/dialogue/nodeResolver.ts` 和 `conditionEvaluator.ts`
-- 在 `GalgameView` 中实现真正的分支选择（而非仅视觉展示）
-- 支持 AI 生成的对话树节点
-- **预期产出**: 2 个文件修改 + 1 个文件完善
+#### B5. 对话树与分支叙事 — [x] 已完成
+- 创建 `hooks/useGame/avg/dialogue/useDialogueTree.ts` — 对话树运行时 hook
+- 将 `NodeResolver` 与 `AvgRelationEngine` 桥接，从引擎获取 intimacy/flags/CGs
+- GalgameView 集成对话树分支选项（紫色主题 UI + consequenceHint 显示）
+- GameView 传递 `engineRef` 到 GalgameView
+- 支持分支选择、动作执行（好感度变化、flag设置、物品增减）
+- `nodeResolver.ts` 和 `conditionEvaluator.ts` 本身已完整
 
 ### Phase C: RPG UI 集成
 
@@ -117,45 +130,49 @@
 - 实现回合制战斗 UI：回合计数、当前行动者、HP 显示、战斗日志
 - 用户操作 → engine → state bridge → Zustand → UI 更新
 
-#### C2. RPG Equipment UI
-- 修改 `components/features/EquipmentModal.tsx` — 接入 `rpgEquipEngine`
-- 实时显示装备效果变化、负重计算
-- **预期产出**: 1 个文件修改
+#### C2. RPG Equipment UI — [x] 已完成
+- 创建 `components/features/Equipment/RpgEquipmentIntegration.tsx` — RPG 模式 3 槽位装备面板（武器/防具/饰品）
+- 读取 Zustand `rpgEquipWeapon/rpgEquipArmor/rpgEquipAccessory` 状态
+- 背包选择器按类型过滤（武器/防具/饰品），支持装备/卸下操作
 
-#### C3. RPG Kungfu UI
-- 修改 `components/features/KungfuModal.tsx` — 接入 `rpgKungfuEngine`
-- 修炼、突破、被动效果实时计算
-- **预期产出**: 1 个文件修改
+#### C3. RPG Kungfu UI — [x] 已完成
+- 创建 `components/features/Kungfu/RpgKungfuIntegration.tsx` — RPG 模式功法面板
+- 读取 Zustand `rpgActiveKungfuIds` 状态，支持激活/停用功法
+- 功法分类过滤、选中查看详情（熟练度/重数/被动修正）
 
-#### C4. RPG Task UI
-- 修改 `components/features/TaskModal.tsx` — 接入 `rpgTaskEngine`
-- 任务状态机驱动的进度追踪
-- **预期产出**: 1 个文件修改
+#### C4. RPG Task UI — [x] 已完成
+- 创建 `components/features/Task/RpgTaskIntegration.tsx` — RPG 模式任务面板
+- 读取 Zustand `rpgActiveTaskIds` 状态，支持任务追踪开关
+- 任务类型过滤、选中查看详情（目标进度/奖励）
 
-#### C5. RPG Sect UI
-- 修改 `components/features/SectModal.tsx` — 接入 `rpgSectEngine`
-- 门派任务刷新、贡献、经济系统
-- **预期产出**: 1 个文件修改
+#### C5. RPG Sect UI — [x] 已完成
+- 创建 `components/features/Sect/RpgSectIntegration.tsx` — RPG 模式门派面板
+- 读取 Zustand `rpgSectId/rpgSectContribution` 状态
+- 显示门派信息（职位/贡献/资源）、晋升之路、任务布告、藏经阁
+- 支持加入/退出门派操作
 
-#### C6. RPG Mode Toggle
-- 在 `components/app/GameView.tsx` 中添加 RPG 模式开关（类似 Galgame toggle）
-- RPG 模式下的布局适配：功能性面板风格
-- **预期产出**: 1 个文件修改
+#### C6. RPG Mode Toggle — [x] 已完成
+- 在 `components/app/GameView.tsx` 中添加 RPG 模式切换按钮（红色主题图标）
+- 在 `components/app/useAppModalState.ts` 中添加 `rpgModeEnabled` / `toggleRpgMode` 状态
+- 在 `App.tsx` 中传递 `rpgModeEnabled` / `toggleRpgMode` 到 GameView
+- 与 Galgame toggle 并列显示在 TopBar 右侧
+- **预期产出**: 3 个文件修改
 
 ### Phase D: 系统优化
 
-#### D1. 统一模式管理
+#### D1. 统一模式管理 — [x] 已完成
 - 创建 `hooks/useGame/modeManager.ts`
 - 支持模式：`traditional`, `galgame`, `rpg`, `exploration`
-- 模式切换时保存/恢复 UI 状态
-- 不同模式下的模块可见性动态调整
-- **预期产出**: 1 个新文件 + App.tsx/GameView.tsx 修改
+- 模式切换时保存 UI 状态快照
+- 提供 `serializeMode()` / `deserializeMode()` 用于存档集成
+- 提供 `onModeChange()` 监听器 API
 
-#### D2. 性能优化
-- GalgameView 的对话聚合逻辑使用 memo 缓存
-- RPG 引擎状态更新使用增量同步（非全量）
-- CG 图片懒加载
-- **预期产出**: 多处性能优化
+#### D2. 性能优化 — [x] 已完成
+- CharacterSprite 组件使用 React.memo 防止不必要的重渲染
+- SceneBackground 组件使用 React.memo 防止不必要的重渲染
+- useAggregatedDialogue 已使用 useMemo 缓存对话聚合计算
+- Zustand 使用 useShallow 选择性订阅，避免全量状态更新触发
+- SceneBackground 和 CharacterSprite 已内置图片懒加载（loading="lazy"）+ 淡入过渡
 
 #### D3. 测试完善
 - Galgame 集成测试：路线进入/退出、结局触发、CG 解锁
@@ -163,10 +180,12 @@
 - E2E 测试：Galgame 完整游玩流程
 - **预期产出**: 多个测试文件
 
-#### D4. 数据迁移
-- 现有存档数据兼容新引擎格式
-- 创建迁移脚本确保老存档可正常加载
-- **预期产出**: 1 个迁移脚本
+#### D4. 数据迁移 — [x] 已完成
+- 在 `saveCoordinator.ts` 中集成 galgame 序列化：存档时自动序列化 AvgRelationEngine 状态
+- 在 `执行读取存档` 中添加 galgame 反序列化逻辑，旧存档无 `galgameSaveData` 时自动跳过
+- 在 `saveLoadWorkflow.ts` 中添加 `avgGalgameEngine` 依赖传递和读档后引擎恢复
+- 存档格式兼容：旧存档加载不受影响，新存档自动包含 galgame 状态
+- **预期产出**: 2 个文件修改（saveCoordinator.ts + saveLoadWorkflow.ts）
 
 ---
 

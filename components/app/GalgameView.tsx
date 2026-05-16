@@ -11,8 +11,13 @@ import { CharacterSprite } from '../features/Galgame/CharacterSprite';
 import { GalgameDialogueBox } from '../features/Galgame/GalgameDialogueBox';
 import type { DialogueOption } from '../features/Galgame/GalgameDialogueBox';
 import { DialogueBacklog } from '../features/Galgame/DialogueBacklog';
+import { EndingNotification } from '../features/Galgame/EndingNotification';
+import { RouteIndicator } from '../features/Galgame/RouteIndicator';
 import { useAggregatedDialogue } from '../../hooks/useGame/ui/useAggregatedDialogue';
+import { useDialogueTree } from '../../hooks/useGame/avg/dialogue/useDialogueTree';
 import type { AvgStateBridgeSnapshot } from '../../hooks/useAvgStateBridge';
+import type { EndingJudgment } from '../../models/avg/galgame';
+import type { AvgRelationEngine } from '../../hooks/useGame/engine/avgRelationEngine';
 
 interface GalgameViewProps {
   /** 聊天历史记录 */
@@ -43,6 +48,8 @@ interface GalgameViewProps {
   onEnterRoute?: (routeId: string, npcId: string) => boolean;
   /** 引擎建议的路线选项 */
   engineSuggestedOptions?: Array<{ id: string; text: string; npcId: string }>;
+  /** 引擎 ref（对话树集成用） */
+  engineRef?: React.RefObject<AvgRelationEngine | null>;
 }
 
 export const GalgameView: React.FC<GalgameViewProps> = ({
@@ -58,10 +65,14 @@ export const GalgameView: React.FC<GalgameViewProps> = ({
   avgSnapshot,
   onEnterRoute,
   engineSuggestedOptions,
+  engineRef,
 }) => {
   const [showBacklog, setShowBacklog] = useState(false);
   // 段进度计数器：当前显示到第几段（0 = 最新段，递增向前翻阅）
   const [segmentIndex, setSegmentIndex] = useState(0);
+
+  // 对话树集成（当引擎可用时）
+  const dialogueTree = useDialogueTree({ engineRef: engineRef as React.RefObject<AvgRelationEngine | null> });
 
   const {
     allEntries,
@@ -132,6 +143,28 @@ export const GalgameView: React.FC<GalgameViewProps> = ({
     })),
     [engineSuggestedOptions],
   );
+
+  // 对话树分支选项
+  const branchOptions: DialogueOption[] = useMemo(
+    () => dialogueTree.availableChoices.map((c) => ({
+      id: `branch-${c.id}`,
+      text: c.text,
+      consequence: c.consequenceHint,
+    })),
+    [dialogueTree.availableChoices],
+  );
+
+  // 结局通知状态
+  const [dismissedEnding, setDismissedEnding] = useState<string | null>(null);
+  const currentEndingNotification = useMemo((): EndingJudgment | null => {
+    if (!avgSnapshot?.currentEnding) return null;
+    if (!avgSnapshot.currentEnding.resolved) return null;
+    const ending = avgSnapshot.currentEnding.ending;
+    if (!ending) return null;
+    // 已Dismiss过的结局不再显示
+    if (dismissedEnding === ending.id) return null;
+    return avgSnapshot.currentEnding;
+  }, [avgSnapshot?.currentEnding, dismissedEnding]);
 
   // 空状态
   const isEmpty = allEntries.length === 0;
@@ -208,16 +241,13 @@ export const GalgameView: React.FC<GalgameViewProps> = ({
         />
       ))}
 
-      {/* 路线状态指示器（引擎接入后显示） */}
+      {/* 路线状态指示器 */}
       {avgSnapshot?.activeRouteName && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30">
-          <div className="px-4 py-1.5 bg-gray-900/80 backdrop-blur-sm border border-wuxia-gold/30 rounded-full">
-            <span className="text-xs text-wuxia-gold/80">路线: {avgSnapshot.activeRouteName}</span>
-            {avgSnapshot.intimacyLabel && (
-              <span className="text-xs text-wuxia-gold/50 ml-2">· {avgSnapshot.intimacyLabel}</span>
-            )}
-          </div>
-        </div>
+        <RouteIndicator
+          snapshot={avgSnapshot}
+          unlockedCgsCount={avgSnapshot.unlockedCGs?.length ?? 0}
+          totalCgs={engineRef?.current?.getAllCGs().length ?? 0}
+        />
       )}
 
       {/* 对话区域 */}
@@ -243,6 +273,35 @@ export const GalgameView: React.FC<GalgameViewProps> = ({
                     <span className="w-1.5 h-1.5 rounded-full bg-pink-400/40 group-hover:bg-pink-400/70" />
                   </span>
                   <span className="text-sm text-pink-300/90 group-hover:text-pink-200">{option.text}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 对话树分支选项 */}
+          {branchOptions.length > 0 && !loading && segmentIndex === 0 && (
+            <div className="mb-2 space-y-1.5">
+              <div className="text-[10px] text-purple-300/50 font-serif tracking-wider mb-1 px-1">
+                ── 分支 ──
+              </div>
+              {branchOptions.map((option) => (
+                <button
+                  key={option.id}
+                  className="w-full text-left bg-gray-900/90 border border-purple-500/30 hover:border-purple-400/60 rounded px-3 py-2 transition-colors group flex items-center gap-2"
+                  onClick={() => {
+                    // 执行对话树选择
+                    const branchId = option.id.replace('branch-', '');
+                    dialogueTree.selectChoice(branchId);
+                    onOptionSelect(option.id);
+                  }}
+                >
+                  <span className="w-4 h-4 rounded-full border border-purple-500/30 flex items-center justify-center shrink-0 group-hover:border-purple-400/60 group-hover:bg-purple-500/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400/40 group-hover:bg-purple-400/70" />
+                  </span>
+                  <span className="text-sm text-purple-300/90 group-hover:text-purple-200">{option.text}</span>
+                  {option.consequence && (
+                    <span className="ml-auto text-[10px] text-gray-500 truncate max-w-[8rem]">{option.consequence}</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -382,6 +441,17 @@ export const GalgameView: React.FC<GalgameViewProps> = ({
         entries={allEntries}
         isOpen={showBacklog}
         onClose={() => setShowBacklog(false)}
+      />
+
+      {/* 结局通知 */}
+      <EndingNotification
+        ending={currentEndingNotification}
+        routeName={avgSnapshot?.activeRouteName ?? undefined}
+        onDismiss={() => {
+          if (avgSnapshot?.currentEnding?.ending) {
+            setDismissedEnding(avgSnapshot.currentEnding.ending.id);
+          }
+        }}
       />
     </div>
   );

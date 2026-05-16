@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import type { AvgRelationEngine } from './useGame/engine/avgRelationEngine';
-import type { GalgameRoute, GalgameCG } from '../models/avg/galgame';
+import type { GalgameRoute, GalgameCG, EndingJudgment } from '../models/avg/galgame';
 import type { NpcRelationSummary, IntimacyLevel } from '../models/avg/relationGraph';
 import { useGameStore } from './useGame/subsystems/zustandStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -22,6 +22,7 @@ export interface AvgStateBridgeSnapshot {
   intimacyLevel: IntimacyLevel | null;
   intimacyLabel: string | null;
   suggestedRouteId: string | null;
+  currentEnding: EndingJudgment | null;
 }
 
 export interface UseAvgStateBridgeReturn {
@@ -85,6 +86,8 @@ export function useAvgStateBridge(): UseAvgStateBridgeReturn {
       if (suggested) suggestedRouteId = suggested.id;
     }
 
+    const currentEnding = engine.getLastResolvedEnding();
+
     return {
       galgameState,
       activeRoute,
@@ -95,6 +98,7 @@ export function useAvgStateBridge(): UseAvgStateBridgeReturn {
       intimacyLevel,
       intimacyLabel,
       suggestedRouteId,
+      currentEnding,
     };
   }, []);
 

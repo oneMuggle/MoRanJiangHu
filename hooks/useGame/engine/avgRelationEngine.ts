@@ -50,6 +50,7 @@ export class AvgRelationEngine extends BaseEngine {
   private _cgManager: CGManager;
   private _galgameState: GalgameState;
   private _turnNumber = 0;
+  private _lastResolvedEnding: EndingJudgment | null = null;
 
   constructor(
     graphData?: RelationGraphData,
@@ -210,14 +211,27 @@ export class AvgRelationEngine extends BaseEngine {
   resolveEnding(routeId?: string): EndingJudgment {
     const resolvedRouteId = routeId ?? this._galgameState.activeRouteId;
     if (!resolvedRouteId) {
-      return { resolved: false, ending: null, reason: '没有激活的路线' };
+      const result = { resolved: false, ending: null, reason: '没有激活的路线' };
+      this._lastResolvedEnding = result;
+      return result;
     }
 
     const route = this._routeResolver.getRoute(resolvedRouteId);
-    if (!route) return { resolved: false, ending: null, reason: '路线不存在' };
+    if (!route) {
+      const result = { resolved: false, ending: null, reason: '路线不存在' };
+      this._lastResolvedEnding = result;
+      return result;
+    }
 
     const intimacy = this._graph.getIntimacy('player', route.npcId);
-    return this._endingResolver.resolve(resolvedRouteId, intimacy, this._galgameState);
+    const result = this._endingResolver.resolve(resolvedRouteId, intimacy, this._galgameState);
+    this._lastResolvedEnding = result;
+    return result;
+  }
+
+  /** 获取最近一次结局解析结果 */
+  getLastResolvedEnding(): EndingJudgment | null {
+    return this._lastResolvedEnding;
   }
 
   completeEnding(endingId: string): boolean {

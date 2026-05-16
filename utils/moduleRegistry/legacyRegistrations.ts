@@ -78,6 +78,11 @@ import {
   MobileCGGalleryModal,
   MapExplorerModal,
   MobileMapExplorerModal,
+  RpgBattleIntegration,
+  RpgEquipmentIntegration,
+  RpgKungfuIntegration,
+  RpgTaskIntegration,
+  RpgSectIntegration,
 } from '../../components/features/lazyComponents';
 
 // ============================================================================
@@ -1481,5 +1486,107 @@ UIFeatureRegistry.register({
     mobileComponent: MobileNewGameWizard,
     visibility: 'hidden', // 由 App.tsx 直接渲染，不通过 ModalRenderer
     propsFactory: () => ({}),
+  },
+});
+
+// ============================================================================
+// RPG 模式集成
+// ============================================================================
+
+// RPG 战斗 — 通过 openModals Map 控制渲染
+UIFeatureRegistry.register({
+  id: 'rpgBattle',
+  name: 'RPG 战斗',
+  icon: '⚔️',
+  category: 'core',
+  priority: 95,
+  version: '1.1.0',
+  dependencies: [],
+  modal: {
+    desktopComponent: RpgBattleIntegration,
+    visibility: 'always',
+    gameViewOnly: true,
+    propsFactory: ({ state, modalManager }) => ({
+      character: state.角色,
+      battle: state.战斗,
+      onClose: () => modalManager.close('rpgBattle'),
+    }),
+  },
+});
+
+// RPG 装备 — 3 槽位装备面板（武器/防具/饰品）
+UIFeatureRegistry.register({
+  id: 'rpgEquipment',
+  name: 'RPG 装备',
+  icon: '🛡️',
+  category: 'core',
+  priority: 90,
+  version: '1.1.0',
+  dependencies: [],
+  modal: {
+    desktopComponent: RpgEquipmentIntegration,
+    visibility: 'always',
+    propsFactory: ({ state, modalManager }) => ({
+      character: state.角色,
+      onClose: () => modalManager.close('rpgEquipment'),
+    }),
+  },
+});
+
+// RPG 功法 — 功法激活/停用面板
+UIFeatureRegistry.register({
+  id: 'rpgKungfu',
+  name: 'RPG 功法',
+  icon: '📜',
+  category: 'core',
+  priority: 85,
+  version: '1.1.0',
+  dependencies: [],
+  modal: {
+    desktopComponent: RpgKungfuIntegration,
+    visibility: 'always',
+    gameViewOnly: true,
+    propsFactory: ({ state, modalManager }) => ({
+      character: state.角色,
+      onClose: () => modalManager.close('rpgKungfu'),
+    }),
+  },
+});
+
+// RPG 任务 — 任务追踪面板
+UIFeatureRegistry.register({
+  id: 'rpgTask',
+  name: 'RPG 任务',
+  icon: '📋',
+  category: 'core',
+  priority: 80,
+  version: '1.1.0',
+  dependencies: [],
+  modal: {
+    desktopComponent: RpgTaskIntegration,
+    visibility: 'always',
+    propsFactory: ({ state, actions, modalManager }) => ({
+      tasks: state.任务列表,
+      onClose: () => modalManager.close('rpgTask'),
+    }),
+  },
+});
+
+// RPG 门派 — 门派信息/贡献面板
+UIFeatureRegistry.register({
+  id: 'rpgSect',
+  name: 'RPG 门派',
+  icon: '🏯',
+  category: 'core',
+  priority: 80,
+  version: '1.1.0',
+  dependencies: [],
+  modal: {
+    desktopComponent: RpgSectIntegration,
+    visibility: 'always',
+    propsFactory: ({ state, modalManager }) => ({
+      sectData: state.玩家门派,
+      onClose: () => modalManager.close('rpgSect'),
+    }),
   },
 });

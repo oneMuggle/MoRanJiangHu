@@ -29,6 +29,9 @@ import { 核心_世界观 } from '../../prompts/core/world';
 import { 核心_境界体系 } from '../../prompts/core/realm';
 import { 设置键 } from '../../utils/settingsSchema';
 import { 环境时间转标准串 } from './time/timeUtils';
+import { serializeGalgameState, deserializeGalgameState, isValidGalgameSaveData } from './avg/galgame/galgameSerializer';
+import type { GalgameSaveData } from './avg/galgame/galgameSerializer';
+import type { AvgRelationEngine } from './engine/avgRelationEngine';
 
 export type 自动存档快照结构 = {
     history?: 聊天记录结构[];
@@ -92,6 +95,8 @@ type 存档协调当前状态 = {
     explorationCurrentAp?: number;
     explorationMaxAp?: number;
     explorationCurrentNodeId?: string | null;
+    // Galgame 引擎
+    avgGalgameEngine?: AvgRelationEngine | null;
 };
 
 type 存档协调依赖 = {
@@ -321,6 +326,10 @@ export const 创建存档数据 = (
         explorationCurrentAp: currentState.explorationCurrentAp,
         explorationMaxAp: currentState.explorationMaxAp,
         explorationCurrentNodeId: currentState.explorationCurrentNodeId,
+        // Galgame 引擎状态
+        galgameSaveData: currentState.avgGalgameEngine
+            ? serializeGalgameState(currentState.avgGalgameEngine)
+            : undefined,
     };
 };
 
@@ -478,6 +487,18 @@ export const 执行读取存档 = async (
     if (save.explorationNodes && Array.isArray(save.explorationNodes)) {
         // 探索状态需要通过 Zustand 恢复，由上层调用 handleLoadGame 处理
         // 这里仅保存，加载由 saveLoadWorkflow 处理
+    }
+
+    // Galgame 引擎状态恢复（旧存档没有 galgameSaveData）
+    if (save.galgameSaveData && isValidGalgameSaveData(save.galgameSaveData)) {
+        try {
+            const restoredEngine = deserializeGalgameState(save.galgameSaveData as GalgameSaveData);
+            // 引擎实例由上层 saveLoadWorkflow 通过 deps 设置到 Zustand/Ref
+            // 这里仅通过探索状态同理，标记为已恢复
+            (save as any)._restoredGalgameEngine = restoredEngine;
+        } catch {
+            // 旧存档或损坏数据，跳过恢复
+        }
     }
 
     deps.setHasSave(true);

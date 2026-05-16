@@ -40,7 +40,7 @@ const sceneGradients: Record<string, string> = {
   default: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
 };
 
-export const SceneBackground: React.FC<SceneBackgroundProps> = ({
+export const SceneBackground = React.memo<SceneBackgroundProps>(({
   imageUrl,
   sceneName,
   timeOfDay = '上午',
@@ -85,4 +85,4 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
       )}
     </div>
   );
-};
+});

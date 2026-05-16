@@ -35,6 +35,12 @@ interface Props {
     onSave: () => void;
     onLoad: () => void;
     visualConfig?: 视觉设置结构;
+    rpgModeEnabled?: boolean;
+    onOpenRpgBattle?: () => void;
+    onOpenRpgEquipment?: () => void;
+    onOpenRpgKungfu?: () => void;
+    onOpenRpgTask?: () => void;
+    onOpenRpgSect?: () => void;
 }
 
 const RightPanel: React.FC<Props> = ({
@@ -47,7 +53,9 @@ const RightPanel: React.FC<Props> = ({
     worldEvolutionUpdating = false,
     enableHeroinePlan = false,
     enableKungfu = true,
-    onSave, onLoad, visualConfig
+    onSave, onLoad, visualConfig,
+    rpgModeEnabled = false,
+    onOpenRpgBattle, onOpenRpgEquipment, onOpenRpgKungfu, onOpenRpgTask, onOpenRpgSect,
 }) => {
     const { enabled, currentLyric } = useMusic();
     const 文案 = useUIText();
@@ -82,6 +90,14 @@ const RightPanel: React.FC<Props> = ({
         ...(onOpenCGGallery ? [{ label: '图鉴', action: onOpenCGGallery, color: 'secondary' as const }] : []),
         ...(onOpenMapExplorer ? [{ label: '探索', action: onOpenMapExplorer, color: 'secondary' as const }] : []),
     ];
+
+    const RPG_MENU_ITEMS = rpgModeEnabled ? [
+        { label: '⚔ RPG战斗', action: onOpenRpgBattle, color: 'secondary' as const },
+        { label: '🛡 RPG装备', action: onOpenRpgEquipment, color: 'secondary' as const },
+        { label: '📜 RPG功法', action: onOpenRpgKungfu, color: 'secondary' as const },
+        { label: '📋 RPG任务', action: onOpenRpgTask, color: 'secondary' as const },
+        { label: '🏯 RPG门派', action: onOpenRpgSect, color: 'secondary' as const },
+    ].filter(item => item.action) : [];
 
     const SYSTEM_ITEMS = [
         { label: 文案.保存进度按钮, action: onSave },
@@ -138,6 +154,23 @@ const RightPanel: React.FC<Props> = ({
                             )}
                         </div>
                     ))}
+                    {RPG_MENU_ITEMS.length > 0 && (
+                        <>
+                            <div className="text-[10px] text-red-500/60 font-serif tracking-[0.3em] text-center py-1">── RPG 模式 ──</div>
+                            {RPG_MENU_ITEMS.map((item) => (
+                                <div key={item.label} className="relative">
+                                    <GameButton
+                                        onClick={item.action}
+                                        variant={item.color as any}
+                                        className="w-full text-center py-2 text-sm tracking-widest hover:scale-[1.02] transition-transform !skew-x-0 border-opacity-60"
+                                        contentClassName="!skew-x-0"
+                                    >
+                                        <span style={{ fontFamily: areaStyle.fontFamily, fontStyle: areaStyle.fontStyle, fontSize: 字号缩放(1, 12), lineHeight: areaStyle.lineHeight }}>{item.label}</span>
+                                    </GameButton>
+                                </div>
+                            ))}
+                        </>
+                    )}
                 </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-800 space-y-2 shrink-0">

@@ -25,6 +25,8 @@ export interface AppModalState {
     setContextSnapshot: React.Dispatch<React.SetStateAction<Awaited<ReturnType<any>> | undefined>>;
     galgameModeEnabled: boolean;
     toggleGalgameMode: () => void;
+    rpgModeEnabled: boolean;
+    toggleRpgMode: () => void;
 }
 
 interface UseAppModalStateDeps {
@@ -95,6 +97,10 @@ export function useAppModalState({
     const toggleGalgameMode = React.useCallback(() => {
         setGalgameModeEnabled(prev => !prev);
     }, []);
+    const [rpgModeEnabled, setRpgModeEnabled] = React.useState(false);
+    const toggleRpgMode = React.useCallback(() => {
+        setRpgModeEnabled(prev => !prev);
+    }, []);
 
     // --- 弹窗开启器（通过 modalManager 事件系统） ---
     const modalStates = {
@@ -121,6 +127,7 @@ export function useAppModalState({
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,
         contextSnapshot, setContextSnapshot,
         galgameModeEnabled, toggleGalgameMode,
+        rpgModeEnabled, toggleRpgMode,
         requestConfirm,
         modalOpeners,
     };

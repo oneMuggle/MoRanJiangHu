@@ -68,6 +68,7 @@ const App: React.FC = () => {
         sceneQuickGenToastVisible, setSceneQuickGenToastVisible,
         contextSnapshot, setContextSnapshot,
         galgameModeEnabled, toggleGalgameMode,
+        rpgModeEnabled, toggleRpgMode,
         modalOpeners,
     } = useAppModalState({
         setters,
@@ -202,6 +203,8 @@ const App: React.FC = () => {
                         setChatContentHidden={setChatContentHidden}
                         galgameModeEnabled={galgameModeEnabled}
                         toggleGalgameMode={toggleGalgameMode}
+                        rpgModeEnabled={rpgModeEnabled}
+                        toggleRpgMode={toggleRpgMode}
                         sceneQuickGenHint={sceneQuickGenHint}
                         sceneQuickGenToastVisible={sceneQuickGenToastVisible}
                         tickerEvents={tickerEvents}
@@ -231,6 +234,11 @@ const App: React.FC = () => {
                         openSave={openSave}
                         openLoad={openLoad}
                         openNsfwCenter={() => modalManager.open('nsfwCenter')}
+                        openRpgBattle={() => modalManager.open('rpgBattle')}
+                        openRpgEquipment={() => modalManager.open('rpgEquipment')}
+                        openRpgKungfu={() => modalManager.open('rpgKungfu')}
+                        openRpgTask={() => modalManager.open('rpgTask')}
+                        openRpgSect={() => modalManager.open('rpgSect')}
                         closeMobileMusic={closeMobileMusic}
                         showMobileMusic={showMobileMusic}
                         activeMobileWindow={activeMobileWindowResolved}

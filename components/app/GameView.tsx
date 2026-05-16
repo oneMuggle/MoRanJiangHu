@@ -15,6 +15,7 @@ import InputArea from '../features/Chat/InputArea';
 import { GalgameView } from './GalgameView';
 import { 懒加载边界, MobileMusicPlayer } from '../features/lazyComponents';
 import { useGalgameEngine } from '../../hooks/useGalgameEngine';
+import { getCurrentMode, switchMode } from '../../hooks/useGame/modeManager';
 
 // ============================================================================
 // 类型
@@ -34,6 +35,8 @@ interface GameViewProps {
     setChatContentHidden: (v: React.SetStateAction<boolean>) => void;
     galgameModeEnabled: boolean;
     toggleGalgameMode: () => void;
+    rpgModeEnabled: boolean;
+    toggleRpgMode: () => void;
     sceneQuickGenHint: boolean;
     sceneQuickGenToastVisible: boolean;
     tickerEvents: unknown[];
@@ -63,6 +66,11 @@ interface GameViewProps {
     openSave: () => void;
     openLoad: () => void;
     openNsfwCenter: () => void;
+    openRpgBattle: () => void;
+    openRpgEquipment: () => void;
+    openRpgKungfu: () => void;
+    openRpgTask: () => void;
+    openRpgSect: () => void;
     closeMobileMusic: () => void;
     showMobileMusic: boolean;
     activeMobileWindow: string | null;
@@ -90,6 +98,8 @@ export function GameView({
     setChatContentHidden,
     galgameModeEnabled,
     toggleGalgameMode,
+    rpgModeEnabled,
+    toggleRpgMode,
     sceneQuickGenHint,
     sceneQuickGenToastVisible,
     tickerEvents,
@@ -119,6 +129,11 @@ export function GameView({
     openSave,
     openLoad,
     openNsfwCenter,
+    openRpgBattle,
+    openRpgEquipment,
+    openRpgKungfu,
+    openRpgTask,
+    openRpgSect,
     closeMobileMusic,
     showMobileMusic,
     activeMobileWindow,
@@ -231,6 +246,36 @@ export function GameView({
                                     )}
                                 </svg>
                             </button>
+                            {/* RPG 模式切换 */}
+                            <button
+                                type="button"
+                                onClick={toggleRpgMode}
+                                className={`inline-flex h-[27px] w-[27px] items-center justify-center rounded-full border bg-black/55 backdrop-blur-sm transition-colors hover:text-white ${
+                                    rpgModeEnabled
+                                        ? 'border-red-400 text-red-100 ring-2 ring-red-400/60'
+                                        : 'border-gray-600/60 text-gray-300 hover:border-red-400'
+                                }`}
+                                title={rpgModeEnabled ? '切换为传统聊天视图' : '切换为 RPG 功能面板视图'}
+                                aria-label="RPG 模式切换"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-[14px] w-[14px]">
+                                    {rpgModeEnabled ? (
+                                        <>
+                                            <path d="M14.5 2.5a7 7 0 1 0 0 19 7 7 0 0 0 0-19z" />
+                                            <path d="M12 8v4l3 3" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                                            <path d="M4 22h16" />
+                                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" />
+                                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" />
+                                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                                        </>
+                                    )}
+                                </svg>
+                            </button>
                             {chatContentHidden && (
                                 <button
                                     type="button"
@@ -304,6 +349,7 @@ export function GameView({
                                     avgSnapshot={galgameEngine.avgSnapshot}
                                     onEnterRoute={galgameEngine.onEnterRoute}
                                     engineSuggestedOptions={galgameEngine.engineSuggestedOptions}
+                                    engineRef={galgameEngine.engineRef}
                                 />
                             ) : (
                                 <>
@@ -382,6 +428,12 @@ export function GameView({
                             onSave={openSave}
                             onLoad={openLoad}
                             visualConfig={state.visualConfig}
+                            rpgModeEnabled={rpgModeEnabled}
+                            onOpenRpgBattle={openRpgBattle}
+                            onOpenRpgEquipment={openRpgEquipment}
+                            onOpenRpgKungfu={openRpgKungfu}
+                            onOpenRpgTask={openRpgTask}
+                            onOpenRpgSect={openRpgSect}
                         />
                     </div>
                 </div>

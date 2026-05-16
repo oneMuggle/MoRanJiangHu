@@ -22,6 +22,7 @@ import type {
 import type { 校规条目, 校规影响日志, 催眠记录, 催眠App等级, 校园系统数据 } from '../../../models/campusPhone';
 import type { 关系网络数据 } from '../../../models/relationship';
 import type { NPC结构 } from '../../../types';
+import type { AvgRelationEngine } from '../engine/avgRelationEngine';
 import { 从NPC创建欲望档案, 创建默认欲望档案 } from '../campusNSFWEngine';
 import { 执行手动存档, 执行自动存档, 执行读取存档 } from '../saveCoordinator';
 import type { 自动存档快照结构 } from '../saveCoordinator';
@@ -68,6 +69,9 @@ type 存档编排工作流依赖 = {
     explorationCurrentAp?: number;
     explorationMaxAp?: number;
     explorationCurrentNodeId?: string | null;
+    // Galgame 引擎
+    avgGalgameEngine?: AvgRelationEngine | null;
+    设置GalgameEngine?: (engine: AvgRelationEngine | null) => void;
     // 探索引擎状态恢复
     同步探索状态到Zustand?: (nodes: Array<{ id: string; type: string; name: string; description: string; dangerLevel: string; fowState: string; eventTriggered: boolean }>, paths: Array<{ from: string; to: string; actionCost: number }>, currentNodeId: string | null, currentAp: number, maxAp: number) => void;
     设置校规系统: (value: { 校规列表: 校规条目[]; 影响日志: 校规影响日志[] }) => void;
@@ -176,6 +180,8 @@ export const 创建存读档工作流 = (deps: 存档编排工作流依赖) => {
         explorationCurrentAp: deps.explorationCurrentAp,
         explorationMaxAp: deps.explorationMaxAp,
         explorationCurrentNodeId: deps.explorationCurrentNodeId,
+        // Galgame 引擎
+        avgGalgameEngine: deps.avgGalgameEngine,
     });
 
     const 构建协调依赖 = () => ({
@@ -340,6 +346,11 @@ export const 创建存读档工作流 = (deps: 存档编排工作流依赖) => {
 
         deps.读档后重置上下文();
         deps.读档后定位到最新回合();
+
+        // Galgame 引擎状态恢复
+        if (deps.设置GalgameEngine && (save as any)._restoredGalgameEngine) {
+            deps.设置GalgameEngine((save as any)._restoredGalgameEngine as AvgRelationEngine | null);
+        }
     };
 
     return {

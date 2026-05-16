@@ -780,11 +780,27 @@ interface RpgSliceState {
   rpgBattleLog: BattleLogEntry[];
   rpgBattlePlayerHP: { current: number; max: number } | null;
   rpgBattleOutcome: BattleOutcome['winner'] | null;
+  // Equip
+  rpgEquipWeapon: string | null;
+  rpgEquipArmor: string | null;
+  rpgEquipAccessory: string | null;
+  // Kungfu
+  rpgActiveKungfuIds: string[];
+  // Task
+  rpgActiveTaskIds: string[];
+  // Sect
+  rpgSectId: string | null;
+  rpgSectContribution: number;
 }
 
 interface RpgSliceActions {
   setRpgState: (partial: Partial<RpgSliceState>) => void;
   resetRpgState: () => void;
+  setRpgEquipSlot: (slot: 'weapon' | 'armor' | 'accessory', item: { ID: string } | null) => void;
+  toggleKungfu: (kungfuId: string) => void;
+  toggleTask: (taskId: string) => void;
+  setRpgSect: (sectId: string | null) => void;
+  setRpgSectContribution: (amount: number) => void;
 }
 
 interface RpgSlice extends RpgSliceState, RpgSliceActions {}
@@ -797,6 +813,13 @@ const createRpgSlice: ZustandSlice<RpgSlice> = (set) => ({
   rpgBattleLog: [],
   rpgBattlePlayerHP: null,
   rpgBattleOutcome: null,
+  rpgEquipWeapon: null,
+  rpgEquipArmor: null,
+  rpgEquipAccessory: null,
+  rpgActiveKungfuIds: [],
+  rpgActiveTaskIds: [],
+  rpgSectId: null,
+  rpgSectContribution: 0,
   setRpgState: (partial) => set((state) => ({ ...state, ...partial })),
   resetRpgState: () => set({
     rpgBattleActive: false,
@@ -806,7 +829,30 @@ const createRpgSlice: ZustandSlice<RpgSlice> = (set) => ({
     rpgBattleLog: [],
     rpgBattlePlayerHP: null,
     rpgBattleOutcome: null,
+    rpgEquipWeapon: null,
+    rpgEquipArmor: null,
+    rpgEquipAccessory: null,
+    rpgActiveKungfuIds: [],
+    rpgActiveTaskIds: [],
+    rpgSectId: null,
+    rpgSectContribution: 0,
   }),
+  setRpgEquipSlot: (slot, item) => {
+    const key = slot === 'weapon' ? 'rpgEquipWeapon' : slot === 'armor' ? 'rpgEquipArmor' : 'rpgEquipAccessory';
+    set({ [key]: item?.ID ?? null });
+  },
+  toggleKungfu: (kungfuId) => set((state) => ({
+    rpgActiveKungfuIds: state.rpgActiveKungfuIds.includes(kungfuId)
+      ? state.rpgActiveKungfuIds.filter((id) => id !== kungfuId)
+      : [...state.rpgActiveKungfuIds, kungfuId],
+  })),
+  toggleTask: (taskId) => set((state) => ({
+    rpgActiveTaskIds: state.rpgActiveTaskIds.includes(taskId)
+      ? state.rpgActiveTaskIds.filter((id) => id !== taskId)
+      : [...state.rpgActiveTaskIds, taskId],
+  })),
+  setRpgSect: (sectId) => set({ rpgSectId: sectId }),
+  setRpgSectContribution: (amount) => set({ rpgSectContribution: amount }),
 });
 
 // ==================== AVG / Galgame Slice (Zustand) ====================

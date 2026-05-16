@@ -35,7 +35,7 @@ const positionClasses: Record<NonNullable<CharacterSpriteProps['position']>, str
   center: 'left-1/2 -translate-x-1/2',
 };
 
-export const CharacterSprite: React.FC<CharacterSpriteProps> = ({
+export const CharacterSprite = React.memo<CharacterSpriteProps>(({
   name,
   imageUrl,
   expression = 'normal',
@@ -93,4 +93,4 @@ export const CharacterSprite: React.FC<CharacterSpriteProps> = ({
       />
     </div>
   );
-};
+});
