@@ -23,7 +23,7 @@
 - [x] Phase C7: RPG 组件 UI 注册管线（lazyComponents 导出 + UIFeatureRegistry 注册 + RightPanel RPG 菜单 + GameView/App 传递）
 - [x] Phase D1: 统一模式管理（modeManager.ts）
 - [x] Phase D2: 性能优化（CharacterSprite + SceneBackground memo + 已验证所有 memo/useMemo/useShallow）
-- [ ] Phase D3: 测试完善
+- [x] Phase D3: 测试完善 — 创建 `phaseD3.rpg-integration.test.ts`，40 个测试覆盖分发器/引擎生命周期/Zustand RpgSlice/注入模式
 - [x] Phase D4: 数据迁移（saveCoordinator.ts + saveLoadWorkflow.ts 集成 galgame 序列化/反序列化）
 
 ## Phase 2: RPG 引擎注入传统面板（融合增强）
