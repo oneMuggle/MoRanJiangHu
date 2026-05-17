@@ -42,6 +42,8 @@ const 功能附加块是否启用 = (
     switch ((featureId || '').trim().toLowerCase()) {
         case 'cultivation':
             return config?.启用修炼体系 !== false;
+        case 'nsfw':
+            return config?.启用NSFW模式 === true;
         case 'survival':
             return config?.启用饱腹口渴系统 !== false;
         case 'liwuxia':
@@ -78,6 +80,10 @@ export const 构建里武侠附加块 = (content: string): string => (
 
 export const 构建里志怪附加块 = (content: string): string => (
     构建功能附加块('lizhiguai', content)
+);
+
+export const 构建NSFW附加块 = (content: string): string => (
+    构建功能附加块('nsfw', content)
 );
 
 const 解析功能附加块 = (
