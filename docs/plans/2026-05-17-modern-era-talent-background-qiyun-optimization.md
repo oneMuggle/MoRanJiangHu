@@ -93,6 +93,7 @@
 - [x] 步骤 8：创建推荐映射表 — 在 recommendations.ts 中新增 60+ 条推荐（覆盖所有现代子纪元）
 - [x] 步骤 9：扩展预设 — 在 newGamePresets.ts 中新增 15 预设（rural/post_apocalyptic/noir/hippie/extreme_cold/biohazard/nuclear 各 2-3）
 - [x] 步骤 10：集成推荐高亮 — 在 NewGameWizardContent.tsx 和 useNewGameWizardState.ts 中实现推荐逻辑
+- [x] 步骤 10b：推荐映射 SFW/NSFW 分离 — recommendations.ts 新增 `nsfw天赋`/`nsfw气运` 字段和 `获取背景推荐()` 函数，自动填充根据 `nsfw场景类型` 动态合并
 
 ### Phase 4：UI 层适配（2 个文件）
 - [x] 步骤 11：NSFW 分级选项优化 — 天赋/背景/气运卡片均显示 nsfw=1「暧昧」（粉色）和 nsfw=2「激情」（红色）徽章，推荐项金色边框+「推荐」徽章

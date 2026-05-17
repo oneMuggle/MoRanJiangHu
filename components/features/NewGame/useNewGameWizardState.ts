@@ -3,7 +3,7 @@ import * as dbService from '../../../services/dbService';
 import { 读取小说拆分数据集列表 } from '../../../services/novel-decomposition/novelDecompositionStore';
 import { randomQiyun, 气运数据, 气运数据列表 } from '../../../data/qiyun';
 import { 预设天赋, 预设背景 } from '../../../data/presets';
-import { 背景推荐映射 } from '../../../data/recommendations';
+import { 获取背景推荐 } from '../../../data/recommendations';
 import { resolveEraNode, allEraNodes } from '../../../models/eraTheme';
 import { 开局预设方案结构 } from '../../../data/newGamePresets';
 import { 获取子纪元默认预设, 获取子纪元默认预设列表, 子纪元默认预设结构 } from '../../../data/subEraDefaultPresets';
@@ -827,8 +827,8 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
     /** 根据当前背景自动填充天赋和气运（仅填充空位） */
     const 自动填充天赋气运 = (background: 背景结构) => {
         if (!自动填充开启) return;
-        const rec = 背景推荐映射[background.名称];
-        if (!rec) return;
+        const rec = 获取背景推荐(background.名称, worldConfig.nsfw场景类型);
+        if (!rec || rec.天赋.length === 0 && rec.气运.length === 0) return;
         // 查找推荐的天赋（过滤后）
         const recTalents = rec.天赋
             .map(name => 全部天赋选项.find(t => t.名称 === name))
@@ -1060,16 +1060,16 @@ export function useNewGameWizardState({ onComplete, onCancel, loading, currentEr
         onComplete(effectiveWorldConfig, charData, effectiveOpeningConfig, 'all', true, effectiveOpeningExtraRequirement.trim());
     };
 
-    // 推荐天赋/气运名称集合（基于当前选中的背景）
+    // 推荐天赋/气运名称集合（基于当前选中的背景 + NSFW 设置）
     const 推荐天赋名称 = useMemo(() => {
-        const rec = 背景推荐映射[selectedBackground.名称];
+        const rec = 获取背景推荐(selectedBackground.名称, worldConfig.nsfw场景类型);
         return rec ? new Set(rec.天赋) : new Set<string>();
-    }, [selectedBackground.名称]);
+    }, [selectedBackground.名称, worldConfig.nsfw场景类型]);
 
     const 推荐气运名称 = useMemo(() => {
-        const rec = 背景推荐映射[selectedBackground.名称];
+        const rec = 获取背景推荐(selectedBackground.名称, worldConfig.nsfw场景类型);
         return rec ? new Set(rec.气运) : new Set<string>();
-    }, [selectedBackground.名称]);
+    }, [selectedBackground.名称, worldConfig.nsfw场景类型]);
 
     return {
         // State
